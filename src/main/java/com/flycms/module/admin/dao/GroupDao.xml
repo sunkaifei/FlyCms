@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.admin.dao.GroupDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加权限小组名 -->
+	<insert id="addGroup">
+		insert into fly_admin_group
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="name != null">name,</if>
+			<if test="createAt != null">createAt,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="name != null">#{name},</if>
+			<if test="createAt != null">#{createAt},</if>
+		</trim>
+	</insert>
+
+	<!-- 权限组id和权限id关联 -->
+	<insert id="addGroupPermission">
+		insert into fly_admin_group_permission_merge
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="groupId != null">group_id,</if>
+			<if test="permissionId != null">permission_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="groupId != null">#{groupId},</if>
+			<if test="permissionId != null">#{permissionId},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按id删除角色信息 -->
+	<delete id="deleteGroup" parameterType="Integer">
+		delete from fly_admin_group where id = #{id}
+	</delete>
+
+	<!-- 按id删除角色和权限关联信息 -->
+	<delete id="deleteGroupPermission" parameterType="Integer">
+		delete from fly_admin_group_permission_merge
+		<where>
+			<if test="groupId != null and groupId !='' ">and group_id=#{groupId}</if>
+			<if test="permissionId != null and permissionId !='' ">and permission_id=#{permissionId}</if>
+		</where>
+	</delete>
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<!-- 按id修改权限组名 -->
+	<update id="updateGroup">
+		update fly_admin_group set name=#{name} where id=#{id}
+	</update>
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询会员组信息 -->
+	<select id="findGroupById" resultType="com.flycms.module.admin.model.Group">
+		select * from fly_admin_group where id = #{id}
+	</select>
+
+	<!-- 查询用户组名是否存在 -->
+	<select id="checkGroup" resultType="Integer">
+		select count(*) from fly_admin_group where name= #{name}
+	</select>
+
+	<!-- 查询Role总数量 -->
+	<select id="getGroupCount" resultType="Integer">
+		select count(*) from fly_admin_group
+	</select>
+
+	<!-- 查询权限小组翻页列表 -->
+	<select id="getGroupList" resultType="com.flycms.module.admin.model.Group">
+		select * from fly_admin_group limit #{offset},#{rows}
+	</select>
+
+	<!--所有权限小组列表 -->
+	<select id="getAllGroupList" resultType="com.flycms.module.admin.model.Group">
+		select * from fly_admin_group
+	</select>
+
+	<!-- 按用户id查询所在会员组id -->
+	<select id="findUserAndGroupById" resultType="Integer">
+		select group_id from fly_admin_group_merge where admin_id = #{adminId} limit 1
+	</select>
+
+	<!-- 按用户id查询所在会员组信息 -->
+	<select id="findUserByGroup" resultType="com.flycms.module.admin.model.Group">
+		select g.* from fly_admin_group_merge ag left join fly_admin_group g on ag.group_id=g.id where ag.admin_id = #{adminId} limit 1
+	</select>
+</mapper>  

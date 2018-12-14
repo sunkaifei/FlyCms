@@ -1,0 +1,11 @@
+#category{
+    width: 100%;
+    float: left;
+}
+.category-select{
+    width: auto;
+    float: left;
+    margin-right: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

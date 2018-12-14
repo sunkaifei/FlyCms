@@ -1,0 +1,150 @@
+<header class="main-header">
+    <div class="logo">
+        <span class="logo-mini"><b>Fly</b></span>
+        <span class="logo-lg"><b>FlyCms</b>后台管理</span>
+    </div>
+    <nav class="navbar navbar-static-top">
+        <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+            <span class="sr-only"></span>
+        </a>
+
+        <!--顶部菜单 开始-->
+        <div id="menu" class="navbar-custom-menu">
+            <ul class="nav navbar-nav" name="topMenu">
+                <li<#if page_tab == "user"> class="active"</#if>><a hidefocus="true" href="/system/user/user_list">会员</a></li>
+                <li<#if page_tab == "question"> class="active"</#if>><a hidefocus="true" href="/system/question/list_question">内容</a></li>
+                <li<#if page_tab == "index"> class="active"</#if>><a hidefocus="true" href="/system/index">系统</a></li>
+                <li><a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a></li>
+            </ul>
+        </div>
+        <!--顶部菜单 结束-->
+    </nav>
+</header>
+<!--左侧菜单 开始-->
+<aside id="admin_left" class="main-sidebar">
+    <section class="sidebar" style="height: auto;">
+        <div class="user-panel">
+            <div class="pull-left image">
+                <i class="fa fa-user"></i>
+            </div>
+            <div class="pull-left info">
+                <p>${admin.adminName!}</p>
+                <a href="#">超级管理员</a>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu tree" data-widget="tree">
+            <li class="header">系统模块菜单</li>
+            <li class="treeview<#if page_tab="index"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa" name="ico" menu="后台首页"></i>
+                    <span>后台首页</span>
+                    <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_tab="index"> class="active"</#if>><a href="/system/index"><i class="fa fa-circle-o"></i>首页</a></li>
+                </ul>
+            </li>
+            <li class="treeview<#if page_tab="site"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa fa-cog" name="ico" menu="网站管理"></i>
+                    <span>网站管理</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="basic"> class="active"</#if>><a href="/system/site/web_config"><i class="fa fa-circle-o"></i>网站设置</a></li>
+                    <li<#if page_nav="user"> class="active"</#if>><a href="/system/site/user_config"><i class="fa fa-circle-o"></i>用户设置</a></li>
+                    <li<#if page_nav="email"> class="active"</#if>><a href="/system/email/list_email"><i class="fa fa-circle-o"></i>系统邮件模板</a></li>
+                    <li<#if page_nav="guide"> class="active"</#if>><a href="/system/guide/list_guide"><i class="fa fa-circle-o"></i>网站导航</a></li>
+                    <li<#if page_nav="area"> class="active"</#if>><a href="/system/site/area_list"><i class="fa fa-circle-o"></i>地区管理</a></li>
+                    <li<#if page_nav="filterKeyword"> class="active"</#if>><a href="/system/site/filterKeyword_list"><i class="fa fa-circle-o"></i>违禁关键词</a></li>
+                    <li<#if page_nav="links"> class="active"</#if>><a href="/system/links/list"><i class="fa fa-circle-o"></i>友情链接管理</a></li>
+                </ul>
+            </li>
+
+            <li class="treeview<#if page_tab="score"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa fa-credit-card" name="ico" menu="积分管理"></i>
+                    <span>积分管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="rulelist"> class="active"</#if>><a href="/system/score/list_scorerule"><i class="fa fa-circle-o"></i>积分规则</a></li>
+                    <li<#if page_nav="detaillist"> class="active"</#if>><a href="/system/score/detail_list"><i class="fa fa-circle-o"></i>积分记录</a></li>
+                </ul>
+            </li>
+           <li class="treeview<#if page_tab="job"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa fa-clock-o" name="ico" menu="任务调度"></i>
+                    <span>任务调度</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="joblist"> class="active"</#if>><a href="/system/job/list_job"><i class="fa fa-circle-o"></i>定时任务</a></li>
+                    <li<#if page_nav="jobloglist"> class="active"</#if>><a href="/system/job/list_joblog"><i class="fa fa-circle-o"></i>任务日志</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-plug" name="ico" menu="短信接口"></i>
+                    <span>短信接口</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li><a href="/system/site/smsapi_edit"><i class="fa fa-circle-o"></i>手机短信平台</a></li>
+                </ul>
+            </li>
+            <li class="treeview<#if page_tab="usermenu"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa fa-group" name="ico" menu="用户管理"></i>
+                    <span>用户管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="grouplist"> class="active"</#if>><a href="/system/user/group_list"><i class="fa fa-circle-o"></i>用户组管理</a></li>
+                    <li<#if page_nav="userlist"> class="active"</#if>><a href="/system/user/user_list"><i class="fa fa-circle-o"></i>用户管理</a></li>
+                    <li<#if page_nav="permissionlist"> class="active"</#if>><a href="/system/user/permissionlist"><i class="fa fa-circle-o"></i>权限列表</a></li>
+                </ul>
+            </li>
+            <li class="treeview<#if page_tab="adminuser"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa fa-unlock-alt" name="ico" menu="权限管理"></i>
+                    <span>权限管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="adminlist"> class="active"</#if>><a href="/system/admin/admin_list"><i class="fa fa-circle-o"></i>管理员</a></li>
+                    <li<#if page_nav="grouplist"> class="active"</#if>><a href="/system/admin/group_list"><i class="fa fa-circle-o"></i>权限组管理</a></li>
+                    <li<#if page_nav="permissionlist"> class="active"</#if>><a href="/system/admin/permission_list"><i class="fa fa-circle-o"></i>权限资源</a></li>
+                </ul>
+            </li>
+
+            <li class="header">快速导航</li>
+            <li><a href="fdfdsf"><i class="fa fa-star-o"></i> <span>aaa</span></a></li>
+        </ul>
+    </section>
+</aside>
+<!--左侧菜单 结束-->
+<!--顶部弹出菜单 开始-->
+<aside class="control-sidebar control-sidebar-dark">
+    <ul class="control-sidebar-menu">
+        <li><a href="/system/logout"><i class="fa fa-circle-o text-red"></i> 退出管理</a></li>
+        <li><a href="/system/admin/admin_password"><i class="fa fa-circle-o text-yellow"></i> 修改密码</a></li>
+        <li><a href="/system/index"><i class="fa fa-circle-o text-green"></i> 后台首页</a></li>
+        <li><a href="/" target='_blank'><i class="fa fa-circle-o text-aqua"></i> 网站首页</a></li>
+        <li><a href="/system/navigation"><i class="fa fa-circle-o"></i> 快速导航</a></li>
+    </ul>
+</aside>
+<!--顶部弹出菜单 结束-->

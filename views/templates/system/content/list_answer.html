@@ -1,0 +1,129 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="answer">
+    <#assign page_nav="answerlist">
+    <#include "content_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/system/index">系统</a>
+                </li>
+                <li>
+                    <a href="/system/answer/list_answer">答案管理</a>
+                </li>
+                <li class="active">答案列表</li>
+            </ul>
+        </div>
+        <@fly_answerpage p="${p}">
+        <div class="content">
+            <div class="row">
+                <div class="col-md-12">
+                    <ul class="timeline">
+                        <#list answer_page.list as answer>
+                        <li>
+                            <div class="timeline-item">
+                                <@fly_questioninfo id="${answer.questionId!}">
+                                <span class="time"><i class="fa fa-clock-o"></i> ${question.createTime?string('yyyy-MM-dd HH:mm:ss')}</span>
+                                <h3 class="timeline-header"><@fly_userinfo userId="${question.userId!}"><a href="/people/${userinfo.userId!}">${userinfo.nickName!}</a></@fly_userinfo> ${question.title!}</h3>
+                                </@fly_questioninfo>
+                                <div class="direct-chat-messages">
+                                    <div class="direct-chat-msg">
+                                        <div class="direct-chat-info clearfix">
+                                            <span class="direct-chat-name pull-left"><@fly_userinfo userId="${answer.userId!}"><a href="/people/${userinfo.userId!}">${userinfo.nickName!}</a></@fly_userinfo></span>
+                                            <span class="direct-chat-timestamp pull-right">${answer.createTime?string('yyyy-MM-dd HH:mm:ss')}</span>
+                                        </div>
+                                        <!-- /.direct-chat-info -->
+                                        <img class="direct-chat-img" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="message user image">
+                                        <!-- /.direct-chat-img -->
+                                        <div class="direct-chat-text">
+                                            <@fly_stringcut content="${answer.content!}" num="200">${info_content}</@fly_stringcut>
+                                        </div>
+                                        <!-- /.direct-chat-text -->
+                                    </div>
+                                    <ul class="list-inline">
+                                        <li>
+                                            <#if answer.status == 0>
+                                            <a href="#" class="link-black text-sm"><i class="fa fa-minus-circle"></i> 未审核</a>
+                                            <#elseif answer.status == 1>
+                                            <a href="#" class="link-black text-sm"><i class="fa fa-check-circle"></i> 正常</a>
+                                            <#elseif answer.status == 2>
+                                            <a href="#" class="link-black text-sm"><i class="fa fa-exclamation-circle"></i> 未通过</a>
+                                            <#elseif answer.status == 3>
+                                            <a href="#" class="link-black text-sm"><i class="fa fa-times-circle"></i> 已删除</a>
+                                        </#if></li>
+                                        <li><a href="#" class="link-black text-sm"><i class="fa fa-share margin-r-5"></i> Share</a></li>
+                                        <li><a href="#" class="link-black text-sm"><i class="fa fa-thumbs-o-up margin-r-5"></i> Like</a></li>
+                                        <li class="pull-right"><a href="#" class="link-black text-sm"><i class="fa fa-comments-o margin-r-5"></i> Comments (5)</a></li>
+                                    </ul>
+                                </div>
+                                <div class="timeline-footer">
+                                    <a class="btn btn-info btn-xs answer-show" data-id="${answer.id!}">查看</a>
+                                    <a class="btn btn-primary btn-xs answer-status" data-id="${answer.id}" data-toggle="modal" data-target="#statusModal">审核</a>
+                                    <a class="btn btn-danger btn-xs answer-delete" data-id="${answer.id!}">删除</a>
+                                </div>
+                            </div>
+                        </li>
+                        </#list>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center">
+                <ul class="pagination">
+                    ${answer_page.pageNumHtml}
+                </ul>
+            </div>
+        </div>
+        </@fly_answerpage>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<div class="modal fade" id="statusModal" tabindex="-1" role="dialog" aria-labelledby="statusModalLabel" aria-hidden="true">>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">审核</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <label class="radio-inline">
+                        <input type="radio" name="status" id="status0" value="0">
+                        未审核
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="status" id="status1" value="1">
+                        正常
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="status" id="status2" value="2">
+                        未通过
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="status" id="status3" value="3">
+                        删除
+                    </label>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <input name="id" id="id" value="" type="hidden">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary answer-status-btn" data-dismiss="modal">保存</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<script type="text/javascript">seajs.use('content', function(content) {});</script>
+</body>
+</html>

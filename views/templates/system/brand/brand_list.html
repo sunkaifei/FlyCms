@@ -1,0 +1,210 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="goods">
+    <#include "../goods/goods_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">商品</a>
+                </li>
+                <li>
+                    <a href="#">品牌管理</a>
+                </li>
+                <li class="active">品牌列表</li>
+            </ul>
+        </div>
+        <div class="content">
+            <table class="table list-table">
+                <colgroup>
+                    <col width="70px" />
+                    <col />
+                    <col width="220px" />
+                    <col width="220px" />
+                    <col width="150px" />
+                </colgroup>
+                <caption>
+                    <a class="btn btn-default" href="/index.php?controller=brand&action=brand_edit">
+                        <i class="fa fa-plus"></i>添加品牌
+                    </a>
+                </caption>
+                <thead>
+                <tr>
+                    <th>排序</th>
+                    <th>品牌名称</th>
+                    <th>网址</th>
+                    <th>品牌分类</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                    <td><input class="form-control" id="sort3" type="text" onblur="toSort(3);" value="0" pattern='int' /></td>
+                    <td><a href="/index.php?controller=site&action=brand_zone&id=3" target="_blank">阿迪达斯</a></td>
+                    <td></td>
+                    <td>
+                        [酒品牌]
+                    </td>
+                    <td>
+                        <a href="/index.php?controller=brand&action=brand_edit&bid=3"><i class='operator fa fa-edit'></i></a>
+                        <a onclick="delModel({link:'/index.php?controller=brand&action=brand_del&bid=3'})"><i class='operator fa fa-close'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input class="form-control" id="sort1" type="text" onblur="toSort(1);" value="1" pattern='int' /></td>
+                    <td><a href="/index.php?controller=site&action=brand_zone&id=1" target="_blank">哥弟</a></td>
+                    <td>http://www.gedi.com</td>
+                    <td>
+                        [衣服]
+                    </td>
+                    <td>
+                        <a href="/index.php?controller=brand&action=brand_edit&bid=1"><i class='operator fa fa-edit'></i></a>
+                        <a onclick="delModel({link:'/index.php?controller=brand&action=brand_del&bid=1'})"><i class='operator fa fa-close'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input class="form-control" id="sort2" type="text" onblur="toSort(2);" value="2" pattern='int' /></td>
+                    <td><a href="/index.php?controller=site&action=brand_zone&id=2" target="_blank">adidas</a></td>
+                    <td>http://www.adidas</td>
+                    <td>
+                        [衣服]
+                    </td>
+                    <td>
+                        <a href="/index.php?controller=brand&action=brand_edit&bid=2"><i class='operator fa fa-edit'></i></a>
+                        <a onclick="delModel({link:'/index.php?controller=brand&action=brand_del&bid=2'})"><i class='operator fa fa-close'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input class="form-control" id="sort4" type="text" onblur="toSort(4);" value="3" pattern='int' /></td>
+                    <td><a href="/index.php?controller=site&action=brand_zone&id=4" target="_blank">翔龙</a></td>
+                    <td></td>
+                    <td>
+                        [酒品牌]
+                    </td>
+                    <td>
+                        <a href="/index.php?controller=brand&action=brand_edit&bid=4"><i class='operator fa fa-edit'></i></a>
+                        <a onclick="delModel({link:'/index.php?controller=brand&action=brand_del&bid=4'})"><i class='operator fa fa-close'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input class="form-control" id="sort5" type="text" onblur="toSort(5);" value="4" pattern='int' /></td>
+                    <td><a href="/index.php?controller=site&action=brand_zone&id=5" target="_blank">美特斯匡威</a></td>
+                    <td></td>
+                    <td>
+                        [衣服]
+                    </td>
+                    <td>
+                        <a href="/index.php?controller=brand&action=brand_edit&bid=5"><i class='operator fa fa-edit'></i></a>
+                        <a onclick="delModel({link:'/index.php?controller=brand&action=brand_del&bid=5'})"><i class='operator fa fa-close'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input class="form-control" id="sort6" type="text" onblur="toSort(6);" value="5" pattern='int' /></td>
+                    <td><a href="/index.php?controller=site&action=brand_zone&id=6" target="_blank">匡威</a></td>
+                    <td></td>
+                    <td>
+                        [商品]
+                    </td>
+                    <td>
+                        <a href="/index.php?controller=brand&action=brand_edit&bid=6"><i class='operator fa fa-edit'></i></a>
+                        <a onclick="delModel({link:'/index.php?controller=brand&action=brand_del&bid=6'})"><i class='operator fa fa-close'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input class="form-control" id="sort7" type="text" onblur="toSort(7);" value="6" pattern='int' /></td>
+                    <td><a href="/index.php?controller=site&action=brand_zone&id=7" target="_blank">美特斯邦威</a></td>
+                    <td></td>
+                    <td>
+                        [衣服]
+                    </td>
+                    <td>
+                        <a href="/index.php?controller=brand&action=brand_edit&bid=7"><i class='operator fa fa-edit'></i></a>
+                        <a onclick="delModel({link:'/index.php?controller=brand&action=brand_del&bid=7'})"><i class='operator fa fa-close'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input class="form-control" id="sort8" type="text" onblur="toSort(8);" value="7" pattern='int' /></td>
+                    <td><a href="/index.php?controller=site&action=brand_zone&id=8" target="_blank">邦威</a></td>
+                    <td></td>
+                    <td>
+                        [牛奶]
+                    </td>
+                    <td>
+                        <a href="/index.php?controller=brand&action=brand_edit&bid=8"><i class='operator fa fa-edit'></i></a>
+                        <a onclick="delModel({link:'/index.php?controller=brand&action=brand_del&bid=8'})"><i class='operator fa fa-close'></i></a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <style>
+            .pagination {
+                display: inline-block;
+                padding-left: 0;
+                margin: 10px 0;
+                border-radius: 4px;
+            }
+            .pagination > li {
+                display: inline !important;
+                width:auto !important;
+                height:auto !important;
+                border:none !important;
+                margin:0 !important;
+                padding: 0 !important;
+            }
+            .pagination > li > a {
+                position: relative !important;
+                float: left !important;
+                padding: 6px 12px !important;
+                line-height: 1.42857143 !important;
+                text-decoration: none !important;
+                color: #337ab7;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                margin-left: -1px !important;
+                width:auto !important;
+                height:auto !important;
+            }
+            .pagination > li:first-child > a {
+                margin-left: 0 !important;
+                border-bottom-left-radius: 4px !important;
+                border-top-left-radius: 4px !important;
+            }
+            .pagination > li:last-child > a {
+                border-bottom-right-radius: 4px !important;
+                border-top-right-radius: 4px !important;
+            }
+            .pagination > li > a:hover,
+            .pagination > li > a:focus {
+                z-index: 2 !important;
+                color: #23527c;
+                background-color: #eeeeee;
+                border-color: #ddd !important;
+            }
+            .pagination > .active > a,
+            .pagination > .active > a:hover,
+            .pagination > .active > a:focus {
+                z-index: 3 !important;
+                color: #fff;
+                background-color: #337ab7;
+                border-color: #337ab7;
+                cursor: default !important;
+            }
+        </style><div style='clear:both'>
+        <ul class='pagination'>
+            <li><a href='/index.php?controller=brand&amp;action=brand_list&amp;page=1' >首页</a></li><li class='active'><a href='/index.php?controller=brand&amp;action=brand_list&amp;page=1' >1</a></li><li><a href='/index.php?controller=brand&amp;action=brand_list&amp;page=1' >尾页</a></li><li><a>当前第1页/共1页</a></li>
+        </ul>
+    </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('brand', function(brand) {});</script>
+</body>
+</html>

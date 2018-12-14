@@ -1,0 +1,80 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="job">
+    <#assign page_nav="joblist">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/admin/index">系统</a>
+                </li>
+                <li>
+                    <a href="/admin/links/list">链接列表</a>
+                </li>
+                <li class="active">添加链接</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <form action='/admin/links/update_links' method='post' class="updateForm">
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px" />
+                        <col />
+                    </colgroup>
+                    <tr>
+                        <th>网站名称：</th>
+                        <td>
+                            <input type='text' class='form-control' name='linkName' value='${link.linkName!}' placeholder="请输入网站名称.." autocomplete="off" pattern='required' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>网站链接：</th>
+                        <td>
+                            <input type='text' class='form-control' name='linkUrl' value='${link.linkUrl!}' placeholder="请输入网站链接.." autocomplete="off" pattern='required' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>网站LOGO：</th>
+                        <td>
+                            <input type='text' class='form-control' name='linkLogo' value='${link.linkLogo!}' placeholder="请输入网站LOGO地址.." />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>类型：</th>
+                        <td>
+                            <label class="radio-inline"><input type="radio" name="type" value="0"<#if link.type=0> checked="checked"</#if>>文字</label>
+                            <label class="radio-inline"><input type="radio" name="type" value="1"<#if link.type=1> checked="checked"</#if>>logo</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>是否显示：</th>
+                        <td>
+                            <input type="checkbox" name="isShow" value="1"<#if link.isShow=1> checked</#if> class="js-switch bootstrap-switch-mini info-switch">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>排序：</th>
+                        <td>
+                            <input type='text' class='form-control' name='sort' value='${link.sort}' placeholder="请输入排序数字，越大越靠前！" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <input type="hidden" name='id' value="${link.id!}">
+                        <th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript"> seajs.use('form', function(form){}); </script>
+</body>
+</html>

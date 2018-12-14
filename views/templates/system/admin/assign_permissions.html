@@ -1,0 +1,84 @@
+<#include "../common/header.html">
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="basic">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/system/index">系统</a>
+                </li>
+                <li>
+                    <a href="#">权限管理</a>
+                </li>
+                <li class="active">分配权限</li>
+            </ul>
+        </div>
+        <div class="content" style="min-height: 0px">
+            <div class="timeline-item">
+                <h4 class="box-header with-border">正在为 <span class="text-red">${group.groupName!}</span>分配权限,	点亮左侧开关分配权限给当前角色</h4>
+            </div>
+        </div>
+        <div class="content">
+            <div class="row controller-box">
+                <#list permissionMap?keys as mapItem>
+                <div class="col-md-6 controller-box-item">
+                    <!-- DIRECT CHAT -->
+                    <div class="box box-warning direct-chat direct-chat-warning">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">控制器：${mapItem!}</h3>
+
+                            <div class="box-tools pull-right">
+
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body">
+                            <div class="table-responsive">
+                                <table class="table no-margin">
+                                    <thead>
+                                    <tr>
+                                        <th width="33%">开关</th>
+                                        <th width="33%">URL</th>
+                                        <th width="33%">权限说明</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <#list permissionMap[mapItem] as list>
+                                    <tr>
+                                        <td><input data-group-id="${group.id!}" data-permission-id="${list.id}" type="checkbox"<@fly_markgroup groupId="${group.id!}" permissionId="${list.id!}"><#if mark> checked</#if></@fly_markgroup> class="js-switch bootstrap-switch-mini group-switch"></td>
+                                        <td>${list.actionKey!}</td>
+                                        <td>
+                                            ${list.remark!}
+                                        </td>
+                                    </tr>
+                                    </#list>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/.direct-chat -->
+                </div>
+                <!-- /.col -->
+               </#list>
+
+            </div>
+        </div>
+
+    </div>
+    <!--右侧内容 结束-->
+</div>
+
+<script type="text/javascript">seajs.use('user', function(user) {});</script>
+</body>
+</html>

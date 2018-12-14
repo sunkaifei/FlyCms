@@ -1,0 +1,142 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="basic">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/admin/user/user_list">会员</a>
+                </li>
+                <li>
+                    <a href="/admin/user/user_list">会员管理</a>
+                </li>
+                <li class="active">编辑会员</li>
+            </ul>
+        </div>
+        <div class="content">
+            <form action="/admin/user/user_save" method="post" name="memberForm">
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px" />
+                        <col />
+                    </colgroup>
+
+                    <tbody>
+                    <tr>
+                        <th>用户名：</th>
+                        <td><input class="form-control" name="userName" type="text" value="" pattern="required" placeholder="用户名不能为空" /></td>
+                    </tr>
+                    <tr>
+                        <th>邮箱：</th>
+                        <td><input type="text" class="form-control" name="userEmail" pattern="email" empty /></td>
+                    </tr>
+                    <tr>
+                        <th>密码：</th><td><input class="form-control" name="password" type="password" /></td>
+                    </tr>
+                    <tr>
+                        <th>确认密码：</th><td><input class="form-control" name="repassword" type="password" /></td>
+                    </tr>
+                    <tr>
+                        <th>会员组：</th>
+                        <td>
+                            <select class="form-control" name="groupId">
+                                <option value=''>请选择</option>
+                                <#list group as list>
+                                <option value="${list.id!}">${list.groupName!}</option>
+                                </#list>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>姓名：</th>
+                        <td><input class="form-control" name="trueName" type="text" value="" placeholder="真实的姓名" /></td>
+                    </tr>
+                    <tr>
+                        <th>性别：</th>
+                        <td>
+                            <label class="radio-inline">
+                                <input type="radio" name="sex" value="1" checked=checked>男
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="sex" value="2">女
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>电话：</th><td><input class="form-control" name="telephone" type="text" value="" empty pattern="phone" placeholder="固定座机号码如010-66668888-123" /><p class="help-block">格式：（地区号-）用户号（-分机号）如010-66668888-123</p></td>
+                    </tr>
+                    <tr>
+                        <th>手机：</th><td><input class="form-control" name="mobile" type="text" value="" empty pattern="mobi" placeholder="手机号码" /></td>
+                    </tr>
+                    <tr>
+                        <th>地区：</th>
+                        <td>
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <select name="province" id="province" class="form-control">
+                                        <option value="0">请选择省份</option>
+                                        <@fly_areaslist parentId=0>
+                                        <#list areaslist as list>
+                                        <option value="${list.areaId?c}">${list.areaName!}</option>
+                                        </#list>
+                                        </@fly_areaslist>
+                                    </select>
+                                </div>
+                                <div class="col-xs-3">
+                                    <select name="city" id="city" class="form-control">
+                                        <option value="0">请选择地区</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-3">
+                                    <select name="area" id="area" class="form-control">
+                                        <option value="0">请选择县市</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>地址：</th><td><input class="form-control" name="contact_addr" type="text" value="" /></td>
+                    </tr>
+                    <tr>
+                        <th>邮编：</th><td><input class="form-control" name="zip" type="text" value="" empty pattern="zip"  /></td>
+                    </tr>
+                    <tr>
+                        <th>QQ：</th><td><input class="form-control" name="qq" type="text" value="" empty pattern="qq"  /></td>
+                    </tr>
+                    <tr>
+                        <th>经验值：</th><td><input class="form-control" name="exp" type="text" value="" /></td>
+                    </tr>
+                    <tr>
+                        <th>积分：</th><td><input class="form-control" name="point" type="text" value="" /></td>
+                    </tr>
+                    <tr>
+                        <th>状态：</th>
+                        <td>
+                            <select name="status" class="form-control">
+                                <option value="1">正常</option>
+                                <option value="2">删除</option>
+                                <option value="3">锁定</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td><td><button class='btn btn-primary' type="submit">确 定</button></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('user', function(user) {});</script>
+</body>
+</html>

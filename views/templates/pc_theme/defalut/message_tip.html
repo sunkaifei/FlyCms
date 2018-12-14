@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>${message} - ${seo_title!}</title>
+	<meta name="keywords" content="${seo_keywords!}" />
+	<meta name="description" content="${seo_description!}" />
+	<meta name="keywords" content="用户登录" />
+	<meta name="description" content="用户登录" />
+	<!-- Bootstrap -->
+	<link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/account.css" />
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	<script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+	<![endif]-->
+	<script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
+	<script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
+</head>
+<body>
+<div class="container">
+
+	<div class="col-md-6 col-md-offset-3 bg-white login-wrap">
+		<h1 class="h4 text-center text-muted login-title">${message}</h1>
+	</div>
+
+	<div class="text-center col-md-12 login-link">
+		<a href="/reg">注册新账号</a> | <a
+			href="/">首页</a> | <a
+			href="/forget_password">找回密码</a>
+	</div>
+</div>
+</body>
+</html>

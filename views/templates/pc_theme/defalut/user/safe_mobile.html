@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>修改安全手机号 - ${seo_title!}</title>
+    <meta name="keywords" content="问答系统,java问答系统,开源之家问答系统 ,Laravel问答系统,社区问答系统" />
+    <meta name="description" content="开源之家问答系统站长社区交流平台，同时也是开源之家问答系统的实际站点演示。" />
+    <meta name="author" content="28844 Team" />
+    <meta name="copyright" content="2018 28844.com" />
+    <!-- Bootstrap -->
+    <link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/js/vendors/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/index.css" />
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/global.css" />
+    <link type="text/css" rel="stylesheet" href="/assets/js/vendors/cropper/cropper.min.css" />
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
+</head>
+<body>
+<#include "../common/header.html">
+
+<div class="wrap">
+    <div class="container">
+        <div class="row">
+            <!--左侧菜单-->
+            <div id="secondary" class="col-md-2">
+                <nav class="list-group mt-20">
+                    <a href="/ucenter/account" class="list-group-item"><span class="glyphicon glyphicon-user"></span> 个人资料</a>
+                    <a href="/ucenter/password" class="list-group-item"><span class="glyphicon glyphicon-pencil"></span> 修改密码</a>
+                    <a href="/ucenter/safe_email" class="list-group-item "><span class="glyphicon glyphicon-envelope"></span> 绑定邮箱</a>
+                    <a href="/ucenter/safe_mobile" class="list-group-item  active"><span class="glyphicon glyphicon-phone"></span> 绑定手机</a>
+                    <a href="/ucenter/favorite" class="list-group-item "><span class="fa fa-graduation-cap" aria-hidden="true"></span>我的收藏</a>
+                    <a href="/ucenter/invite" class="list-group-item "><span class="fa fa-bullhorn" aria-hidden="true"></span> 线上推广</a>
+                    <a href="#" class="list-group-item "><span class="glyphicon glyphicon-retweet"></span> 账号绑定</a>
+                    <a href="/ucenter/account_log" class="list-group-item "><span class="fa fa-database"></span> 金币管理</a>
+                    <a href="/ucenter/message" class="list-group-item "><span class="glyphicon glyphicon-bell"></span> 通知提醒</a>
+                </nav>
+            </div>
+            <div id="main" class="col-md-10 form-horizontal">
+                <div class="settings">
+                    <h2 class="h3 post-title">修改手机</h2>
+                    <div class="alert<#if user.userMobile??> alert-success<#else> alert-warning</#if>" role="alert">
+                        <#if user.userMobile??>您的手机已绑定，如需修改，请按照下方提示进行操作！<#else>您还未进行手机绑定，绑定后可通过手机号码登录系统.</#if>
+                    </div>
+                    <div class="row mt-30">
+                        <div class="col-md-8">
+                            <form name="baseForm" id="update_form" action="/ucenter/safe_mobile_update" method="POST">
+                                <input type="hidden" name="_token" value="#">
+                                <div class="form-group ">
+                                    <label for="password" class="required control-label col-sm-3">当前密码</label>
+                                    <div class="col-sm-6">
+                                        <input name="password" id="password" type="password" maxlength="32" placeholder="当前密码" class="form-control" value="">
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label for="mobile" class="required control-label col-sm-3">手机号码</label>
+                                    <div class="col-sm-6">
+                                        <input name="mobile" id="mobile" type="text" maxlength="15" placeholder="请填写11位手机号码" class="form-control" value="${user.userMobile!}">
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label for="mobile" class="required control-label col-sm-3">短信验证码</label>
+                                    <div class="col-sm-4">
+                                        <input name="code" id="code" type="text" maxlength="6" placeholder="收到的手机验证码" class="form-control" value="">
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <button class="btn btn-xl btn-default btn-send-code"  id="addMobileCode" data-toggle="modal" data-target="#myMobileModal" type="button">发送验证码</button>
+                                    </div>
+                                </div>
+                                <div class="form-action row">
+                                    <div class="col-sm-offset-3 col-sm-9 mb-20">
+                                        <button class="btn btn-xl btn-primary password-btn" type="submit">提交</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+
+                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<#include "../common/footer.html">
+
+<div class="modal fade bs-example-modal-sm" id="myMobileModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">获取手机验证码</h4>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <input type="text" class="form-control input-lg captcha" id="exampleInputAmount" placeholder="右侧验证码">
+                    <div class="input-group-addon" style="padding: 0px;background-color: #fff;"><a href="javascript:void(0);" id="reloadCaptcha"><img src=""></a></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary safecode-btn">免费获取</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript"> seajs.use('ucenter', function(ucenter){}); </script>
+<script type="text/javascript"> seajs.use('main', function(main){}); </script>
+</body>
+</html>

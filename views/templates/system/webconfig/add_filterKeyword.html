@@ -1,0 +1,48 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="filterKeyword">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/admin/index">系统</a>
+                </li>
+                <li>
+                    <a href="/admin/site/filterKeyword_list">违禁关键词管理</a>
+                </li>
+                <li class="active">添加关键词</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <form action='/admin/site/filterKeyword_save' method='post' class="addForm">
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px" />
+                        <col />
+                    </colgroup>
+                    <tr>
+                        <th>违禁关键词：</th>
+                        <td>
+                            <input type='text' class='form-control' name='keyword' value='' pattern='required' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript"> seajs.use('form', function(form){}); </script>
+</body>
+</html>

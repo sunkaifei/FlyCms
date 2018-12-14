@@ -1,0 +1,163 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="market">
+    <#include "market_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">营销</a>
+                </li>
+                <li>
+                    <a href="#">营销活动管理</a>
+                </li>
+                <li class="active">积分兑换</li>
+            </ul>
+        </div>
+        <div class="content">
+            <form method='post' action='/market/cost_point_del'>
+                <table class="table list-table">
+                    <colgroup>
+                        <col width="35px" />
+                        <col width="130px" />
+                        <col />
+                        <col width="100px" />
+                        <col width="100px" />
+                        <col width="100px" />
+                    </colgroup>
+                    <caption>
+                        <a class="btn btn-default" onclick="event_link('/market/cost_point_edit');">
+                            <i class="fa fa-plus"></i>添加积分兑换
+                        </a>
+                        <a class="btn btn-default" onclick="selectAll('id[]')">
+                            <i class="fa fa-check"></i>全选
+                        </a>
+                        <a class="btn btn-default" onclick="delModel()">
+                            <i class="fa fa-close"></i>批量删除
+                        </a>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>活动名称</th>
+                        <th>产品名称</th>
+                        <th>排序</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='1' /></td>
+                        <td>兑换大电视</td>
+                        <td><a href='/products-188.html?active_id=1&promo=costpoint' target='_blank'>乐视超级电视 第3代X50（X3-50）50英寸 4K高清3D智能LED液晶电视（标配挂架）</a></td>
+                        <td>0</td>
+                        <td>正常</td>
+                        <td>
+                            <a href='/market/cost_point_edit/id/1'>
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/cost_point_del/id/1'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='2' /></td>
+                        <td>仅限一天错过再无</td>
+                        <td><a href='/products-360.html?active_id=2&promo=costpoint' target='_blank'>The body shop美体小铺护肤系列美体小铺茶树精油10ml+茶树油棒2</a></td>
+                        <td>0</td>
+                        <td>正常</td>
+                        <td>
+                            <a href='/market/cost_point_edit/id/2'>
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/cost_point_del/id/2'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <style>
+            .pagination {
+                display: inline-block;
+                padding-left: 0;
+                margin: 10px 0;
+                border-radius: 4px;
+            }
+            .pagination > li {
+                display: inline !important;
+                width:auto !important;
+                height:auto !important;
+                border:none !important;
+                margin:0 !important;
+                padding: 0 !important;
+            }
+            .pagination > li > a {
+                position: relative !important;
+                float: left !important;
+                padding: 6px 12px !important;
+                line-height: 1.42857143 !important;
+                text-decoration: none !important;
+                color: #337ab7;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                margin-left: -1px !important;
+                width:auto !important;
+                height:auto !important;
+            }
+            .pagination > li:first-child > a {
+                margin-left: 0 !important;
+                border-bottom-left-radius: 4px !important;
+                border-top-left-radius: 4px !important;
+            }
+            .pagination > li:last-child > a {
+                border-bottom-right-radius: 4px !important;
+                border-top-right-radius: 4px !important;
+            }
+            .pagination > li > a:hover,
+            .pagination > li > a:focus {
+                z-index: 2 !important;
+                color: #23527c;
+                background-color: #eeeeee;
+                border-color: #ddd !important;
+            }
+            .pagination > .active > a,
+            .pagination > .active > a:hover,
+            .pagination > .active > a:focus {
+                z-index: 3 !important;
+                color: #fff;
+                background-color: #337ab7;
+                border-color: #337ab7;
+                cursor: default !important;
+            }
+        </style><div style='clear:both'><ul class='pagination'><li><a href='/market/cost_point_list?page=1' >首页</a></li><li class='active'><a href='/market/cost_point_list?page=1' >1</a></li><li><a href='/market/cost_point_list?page=1' >尾页</a></li><li><a>当前第1页/共1页</a></li></ul></div>
+    </div>
+    <!--右侧内容 结束-->
+
+    <!--顶部弹出菜单 开始-->
+    <aside class="control-sidebar control-sidebar-dark">
+        <ul class="control-sidebar-menu">
+            <li><a href="/admin/logout"><i class="fa fa-circle-o text-red"></i> 退出管理</a></li>
+            <li><a href="/system/admin_repwd"><i class="fa fa-circle-o text-yellow"></i> 修改密码</a></li>
+            <li><a href="/system/default"><i class="fa fa-circle-o text-green"></i> 后台首页</a></li>
+            <li><a href="/" target='_blank'><i class="fa fa-circle-o text-aqua"></i> 商城首页</a></li>
+            <li><a href="/system/navigation"><i class="fa fa-circle-o"></i> 快速导航</a></li>
+        </ul>
+    </aside>
+    <!--顶部弹出菜单 结束-->
+</div>
+</body>
+</html>

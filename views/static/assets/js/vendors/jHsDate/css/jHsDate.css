@@ -1,0 +1,86 @@
+body {
+    position: static;
+}
+
+[name='jHsDate'] {
+    position: absolute;
+    max-width: 336px;
+    width: auto;
+    height: 164px;
+    border: 1px solid #dddddd;
+    border-radius: 2px;
+    background-color:#ffffff;
+    z-index: 100;
+}
+
+.yearHsDate,
+.dayHsDate,
+.hourHsDate,
+.minuteHsDate {
+    height: 164px;
+    width: 95px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.hs_year,
+.hs_day,
+.hs_hour,
+.hs_minute {
+    list-style: none;
+    width: 72px;
+    height: 32px;
+    line-height: 32px;
+    cursor: pointer;
+}
+
+    .hs_year:hover,
+    .hs_day:hover,
+    .hs_mon:hover {
+        background-color: #eeeeee;
+        color: #000000;
+    }
+
+.hs_check,
+.hs_check :hover{
+    background-color: #3ab2d0!important;
+    color: #ffffff!important;
+}
+
+.monHsDate {
+    width: 150px;
+    height: 164px;
+    display: inline-block;
+    padding: 12px 5px;
+    margin: 0;
+}
+
+.hs_mon {
+    list-style: none;
+    width: 36px;
+    height: 24px;
+    text-align: center;
+    line-height: 15px;
+    font-size: 14px;
+    display: inline-block;
+    padding: 5px 3px;
+    border-radius: 4px;
+    float: left;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.noCheck {
+    background-color: #f4f4f4;
+    cursor: not-allowed;
+}
+
+.dayHsDate {
+    width: 77px;
+    border-left: 1px solid #dddddd;
+}

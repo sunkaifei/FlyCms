@@ -1,0 +1,81 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+	<#assign page_tab="index">
+	<#assign page_nav="basic">
+	<#include "../common/system_menu.html">
+
+	<!--右侧内容 开始-->
+	<div id="admin_right" class="content-wrapper">
+		<div class="breadcrumbs" id="breadcrumbs">
+			<ul class="breadcrumb">
+				<li>
+					<i class="home-icon fa fa-home"></i>
+					<a href="#">系统</a>
+				</li>
+				<li>
+					<a href="#">权限管理</a>
+				</li>
+				<li class="active">权限列表</li>
+			</ul>
+		</div>
+		<div class="content">
+			<form name='right_list' method='post' action='#'>
+				<table class="table list-table">
+					<caption>
+						<a class="btn btn-default data-update" href='javascript:void(0);'>
+							<i class="fa fa-refresh"></i> 同步所有权限
+						</a>
+						<a class="btn btn-default" id="selectAll">
+							<i class="fa fa-check"></i> 全选
+						</a>
+						<a class="btn btn-default" onclick="delModel({msg:'是否把信息放到回收站内？'});">
+							<i class="fa fa-close"></i> 批量删除
+						</a>
+						<a class="btn btn-default" href='/system/right_recycle'>
+							<i class="fa fa-trash"></i> 回收站
+						</a>
+					</caption>
+					<colgroup>
+						<col width="35px" />
+						<col width="200px" />
+						<col width="200px" />
+						<col />
+						<col width='100px' />
+					</colgroup>
+					<thead>
+					<tr>
+						<th></th>
+						<th>Url</th>
+						<th>controller</th>
+						<th>备注</th>
+						<th>操作</th>
+					</tr>
+					</thead>
+
+					<tbody>
+					<#list pageVo.list as list>
+					<tr>
+						<td><input type='checkbox' name='id[]' value='${list.id!}' /></td>
+						<td>${list.actionKey!}</td>
+						<td>${list.controller!}</td>
+						<td class="word-wrap">${list.remark!}</td>
+						<td>
+							<a href="/admin/user/permission_update/${list.id}"><i class='operator fa fa-edit'></i></a>
+							<a  data-title="${list.actionKey!}" data-id="${list.id}" class="role-delete"> <i class='operator fa fa-close'></i></a>
+						</td>
+					</tr>
+					</#list>
+					</tbody>
+				</table>
+				<div style="clear:both"><ul class="pagination">${pageVo.pageNumHtml}</ul></div>
+			</form>
+		</div>
+
+	</div>
+	<!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('user', function(user) {});</script>
+</body>
+</html>

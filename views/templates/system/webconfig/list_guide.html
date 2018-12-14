@@ -1,0 +1,77 @@
+<#include "../common/header.html">
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="permission">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">系统</a>
+                </li>
+                <li>
+                    <a href="#">权限管理</a>
+                </li>
+                <li class="active">角色列表</li>
+            </ul>
+        </div>
+        <div class="content">
+            <form name='role_list' method='post' action='#'>
+                <@fly_guidepage>
+                <table class="table list-table">
+                    <colgroup>
+                        <col width="35px" />
+                        <col />
+                        <col width="120px" />
+                    </colgroup>
+                    <caption>
+                        <a class="btn btn-default" href='/admin/guide/add_guide'>
+                            <i class="fa fa-plus"></i>添加导航
+                        </a>
+                        <a class="btn btn-default" id="selectAll">
+                            <i class="fa fa-check"></i>全选
+                        </a>
+                        <a class="btn btn-default" onclick="delModel({msg:'是否把信息放到回收站内？'});">
+                            <i class="fa fa-close"></i>批量删除
+                        </a>
+                        <a class="btn btn-default" href='/system/role_recycle'>
+                            <i class="fa fa-trash"></i>回收站
+                        </a>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>导航名称</th>
+                        <th>导航链接</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <#list guide_page.list as list>
+                    <tr>
+                        <td><input type='checkbox' name='roleid' value='${list.id}' /></td>
+                        <td>${list.name}</td>
+                        <td>${list.link}</td>
+                        <td>
+                            <a href='/admin/guide/update/${list.id}'><i class='operator fa fa-edit'></i></a>
+                            <a  data-title="${list.name!}" data-id="${list.id}" class="role-delete"><i class="operator fa fa-trash" title="删除"></i></a>
+                        </td>
+                    </tr>
+                    </#list>
+                    </tbody>
+                </table>
+                <div style="clear:both"><ul class="pagination">${guide_page.pageNumHtml}</ul></div>
+                </@fly_guidepage>
+            </form>
+        </div>
+
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('permission', function(permission) {});</script>
+</body>
+</html>

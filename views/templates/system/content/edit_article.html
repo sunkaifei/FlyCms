@@ -1,0 +1,126 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="tools">
+    <#assign page_nav="basic">
+    <#include "tools_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/system/index">系统</a>
+                </li>
+                <li>
+                    <a href="#">文章管理</a>
+                </li>
+                <li class="active">编辑文章</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <form action='/tools/article_edit_act' method='post' name='article'>
+                <input type='hidden' name='id' value="" />
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px" />
+                        <col />
+                    </colgroup>
+                    <tr>
+                        <th>分类：</th>
+                        <td>
+                            <select class="form-control w-auto" name="category_id" pattern="required" alt="请选择分类值">
+                                <option value=''>选择文章分类</option>
+                                <option value='6'>帮助信息</option>
+                                <option value='14'>&nbsp;&nbsp;&nbsp;如何注册</option>
+                                <option value='15'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3</option>
+                                <option value='16'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4</option>
+                                <option value='17'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5</option>
+                                <option value='18'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;asd</option>
+                                <option value='13'>注册账户</option>
+                                <option value='9'>百货</option>
+                                <option value='10'>&nbsp;&nbsp;&nbsp;日用品</option>
+                            </select>
+                            <a href="/system/article/article_cat_edit">添加文章分类</a>
+                            <p class="help-block">*选择文章所属分类（必填）</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>标题：</th>
+                        <td><input type='text' name='title' class='form-control' value='' pattern='required' placeholder='标题不能为空' /></td>
+                    </tr>
+                    <tr>
+                        <th>是否发布：</th>
+                        <td>
+                            <label class='radio-inline'><input type='radio' name='visibility' value='1' checked=checked />是</label>
+                            <label class='radio-inline'><input type='radio' name='visibility' value='0' />否</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>首页推荐：</th>
+                        <td>
+                            <label class='radio-inline'><input type='radio' name='top' value='1' checked=checked />是</label>
+                            <label class='radio-inline'><input type='radio' name='top' value='0' />否</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>标题字体：</th>
+                        <td>
+                            <label class='radio-inline'><input type='radio' name='style' value='0' checked=checked />正常</label>
+                            <label class='radio-inline'><input type='radio' name='style' value='1' /><b>粗体</b></label>
+                            <label class='radio-inline'><input type='radio' name='style' value='2' /><span style="font-style:oblique;">斜体</span></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>标题颜色：</th>
+                        <td>
+                            <input type='hidden' name='color' value='' />
+                            <a style='color:#000000;background-color:#000000;' href='javascript:showColorBox();' id='titleColor'>#000000</a>
+                            <div id='colorBox' style='display:none'></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>排序：</th>
+                        <td><input type='text' class='form-control' name='sort' value='' /></td>
+                    </tr>
+                    <tr>
+                        <th>关联相关商品：</th>
+                        <td>
+                            <table class='table list-table table-bordered text-center' style='width:650px'>
+                                <colgroup>
+                                    <col />
+                                    <col width="120px" />
+                                </colgroup>
+                                <thead>
+                                <tr><td>商品名称</td><td>操作</td></tr>
+                                </thead>
+                                <tbody id="goodsListBox"></tbody>
+                            </table>
+                            <button class='btn btn-default' type='button' onclick='searchGoods({"type":"checkbox","callback":searchGoodsCallback});'>选择商品</button>
+                            <p class="help-block">文章所要关联的商品（可选）</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>内容：</th><td><textarea id="content" name='content' style='width:100%;height:350px' pattern='required' alt='内容不能为空'></textarea></td>
+                    </tr>
+                    <tr>
+                        <th>关键词(SEO)：</th><td><input type='text' class='form-control' name='keywords' value='' /></td>
+                    </tr>
+                    <tr>
+                        <th>描述简要(SEO)：</th><td><input type='text' class='form-control' name='description' value='' /></td>
+                    </tr>
+                    <tr>
+                        <th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+</body>
+</html>

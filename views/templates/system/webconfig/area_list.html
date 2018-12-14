@@ -1,0 +1,68 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="basic">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <link rel="stylesheet" type="text/css" href="/assets/js/vendors/treetable/css/jquery.treetable.css" />
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">系统</a>
+                </li>
+                <li>
+                    <a href="#">地域管理</a>
+                </li>
+                <li class="active">地区列表</li>
+            </ul>
+        </div>
+        <div class="content">
+            <table class="table list-table">
+                <colgroup>
+                    <col  />
+                    <col width="160px"/>
+                    <col width="120px">
+                </colgroup>
+                <caption>
+                    <a class="btn btn-default" onclick="addArea(0,0);">
+                        <i class="fa fa-plus"></i>添加地区
+                    </a>
+                </caption>
+                <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>排序</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="treeTable">
+                <#list areas as list>
+                <tr id="area_120000" name="parent_0">
+                    <td>
+                        <a href="javascript:;"><i id="ctrl_120000" name="box_0" class="operator fa fa-plus-square-o" is_open="yes" is_cache="yes"></i></a>
+                        <input type="text" value="${list.areaName}" name="area_name" class="form-control w-auto" style="width:150px" onblur="updateArea(120000,this);">
+                    </td>
+                    <td><input type="text" value="${list.areaId}" name="area_sort" class="form-control w-auto" style="width:80px" onblur="updateArea(120000,this);"></td>
+                    <td>
+                        <a href="javascript:addArea(120000,1);"><i class="operator fa fa-plus"></i></a>
+                        <a href="javascript:delArea(120000);"><i class="operator fa fa-close"></i></a>
+                    </td>
+                </tr>
+                </#list>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script src="/assets/js/jquery.min.js" type="text/javascript"> </script>
+<script src="/assets/js/vendors/treetable/jquery.treetable.js" type="text/javascript"></script>
+
+</body>
+</html>

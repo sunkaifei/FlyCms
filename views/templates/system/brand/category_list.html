@@ -1,0 +1,112 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="goods">
+    <#include "../goods/goods_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">商品</a>
+                </li>
+                <li>
+                    <a href="#">品牌管理</a>
+                </li>
+                <li class="active">分类列表</li>
+            </ul>
+        </div>
+        <div class="content">
+            <table class="table list-table">
+                <colgroup>
+                    <col width="200px" />
+                    <col width="200px" />
+                </colgroup>
+                <caption>
+                    <a class="btn btn-default" href='/admin/brand/category_add'>
+                        <i class="fa fa-plus"></i>添加分类
+                    </a>
+                </caption>
+                <thead>
+                <tr>
+                    <th>分类名称</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <#list categoryList as list>
+                <tr>
+                    <td>${list.name!}</td>
+                    <td>
+                        <a href="/admin/brand/category_edit/${list.id!}"><i class='operator fa fa-edit'></i></a>
+                        <a data-title="${list.name!}" data-id="${list.id!}"  class="brand-delete"><i class='operator fa fa-close'></i></a>
+                    </td>
+                </tr>
+                </#list>
+                </tbody>
+            </table>
+        </div>
+
+        <style>
+            .pagination {
+                display: inline-block;
+                padding-left: 0;
+                margin: 10px 0;
+                border-radius: 4px;
+            }
+            .pagination > li {
+                display: inline !important;
+                width:auto !important;
+                height:auto !important;
+                border:none !important;
+                margin:0 !important;
+                padding: 0 !important;
+            }
+            .pagination > li > a {
+                position: relative !important;
+                float: left !important;
+                padding: 6px 12px !important;
+                line-height: 1.42857143 !important;
+                text-decoration: none !important;
+                color: #337ab7;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                margin-left: -1px !important;
+                width:auto !important;
+                height:auto !important;
+            }
+            .pagination > li:first-child > a {
+                margin-left: 0 !important;
+                border-bottom-left-radius: 4px !important;
+                border-top-left-radius: 4px !important;
+            }
+            .pagination > li:last-child > a {
+                border-bottom-right-radius: 4px !important;
+                border-top-right-radius: 4px !important;
+            }
+            .pagination > li > a:hover,
+            .pagination > li > a:focus {
+                z-index: 2 !important;
+                color: #23527c;
+                background-color: #eeeeee;
+                border-color: #ddd !important;
+            }
+            .pagination > .active > a,
+            .pagination > .active > a:hover,
+            .pagination > .active > a:focus {
+                z-index: 3 !important;
+                color: #fff;
+                background-color: #337ab7;
+                border-color: #337ab7;
+                cursor: default !important;
+            }
+        </style><div style='clear:both'><ul class='pagination'><li><a href='/index.php?controller=brand&amp;action=category_list&amp;page=1' >首页</a></li><li class='active'><a href='/index.php?controller=brand&amp;action=category_list&amp;page=1' >1</a></li><li><a href='/index.php?controller=brand&amp;action=category_list&amp;page=1' >尾页</a></li><li><a>当前第1页/共1页</a></li></ul></div>        </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('brand', function(brand) {});</script>
+</body>
+</html>

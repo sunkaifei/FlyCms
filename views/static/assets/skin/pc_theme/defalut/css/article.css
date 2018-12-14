@@ -1,0 +1,110 @@
+.flycms-classify{background:#fff;margin-bottom: 10px;}
+.flycms-classify .tab{text-align:center}
+.flycms-classify .tab li{float:left;padding-left: 15px;padding-right: 15px;}
+.flycms-classify .tab li a{display:block;padding:15px 0}
+.flycms-classify .tab .active {
+    color: #017e66;
+    background-color: #E7F2ED;
+}
+.flycms-classify .tab .active a {
+    color: #017e66;
+}
+@media (max-width:992px){.flycms-classify .tab li{width:20%}.flycms-classify .tab li a{padding:10px 1px}}
+@media (max-width:767px){.flycms-classify .tab li a{padding:8px 2px}}
+.flycms-classify .tab-head{margin-bottom: 0px;border:1px solid #f0f0f0;background:#f9f9f9;font-size:16px;color:#444;}
+.flycms-classify .tab-head>li.act{border-top:2px solid #15c288;border-right:1px solid #f0f0f0;border-left:1px solid #f0f0f0;background:#fff;margin-bottom:-1px}
+@media (max-width:992px){.flycms-classify .tab-head{border-width:1px}.flycms-classify .tab-head li{border:none !important;margin:0 !important}.flycms-classify .tab-head li.act a{color:#15c288}}
+.flycms-classify .tab-body{width:100%;left:0;top:100%;border:1px solid #f0f0f0;border-width:0 1px 1px 1px}
+.flycms-classify .tab-body li.act{color:#15c288}
+@media (max-width:992px){.hzco-classify .tab-body{font-size:12px}}
+
+
+
+/**内容相关样式**/
+.article-content {
+    float: left;
+    width: 100%;
+    background: #fff;
+    padding-bottom: 15px;
+}
+.article-content img{
+    max-width: 100%;
+}
+.article-content .summary{
+    overflow: hidden;
+}
+.article-content-box{
+    position: relative;
+    margin: 10px 15px 15px 15px;
+    padding-bottom: 10px;
+}
+.answer-info{
+    color: #8590a6;
+    margin-bottom: 10px;
+}
+.tags-box{
+    float: left;
+    width: 100%;
+    padding-left: 0px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    border-top: 1px solid #f6f6f6;
+    box-sizing: border-box;
+    padding-top: 10px;
+}
+.tags-box .tat-content {
+    margin: 3px 5px 3px 0;
+    vertical-align: middle;
+    position: relative;
+    display: inline-block;
+    height: 30px;
+    padding: 0 12px;
+    font-size: 14px;
+    line-height: 30px;
+    color: #0084ff;
+    vertical-align: top;
+    border-radius: 100px;
+    background: rgba(0,132,255,.1);
+}
+/*评论样式*/
+.widget-answers{
+    float: left;
+    width: 100%;
+    background: #fff;
+}
+
+.widget-comments {
+    list-style: none;
+    font-size: 13px;
+    color: #444;
+    padding: 10px;
+    border-radius: 2px;
+    resize: none;
+    min-height: 32px
+}
+
+.widget-comments .media {
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+.widget-comment-form{
+    padding: 10px;
+}
+.summary p{
+    word-break: break-all;
+}
+.entry-copyright {
+    margin-top: 30px;
+    padding: 15px;
+    font-size: 13px;
+    font-size: .13rem;
+    line-height: 1.6;
+    color: #999;
+    border: 1px solid #efefef;
+    background: #fbfbfb;
+    border-radius: 2px;
+}
+.entry-copyright  p {
+    margin: 0 0 0px;
+}

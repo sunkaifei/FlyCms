@@ -1,0 +1,76 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="site">
+    <#assign page_nav="filterKeyword">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/admin/index">系统</a>
+                </li>
+                <li>
+                    <a href="/admin/site/filterKeyword_list">违禁关键词管理</a>
+                </li>
+                <li class="active">关键词列表</li>
+            </ul>
+        </div>
+        <div class="content">
+            <form name='admin_list' method='post' action='#'>
+                <table class="table list-table">
+                    <colgroup>
+                        <col width="35px" />
+                        <col width="150px" />
+                        <col width="100px" />
+                        <col width="200px" />
+                        <col />
+                    </colgroup>
+                    <caption>
+                        <a class="btn btn-default" href='/admin/site/add_filterKeyword'>
+                            <i class="fa fa-plus"></i>添加关键词
+                        </a>
+                        <a class="btn btn-default" id="selectAll">
+                            <i class="fa fa-check"></i>全选
+                        </a>
+                        <a class="btn btn-default" onclick="delModel({msg:'是否把信息放到回收站内？'});">
+                            <i class="fa fa-close"></i>批量删除
+                        </a>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>模板名称</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <#list pageVo.list as list>
+                    <tr>
+                        <td><input type='checkbox' name='id' value='${list.id!}' /></td>
+                        <td>${list.keyword!}</td>
+                        <td>
+                            <a href='/admin/site/edit_filterKeyword/${list.id!}'><i class='operator fa fa-edit'></i></a>
+                            <a data-id="${list.id!}" data-info-url="/admin/site/delete-filter-keyword" class="info-delete"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    </#list>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div class="text-center" style='clear:both'>
+            <ul class='pagination'>${pageVo.pageNumHtml}</ul>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('user', function(user) {});</script>
+</body>
+</html>

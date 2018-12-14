@@ -1,0 +1,84 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="basic">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper" style="min-height: 337px;">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/">系统</a>
+                </li>
+                <li>
+                    <a href="#">第三方平台</a>
+                </li>
+                <li class="active">短信平台</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <form action="/admin/site/smsapi_update" method="post" name="sms_conf" id="updateForm">
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px">
+                        <col>
+                    </colgroup>
+                    <tbody><tr>
+                        <th>说明：</th>
+                        <td>
+                            本接口是调用阿里云大于的短信接口，需要去阿里云申请开通后，按下面的提示操作完成填写并保存！
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>短信平台：</th>
+                        <td>
+                            <select name="id" class="form-control">
+                                <option value="1">阿里大于短信平台</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>AccessKeyID：</th>
+                        <td><input type="text" class="form-control" name="accessKeyId" value="${sms.accessKeyId!}" alt=""><p class="help-block">短信服务--应用开发--接口调用;获取AK相关信息</p></td>
+                    </tr>
+                    <tr>
+                        <th>AccessKeySecret：</th>
+                        <td><input type="text" class="form-control" name="accessKeySecret" value="${sms.accessKeySecret!}" pattern="required" alt=""><p class="help-block">短信服务--应用开发--接口调用;获取AK相关信息;</p></td>
+                    </tr>
+                    <tr>
+                        <th>签名名称：</th>
+                        <td><input type="text" class="form-control" name="signName" value="${sms.signName!}" pattern="required" alt=""><p class="help-block">短信服务--应用开发--签名管理，选择选择签名名称；</p></td>
+                    </tr>
+                    <tr>
+                        <th>注册验证码：</th>
+                        <td><input type="text" class="form-control" name="templateCode" value="${sms.templateCode!}" pattern="required" alt=""><p class="help-block">短信服务--应用开发--模板管理，选择“模版CODE”里的指定code;</p></td>
+                    </tr>
+                    <tr>
+                        <th>找回密码证码：</th>
+                        <td><input type="text" class="form-control" name="templateCode" value="${sms.templateCode!}" pattern="required" alt=""><p class="help-block">短信服务--应用开发--模板管理，选择“模版CODE”里的指定code;</p></td>
+                    </tr>
+                    <tr>
+                        <th>测试手机号码：</th>
+                        <td><input type="text" class="form-control" name="mobile" pattern="mobi" empty="" alt="填写正确的手机号码"><p class="help-block">只做测试短信发送的功能使用，不保存该号码；</p></td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                            <button class="btn btn-primary" type="button"><span id="testmobile">测试短信发送</span></button>
+                        </td>
+                    </tr>
+                    </tbody></table>
+            </form>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+    <script type="text/javascript">seajs.use('form', function(form) {});</script>
+</div>
+</body>
+</html>

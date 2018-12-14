@@ -1,0 +1,118 @@
+<header class="main-header">
+    <div class="logo">
+        <span class="logo-mini"><b>Fly</b></span>
+        <span class="logo-lg"><b>FlyCms</b>后台管理</span>
+    </div>
+    <nav class="navbar navbar-static-top">
+        <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+            <span class="sr-only"></span>
+        </a>
+
+        <!--顶部菜单 开始-->
+        <div id="menu" class="navbar-custom-menu">
+            <ul class="nav navbar-nav" name="topMenu">
+                <li<#if page_tab == "user"> class="active"</#if>><a hidefocus="true" href="/system/user/user_list">会员</a></li>
+                <li<#if page_tab == "question"> class="active"</#if>><a hidefocus="true" href="/system/question/list_question">内容</a></li>
+                <li<#if page_tab == "index"> class="active"</#if>><a hidefocus="true" href="/system/index">系统</a></li>
+                <li><a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a></li>
+            </ul>
+        </div>
+        <!--顶部菜单 结束-->
+    </nav>
+</header>
+<!--左侧菜单 开始-->
+<aside id="admin_left" class="main-sidebar">
+    <section class="sidebar" style="height: auto;">
+        <div class="user-panel">
+            <div class="pull-left image">
+                <i class="fa fa-user"></i>
+            </div>
+            <div class="pull-left info">
+                <p>${admin.adminName!}</p>
+                <a href="#">超级管理员</a>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu tree" data-widget="tree">
+            <li class="header">内容管理菜单</li>
+            <li class="treeview<#if page_tab="question"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa" name="ico" menu="问答管理"></i>
+                    <span>问答管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="questionlist"> class="active"</#if>><a href="/system/question/list_question"><i class="fa fa-circle-o"></i>问题管理</a></li>
+                    <li<#if page_nav="category"> class="active"</#if>><a href="/system/question/model_list"><i class="fa fa-circle-o"></i>回收站</a></li>
+                </ul>
+            </li>
+            <li class="treeview<#if page_tab="answer"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa" name="ico" menu="答案管理"></i>
+                    <span>答案管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="answerlist"> class="active"</#if>><a href="/system/answer/list_answer"><i class="fa fa-circle-o"></i>答案管理</a></li>
+                    <li<#if page_nav="answer"> class="active"</#if>><a href="/system/answer/model_list"><i class="fa fa-circle-o"></i>回收站</a></li>
+                </ul>
+            </li>
+            <li class="treeview<#if page_tab="article"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa" name="ico" menu="文章管理"></i>
+                    <span>文章管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="categorylist"> class="active"</#if>><a href="/system/article/category_list"><i class="fa fa-circle-o"></i>分类管理</a></li>
+                    <li<#if page_nav="articlelist"> class="active"</#if>><a href="/system/article/article_list"><i class="fa fa-circle-o"></i>文章列表</a></li>
+                </ul>
+            </li>
+            <li class="treeview<#if page_tab="topic"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa" name="ico" menu="话题管理"></i>
+                    <span>话题管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="topiclist"> class="active"</#if>><a href="/system/topic/list_topics"><i class="fa fa-circle-o"></i>话题列表</a></li>
+                </ul>
+            </li>
+            <li class="treeview<#if page_tab="share"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa" name="ico" menu="分享管理"></i>
+                    <span>分享管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="sharecategory"> class="active"</#if>><a href="/system/share/category_list"><i class="fa fa-circle-o"></i>分类管理</a></li>
+                    <li<#if page_nav="sharelist"> class="active"</#if>><a href="/system/share/list_share"><i class="fa fa-circle-o"></i>分享列表</a></li>
+                </ul>
+            </li>
+            <li class="header">快速导航</li>
+            <li><a href="fdfdsf"><i class="fa fa-star-o"></i> <span>aaa</span></a></li>
+        </ul>
+    </section>
+</aside>
+<!--左侧菜单 结束-->
+<!--顶部弹出菜单 开始-->
+<aside class="control-sidebar control-sidebar-dark">
+    <ul class="control-sidebar-menu">
+        <li><a href="/system/logout"><i class="fa fa-circle-o text-red"></i> 退出管理</a></li>
+        <li><a href="/system/admin/admin_password"><i class="fa fa-circle-o text-yellow"></i> 修改密码</a></li>
+        <li><a href="/system/index"><i class="fa fa-circle-o text-green"></i> 后台首页</a></li>
+        <li><a href="/" target='_blank'><i class="fa fa-circle-o text-aqua"></i> 网站首页</a></li>
+        <li><a href="/system/navigation"><i class="fa fa-circle-o"></i> 快速导航</a></li>
+    </ul>
+</aside>
+<!--顶部弹出菜单 结束-->

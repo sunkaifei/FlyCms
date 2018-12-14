@@ -1,0 +1,97 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="basic">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">系统</a>
+                </li>
+                <li>
+                    <a href="#">第三方平台</a>
+                </li>
+                <li class="active">oauth登录</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <table class="table list-table">
+                <colgroup>
+                    <col width="120px">
+                    <col width="150px">
+                    <col />
+                    <col width="100px">
+                    <col width="120px">
+                </colgroup>
+
+                <thead>
+                <tr>
+                    <th>图标</th>
+                    <th>名称</th>
+                    <th>描述</th>
+                    <th>开启状态</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                    <td><img src="/plugins/oauth/images/renren.gif" width='20px' /></td>
+                    <td>人人网</td>
+                    <td>人人网开放平台</td>
+                    <td>开启</td>
+                    <td>
+                        <a href='/system/oauth_edit/id/1'><i class='operator fa fa-edit'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="/plugins/oauth/images/qq.gif" width='20px' /></td>
+                    <td>QQ</td>
+                    <td>腾讯开发平台</td>
+                    <td>开启</td>
+                    <td>
+                        <a href='/system/oauth_edit/id/2'><i class='operator fa fa-edit'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="/plugins/oauth/images/sina.gif" width='20px' /></td>
+                    <td>新浪</td>
+                    <td>新浪微博的开发平台</td>
+                    <td>开启</td>
+                    <td>
+                        <a href='/system/oauth_edit/id/3'><i class='operator fa fa-edit'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="/plugins/oauth/images/taobao.gif" width='20px' /></td>
+                    <td>淘宝</td>
+                    <td>淘宝的开放平台</td>
+                    <td>开启</td>
+                    <td>
+                        <a href='/system/oauth_edit/id/4'><i class='operator fa fa-edit'></i></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="/plugins/oauth/images/wechat.png" width='20px' /></td>
+                    <td>微信</td>
+                    <td>微信的开放平台</td>
+                    <td>开启</td>
+                    <td>
+                        <a href='/system/oauth_edit/id/5'><i class='operator fa fa-edit'></i></a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+</body>
+</html>

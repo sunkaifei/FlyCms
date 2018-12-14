@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.config.dao.ConfigDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加网站配置信息 -->
+	<insert id="addConfig">
+		insert into fly_config_web
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="typebase != null and typebase != ''">typebase,</if>
+			<if test="keycode != null and keycode != ''">keycode,</if>
+			<if test="keyvalue != null and keyvalue != ''">keyvalue,</if>
+			<if test="description != null and description != ''">description,</if>
+			<if test="sort != null and sort != ''">sort,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="typebase != null and typebase != ''">#{typebase},</if>
+			<if test="keycode != null and keycode != ''">#{keycode},</if>
+			<if test="keyvalue != null and keyvalue != ''">#{keyvalue},</if>
+			<if test="description != null and description != ''">#{description},</if>
+			<if test="sort != null and sort != ''">#{sort},</if>
+		</trim>
+	</insert>
+
+	<!-- 添加前台导航信息 -->
+	<insert id="addGuide">
+        insert into fly_guide
+        <!-- 添加表字段 -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="link != null and link != ''">link,</if>
+            <if test="sort != null and sort != ''">sort,</if>
+        </trim>
+        <!-- 注入控制层字段 -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="link != null and link != ''">#{link},</if>
+            <if test="sort != null and sort != ''">#{sort},</if>
+        </trim>
+    </insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<delete id="deleteConfig">
+		delete from fly_config_web where keycode=#{keycode}
+	</delete>
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<update id="updagteConfigByKey">
+		update fly_config_web
+		<set>
+			<if test="typebase != null and typebase != ''">typebase=#{typebase},</if>
+			<if test="keyvalue != null and keyvalue != ''">keyvalue=#{keyvalue},</if>
+			<if test="description != null and description != ''">description=#{description},</if>
+			<if test="sort != null and sort != ''">sort=#{sort},</if>
+		</set>
+		where keycode=#{keycode}
+	</update>
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<select id="getConfigByKey" resultType="com.flycms.module.config.model.Config">
+		select * from fly_config_web where keycode=#{keycode} limit 1
+	</select>
+
+	<select id="getConfigCount" resultType="Integer">
+		select count(*) from fly_config_web
+	</select>
+
+	<select id="getConfigList" resultType="com.flycms.module.config.model.Config">
+		select * from fly_config_web limit #{offset},#{rows}
+	</select>
+
+	<select id="getConfigAllList" resultType="com.flycms.module.config.model.Config">
+		select * from fly_config_web
+	</select>
+
+</mapper>  

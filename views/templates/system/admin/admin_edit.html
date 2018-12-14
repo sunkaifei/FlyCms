@@ -1,0 +1,94 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="basic">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/system/index">系统</a>
+                </li>
+                <li>
+                    <a href="/system/admin/admin_list">管理员列表</a>
+                </li>
+                <li class="active">管理员编辑</li>
+            </ul>
+        </div>
+        <div class="content">
+            <form action="/system/admin/admin_act"  method="post" name="admin_edit" id="admin_add">
+                <input type='hidden' name='id' value="${user.id}" />
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px" />
+                        <col />
+                    </colgroup>
+
+                    <tr>
+                        <th>用户名：</th>
+                        <td>
+                            <input type='text' name='adminName' value="${user.adminName!}" class='form-control' pattern='^\w{4,20}$' />
+                            <p class="help-block">* 管理员登录后台的用户名，请填写英文字母，数字或下划线，在4-20个字符之间</p>
+                        </td>
+                    </tr>
+
+
+                    <tr name="pwd">
+                        <th>密码：</th>
+                        <td>
+                            <input type='password' class='form-control' name='password' pattern='^\w{6,32}$'  />
+                            <p class="help-block">* 管理员登录后台的密码，请填写英文字母，数字或下划线，在6-32个字符之间</p>
+                        </td>
+                    </tr>
+
+                    <tr name="pwd">
+                        <th>重复密码：</th>
+                        <td>
+                            <input type='password' class='form-control' name='repassword' pattern='^\w{6,32}$'  bind='password' />
+                            <p class="help-block">* 重复输入管理员登录后台的密码</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>姓名：</th>
+                        <td>
+                            <input type='text' name='nickName' value="${user.nickName!}" class='form-control' />
+                            <p class="help-block">* 管理员姓名</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>角色：</th>
+                        <td>
+                            <select class='form-control' name='roleId' pattern='required' alt='请选择一个角色'>
+                                <option value=''>请选择</option>
+                                <#list role as list>
+                                <option value='${list.id}'<#if list.id==roleId> selected = "selected"</#if>>${list.name}</option>
+                                </#list>
+                            </select>
+                            <p class="help-block">*为管理员分配一个角色</p>
+                            <a class="btn btn-default"  href='/admin/role/add'>添加角色</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>
+                            <input type='text' name='email' class='form-control' value="${user.email!}" pattern='email' empty alt='请填写正确的email格式' />
+                            <p class="help-block">联系此管理员的email邮箱地址</p>
+                        </td>
+                    </tr>
+                    <tr><td></td><td><button class='btn btn-primary' type="submit">保存</button></td></tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('user', function(user) {});</script>
+</body>
+</html>

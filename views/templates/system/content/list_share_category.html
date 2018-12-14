@@ -1,0 +1,37 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="share">
+    <#assign page_nav="sharecategory">
+    <#include "content_menu.html">
+
+    <!--右侧内容 开始-->
+    <link rel="stylesheet" type="text/css" href="/assets/js/vendors/ztree/css/BootstrapStyle/bootstrapztree.css" />
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/system/index">系统</a>
+                </li>
+                <li>
+                    <a href="/system/share/category_list">分类管理</a>
+                </li>
+                <li class="active">分类管理</li>
+            </ul>
+        </div>
+        <div class="content">
+                <a class="btn btn-default" href='/system/share/category_add'>
+                    <i class="fa fa-plus"></i>添加分类
+                </a>
+                <div class="tree-box" data-category-url="/system/share/categorytree">
+                    <ul id="functionTree" class="ztree" data-category-url="/system/share/category_child"></ul>
+                </div>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+</body>
+<script type="text/javascript"> seajs.use('share', function(share){}); </script>
+</html>

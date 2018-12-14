@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${question.title!}</title>
+    <meta name="keywords" content="${seo_keywords!}" />
+    <meta name="description" content="${seo_description!}" />
+    <meta name="author" content="28844 Team" />
+    <meta name="copyright" content="2018 28844.com" />
+    <!-- Bootstrap -->
+    <link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/js/vendors/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/global.css" />
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/question.css" />
+    <link rel="stylesheet" media="screen" href="/assets/js/vendors/prettify/sunburst-by-james-for-prettify.css" />
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
+    <script type="text/javascript" src="/user/status.json"></script>
+
+<body>
+<#include "../common/header.html">
+
+<div class="question-header">
+    <div class="container">
+        <div class="col-xs-12 col-md-9">
+            <div class="question-header-mian">
+                <@fly_topicinfolist type="0" infoId="${question.id!}">
+                <#if (topiclist?size>0)>
+                <div class="question-header-tags">
+                    <#list topiclist as list>
+                    <span class="tat-content"><a class="TopicLink" href="/topics/${list.id!}" target="_blank">${list.topic!}</a></span>
+                    </#list>
+                </div>
+                </#if>
+                </@fly_topicinfolist>
+                <h1>${question.title!}</h1>
+                <div class="question-header-detail question-id" data-question-id="${question.id!}">
+                    <div class="show-content">
+                        <@fly_stringcut content="${question.content!}" num="140">${info_content}</@fly_stringcut>
+                    <span class="all-content">显示全部 <i class="fa fa-angle-down"></i></span>
+                    </div>
+                    <div class="hidden-content">
+                        ${question.content!}
+                    </div>
+                </div>
+            </div>
+            <div class="question-header-footer">
+                <div class="question-button">
+                    <button type="button" class="Button <#if questionFollow??><#if questionFollow == true>button-success<#else>button-blue</#if><#else>button-blue</#if> follow-button"><#if questionFollow??><#if questionFollow == true>已关注<#else>关注问题</#if><#else>关注问题</#if></button>
+                    <button type="button" id="answer-add" class="Button button-primary">写回答</button>
+                    <span class="shrink-content">收起 <i class="fa fa-angle-up"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-3 hidden-xs">
+            <div class="col-md-12 numberboard">
+                <div class="col-md-6 numberboard-item">
+                    <div class="numberboard-name">关注者</div>
+                    <strong class="numberboard">${question.countFollow!}</strong>
+                </div>
+                <div class="col-md-6 numberboard-item left-ine">
+                    <div class="numberboard-name">被浏览</div>
+                    <strong class="numberboard">${question.countView!}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wrap">
+    <div class="container">
+        <div class="row mt-10">
+            <div class="col-xs-12 col-md-9 main">
+                <@fly_answerpage questionId="${question.id!}" status="2" order="asc" rows="20">
+                <div class="question-content">
+                    <#if (answer_page.list?size>0)>
+                    <div class="list-header">
+                        <h4>${question.countAnswer!} 个回答</h4>
+                        <div class="List-headerOptions">默认排序 <i class="fa fa-sort"></i></div>
+                    </div>
+                    <#else>
+                    <div class="empty-state">
+                        <div class="empty-state-image"><i class="fa fa-pencil-square-o"></i></div>
+                        <div class="empty-state-text">暂时还没有回答，开始<span class="answer-btn">写第一个回答</span></div>
+                    </div>
+                    </#if>
+                    <#list answer_page.list as list>
+                    <@fly_answerinfo answerId="${list.id!}">
+                    <div class="question-list-item">
+                        <button type="button" class="Button Button--plain right-close"><i class="fa fa-remove">​</i></button>
+                        <@fly_userinfo userId="${answer.userId!}">
+                        <div  class="user">
+                            <div class="author-avatar">
+                                <a href="/people/${userinfo.userId!}" target="_blank">
+                                    <img class="avatar-38 mr-10 hidden-xs" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="${userinfo.nickName!}">
+                                </a>
+                            </div>
+                            <div class="author-content">
+                                <div class="author-name">
+                                    ${userinfo.nickName!}
+                                </div>
+                                <div class="author-nick">
+                                    ${userinfo.signature!}
+                                </div>
+                            </div>
+                        </div>
+                        </@fly_userinfo>
+                        <div class="answer-info">${answer.countDigg!} 人赞同了该回答</div>
+                        <div class="summary">
+                            <p class="excerpt wordbreak">${answer.content!}</p>
+                        </div>
+                        <div class="item-actions">
+                            <span>
+                                <button aria-label="赞同" type="button" class="vote-button VoteButton--up">
+                                     <i class="fa fa-caret-up"></i> 赞同 ${answer.countDigg!}
+                                </button>
+                                <button aria-label="反对" type="button" class="vote-button VoteButton--down">
+                                    <i class="fa fa-caret-down"></i>
+                                </button>
+                            </span>
+                            <button type="button" class="button-plain"><span class="fa fa-comment">​</span> ${answer.countComment!} 条评论</button>
+                            <button type="button" class="button-plain star"><i class="fa fa-star">​</i> 收藏</button>
+                            <button type="button" class="button-plain flag"><i class="fa fa-flag"></i> 举报</button>
+                        </div>
+                    </div>
+                    </@fly_answerinfo>
+                    </#list>
+                </div>
+                </@fly_answerpage>
+                <#if !user??>
+                <div class="content">
+                    需要 <a href="/login" class="btn btn-primary">登录</a> 后方可回复, 如果你还没有账号你可以 <a href="/reg" class="btn btn-danger">注册</a> 一个帐号。
+                </div>
+                </#if>
+            </div>
+            <div class="col-xs-12 col-md-3 hidden-xs side">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><i class="es-icon es-icon-whatshot"></i>你可能感兴趣的</h3>
+                    </div>
+                    <div class="panel-body">
+                        <@fly_infopage title="${question.title!}" notId="0-${question.id!}" rows="10">
+                        <#list info_page.list as list>
+                        <div class="media media-number">
+                            <div class="media-left">
+                                <span class="num">${list_index+1}</span>
+                            </div>
+                            <div class="media-body">
+                                <#if list.infoType=0>
+                                <a class="link-dark" href="/question/${list.infoId!}" title="">${list.title!}</a>
+                                </#if>
+                                <#if list.infoType=1>
+                                <a class="link-dark" href="/article/${list.infoId!}" title="">${list.title!}</a>
+                                </#if>
+                                <#if list.infoType=2>
+                                <a class="link-dark" href="/share${list.infoId!}" title="">${list.title!}</a>
+                                </#if>
+                            </div>
+                        </div>
+                        </#list>
+                        </@fly_infopage>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">热议话题 <a href="/topics" title="更多">»</a></h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="taglist-inline multi">
+                            <@fly_topicpage orderby="rand" rows="25">
+                            <#list topic_page.list as list>
+                            <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.id!}">${list.topic!}</a></li>
+                            </#list>
+                            </@fly_topicpage>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+${web_footer_code!}
+<script type="text/javascript"> seajs.use('loginbox', function(loginbox){}); </script>
+<script type="text/javascript"> seajs.use('answereditor', function(answereditor){}); </script>
+<script type="text/javascript"> seajs.use('main', function(main){}); </script>
+</body>
+</html>

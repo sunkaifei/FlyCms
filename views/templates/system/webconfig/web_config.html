@@ -1,0 +1,252 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+	<#assign page_tab="site">
+	<#assign page_nav="basic">
+	<#include "../common/system_menu.html">
+
+	<!--右侧内容 开始-->
+	<div id="admin_right" class="content-wrapper">
+		<div class="breadcrumbs" id="breadcrumbs">
+			<ul class="breadcrumb">
+				<li>
+					<i class="home-icon fa fa-home"></i>
+					<a href="#">系统</a>
+				</li>
+				<li class="active">站点设置</li>
+			</ul>
+		</div>
+
+		<div class="content">
+			<div class="nav-tabs-custom">
+				<ul class="nav nav-tabs">
+					<li class="active"><a href="#tab1" data-toggle="tab">网站设置</a></li>
+					<li><a href="#tab2" data-toggle="tab">站点底部信息</a></li>
+					<li><a href="#tab4" data-toggle="tab">邮箱设置</a></li>
+					<li><a href="#tab5" data-toggle="tab">系统设置</a></li>
+				</ul>
+
+				<div class="tab-content">
+					<!--网站设置-->
+					<div class="tab-pane active" id="tab1">
+						<form action="/admin/site/webconfig_updagte" method="post" enctype='multipart/form-data' name='base_conf' class="updateForm">
+							<table class="table form-table">
+								<colgroup>
+									<col width="140px" />
+									<col />
+								</colgroup>
+
+								<tr>
+									<th>网站名称：</th>
+									<td><input type='text' class='form-control' name='fly_title' id="fly_title" value="${config.fly_title!}" pattern='required' alt='网站名称必须填写' /></td>
+								</tr>
+								<tr>
+									<th>网站网址：</th>
+									<td>
+										<input type='text' class='form-control' name='fly_url' id="fly_url" value="${config.fly_url!}" pattern='url' alt='网站网址必须填写' />
+										<p class="help-block">* 网站完整的URL访问地址</p>
+									</td>
+								</tr>
+								<tr>
+									<th>网站LOGO：</th>
+									<td>
+										<p><input type='file' name='logo' class='mt-10' /></p>
+									</td>
+								</tr>
+								<tr>
+									<th>首页标题：</th>
+									<td><input type='text' class='form-control' pattern='required' name='fly_seo_title' id="fly_seo_title" value="${config.fly_seo_title!}" empty alt='首页title后缀' /></td>
+								</tr>
+								<tr>
+									<th>首页关键词：</th>
+									<td><input type='text' class='form-control' pattern='required' name='fly_seo_keywords' id="fly_seo_keywords" value="${config.fly_seo_keywords!}" empty alt='首页keywords' /></td>
+								</tr>
+								<tr>
+									<th>首页描述：</th>
+									<td><input type='text' class='form-control' pattern='required' name='fly_seo_description' id="fly_seo_description" value="${config.fly_seo_description!}" empty alt='首页description' /></td>
+								</tr>
+								<tr>
+									<th></th>
+									<td>
+										<button class="btn btn-primary" type='submit'>保存基本设置</button>
+									</td>
+								</tr>
+								</tfoot>
+							</table>
+						</form>
+					</div>
+
+					<!--网站底部信息设置-->
+					<div class="tab-pane" id="tab2">
+						<form action='/admin/site/config_footer_updagte' method='post' class="updateForm">
+							<table class='table form-table'>
+								<colgroup>
+									<col width="140px" />
+									<col />
+								</colgroup>
+								<tr>
+									<th>站点底部信息：</th>
+									<td>
+										<textarea id="fly_footer_code" name='fly_footer_code' style='width:95%;height:300px;'>${config.fly_footer_code!}</textarea>
+										<p class="help-block">设置站点底部页面信息，您可以点源代码试图直接进行代码编辑</p>
+									</td>
+								</tr>
+								<tr>
+									<th></th>
+									<td><button type='submit' class='btn btn-primary'>保存站点底部信息</button></td>
+								</tr>
+							</table>
+						</form>
+					</div>
+
+					<!--邮箱设置-->
+					<div class="tab-pane" id="tab4">
+						<form action='/admin/email/email_conf_updagte' method='post' name='mail_conf'>
+							<table class="table form-table">
+								<colgroup>
+									<col width="140px" />
+									<col />
+								</colgroup>
+								<tr>
+									<th>说明：</th>
+									<td>
+										邮件配置要根据具体邮件服务器的要求才能正确发送，比如：<a href="http://bbs.aircheng.com/read-1647" target="_blank">163邮箱</a>，<a href="http://bbs.aircheng.com/read-1009" target="_blank">QQ邮箱</a><br/>
+										邮件的内容模板在：【<a href="#">邮箱模板管理</a> 】可以根据需要自行修改
+									</td>
+								</tr>
+								<!--<tr>
+									<th>发送Email方式：</th>
+									<td>
+										<label class='radio-inline'><input type='radio' name='email_type' value='1' checked='checked' onclick="show_mail(1);" />第三方SMTP方式</label>
+										<label class='radio-inline'><input type='radio' name='email_type' value='2' onclick="show_mail(2)" />本地mail邮箱</label>
+										<p class="help-block">* 如果本地已经搭建好邮件服务，请选择 "本地mail邮箱"，否则选择" 第三方SMTP方式 "来发送邮件</p>
+									</td>
+								</tr>
+								<tr>
+									<th>安全协议：</th>
+									<td>
+										<label class='radio-inline'><input type='radio' name='email_safe' value='' checked='checked' />默认</label>
+										<label class='radio-inline'><input type='radio' name='email_safe' value='ssl' />SSL</label>
+										<label class='radio-inline'><input type='radio' name='email_safe' value='tls' />TLS</label>
+										<p class="help-block">具体细则请参考各大邮件服务提供商</p>
+									</td>
+								</tr>-->
+								<tr name='smtp'>
+									<th>SMTP地址：</th>
+									<td>
+										<input type='text' name='fly_smtp_server' value="${config.fly_smtp_server!}" class='form-control' pattern='required' empty alt='填写正确的email地址' />
+										<p class="help-block">第三方的SMTP的URL地址</p>
+									</td>
+								</tr>
+								<tr name='smtp'>
+									<th>用户名：</th>
+									<td>
+										<input type='text' name='fly_smtp_usermail' value="${config.fly_smtp_usermail!}" class='form-control'autocomplete="off" pattern='required' alt='发送邮件' empty />
+										<p class="help-block">SMTP用户名</p>
+									</td>
+								</tr>
+								<tr name='smtp'>
+									<th>密码：</th>
+									<td><input type='password' name='fly_smtp_password' value="${config.fly_smtp_password!}" class='form-control' value=''autocomplete="off" empty /><p class="help-block">SMTP密码</p></td>
+								</tr>
+								<tr name='smtp'>
+									<th>端口号：</th>
+									<td><input type='text' name='fly_smtp_port' value="${config.fly_smtp_port!}" class='form-control' empty /><p class="help-block">SMTP端口号(默认：25)</p></td>
+								</tr>
+								<tr>
+									<th>测试邮件地址：</th>
+									<td><input type='text' name='test_address' id="test_address" value="" pattern='email' class='form-control' empty alt='填写正确的email地址' /><p class="help-block">用于测试邮件发送的功能【可选】</p></td>
+								</tr>
+								<tr>
+									<th></th>
+									<td>
+										<button class='btn btn-primary' type='submit'>保存邮箱设置</button>
+										<button class='btn btn-default' type='button'><span id='testmail'>测试邮件发送</span></button>
+									</td>
+								</tr>
+							</table>
+						</form>
+					</div>
+
+					<!--系统设置-->
+					<div class="tab-pane" id="tab5">
+						<form action="/system/save_conf/form_index/system_conf" method="post" name='system_conf'>
+							<table class="table form-table">
+								<colgroup>
+									<col width="150px" />
+									<col />
+								</colgroup>
+								<tr>
+									<th>清理模板缓存：</th>
+									<td>
+										<button class='btn btn-default' type='button' onclick="clearCache();">开始清理</button>
+										<p class="help-block">清理系统编译生成的模板缓存文件</p>
+									</td>
+								</tr>
+								<tr>
+									<th>私密信息存储：</th>
+									<td>
+										<select name='safe' class='form-control' pattern='required' alt='请选择一种语言'>
+											<option value='cookie'>COOKIE方案(存放于客户端)</option>
+											<option value='session'>SESSION方案(存放于服务器端)</option>
+										</select>
+										<p class="help-block">注意：修改此设置后，用户会被强制退出。默认：COOKIE方案</p>
+									</td>
+								</tr>
+								<tr>
+									<th>上传容量限制：</th>
+									<td><input type='text' name='uploadSize' class='form-control w-auto' empty pattern='int' alt='请输入MB数量' />MB <p class="help-block">上传图片及附件的容量限制，单位：MB</p></td>
+								</tr>
+								<tr>
+									<th>设置语言包：</th>
+									<td>
+										<select class='form-control' name='lang' pattern='required' alt='请选择一种语言'>
+											<option value='zh_sc'>中文(简体)</option>
+										</select>
+										<p class="help-block">切换整站语言</p>
+									</td>
+								</tr>
+								<tr>
+									<th>报错显示设置：</th>
+									<td>
+										<select class='form-control' name="debug">
+											<option value="0">隐藏错误【网站运营阶段】</option>
+											<option value="1">部分显示【普通开发阶段】</option>
+											<option value="2">全部显示【高质量开发阶段】</option>
+										</select>
+									</td>
+								</tr>
+
+								<tr>
+									<th>伪静态：</th>
+									<td>
+										<label class='radio-inline'><input type='radio' name='rewriteRule' value="pathinfo" />开启</label>
+										<label class='radio-inline'><input type='radio' name='rewriteRule' value="url" />关闭</label>
+										<p class="help-block">开启伪静态前请先确保你的服务器环境支持伪静态规则，如果开启后网站无法打开，则需手动修改config/config.php【rewriteRule => url】</p>
+									</td>
+								</tr>
+
+								<tr>
+									<th>授权编号：</th>
+									<td><input type='text' name='authorizeCode' class='form-control' empty /><p class="help-block">购买正式授权的编号 <a href="http://product.aircheng.com" target="_blank">点击查询</a></p></td>
+								</tr>
+
+								<tr>
+									<th></th>
+									<td><button class='btn btn-primary' type='submit'>保存系统设置</button></td>
+								</tr>
+							</table>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('editor', function(editor) {});</script>
+<script type="text/javascript">seajs.use('config', function(config) {});</script>
+<script type="text/javascript">seajs.use('form', function(form) {});</script>
+</body>
+</html>

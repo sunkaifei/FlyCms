@@ -1,0 +1,107 @@
+<header class="main-header">
+    <div class="logo">
+        <span class="logo-mini"><b>Fly</b></span>
+        <span class="logo-lg"><b>FlyShop</b>后台管理</span>
+    </div>
+    <nav class="navbar navbar-static-top">
+        <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+            <span class="sr-only"></span>
+        </a>
+
+        <!--顶部菜单 开始-->
+        <div id="menu" class="navbar-custom-menu">
+            <ul class="nav navbar-nav" name="topMenu">
+                <li<#if page_tab == "goods"> class="active"</#if>><a hidefocus="true" href="/admin/goods/goods_list">商品</a></li>
+                <li<#if page_tab == "user"> class="active"</#if>><a hidefocus="true" href="/admin/user/user_list">会员</a></li>
+                <li<#if page_tab == "order"> class="active"</#if>><a hidefocus="true" href="/admin/order/order_list">订单</a></li>
+                <li<#if page_tab == "market"> class="active"</#if>><a hidefocus="true" href="/market/pro_rule_list">营销</a></li>
+                <li<#if page_tab == "jobs"> class="active"</#if>><a hidefocus="true" href="/market/user_reg">统计</a></li>
+                <li<#if page_tab == "index"> class="active"</#if>><a hidefocus="true" href="/admin/index">系统</a></li>
+                <li<#if page_tab == "tools"> class="active"</#if>><a hidefocus="true" href="/admin/tools/db_bak">工具</a></li>
+                <li><a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a></li>
+           </ul>
+        </div>
+        <!--顶部菜单 结束-->
+   </nav>
+</header>
+<!--左侧菜单 开始-->
+<aside id="admin_left" class="main-sidebar">
+    <section class="sidebar" style="height: auto;">
+        <div class="user-panel">
+            <div class="pull-left image">
+                <i class="fa fa-user"></i>
+            </div>
+            <div class="pull-left info">
+                <p>${admin.adminName!}</p>
+                <a href="#">超级管理员</a>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu tree" data-widget="tree">
+            <li class="header">会员模块菜单</li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa" name="ico" menu="会员管理"></i>
+                    <span>会员管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li><a href="/admin/user/member_list"><i class="fa fa-circle-o"></i>会员列表</a></li>
+                    <li><a href="/admin/user/group_list"><i class="fa fa-circle-o"></i>会员组列表</a></li>
+                    <li><a href="/admin/user/withdraw_list"><i class="fa fa-circle-o"></i>会员提现管理</a></li>
+                    <li><a href="/admin/user/message_list"><i class="fa fa-circle-o"></i>会员消息</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa" name="ico" menu="商户管理"></i>
+                    <span>商户管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li><a href="/member/seller_list"><i class="fa fa-circle-o"></i>商户列表</a></li>
+                    <li><a href="/member/seller_edit"><i class="fa fa-circle-o"></i>添加商户</a></li>
+                    <li><a href="/comment/seller_message_list"><i class="fa fa-circle-o"></i>商户消息</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa" name="ico" menu="信息处理"></i>
+                    <span>信息处理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li><a href="/comment/suggestion_list"><i class="fa fa-circle-o"></i>建议管理</a></li>
+                    <li><a href="/comment/refer_list"><i class="fa fa-circle-o"></i>咨询管理</a></li>
+                    <li><a href="/comment/discussion_list"><i class="fa fa-circle-o"></i>讨论管理</a></li>
+                    <li><a href="/comment/comment_list"><i class="fa fa-circle-o"></i>评价管理</a></li>
+                    <li><a href="/message/notify_list"><i class="fa fa-circle-o"></i>到货通知</a></li>
+                    <li><a href="/message/registry_list"><i class="fa fa-circle-o"></i>邮件订阅</a></li>
+                    <li><a href="/message/marketing_sms_list"><i class="fa fa-circle-o"></i>营销短信</a></li>
+                </ul>
+            </li>
+
+            <li class="header">快速导航</li>
+            <li><a href="fdfdsf"><i class="fa fa-star-o"></i> <span>aaa</span></a></li>
+        </ul>
+    </section>
+</aside>
+<!--左侧菜单 结束-->
+
+<!--顶部弹出菜单 开始-->
+<aside class="control-sidebar control-sidebar-dark">
+    <ul class="control-sidebar-menu">
+        <li><a href="/admin/logout"><i class="fa fa-circle-o text-red"></i> 退出管理</a></li>
+        <li><a href="/admin/admin_repwd"><i class="fa fa-circle-o text-yellow"></i> 修改密码</a></li>
+        <li><a href="/admin/index"><i class="fa fa-circle-o text-green"></i> 后台首页</a></li>
+        <li><a href="/" target='_blank'><i class="fa fa-circle-o text-aqua"></i> 商城首页</a></li>
+        <li><a href="/admin/navigation"><i class="fa fa-circle-o"></i> 快速导航</a></li>
+    </ul>
+</aside>
+<!--顶部弹出菜单 结束-->

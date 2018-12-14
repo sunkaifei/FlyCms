@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly
+        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+    <id>customAssembly</id>
+    <formats>
+        <!-- 打包成目录,这里其实有很多选择,如jar,war,zip,tar等,我们这里选择先打成目录,到真正要用的时候可以打包成zip-->
+        <format>dir</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <!-- 配置文件和静态文件,直接复制-->
+        <fileSet>
+            <directory>src/main/resources/</directory>
+            <outputDirectory>/resources</outputDirectory>
+        </fileSet>
+        <!--如有有启动脚本文件也复制-->
+        <fileSet>
+            <directory>bin/</directory>
+            <outputDirectory>/bin</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <!-- 打包依赖文件,就是maven里面那一堆jar包-->
+        <dependencySet>
+            <outputDirectory>/lib</outputDirectory>
+            <scope>runtime</scope>
+            <!-- 除了主jar文件都打到lib目录下,因为pom文件中设置主jar的依赖包目录为lib/-->
+            <excludes>
+                <exclude>${project.groupId}:${project.artifactId}</exclude>
+            </excludes>
+        </dependencySet>
+        <!-- 主jar打到根目录-->
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>${project.groupId}:${project.artifactId}</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+</assembly>

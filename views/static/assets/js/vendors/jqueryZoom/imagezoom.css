@@ -1,0 +1,21 @@
+div.zoomDiv
+{
+	z-index:9999;
+	position:absolute;
+	top:0px;
+	left:0px;
+	border:1px solid #CCCCCC;
+	display:none;
+	text-align:center;
+	overflow:hidden;
+}
+
+div.zoomMask
+{
+	position:absolute;
+	cursor:move;
+	z-index:999;
+	background-color: #fff;
+	opacity: 0.6;
+	border:1px solid #ccc;
+}

@@ -1,0 +1,96 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="score">
+    <#assign page_nav="detaillist">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/admin/index">系统</a>
+                </li>
+                <li>
+                    <a href="/admin/score/list_scorerule">积分规则管理</a>
+                </li>
+                <li class="active">规则列表</li>
+            </ul>
+        </div>
+        <@fly_scoredetailpage p="${p!}">
+        <div class="content">
+            <form name='right_list' method='post' action='#'>
+                <table class="table list-table">
+                    <colgroup>
+                        <col width="35px" />
+                        <col />
+                        <col width="120px" />
+                    </colgroup>
+                    <caption>
+                        <a class="btn btn-default" href='/admin/score/add_scorerule'>
+                            <i class="fa fa-plus"></i>添加积分规则
+                        </a>
+                        <a class="btn btn-default" id="selectAll">
+                            <i class="fa fa-check"></i>全选
+                        </a>
+                        <a class="btn btn-default" onclick="delModel({msg:'是否把信息放到回收站内？'});">
+                            <i class="fa fa-close"></i>批量删除
+                        </a>
+                    </caption>
+                </table>
+                <table class="table list-table">
+                    <colgroup>
+                        <col width="35px" />
+                        <col width="200px" />
+                        <col width="250px" />
+                        <col width="150px" />
+                        <col width="100px" />
+                        <col width="120px" />
+                        <col />
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>选择</th>
+                        <th>账户</th>
+                        <th>积分说明</th>
+                        <th>奖励分数</th>
+                        <th>变动后积分</th>
+                        <th>时间</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <#list detail_page.list as list>
+                    <tr>
+                        <td><input name="ruleId" type="checkbox" value="${list.id}" /></td>
+                        <td><@fly_userinfo userId="${list.userId!}"><a href="/people/${userinfo.userId!}"><#if userinfo.userMobile??>${userinfo.userMobile!}<#elseif userinfo.userName??>${userinfo.userName!}<#else>${userinfo.userEmail!}</#if></a></@fly_userinfo></td>
+                        <td>${list.remark!}</td>
+                        <td>${list.score!}</td>
+                        <td>
+                            ${list.balance!}
+                        </td>
+                        <td class="word-wrap">
+                            ${list.createTime?string('yyyy-MM-dd HH:mm:ss')}
+                        </td>
+                    </tr>
+                    </#list>
+                    </tbody>
+                </table>
+                <div class="text-center">
+                    <ul class="pagination">
+                        ${detail_page.pageNumHtml}
+                    </ul>
+                </div>
+            </form>
+        </div>
+    </@fly_scoredetailpage>
+</div>
+<!--右侧内容 结束-->
+
+</div>
+<script type="text/javascript">seajs.use('config', function(config) {});</script>
+</body>
+</html>

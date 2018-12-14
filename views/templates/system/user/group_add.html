@@ -1,0 +1,83 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="basic">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">会员</a>
+                </li>
+                <li>
+                    <a href="#">用户组管理</a>
+                </li>
+                <li class="active">添加用户组</li>
+            </ul>
+        </div>
+        <div class="content">
+            <form action="/admin/user/group_save" method="post" id="group_add">
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px" />
+                        <col />
+                    </colgroup>
+
+                    <tr>
+                        <th>用户组：</th><td><input class="form-control" name="groupName" type="text" value="" pattern="required" placeholder="会员组名称" /></td>
+                    </tr>
+                    <tr>
+                        <th>折扣率：</th><td><input class="form-control w-auto" name="discount" type="text" value="" pattern="float" placeholder="请输入数字" />%<p class="help-block">折扣率，例如：如果输入90，表示该会员组可以以商品原价的90%购买（允许包含小数）。</p></td>
+                    </tr>
+                    <tr>
+                        <th>最小经验：</th><td><input class="form-control" name="minexp" type="text" value="" pattern="int" placeholder="填写整数值" /><p class="help-block">进入此会员组的经验值下限</p></td>
+                    </tr>
+                    <tr>
+                        <th>最大经验：</th>
+                        <td>
+                            <input class="form-control" name="maxexp" type="text" value="" pattern="int" alt="请填写一个整数值" />
+                            <p class="help-block">进入此会员组的经验值上限</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td><td><button class='btn btn-primary' type="submit">确定</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+        <script type='text/javascript'>
+            //检查经验输入
+            function check_exp()
+            {
+                var minexp = parseInt($('[name="minexp"]').val());
+                var maxexp = parseInt($('[name="maxexp"]').val());
+
+                if(maxexp <= minexp)
+                {
+                    alert('最大经验值必须比最小经验值大');
+                    $('[name="minexp"]').removeClass('valid-text');
+                    $('[name="maxexp"]').removeClass('valid-text');
+                    $('[name="minexp"]').addClass('invalid-text');
+                    $('[name="maxexp"]').addClass('invalid-text');
+                    return false;
+                }
+                else
+                {
+                    $('[name="minexp"]').removeClass('invalid-text');
+                    $('[name="maxexp"]').removeClass('invalid-text');
+                }
+            }
+        </script>
+
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('user', function(user) {});</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="market">
+    <#include "market_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">营销</a>
+                </li>
+                <li>
+                    <a href="#">营销活动管理</a>
+                </li>
+                <li class="active">团购</li>
+            </ul>
+        </div>
+        <div class="content">
+            <form method='post' action='/market/regiment_del'>
+                <table class="table list-table">
+                    <colgroup>
+                        <col width="35px" />
+                        <col  />
+                        <col width="320px" />
+                        <col width="80px" />
+                        <col width="80px" />
+                        <col width="90px" />
+                        <col width="90px" />
+                    </colgroup>
+                    <caption>
+                        <a class="btn btn-default" href='/market/regiment_edit'>
+                            <i class="fa fa-plus"></i>添加团购
+                        </a>
+                        <a class="btn btn-default" onclick="selectAll('id[]')">
+                            <i class="fa fa-check"></i>全选
+                        </a>
+                        <a class="btn btn-default" onclick="delModel()">
+                            <i class="fa fa-close"></i>批量删除
+                        </a>
+                        <a href="/groupon.html" class="btn btn-default" >
+                            <i class="fa fa-eye"></i>查看团购
+                        </a>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>标题</th>
+                        <th>团购时间</th>
+                        <th>排序</th>
+                        <th>状态</th>
+                        <th>销售情况</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='6' /></td>
+                        <td><a href='/groupon.html?id=6' target='_blank'  title="团购来袭">团购来袭 【平台自营】</a></td>
+                        <td>2016-01-21 15:49:49 ～ 2018-09-13 15:49:52</td>
+                        <td>0</td>
+                        <td>正常</td>
+                        <td>0/99</td>
+                        <td>
+                            <a href='/market/regiment_edit/id/6'>
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/regiment_del/id/6'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='4' /></td>
+                        <td><a href='/groupon.html?id=4' target='_blank'  title="团购活动">团购活动 【平台自营】</a></td>
+                        <td>2016-01-21 15:48:17 ～ 2018-09-12 15:48:21</td>
+                        <td>0</td>
+                        <td>正常</td>
+                        <td>0/99</td>
+                        <td>
+                            <a href='/market/regiment_edit/id/4'>
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/regiment_del/id/4'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='2' /></td>
+                        <td><a href='/groupon.html?id=2' target='_blank'  title="开团啦">开团啦 【平台自营】</a></td>
+                        <td>2015-06-11 17:25:54 ～ 2018-09-05 17:25:57</td>
+                        <td>0</td>
+                        <td>正常</td>
+                        <td>0/600</td>
+                        <td>
+                            <a href='/market/regiment_edit/id/2'>
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/regiment_del/id/2'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='5' /></td>
+                        <td><a href='/groupon.html?id=5' target='_blank'  title="精品团购">精品团购 【平台自营】</a></td>
+                        <td>2016-01-21 15:49:02 ～ 2018-09-06 15:49:04</td>
+                        <td>1</td>
+                        <td>正常</td>
+                        <td>0/99</td>
+                        <td>
+                            <a href='/market/regiment_edit/id/5'>
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/regiment_del/id/5'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <style>
+            .pagination {
+                display: inline-block;
+                padding-left: 0;
+                margin: 10px 0;
+                border-radius: 4px;
+            }
+            .pagination > li {
+                display: inline !important;
+                width:auto !important;
+                height:auto !important;
+                border:none !important;
+                margin:0 !important;
+                padding: 0 !important;
+            }
+            .pagination > li > a {
+                position: relative !important;
+                float: left !important;
+                padding: 6px 12px !important;
+                line-height: 1.42857143 !important;
+                text-decoration: none !important;
+                color: #337ab7;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                margin-left: -1px !important;
+                width:auto !important;
+                height:auto !important;
+            }
+            .pagination > li:first-child > a {
+                margin-left: 0 !important;
+                border-bottom-left-radius: 4px !important;
+                border-top-left-radius: 4px !important;
+            }
+            .pagination > li:last-child > a {
+                border-bottom-right-radius: 4px !important;
+                border-top-right-radius: 4px !important;
+            }
+            .pagination > li > a:hover,
+            .pagination > li > a:focus {
+                z-index: 2 !important;
+                color: #23527c;
+                background-color: #eeeeee;
+                border-color: #ddd !important;
+            }
+            .pagination > .active > a,
+            .pagination > .active > a:hover,
+            .pagination > .active > a:focus {
+                z-index: 3 !important;
+                color: #fff;
+                background-color: #337ab7;
+                border-color: #337ab7;
+                cursor: default !important;
+            }
+        </style><div style='clear:both'><ul class='pagination'><li><a href='/market/regiment_list?page=1' >首页</a></li><li class='active'><a href='/market/regiment_list?page=1' >1</a></li><li><a href='/market/regiment_list?page=1' >尾页</a></li><li><a>当前第1页/共1页</a></li></ul></div>
+    </div>
+    <!--右侧内容 结束-->
+
+    <!--顶部弹出菜单 开始-->
+    <aside class="control-sidebar control-sidebar-dark">
+        <ul class="control-sidebar-menu">
+            <li><a href="/admin/logout"><i class="fa fa-circle-o text-red"></i> 退出管理</a></li>
+            <li><a href="/system/admin_repwd"><i class="fa fa-circle-o text-yellow"></i> 修改密码</a></li>
+            <li><a href="/system/default"><i class="fa fa-circle-o text-green"></i> 后台首页</a></li>
+            <li><a href="/" target='_blank'><i class="fa fa-circle-o text-aqua"></i> 商城首页</a></li>
+            <li><a href="/system/navigation"><i class="fa fa-circle-o"></i> 快速导航</a></li>
+        </ul>
+    </aside>
+    <!--顶部弹出菜单 结束-->
+</div>
+</body>
+</html>

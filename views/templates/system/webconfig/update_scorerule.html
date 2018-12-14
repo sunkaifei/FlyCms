@@ -1,0 +1,72 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="permission">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/admin/index">系统</a>
+                </li>
+                <li>
+                    <a href="/admin/score/list_scorerule">积分规则管理</a>
+                </li>
+                <li class="active">添加积分规则</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <form action="/admin/score/scorerule_update" method="post" name="role_edit" id="score_form">
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="80px" />
+                        <col />
+                    </colgroup>
+
+                    <tr>
+                        <th>名称：</th>
+                        <td><input type='text' class='form-control' name='name' value="${rule.name!}" pattern='required' placeholder='规则名称' /></td>
+                    </tr>
+                    <tr>
+                        <th>变动积分：</th>
+                        <td><input type='text' class='form-control' name='score' value="${rule.score!}" pattern='required' placeholder='每次增加的积分数量' /></td>
+                    </tr>
+                    <tr>
+                        <th>规则说明：</th>
+                        <td><textarea type='text' class='form-control' name='remark' pattern='required' placeholder='规则说明' >${rule.remark!}</textarea></td>
+                    </tr>
+                    <tr>
+                        <th>奖励类型：</th>
+                        <td><select name='type' class='form-control'>
+                            <option value='unlimite'<#if rule.type="unlimite"> selected = "selected"</#if>>不限次数</option>
+                            <option value='day'<#if rule.type="day"> selected = "selected"</#if>>每天一次</option>
+                            <option value='week'<#if rule.type="week"> selected = "selected"</#if>>每周一次</option>
+                            <option value='month'<#if rule.type="month"> selected = "selected"</#if>>每月一次</option>
+                            <option value='year'<#if rule.type="year"> selected = "selected"</#if>>每年一次</option>
+                            <option value='one'<#if rule.type="one"> selected = "selected"</#if>>只有一次</option>
+                        </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>规则状态：</th>
+                        <td><label class='radio-inline'><input type='radio' name='status' value="1" checked />开启</label>
+                            <label class='radio-inline'><input type='radio' name='status' value="0" />关闭</label></td>
+                    </tr>
+                    <tr><td></td><td>
+                        <input type="hidden" name='id' value="${rule.id!}">
+                        <button class='btn btn-primary' type='submit'>保 存</button></td></tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('config', function(config) {});</script>
+</body>
+</html>

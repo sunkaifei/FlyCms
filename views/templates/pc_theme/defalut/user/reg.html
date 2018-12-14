@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用户注册 - ${seo_title!}</title>
+	<meta name="keywords" content="${seo_keywords!}" />
+	<meta name="description" content="${seo_description!}" />
+	<!-- Bootstrap -->
+	<link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/account.css" />
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+        <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+	<script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
+	<script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
+</head>
+<body>
+	<div class="container warp">
+
+		<div class="col-md-6 col-md-offset-3 bg-white login-wrap">
+			<h1 class="h4 text-center text-muted login-title">创建新账号</h1>
+			<form role="form" id="registerForm" action="/member/addUser.json" method="post" onsubmit="return false;">
+				<input type="hidden" name="invite" value="${invite!}">
+				<div class="form-group ">
+					<label class="required">手机号码</label>
+					<input type="text" class="form-control" name="username" id="phoneNumber" value="" required placeholder="请输入您的手机号码">
+				</div>
+				<div class="form-group">
+					<label for="exampleInputAmount" class="required">验证码</label>
+					<div class="input-group">
+						<input type="text" name="mobilecode" class="form-control mobilecode" autocomplete="new-text" placeholder="手机验证码">
+                        <input type="hidden" id="verifytime" value="" />
+                        <div class="input-group-addon" id="addMobileCode" data-toggle="modal" data-target="#myMobileModal">获取验证码</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="password" class="required">密码</label>
+					<input type="password" class="form-control" name="password" id="password" required placeholder="不少于 6 位">
+				</div>
+				<div class="form-group ">
+					<label for="password2" class="required">确认密码</label>
+					<input type="password" class="form-control" name="password2" id="password2" required placeholder="不少于 6 位">
+				</div>
+				<div class="form-group">
+					同意并接受 <a href="#" target="_blank" data-toggle="modal" data-target="#register_license_modal">《服务条款》</a>
+				</div>
+				<div class="form-group">
+					<button type="submit" id="register-btn" class="btn btn-primary btn-block btn-lg">注册</button>
+				</div>
+			</form>
+		</div>
+
+
+		<div class="text-center col-md-12 login-link">
+			<a href="/login">用户登录</a> | <a
+				href="/">首页</a> | <a
+				href="/forget_password">找回密码</a>
+		</div>
+		<div class="modal fade " id="register_license_modal" tabindex="-1"
+			role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+						<h4 class="modal-title text-center">开源之家网服务条款</h4>
+					</div>
+					<div class="modal-body">
+						<div style="height: 450px;overflow:scroll;">
+							<p>当您申请用户时，表示您已经同意遵守本规章。&nbsp;</p>
+							<p>欢迎您加入本站点参加交流和讨论，本站点为公共论坛，为维护网上公共秩序和社会稳定，请您自觉遵守以下条款：&nbsp;</p>
+							<p>
+								<br>
+							</p>
+							<p>一、不得利用本站危害国家安全、泄露国家秘密，不得侵犯国家社会集体的和公民的合法权益，不得利用本站制作、复制和传播下列信息：</p>
+							<p>（一）煽动抗拒、破坏宪法和法律、行政法规实施的；</p>
+							<p>（二）煽动颠覆国家政权，推翻社会主义制度的；</p>
+							<p>（三）煽动分裂国家、破坏国家统一的；</p>
+							<p>（四）煽动民族仇恨、民族歧视，破坏民族团结的；</p>
+							<p>（五）捏造或者歪曲事实，散布谣言，扰乱社会秩序的；</p>
+							<p>（六）宣扬封建迷信、淫秽、色情、赌博、暴力、凶杀、恐怖、教唆犯罪的；</p>
+							<p>（七）公然侮辱他人或者捏造事实诽谤他人的，或者进行其他恶意攻击的；</p>
+							<p>（八）损害国家机关信誉的；</p>
+							<p>（九）其他违反宪法和法律行政法规的；</p>
+							<p>（十）进行商业广告行为的。</p>
+							<p>
+								<br>
+							</p>
+							<p>二、互相尊重，对自己的言论和行为负责。</p>
+							<p>三、禁止在申请用户时使用相关本站的词汇，或是带有侮辱、毁谤、造谣类的或是有其含义的各种语言进行注册用户，否则我们会将其删除。</p>
+							<p>四、禁止以任何方式对本站进行各种破坏行为。</p>
+							<p>五、如果您有违反国家相关法律法规的行为，本站概不负责，您的登录论坛信息均被记录无疑，必要时，我们会向相关的国家管理部门提供此类信息。</p>
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+    <div class="modal fade bs-example-modal-sm" id="myMobileModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">获取手机验证码</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <input type="text" class="form-control input-lg captcha" id="exampleInputAmount" placeholder="右侧验证码">
+                        <div class="input-group-addon" style="padding: 0px;background-color: #fff;"><a href="javascript:void(0);" id="reloadCaptcha"><img src=""></a></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary mobilecod-btn">免费获取</button>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script type="text/javascript">seajs.use('login', function(login) {});</script>
+</body>
+</html>

@@ -1,0 +1,726 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="market">
+    <#include "market_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">营销</a>
+                </li>
+                <li>
+                    <a href="#">代金券管理</a>
+                </li>
+                <li class="active">代金券列表</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <form method='post' action='/market/ticket_excel'>
+                <table class="table list-table">
+                    <colgroup>
+                        <col width="35px" />
+                        <col width="150px" />
+                        <col width="100px" />
+                        <col width="70px" />
+                        <col width="90px" />
+                        <col width="330px" />
+                        <col />
+                    </colgroup>
+                    <caption>
+                        <a class="btn btn-default" href='/market/ticket_edit'>
+                            <i class="fa fa-plus"></i>添加代金券
+                        </a>
+
+                        <button class="btn btn-default" type="submit">
+                            <i class="fa fa-file-excel-o"></i>生成EXCEL
+                        </button>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>名称</th>
+                        <th>面值</th>
+                        <th>数量</th>
+                        <th>兑换积分</th>
+                        <th>有效期</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='1' /></td>
+                        <td>水费优惠券</td>
+                        <td>0.00 元</td>
+                        <td>9134 张</td>
+                        <td>不可兑换</td>
+                        <td>2018-05-01 15:31:00 ～ 2020-05-29 00:00:00</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/1' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/1' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("1");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/1'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/1'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='5' /></td>
+                        <td>电费优惠券</td>
+                        <td>111.00 元</td>
+                        <td>466 张</td>
+                        <td>11</td>
+                        <td>2016-12-15 16:21:23 ～ 2017-04-21 16:21:25</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/5' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/5' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("5");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/5'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/5'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='3' /></td>
+                        <td>体验券</td>
+                        <td>0.00 元</td>
+                        <td>1112 张</td>
+                        <td>不可兑换</td>
+                        <td>2016-12-15 00:00:00 ～ 2018-07-19 00:00:00</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/3' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/3' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("3");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/3'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/3'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='24' /></td>
+                        <td>创新券</td>
+                        <td>10.00 元</td>
+                        <td>100 张</td>
+                        <td>1</td>
+                        <td>2017-03-26 13:58:42 ～ 2017-04-26 13:58:47</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/24' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/24' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("24");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/24'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/24'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='37' /></td>
+                        <td>双十一优惠券</td>
+                        <td>100.00 元</td>
+                        <td>80 张</td>
+                        <td>10</td>
+                        <td>2017-12-05 00:50:48 ～ 2017-12-30 00:50:50</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/37' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/37' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("37");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/37'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/37'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='36' /></td>
+                        <td>停车费优惠券</td>
+                        <td>3.00 元</td>
+                        <td>1 张</td>
+                        <td>不可兑换</td>
+                        <td>2018-01-06 13:29:21 ～ 2018-11-30 13:29:24</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/36' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/36' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("36");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/36'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/36'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='45' /></td>
+                        <td>国庆券</td>
+                        <td>0.00 元</td>
+                        <td>100 张</td>
+                        <td>不可兑换</td>
+                        <td>2018-01-16 00:00:00 ～ 2018-12-31 00:00:00</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/45' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/45' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("45");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/45'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/45'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='33' /></td>
+                        <td>春节券</td>
+                        <td>11.00 元</td>
+                        <td>10 张</td>
+                        <td>100</td>
+                        <td>2017-10-19 10:18:35 ～ 2017-12-27 10:18:38</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/33' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/33' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("33");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/33'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/33'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='34' /></td>
+                        <td>双十一百元优惠券</td>
+                        <td>100.00 元</td>
+                        <td>50 张</td>
+                        <td>100</td>
+                        <td>2017-10-01 12:43:03 ～ 2017-11-21 12:43:11</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/34' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/34' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("34");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/34'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/34'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='17' /></td>
+                        <td>体验券</td>
+                        <td>2.00 元</td>
+                        <td>80 张</td>
+                        <td>1</td>
+                        <td>2016-12-23 16:57:49 ～ 2016-12-28 16:57:51</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/17' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/17' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("17");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/17'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/17'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='46' /></td>
+                        <td>情人节玫瑰券</td>
+                        <td>11.00 元</td>
+                        <td>1 张</td>
+                        <td>10</td>
+                        <td>2018-02-04 14:38:22 ～ 2018-02-22 14:38:24</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/46' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/46' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("46");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/46'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/46'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='19' /></td>
+                        <td>满199减100</td>
+                        <td>100.00 元</td>
+                        <td>50 张</td>
+                        <td>10</td>
+                        <td>2016-12-30 11:47:35 ～ 2017-02-09 11:47:40</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/19' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/19' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("19");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/19'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/19'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='20' /></td>
+                        <td>酒店代理</td>
+                        <td>100.00 元</td>
+                        <td>1000 张</td>
+                        <td>不可兑换</td>
+                        <td>2017-02-06 20:46:44 ～ 2017-02-25 20:46:46</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/20' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/20' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("20");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/20'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/20'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='21' /></td>
+                        <td>新人专享优惠券</td>
+                        <td>20.00 元</td>
+                        <td>100 张</td>
+                        <td>1</td>
+                        <td>2017-03-02 15:38:27 ～ 2017-03-03 15:38:30</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/21' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/21' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("21");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/21'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/21'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='22' /></td>
+                        <td>20元代金券</td>
+                        <td>30.00 元</td>
+                        <td>1 张</td>
+                        <td>100</td>
+                        <td>2017-03-11 16:31:17 ～ 2017-03-24 16:31:23</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/22' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/22' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("22");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/22'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/22'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='23' /></td>
+                        <td>500元代金券</td>
+                        <td>500.00 元</td>
+                        <td>63 张</td>
+                        <td>1</td>
+                        <td>2017-03-11 16:41:18 ～ 2019-03-02 16:41:20</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/23' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/23' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("23");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/23'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/23'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='50' /></td>
+                        <td>123</td>
+                        <td>5000.00 元</td>
+                        <td>0 张</td>
+                        <td>10</td>
+                        <td>2018-03-06 20:48:43 ～ 2018-03-30 20:48:47</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/50' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/50' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("50");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/50'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='26' /></td>
+                        <td>福袋</td>
+                        <td>666.66 元</td>
+                        <td>2 张</td>
+                        <td>不可兑换</td>
+                        <td>2017-06-13 03:58:17 ～ 2017-06-22 03:58:19</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/26' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/26' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("26");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/26'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/26'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='27' /></td>
+                        <td>10元代金券</td>
+                        <td>0.00 元</td>
+                        <td>101 张</td>
+                        <td>10</td>
+                        <td>2017-07-03 16:30:30 ～ 2018-11-20 00:00:00</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/27' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/27' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("27");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'/market/ticket_excel/id/27'});">
+                                <i class='operator fa fa-file-excel-o'></i>
+                            </a>
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/27'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type='checkbox' name='id[]' value='28' /></td>
+                        <td>高忠阳</td>
+                        <td>1000.00 元</td>
+                        <td>0 张</td>
+                        <td>不可兑换</td>
+                        <td>2017-07-04 16:47:33 ～ 2017-07-11 16:47:35</td>
+                        <td>
+                            <a href='/market/ticket_edit/id/28' title="编辑">
+                                <i class='operator fa fa-edit'></i>
+                            </a>
+
+                            <a href='/market/ticket_more_list/ticket_id/28' title="查看代金券">
+                                <i class='operator fa fa-eye'></i>
+                            </a>
+
+                            <a href='javascript:create_dialog("28");' title="生成代金券">
+                                <i class='operator fa fa-money'></i>
+                            </a>
+
+
+                            <a href='javascript:void(0)' onclick="delModel({link:'/market/ticket_del/id/28'});">
+                                <i class='operator fa fa-close'></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <style>
+            .pagination {
+                display: inline-block;
+                padding-left: 0;
+                margin: 10px 0;
+                border-radius: 4px;
+            }
+            .pagination > li {
+                display: inline !important;
+                width:auto !important;
+                height:auto !important;
+                border:none !important;
+                margin:0 !important;
+                padding: 0 !important;
+            }
+            .pagination > li > a {
+                position: relative !important;
+                float: left !important;
+                padding: 6px 12px !important;
+                line-height: 1.42857143 !important;
+                text-decoration: none !important;
+                color: #337ab7;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                margin-left: -1px !important;
+                width:auto !important;
+                height:auto !important;
+            }
+            .pagination > li:first-child > a {
+                margin-left: 0 !important;
+                border-bottom-left-radius: 4px !important;
+                border-top-left-radius: 4px !important;
+            }
+            .pagination > li:last-child > a {
+                border-bottom-right-radius: 4px !important;
+                border-top-right-radius: 4px !important;
+            }
+            .pagination > li > a:hover,
+            .pagination > li > a:focus {
+                z-index: 2 !important;
+                color: #23527c;
+                background-color: #eeeeee;
+                border-color: #ddd !important;
+            }
+            .pagination > .active > a,
+            .pagination > .active > a:hover,
+            .pagination > .active > a:focus {
+                z-index: 3 !important;
+                color: #fff;
+                background-color: #337ab7;
+                border-color: #337ab7;
+                cursor: default !important;
+            }
+        </style><div style='clear:both'><ul class='pagination'><li><a href='/market/ticket_list?page=1' >首页</a></li><li class='active'><a href='/market/ticket_list?page=1' >1</a></li><li class=''><a href='/market/ticket_list?page=2' >2</a></li><li class=''><a href='/market/ticket_list?page=3' >3</a></li><li><a href='/market/ticket_list?page=3' >尾页</a></li><li><a>当前第1页/共3页</a></li></ul></div>
+        <script type='text/javascript'>
+            //创建优惠券
+            function create_dialog(ticket_id)
+            {
+                art.dialog.prompt('请输入生成线下实体代金券数量：',function(num)
+                {
+                    var num = parseInt(num);
+                    if(isNaN(num) || num <= 0)
+                    {
+                        alert('请填写正确的数量');
+                        return false;
+                    }
+
+                    var url = '/market/ticket_create/ticket_id/@ticket_id@/num/@num@';
+                    url = url.replace('@ticket_id@',ticket_id).replace('@num@',num);
+                    window.location.href = url;
+                });
+            }
+        </script>
+
+    </div>
+    <!--右侧内容 结束-->
+
+    <!--顶部弹出菜单 开始-->
+    <aside class="control-sidebar control-sidebar-dark">
+        <ul class="control-sidebar-menu">
+            <li><a href="/admin/logout"><i class="fa fa-circle-o text-red"></i> 退出管理</a></li>
+            <li><a href="/system/admin_repwd"><i class="fa fa-circle-o text-yellow"></i> 修改密码</a></li>
+            <li><a href="/system/default"><i class="fa fa-circle-o text-green"></i> 后台首页</a></li>
+            <li><a href="/" target='_blank'><i class="fa fa-circle-o text-aqua"></i> 商城首页</a></li>
+            <li><a href="/system/navigation"><i class="fa fa-circle-o"></i> 快速导航</a></li>
+        </ul>
+    </aside>
+    <!--顶部弹出菜单 结束-->
+</div>
+</body>
+</html>

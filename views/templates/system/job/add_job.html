@@ -1,0 +1,78 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="job">
+    <#assign page_nav="joblist">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/admin/index">系统</a>
+                </li>
+                <li>
+                    <a href="/admin/job/list_job">任务列表</a>
+                </li>
+                <li class="active">添加任务</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <form action='/admin/job/insert' method='post' class="addForm">
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px" />
+                        <col />
+                    </colgroup>
+                    <tr>
+                        <th>Bean名称：</th>
+                        <td>
+                            <input type='text' class='form-control' name='beanName' value='' placeholder="请输入Bean名称.." autocomplete="off" pattern='required' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>方法名称：</th>
+                        <td>
+                            <input type='text' class='form-control' name='methodName' value='' placeholder="请输入方法名称.." autocomplete="off" pattern='required' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>cron表达式：</th>
+                        <td>
+                            <input type='text' class='form-control' name='cronExpression' value='' placeholder="请输入cron表达式.." autocomplete="off" pattern='required' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>参数：</th>
+                        <td>
+                            <input type='text' class='form-control' name='params' value='' placeholder="请输入参数.." patte placeholder="请输入cron表达式.." autocomplete="off"rn='required' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>备注：</th>
+                        <td>
+                            <textarea name="remark" placeholder="请输入备注.." class="form-control"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>状态：</th>
+                        <td>
+                            <input type="checkbox" name="status" value="1" class="js-switch bootstrap-switch-mini job-switch">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript"> seajs.use('form', function(form){}); </script>
+</body>
+</html>

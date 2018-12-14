@@ -1,0 +1,137 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+	<#assign page_tab="usermenu">
+	<#assign page_nav="userlist">
+	<#include "../common/system_menu.html">
+
+	<!--右侧内容 开始-->
+	<div id="admin_right" class="content-wrapper">
+		<div class="breadcrumbs" id="breadcrumbs">
+			<ul class="breadcrumb">
+				<li>
+					<i class="home-icon fa fa-home"></i>
+					<a href="/admin/user/user_list">会员</a>
+				</li>
+				<li>
+					<a href="/admin/user/user_list">会员管理</a>
+				</li>
+				<li class="active">会员列表</li>
+			</ul>
+		</div>
+
+		<div class="content">
+			<table class="table list-table">
+				<colgroup>
+					<col width="35px" />
+					<col width="100px" />
+					<col width="100px" />
+					<col width="80px" />
+					<col width="50px" />
+					<col width="100px"/>
+					<col width="90px" />
+					<col width="60px" />
+					<col width="50px" />
+					<col width="100px" />
+					<col width="100px" />
+					<col width="90px" />
+				</colgroup>
+				<caption>
+					<a class="btn btn-default" href='/admin/user/user_add'>
+						<i class="fa fa-plus"></i>添加会员
+					</a>
+					<a class="btn btn-default">
+						<i class="fa fa-check"></i>全选
+					</a>
+					<a class="btn btn-default">
+						<i class="fa fa-close"></i>批量删除
+					</a>
+					<a class="btn btn-default" href='/index.php?controller=member&action=recycling'>
+						<i class="fa fa-trash"></i>回收站
+					</a>
+					<a class="btn btn-default">
+						<i class="fa fa-yen"></i>预付款管理
+					</a>
+
+					<form name="searchuser" action="/index.php" method="get" class="pull-right form-inline" style="margin:0">
+						<input type='hidden' name='controller' value='member' />
+						<input type='hidden' name='action' value='member_list' />
+						<select class="form-control" name="search">
+							<option value="u.username">用户名</option>
+							<option value="m.true_name">姓名</option>
+							<option value="m.mobile">手机</option>
+							<option value="m.email">Email</option>
+						</select>
+						<input class="form-control" name="keywords" type="text" value=""/>
+						<button class="btn btn-default" type="submit">
+							<i class="fa fa-search"></i>搜 索
+						</button>
+					</form>
+				</caption>
+				<thead>
+				<tr>
+					<th></th>
+					<th>用户名</th>
+					<th>会员等级</th>
+					<th>姓名</th>
+					<th>性别</th>
+					<th>Email</th>
+					<th>余额</th>
+					<th>积分</th>
+					<th>状态</th>
+					<th>注册日期</th>
+					<th>手机</th>
+					<th>操作</th>
+				</tr>
+				</thead>
+				<form action="#" method="post" name="member_list">
+					<tbody>
+					<#list pageVo.list as list>
+					<tr>
+						<td><input name="check[]" type="checkbox" value="${list.userId}" /></td>
+						<td title="${list.userName!}">${list.userName!}</td>
+						<td title="">
+                            <@fly_usergroup userId="${list.userId!}"><#if group??>${group.groupName!}</#if></@fly_usergroup>
+                        </td>
+						<td title="">${list.nickName!}</td>
+                        <td title="<#if list.sex == 1>男<#else>女</#if>">
+                            <#if list.sex == 1>
+                            男
+                            <#else>
+                            女
+                            </#if>
+                        </td>
+						<td title="${list.email!}">${list.userEmail!}</td>
+						<@fly_useraccount userId="${list.userId!}">
+						<td title="${account.balance?string('#.##')}">${account.balance?string('#.##')}</td>
+						<td title="${account.exp!}">${account.exp!}</td>
+                        </@fly_useraccount>
+						<td title="<#if list.status == 1>正常<#elseif list.status == 2>回收站<#elseif list.status == 3>锁定</#if>">
+                            <#if list.status == 1>
+                            正常
+                            <#elseif list.status == 2>
+                            回收站
+                            <#elseif list.status == 3>
+                            锁定
+                            </#if>
+                        </td>
+						<td title="${list.createTime?string('yyyy-MM-dd HH:mm:ss')}">${list.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
+						<td title="">${list.userMobile!}</td>
+						<td>
+							<a href="/admin/user/user_edit/${list.userId!}"><i class='operator fa fa-edit'></i></a>
+							<a data-title="${list.nickName!}" data-id="${list.userId!}" class="user-delete"><i class='operator fa fa-close'></i></a>
+						</td>
+					</tr>
+					</#list>
+					</tbody>
+				</form>
+			</table>
+		</div>
+        <div style='clear:both'><ul class='pagination'>${pageVo.pageNumHtml}</ul></div>
+	</div>
+	<!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('user', function(user) {});</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+.download-pwd-box{
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 15px;
+    padding: 10px 17px;
+    border: 1px solid #ffd8c0;
+    background-color: #fff9f3;
+    color: #333;
+}
+.download-pay-tip{
+    line-height: 22px;
+}
+.red1 {
+    color: #eb0064;
+}
+.font-tahoma {
+    font-family: tahoma;
+}
+.download-agree-rule {
+    margin-left: 20px;
+    margin-right: 20px;
+    font-weight: bold;
+    margin-top: 12px;
+}
+.download-agree-rule a:hover {
+    color: #eb0064;
+}
+.download-agree-rule a, a:hover {
+    text-decoration: none;
+}
+.download-link{
+    margin-top: 20px;
+    margin-left: 20px;
+}
+.download-link a, a:hover {
+    color: #fff;
+    text-decoration: none;
+}
+.btn-down-best {
+    width: 120px;
+    height: 42px;
+    background: #007edb;
+    background: linear-gradient(to bottom, #0086ea, #007ad5);
+    border: 1px solid #0072c5;
+    font: 700 16px/42px microsoft yahei;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    display: block;
+}
+.post-opt  a:hover {
+    color: #999;
+}

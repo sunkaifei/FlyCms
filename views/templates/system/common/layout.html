@@ -1,0 +1,73 @@
+<#macro html page_title page_tab="">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>铭阳图库管理系统</title>
+
+    <!-- Bootstrap -->
+    <link href="/adminstyle/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="/adminstyle/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="/adminstyle/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="/adminstyle/vendors/iCheck/skins/flat/green.css" rel="stylesheet">
+	
+    <!-- bootstrap-progressbar -->
+    <link href="/adminstyle/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
+    <!-- JQVMap -->
+    <link href="/adminstyle/vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet"/>
+    <!-- bootstrap-daterangepicker -->
+    <link href="/adminstyle/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link href="/adminstyle/css/custom.min.css" rel="stylesheet">
+  </head>
+
+  <body class="nav-md">
+    <div class="container body">
+      <div class="main_container">
+        <div class="col-md-3 left_col">
+          <div class="left_col scroll-view">
+            <div class="navbar nav_title" style="border: 0;">
+              <a href="/manage/index" class="site_title"><i class="fa fa-paw"></i> <span>铭阳图库</span></a>
+            </div>
+
+            <div class="clearfix"></div>
+
+            <!-- menu profile quick info -->
+            <div class="profile clearfix">
+              <div class="profile_pic">
+                <img src="/adminstyle/images/img.jpg" alt="..." class="img-circle profile_img">
+              </div>
+              <div class="profile_info">
+                <span>Welcome,</span>
+                <h2>${user.nickname!}</h2>
+              </div>
+            </div>
+            <!-- /menu profile quick info -->
+
+            <br />
+  <#include "./header.html">
+  <@header page_tab=page_tab/>
+  <div class="container" style="padding: 0 25px;">
+    <form class="hidden-lg hidden-md" style="margin: 0 -10px;" role="search" action="/search" method="get">
+      <div class="form-group has-feedback" style="margin-bottom: 10px;">
+        <input type="text" class="form-control" name="q" value="${q!}" placeholder="回车搜索">
+        <span class="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></span>
+      </div>
+    </form>
+    <#nested />
+  </div>
+</div>
+  <#include "./footer.ftl">
+  <@footer/>
+</body>
+</html>
+</#macro>

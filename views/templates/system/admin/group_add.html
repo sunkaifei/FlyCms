@@ -1,0 +1,45 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+	<#assign page_tab="index">
+	<#assign page_nav="permission">
+	<#include "../common/system_menu.html">
+
+	<!--右侧内容 开始-->
+	<div id="admin_right" class="content-wrapper">
+		<div class="breadcrumbs" id="breadcrumbs">
+			<ul class="breadcrumb">
+				<li>
+					<i class="home-icon fa fa-home"></i>
+					<a href="/system/index">系统</a>
+				</li>
+				<li>
+					<a href="#">权限管理</a>
+				</li>
+				<li class="active">编辑角色</li>
+			</ul>
+		</div>
+
+		<div class="content">
+			<form action="/system/admin/add_group_save" method="post" id="group_add">
+				<table class="table form-table">
+					<colgroup>
+						<col width="80px" />
+						<col />
+					</colgroup>
+
+					<tr>
+						<th>名称：</th>
+						<td><input type='text' class='form-control' name='name' pattern='required' placeholder='请填写角色名称' /></td>
+					</tr>
+					<tr><td></td><td><button class='btn btn-primary' type='submit'>保 存</button></td></tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	<!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('permission', function(permission) {});</script>
+</body>
+</html>

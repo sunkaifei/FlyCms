@@ -1,0 +1,296 @@
+<#include "common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+  <#assign page_tab="index">
+  <#assign page_nav="basic">
+  <#include "common/system_menu.html">
+
+  <!--右侧内容 开始-->
+  <div id="admin_right" class="content-wrapper">
+    <div class="content">
+      <div class="content">
+        <hr />
+
+        <div class="row">
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                    <span class="info-box-icon bg-aqua">
+                        <i class="fa fa-comments"></i>
+                    </span>
+              <div class="info-box-content">
+                <span class="info-box-text">所有问答</span>
+                <span class="info-box-number">
+                            <a href="#">${questionCount!}</a>
+                            <small>个</small>
+                        </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                    <span class="info-box-icon bg-red">
+                        <i class="fa fa-comments-o"></i>
+                    </span>
+              <div class="info-box-content">
+                <span class="info-box-text">回复答案</span>
+                <span class="info-box-number">
+                            <a href="#">0</a>
+                            <small>个</small>
+                        </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                    <span class="info-box-icon bg-green">
+                        <i class="fa fa-twitch"></i>
+                    </span>
+              <div class="info-box-content">
+                <span class="info-box-text">咨询待回复</span>
+                <span class="info-box-number">
+                            <a href="#">0</a>
+                            <small>个</small>
+                        </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                    <span class="info-box-icon bg-orange">
+                        <i class="fa fa-truck"></i>
+                    </span>
+              <div class="info-box-content">
+                <span class="info-box-text">付款待发货</span>
+                <span class="info-box-number">
+                            <a href="#">0</a>
+                            <small>个</small>
+                        </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                    <span class="info-box-icon bg-purple">
+                        <i class="fa fa-thumbs-o-down"></i>
+                    </span>
+              <div class="info-box-content">
+                <span class="info-box-text">退款申请</span>
+                <span class="info-box-number">
+                            <a href="#">0</a>
+                            <small>个</small>
+                        </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                    <span class="info-box-icon bg-teal">
+                        <i class="fa fa-group"></i>
+                    </span>
+              <div class="info-box-content">
+                <span class="info-box-text">待审专家</span>
+                <span class="info-box-number">
+                            <a href="#">0</a>
+                            <small>个</small>
+                        </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                    <span class="info-box-icon bg-maroon">
+                        <i class="fa fa-cube"></i>
+                    </span>
+              <div class="info-box-content">
+                <span class="info-box-text">待审商品</span>
+                <span class="info-box-number">
+                            <a href="#">0</a>
+                            <small>个</small>
+                        </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box">
+                    <span class="info-box-icon bg-maroon">
+                        <i class="fa fa-money"></i>
+                    </span>
+              <div class="info-box-content">
+                <span class="info-box-text">待审提现</span>
+                <span class="info-box-number">
+                            <a href="#">0</a>
+                            <small>个</small>
+                        </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <section class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <div class="box">
+              <div class="box-header">
+                <i class="fa fa-server"></i>
+                <h3 class="box-title">系统信息</h3>
+              </div>
+              <div class="box-body">
+                <table class="table">
+                  <colgroup>
+                    <col width="120px" />
+                    <col />
+                  </colgroup>
+                  <thead>
+                  <tr>
+                    <th>购买及服务</th>
+                    <th>
+                      <a href='http://wpa.qq.com/msgrd?v=3&uin=79678111&site=qq&menu=yes' target='_blank'>联系我们</a>
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                    <th>当前版本号</th>
+                    <td>1.0</td>
+                  </tr>
+                  <tr>
+                    <th>最新版本号</th>
+                    <td>1.0</td>
+                  </tr>
+                  <tr>
+                    <th>官网地址</th>
+                    <th><a href='http://www.28844.com' target='_blank'>www.28844.com</a></th>
+                  </tr>
+                  <tr>
+                    <th>服务器系统</th>
+                    <td>${os!}</td>
+                  </tr>
+                  <tr>
+                    <th>附件上传容量</th>
+                    <td>50M</td>
+                  </tr>
+                  <tr>
+                    <th>授权信息</th>
+                    <td>...</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+          <section class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <div class="box">
+              <div class="box-header">
+                <i class="fa fa-line-chart"></i>
+                <h3 class="box-title">基础统计</h3>
+              </div>
+              <div class="box-body">
+                <table class="table">
+                  <colgroup>
+                    <col width="120px" />
+                    <col />
+                  </colgroup>
+                  <thead>
+                  <tr>
+                    <th>认证专家</th>
+                    <td>
+                      <a href="/member/seller_list">3</a>
+                      <small>人</small>
+                    </td>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                    <th>销售总额</th>
+                    <td>
+                      <a href="/market/amount">463647.68</a>
+                      <small>元</small>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>注册用户</th>
+                    <td>
+                      <a href="/member/member_list">96</a>
+                      <small>个</small>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>分享数量</th>
+                    <td>
+                      <a href="/goods/goods_list">335</a>
+                      <small>个</small>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>入住公司</th>
+                    <td>
+                      <a href="/brand/brand_list">8</a>
+                      <small>个</small>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>订单数量</th>
+                    <td>
+                      <a href="/order/order_list">240</a>
+                      <small>个</small>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>提现申请</th>
+                    <td>
+                      <a href="/goods/goods_list/search[store_nums]/20">1</a>
+                      <small>个</small>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="box box-info">
+          <div class="box-header">
+            <i class="fa fa-file-o"></i>
+            <h3 class="box-title">最新10条问题</h3>
+          </div>
+          <div class="box-body">
+            <table class="table">
+              <thead>
+              <th>ID</th>
+              <th>标题</th>
+              <th>发布人</th>
+              <th>审核</th>
+              <th>发布时间</th>
+              <th>操作</th>
+              </thead>
+              <tbody>
+              <@fly_questionpage>
+              <#list question_page.list as question>
+              <tr>
+                <td>${question.id}</td>
+                <td>${question.title!}</td>
+                <td><@fly_userinfo userId="${question.userId!}">${userinfo.nickName!}</@fly_userinfo></td>
+                  <td><b class="text-red"><#if question.status=0>未审核<#elseif question.status=1>通过<#elseif question.status=2>未通过<#elseif question.status=3>删除</#if></b></td>
+                <td>${question.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
+                <td>
+                  <a href="/question/${question.id}">
+                    <i class='operator fa fa-eye'></i>
+                  </a>
+
+                  <a href="/order/order_edit/id/2657"><i class='operator fa fa-edit'></i></a>
+
+                  <a href="javascript:delModel({link:'/order/order_del/id/2657'})"><i class='operator fa fa-close'></i></a>
+                </td>
+              </tr>
+              </#list>
+              </@fly_questionpage>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--右侧内容 结束-->
+</div>
+</body>
+</html>

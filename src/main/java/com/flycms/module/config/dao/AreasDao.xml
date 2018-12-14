@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.config.dao.AreasDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加地址信息 -->
+	<insert id="addAreas">
+		insert into fly_areas
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="parentId != null and parentId != ''">parent_id,</if>
+			<if test="areaName != null and areaName != ''">area_name,</if>
+			<if test="sort != null and sort != ''">sort,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="parentId != null and parentId != ''">#{parentId},</if>
+			<if test="areaName != null and areaName != ''">#{areaName},</if>
+			<if test="sort != null and sort != ''">#{sort},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询地区信息 -->
+	<select id="findAreasByid" resultType="com.flycms.module.config.model.Areas">
+		select * from fly_areas where area_id=#{areaId}
+	</select>
+
+	<!-- 按父级id查询所有地区信息 -->
+	<select id="selectAreasByPid" resultType="com.flycms.module.config.model.Areas">
+		select * from fly_areas where parent_id=#{parentId} ORDER BY sort ASC
+	</select>
+
+</mapper>  

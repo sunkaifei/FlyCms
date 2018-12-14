@@ -1,0 +1,129 @@
+<header class="main-header">
+    <div class="logo">
+        <span class="logo-mini"><b>iWeb</b></span>
+        <span class="logo-lg"><b>iWebShop</b>后台管理</span>
+    </div>
+    <nav class="navbar navbar-static-top">
+        <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+            <span class="sr-only"></span>
+        </a>
+
+        <!--顶部菜单 开始-->
+        <div id="menu" class="navbar-custom-menu">
+            <ul class="nav navbar-nav" name="topMenu">
+                <li<#if page_tab == "goods"> class="active"</#if>><a hidefocus="true" href="/admin/goods/goods_list">商品</a></li>
+                <li<#if page_tab == "user"> class="active"</#if>><a hidefocus="true" href="/admin/user/user_list">会员</a></li>
+                <li<#if page_tab == "order"> class="active"</#if>><a hidefocus="true" href="/admin/order/order_list">订单</a></li>
+                <li<#if page_tab == "jobs"> class="active"</#if>><a hidefocus="true" href="/admin/market/pro_rule_list">营销</a></li>
+                <li<#if page_tab == "jobs"> class="active"</#if>><a hidefocus="true" href="/admin/market/user_reg">统计</a></li>
+                <li<#if page_tab == "index"> class="active"</#if>><a hidefocus="true" href="/admin/index">系统</a></li>
+                <li<#if page_tab == "tools"> class="active"</#if>><a hidefocus="true" href="/admin/tools/db_bak">工具</a></li>
+                <li<#if page_tab == "jobs"> class="active"</#if>><a hidefocus="true" href="/plugins/plugin_list">插件</a></li>
+                <li>
+                    <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                </li>
+            </ul>
+        </div>
+        <!--顶部菜单 结束-->
+    </nav>
+</header>
+
+<!--左侧菜单 开始-->
+<aside id="admin_left" class="main-sidebar">
+    <section class="sidebar" style="height: auto;">
+        <div class="user-panel">
+            <div class="pull-left image">
+                <i class="fa fa-user"></i>
+            </div>
+            <div class="pull-left info">
+                <p>${admin.adminName!}</p>
+                <a href="#">超级管理员</a>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu tree" data-widget="tree">
+            <li class="header">工具模块菜单</li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa" name="ico" menu="数据库管理"></i>
+                    <span>数据库管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li><a href="/admin/tools/db_bak"><i class="fa fa-circle-o"></i>数据库备份</a></li>
+                    <li><a href="/admin/tools/db_res"><i class="fa fa-circle-o"></i>数据库还原</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa" name="ico" menu="文章管理"></i>
+                    <span>文章管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li><a href="/admin/tools/article_category_list"><i class="fa fa-circle-o"></i>文章分类</a></li>
+                    <li><a href="/admin/tools/article_list"><i class="fa fa-circle-o"></i>文章列表</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa" name="ico" menu="帮助管理"></i>
+                    <span>帮助管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li><a href="/admin/tools/help_cat_list"><i class="fa fa-circle-o"></i>帮助分类</a></li>
+                    <li><a href="/admin/tools/help_list"><i class="fa fa-circle-o"></i>帮助列表</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa" name="ico" menu="广告管理"></i>
+                    <span>广告管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li><a href="/admin/tools/ad_position_list"><i class="fa fa-circle-o"></i>广告位列表</a></li>
+                    <li><a href="/admin/tools/ad_list"><i class="fa fa-circle-o"></i>广告列表</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa" name="ico" menu="公告管理"></i>
+                    <span>公告管理</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li><a href="/admin/tools/notice_list"><i class="fa fa-circle-o"></i>公告列表</a></li>
+                    <li><a href="/admin/tools/notice_edit"><i class="fa fa-circle-o"></i>公告发布</a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa" name="ico" menu="网站地图"></i>
+                    <span>网站地图</span>
+                    <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li><a href="/admin/tools/seo_sitemaps"><i class="fa fa-circle-o"></i>网站搜索地图</a></li>
+                </ul>
+            </li>
+
+            <li class="header">快速导航</li>
+            <li><a href="fdfdsf"><i class="fa fa-star-o"></i> <span>aaa</span></a></li>
+        </ul>
+    </section>
+</aside>
+<!--左侧菜单 结束-->

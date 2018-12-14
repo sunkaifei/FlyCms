@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.other.dao.EmailDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+    <!-- 按模板ID更新邮件模板信息-->
+    <update id="updateEmailTempletsById">
+        update fly_email_templet
+        <set>
+            <if test="title != null and title != ''">title=#{title},</if>
+            <if test="content != null and content != ''">content=#{content},</if>
+        </set>
+        where id=#{id}
+    </update>
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+    <!-- 按模板标记码查询配置信息-->
+    <select id="findEmailTempletById" resultType="com.flycms.module.other.model.Email">
+		select * from fly_email_templet where id=#{id}
+	</select>
+
+	<!-- 按模板标记码查询配置信息-->
+	<select id="findEmailTempletByTpCode" resultType="com.flycms.module.other.model.Email">
+		select * from fly_email_templet where tp_code=#{tpCode} limit 1
+	</select>
+
+    <select id="getEmailTempletCount" resultType="Integer">
+		select count(*) from fly_email_templet
+	</select>
+
+    <select id="getEmailTempletList" resultType="com.flycms.module.other.model.Email">
+		select * from fly_email_templet limit #{offset},#{rows}
+	</select>
+
+</mapper>  

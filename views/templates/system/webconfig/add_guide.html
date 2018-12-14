@@ -1,0 +1,59 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="index">
+    <#assign page_nav="permission">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">系统</a>
+                </li>
+                <li>
+                    <a href="#">权限管理</a>
+                </li>
+                <li class="active">编辑角色</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <form action="/admin/guide/add_guide" method="post" id="addForm">
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="80px" />
+                        <col />
+                    </colgroup>
+                    <tr>
+                        <th>导航名称：</th>
+                        <td><input type='text' class='form-control' name='name' pattern='required' placeholder='导航名称' /></td>
+                    </tr>
+                    <tr>
+                        <th>导航链接：</th>
+                        <td><input type='text' class='form-control' name='link' pattern='required' placeholder='链接地址' /></td>
+                    </tr>
+                    <tr>
+                        <th>导航显示：</th>
+                        <td>
+                            <label class="radio-inline"><input type="radio" name="status" value="0">否</label>
+                            <label class="radio-inline"><input type="radio" name="status" value="1" checked="checked">是</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>排序：</th>
+                        <td><input type='text' class='form-control' name='sort' value="0" pattern='required' placeholder='排序' /></td>
+                    </tr>
+                    <tr><td></td><td><button class='btn btn-primary' type='submit'>保 存</button></td></tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('permission', function(permission) {});</script>
+</body>
+</html>

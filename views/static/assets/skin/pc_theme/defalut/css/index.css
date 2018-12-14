@@ -1,0 +1,245 @@
+@CHARSET "UTF-8";
+
+/** 推荐小组 **/
+.panel-default {
+	border-radius: 0px;
+	box-shadow: none;
+	border: none;
+}
+
+.sub-item {
+	border-bottom: 1px dashed #AAAAAA;
+	height: 72px;
+	margin: 0 2px 15px 0;
+	overflow: hidden;
+}
+
+.sub-item .pic {
+	float: left;
+	width: 48px;
+}
+
+.sub-item .info {
+	color: #666666;
+	vertical-align: top;
+	word-wrap: break-word;
+	margin-left: 60px;
+}
+
+.sub-item .pic img {
+	height: 48px;
+	margin-bottom: -3px;
+	width: 48px;
+}
+
+.sub-item .info .content {
+	font-size: 12px;
+}
+
+.sub-item p {
+	margin: 0;
+}
+
+/** 首页友情链接 **/
+.b {
+	border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.b-a {
+	border: 1px solid #eaeef1;
+}
+
+.b-t {
+	border-top: 1px solid #eaeef1;
+}
+
+.b-r {
+	border-right: 1px solid #eaeef1;
+}
+
+.b-b {
+	border-bottom: 1px solid #eaeef1;
+}
+
+.b-l {
+	border-left: 1px solid #eaeef1;
+}
+
+.font-15 {
+	font-size: 15px;
+}
+
+.font-bold {
+	font-weight: 700;
+}
+
+.text-dark {
+	color: #888;
+}
+
+.sidebar-new-list, .sidebar-hangye-list {
+	padding: 10px 10px 0px;
+}
+
+.sidebar-new-list li, .sidebar-hangye-list li {
+	margin: 0 1px 0px;
+	display: inline-block;
+	padding: 3px;
+	border-radius: 1px;
+}
+
+.sidebar-hangye-list li:hover {
+	text-decoration: none;
+}
+
+.area {
+	min-width: 75px;
+}
+
+.area a {
+	color: #888;
+}
+
+/*签到*/
+.sign-in {
+	background: url(../../images/v1/sign-in.png) no-repeat;
+	width: 100%;
+	height: 70px;
+	position: relative;
+	margin: 0 0 20px 0;
+	font-family: "微软雅黑";
+	*z-index: 1;
+}
+
+.sign-in-h {
+	background: url(../../images/v1/sign-in-h.png) no-repeat;
+	width: 100%;
+	height: 70px;
+	position: relative;
+	margin: 0 0 20px 0;
+	font-family: "微软雅黑";
+	*z-index: 1;
+}
+
+.sign-in em, .sign-in-h em {
+	font-style: normal;
+	display: block;
+}
+
+.sign-in .datetime {
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	padding: 10px 0 10px 80px;
+}
+
+.sign-in-h .datetime {
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	padding: 10px 0 10px 80px;
+}
+
+.sign-in .date {
+	color: #111;
+	font-size: 14px;
+	margin: 0 0 5px 0;
+}
+
+.sign-in-h .date {
+	color: #111;
+	font-size: 14px;
+	margin: 0 0 5px 0;
+}
+
+.sign-in .week {
+	color: #111;
+	font-size: 18px;
+}
+
+.sign-in-h .week {
+	color: #111;
+	font-size: 18px;
+}
+
+.sign-in .days, .sign-in-h .days {
+	position: absolute;
+	right: 20px;
+	top: 10px;
+}
+
+.sign-in .day {
+	color: #555;
+	font-size: 14px;
+	margin: 0 0 3px 0;
+}
+
+.sign-in .num {
+	color: #5d84dc;
+	font-size: 20px;
+	text-align: center;
+}
+
+.sign-in-h .day {
+	color: #555;
+	font-size: 16px;
+	margin: 0 0 3px 0;
+}
+
+.sign-in-h .num {
+	color: #fec240;
+	font-size: 20px;
+	text-align: center;
+}
+
+.sign-in .btn-sign, .sign-in-h .btn-sign-h {
+	font-size: 26px;
+	position: absolute;
+	left: 130px;
+	top: 16px;
+	display: block;
+	outline: none;
+	cursor: pointer;
+	width: 80px;
+	text-align: center;
+}
+
+.sign-in .btn-sign {
+	color: #5d84dc;
+}
+
+.sign-in-h .btn-sign-h {
+	color: #999;
+}
+
+.sign-box {
+	padding: 10px;
+	background: #FFF;
+}
+
+.sign-box h3 {
+	font-size: 16px;
+	color: #666;
+	font-family: "微软雅黑";
+	padding: 0 0 10px 0;
+	border-bottom: 1px dotted #ddd;
+}
+
+.sign-info {
+	margin: 10px 0 0 0;
+	font-size: 12px;
+}
+
+.sign-wrap {
+	position: absolute;
+	top: 70px;
+	left: 0;
+	z-index: 1;
+	width: 100%;
+}
+
+.sign-wrap .arrow-topic {
+	left: 110px;
+}

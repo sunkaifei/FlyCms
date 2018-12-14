@@ -1,0 +1,78 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="adminuser">
+    <#assign page_nav="adminlist">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/system/index">系统</a>
+                </li>
+                <li>
+                    <a href="#">权限管理</a>
+                </li>
+                <li class="active">管理员列表</li>
+            </ul>
+        </div>
+        <div class="content">
+            <form name='admin_list' method='post' action='#'>
+                <table class="table list-table">
+                    <colgroup>
+                        <col width="35px" />
+                        <col width="150px" />
+                        <col width="100px" />
+                        <col width="200px" />
+                        <col />
+                    </colgroup>
+                    <caption>
+                        <a class="btn btn-default" href='/system/admin/admin_add'><i class="fa fa-plus"></i>添加管理员</a>
+                        <a class="btn btn-default" id="selectAll"><i class="fa fa-check"></i>全选</a>
+                        <a class="btn btn-default"><i class="fa fa-close"></i>批量删除</a>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>用户名</th>
+                        <th>角色</th>
+                        <th>Email</th>
+                        <th>上次登录IP</th>
+                        <th>上次登录时间</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <#list pageVo.list as list>
+                    <tr>
+                        <td><input type='checkbox' name='id' value='${list.id!}' /></td>
+                        <td>${list.adminName!}</td>
+                        <td><@fly_adminrole id="${list.id}" /></td>
+                        <td>${list.email!}</td>
+                        <td>${list.lastLoginIp!}</td>
+                        <td>${list.lastLoginTime?string('yyyy-MM-dd HH:mm:ss')}</td>
+                        <td>
+                            <a href='/system/admin/admin_edit/${list.id!}'><i class='operator fa fa-edit'></i></a>
+                            <a data-title="${list.adminName!}" data-id="${list.id!}"  class="admin-delete"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    </#list>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div style='clear:both'>
+            <ul class='pagination'>${pageVo.pageNumHtml}</ul>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('user', function(user) {});</script>
+</body>
+</html>

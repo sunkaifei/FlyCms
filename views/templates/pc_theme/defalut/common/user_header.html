@@ -1,0 +1,38 @@
+            <div class="col-xs-12 col-md-12">
+                <div class="user-card" data-user-id="${people.userId!}">
+                    <div class="ProfileHeader-userCover">
+                        <div class="user-cover UserCover--colorBlock" style="background: rgb(112, 86, 68);"></div>
+                    </div>
+                    <div class="profile-header-wrapper">
+                        <div class="profile-header-main">
+                            <div class="user-avatar profile-header-avatar" style="top: -25px;">
+                                <img class="Avatar Avatar--large UserAvatar-inner" width="160" height="160" src="<#if people.avatar??><@fly_avatar avatarurl=people.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>">
+                            </div>
+                            <div class="profile-header-content">
+                                <div class="profile-header-content-head">
+                                    <h1 class="profile-header-title">
+                                        <span class="profile-header-name">${people.nickName!}</span>
+                                        <span class="profile-header-headline">${people.signature!}</span>
+                                    </h1>
+                                </div>
+                                <div class="profile-header-content-body">
+                                    <div class="profile-header-info">
+                                        <div class="profile-header-info-item">
+                                            <i class="fa fa-mortar-board" aria-hidden="true"></i> 地产建筑
+                                        </div>
+                                        <div class="profile-header-info-item">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="profile-header-content-footer">
+                                    <a class=""><i class="fa fa-angle-down" aria-hidden="true"></i> 查看详细资料</a>
+                                    <div class="profile-header-buttons">
+                                        <button type="button" data-user-id="${people.userId!}" class="Button<#if user??><@fly_checkfollow userFollow="${people.userId!}" userFans="${user.userId!}"><#if result gt 0> btn-primary button-grey<#else> button-blue</#if></@fly_checkfollow><#else> button-blue</#if> userFollow-button"><#if user??><@fly_checkfollow userFollow="${people.userId!}" userFans="${user.userId!}"><#if result=1><i class="fa fa-check"></i> 已关注<#elseif result=2><i class="fa fa-exchange"></i> 互相关注<#else><i class="fa fa-plus"></i> 关注他</#if></@fly_checkfollow><#else><i class="fa fa-plus"></i> 关注他</#if></button>
+                                        <button type="button" class="Button"><i class="fa fa-comments" aria-hidden="true"></i>发私信</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>

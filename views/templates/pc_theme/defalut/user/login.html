@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用户登录 - ${seo_title!}</title>
+	<meta name="keywords" content="${seo_keywords!}" />
+	<meta name="description" content="${seo_description!}" />
+	<meta name="keywords" content="用户登录" />
+	<meta name="description" content="用户登录" />
+	<!-- Bootstrap -->
+	<link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/account.css" />
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+        <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+	<script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
+	<script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
+</head>
+<body>
+	<div class="container">
+
+		<div class="col-md-6 col-md-offset-3 bg-white login-wrap">
+			<h1 class="h4 text-center text-muted login-title">用户登录</h1>
+			<form role="form" id="myloginForm" name="loginForm" action="/ucenter/login_act" method="POST">
+				<input type="hidden" name="redirectUrl" value="${redirectUrl!}">
+				<div class="form-group ">
+					<label class="required">邮箱/手机</label>
+					<input type="text" class="form-control" name="username" id="username" required placeholder="手机号或者邮箱" value="">
+				</div>
+				<div class="form-group ">
+					<label for="password" class="required">密码</label>
+					<input type="password" class="form-control" name="password" id="password" required placeholder="不少于 6 位">
+				</div>
+				<div class="form-group ">
+					<label for="captcha" class="required">验证码</label> 
+					<input type="text" class="form-control" id="captcha" name="captcha" required="" placeholder="请输入下方的验证码">
+					<div class="mt-10">
+						<a href="javascript:void(0);" id="reloadCaptcha"><img src="/captcha/default"></a>
+						</a>
+					</div>
+				</div>
+				<div class="form-group clearfix">
+					<div class="checkbox pull-left">
+						<label><input name="rememberMe" id="rememberMe" value="1" type="checkbox" checked="checked"> 记住登录状态</label> <span style="color:#A00;">(勿在公用电脑上使用)</span>
+					</div>
+					<button type="submit" id="login-btn" class="btn btn-primary pull-right pl20 pr20">登录</button>
+				</div>
+				<!--<hr />
+				<div class="widget-login mt-30">
+					<p class="text-muted mt-5 mr-10 pull-left hidden-xs">快速登录</p>
+					<a href="#" class="btn btn-default btn-sm btn-sn-weibo"><span class="icon-sn-bg-weibo"></span> <strong class="visible-xs-inline">新浪微博账号</strong></a> 
+					<a href="#" class="btn btn-default btn-sm btn-sn-qq"><span class="icon-sn-bg-qq"></span> <strong class="visible-xs-inline">QQ 账号</strong>
+					</a>
+				</div>-->
+			</form>
+		</div>
+
+		<div class="text-center col-md-12 login-link">
+			<a href="/reg">注册新账号</a> | <a
+				href="/">首页</a> | <a
+				href="/forget_password">找回密码</a>
+		</div>
+	</div>
+	<script type="text/javascript">seajs.use('login', function(login) {});</script>
+</body>
+</html>

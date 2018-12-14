@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>java开源问答系统 - 开源之家问答系统社区</title>
+    <meta name='keywords' content='问答系统,java问答系统,开源之家问答系统 ,Laravel问答系统,社区问答系统'>
+    <meta name='description' content='开源之家问答系统站长社区交流平台，同时也是开源之家问答系统的实际站点演示。'>
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="stylesheet" href="/assets/admin-lte/css/admin.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/js/vendors/autovalidate/style.css" />
+    <link rel="shortcut icon" href="/assets/favicon.ico" />
+    <!--[if lt IE 9]>
+    <script src="/assets/js/html5shiv.min.js"></script>
+    <script src="/assets/js/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="/assets/js/sea.js"></script>
+    <script type="text/javascript" src="/assets/js/sea.config.js"></script>
+</head>
+<body class="skin-blue">
+<div class="wrapper" style="background: url(/assets/admin-lte/img/bg.jpg) no-repeat;background-size: 100% 100%;">
+    <div class="loginbox">
+        <form action='/system/login_act' method='post' id="myloginForm">
+            <div class="form-group text-center">
+                <h2 style="color:#fff"><strong>FlyCms后台管理</strong></h2>
+            </div>
+            <input type="hidden" name="redirectUrl" id="redirectUrl" value="${redirectUrl!}">
+            <div class="form-group input-group input-group-lg">
+                <span class="input-group-addon"><i class="fa fa-user" style="width:30px"></i></span>
+                <input type="text" class="form-control" autocomplete="off" name="admin_name" placeholder="用户名" pattern="required" />
+            </div>
+
+            <div class="form-group input-group input-group-lg">
+                <span class="input-group-addon"><i class="fa fa-key" style="width:30px"></i></span>
+                <input type="password" class="form-control" name="password" autocomplete="off" placeholder="密码" pattern="required" />
+            </div>
+
+            <div class="form-group input-group input-group-lg">
+                <span class="input-group-addon"><i class="fa fa-font" style="width:30px"></i></span>
+                <input type="text" class="form-control" autocomplete="off" name='captcha' placeholder="验证码" pattern="required" />
+                <span class="input-group-addon no-padding"><a href="javascript:void(0);" id="reloadCaptcha"><img src="/captcha/default" style="width:110px"></a></span>
+            </div>
+
+            <div class="form-group"><button type="submit" class="btn btn-lg btn-warning btn-block"><strong>登 录</strong></button></div>
+        </form>
+    </div>
+</div>
+<footer class="main-footer">
+    Power by  <a href="http://www.28844.com" target="_blank">www.28844.com</a> Copyright &copy; 2005-2018
+</footer>
+<script type="text/javascript">seajs.use('adminlogin', function(adminlogin) {});</script>
+</body>
+</html>

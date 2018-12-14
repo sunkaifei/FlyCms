@@ -1,0 +1,155 @@
+/* Pretty printing styles. Used with prettify.js. */
+/* 从 highlight.js 的 darcula-by-james.css 改造而来，做成IDEA的 Darcula 风格 */
+
+pre .str, code .str {
+	/* modified by james */
+	/* sunbrust 中的值，较亮 */
+	/*color: #65B042;*/
+	/* IDEA 中注释文本取色值，偏淡 */
+	/*color: #629655;*/
+	/* IDEA 中字符串常量取色值，最淡 */
+	color: #6A8659;
+
+} /* string  - green */
+
+pre .kwd, code .kwd {
+	/* keyword - dark pink */
+	/*color: #E28964;*/
+
+	/* modified by james */
+	color: #cb7832;
+}
+pre .com, code .com {
+	/*color: #AEAEAE;*/
+	color: #7f7f7f;
+	/*font-style: italic; */
+} /* comment - gray */
+pre .typ, code .typ {
+	/* type - light blue */
+	/*color: #89bdff;*/
+	/*color: #bababa;*/
+	color: #a8b6c5;
+
+	/* modified by james 来自 sons-of-obsidian 的 typ 色，淡一点，不建议使用，类型还是要深一点 */
+	/*color: #678CB1;*/
+}
+pre .lit, code .lit {
+	/*color: #3387CC;*/
+	/*color: #7f7f7f;*/
+	color: #6896ba;
+} /* literal - blue */
+pre .pun, code .pun {
+	/* punctuation - white */
+	/*color: #fff;*/
+
+	/* modified by james*/
+	/*color: #A9B7C6;*/
+	color: #b9b9b9;
+}
+pre .pln, code .pln {
+	/* plaintext - white */
+	/*color: #fff;*/
+
+	/* modified by james*/
+	/*color: #A9B7C6;*/
+	/*color: #bababa;*/
+	color: #a8b6c5;
+}
+pre .tag, code .tag { color: #89bdff; } /* html/xml tag    - light blue */
+pre .atn, code .atn { color: #bdb76b; } /* html/xml attribute name  - khaki */
+pre .atv, code .atv { color: #65B042; } /* html/xml attribute value - green */
+pre .dec, code .dec {
+	/*color: #3387CC;*/
+	color: #6896ba;
+} /* decimal - blue */
+
+pre.prettyprint, code.prettyprint {
+	/*background-color: #000;*/
+	/*border-radius: 8px;*/
+
+	/* modified by james */
+	/* IDEA Darcula 背景 */
+	background-color: #2B2B2B;
+}
+
+pre.prettyprint {
+	/* added by james 没有行号的时候也添加一个 padding-left */
+	/*padding-left: 15px;*/
+	padding: 0.5em;
+	border-radius: 2px;
+	/*border: none;*/
+
+	/* modified by james */
+	/*width: 95%;*/
+	/*margin: 1em auto;*/
+	/*padding: 1em;*/
+	white-space: pre-wrap;
+}
+
+/* added by james */
+pre.prettyprint,
+pre.prettyprint ol,
+pre.prettyprint li,
+pre.prettyprint span {
+	font-family: Consolas, Monaco, "Courier New", "Microsoft Yahei", 微软雅黑, monospace;
+	font-size: 16px;
+	line-height: 20px;
+}
+
+/* Specify class=linenums on a pre to get line numbering */
+ol.linenums {
+	margin-top: 0;
+	margin-bottom: 0;
+	/*color: #AEAEAE;*/
+
+	/* added by james */
+	color: #555;
+	/*padding-left: 22px;*/
+	padding-left: 35px;
+	/* 稍亮一些的 878787，不建议使用 */
+	/*color: #878787;*/
+} /* IE indents via margin-left */
+
+
+li.L0,li.L1,li.L2,li.L3,li.L5,li.L6,li.L7,li.L8 {
+	/* modified by james */
+	/*list-style-type: none;*/
+}
+/* Alternate shading for lines */
+li.L1,li.L3,li.L5,li.L7,li.L9 { }
+
+@media print {
+  pre .str, code .str {
+	  /*color: #060;*/
+	  color: #65B042;
+  }
+  pre .kwd, code .kwd {
+	  /*color: #006; font-weight: bold;*/
+	  color: #cb7832;
+  }
+  pre .com, code .com {
+	  /*color: #600; font-style: italic;*/
+	  color: #7f7f7f;
+  }
+  pre .typ, code .typ {
+	  /*color: #404;*/
+	  color: #bababa;
+	  font-weight: bold;
+  }
+  pre .lit, code .lit {
+	  /*color: #044;*/
+	  /*color: #7f7f7f;*/
+	  color: #6896ba;
+  }
+  pre .pun, code .pun {
+	  /*color: #440;*/
+	  color: #b9b9b9;
+  }
+  pre .pln, code .pln {
+	  /*color: #000;*/
+	  color: #bababa;
+  }
+  pre .tag, code .tag { color: #006; font-weight: bold; }
+  pre .atn, code .atn { color: #404; }
+  pre .atv, code .atv { color: #060; }
+}

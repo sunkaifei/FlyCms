@@ -1,0 +1,660 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="order">
+    <#include "order_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">订单</a>
+                </li>
+                <li>
+                    <a href="#">订单管理</a>
+                </li>
+                <li class="active">订单列表</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <table class="table list-table">
+                <colgroup>
+                    <col width="35px" />
+                    <col width="180px" />
+                    <col width="80px" />
+                    <col width="70px" />
+                    <col width="70px" />
+                    <col width="90px" />
+                    <col width="80px" />
+                    <col width="90px" />
+                    <col />
+                    <col width="90px" />
+                    <col width="120px" />
+                </colgroup>
+                <caption>
+
+                    <a href="/order/order_edit" class="btn btn-default">
+                        <i class='fa fa-plus'></i>添加订单
+                    </a>
+
+                    <a href="javascript:selectAll('id[]')" class="btn btn-default">
+                        <i class='fa fa-check'></i>全选
+                    </a>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default">批量操作</button>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="javascript:void(0);" onclick="delModel({'form':'orderForm',name:'id[]'})">批量删除</a></li>
+                            <li><a href="javascript:void(0);" onclick="delModel({'form':'orderForm','name':'id[]','msg':'发货和打印选择的订单数据？','link':'/order/expresswaybill_template'});">批量发货和打印快递单</a></li>
+                            <li class="divider"></li>
+                            <li><a href="/order/order_report/?search=" target="_blank">导出Excel</a></li>
+                        </ul>
+                    </div>
+
+                    <a href="/order/print_template" class="btn btn-default">
+                        <i class='fa fa-file-archive-o'></i>打印模板
+                    </a>
+
+                    <a href="/order/order_recycle_list" class="btn btn-default">
+                        <i class='fa fa-trash'></i>回收站
+                    </a>
+
+                    <a href="javascript:searchOrder({'submit':filterResult,'data':'search='});" class="btn btn-default">
+                        <i class='fa fa-search'></i>检索
+                    </a>
+                </caption>
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>订单号</th>
+                    <th>收货人</th>
+                    <th>支付状态</th>
+                    <th>发货状态</th>
+                    <th>配送方式</th>
+                    <th>打印</th>
+                    <th>支付方式</th>
+                    <th>用户名</th>
+                    <th>下单时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <form name="orderForm" id="orderForm" action="/order/order_del" method="post">
+                    <tbody>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2691" /></td>
+                        <td title="20180705170243822755" name="orderStatusColor1">20180705170243822755</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2691" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2691" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2691" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2691" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>微信小程序支付</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-05 17:02:43">2018-07-05 17:02:43</td>
+                        <td>
+                            <a href="/order/order_show/id/2691"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="/order/order_edit/id/2691"><i class='operator fa fa-edit'></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2691'})"><i class='operator fa fa-close'></i></a>
+
+                            <a href="/site/home/id/1" target="_blank"><i class='operator fa fa-user' title='商家订单'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2690" /></td>
+                        <td title="20180705104558634873" name="orderStatusColor1">20180705104558634873</td>
+                        <td title=""></td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2690" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2690" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2690" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2690" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>货到付款</td>
+                        <td>
+                            游客
+                        </td>
+                        <td title="2018-07-05 10:45:58">2018-07-05 10:45:58</td>
+                        <td>
+                            <a href="/order/order_show/id/2690"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="/order/order_edit/id/2690"><i class='operator fa fa-edit'></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2690'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2689" /></td>
+                        <td title="20180705094337649403" name="orderStatusColor4">20180705094337649403</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2689" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2689" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2689" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2689" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>预存款</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-05 09:43:37">2018-07-05 09:43:37</td>
+                        <td>
+                            <a href="/order/order_show/id/2689"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2689'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2688" /></td>
+                        <td title="20180705075034947372" name="orderStatusColor4">20180705075034947372</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2688" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2688" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2688" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2688" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>微信小程序支付</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-05 07:50:34">2018-07-05 07:50:34</td>
+                        <td>
+                            <a href="/order/order_show/id/2688"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2688'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2687" /></td>
+                        <td title="20180705074945550451" name="orderStatusColor4">20180705074945550451</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2687" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2687" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2687" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2687" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>微信公众账号支付</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-05 07:49:45">2018-07-05 07:49:45</td>
+                        <td>
+                            <a href="/order/order_show/id/2687"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2687'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2686" /></td>
+                        <td title="20180705074756106650" name="orderStatusColor4">20180705074756106650</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2686" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2686" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2686" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2686" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>微信小程序支付</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-05 07:47:56">2018-07-05 07:47:56</td>
+                        <td>
+                            <a href="/order/order_show/id/2686"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2686'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2685" /></td>
+                        <td title="20180705074544823963" name="orderStatusColor4">20180705074544823963</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2685" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2685" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2685" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2685" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>微信小程序支付</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-05 07:45:44">2018-07-05 07:45:44</td>
+                        <td>
+                            <a href="/order/order_show/id/2685"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2685'})"><i class='operator fa fa-close'></i></a>
+
+                            <a href="/site/home/id/1" target="_blank"><i class='operator fa fa-user' title='商家订单'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2684" /></td>
+                        <td title="20180704185920905879" name="orderStatusColor2">20180704185920905879</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor1">已付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2684" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2684" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2684" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2684" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>预存款</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-04 18:59:20">2018-07-04 18:59:20</td>
+                        <td>
+                            <a href="/order/order_show/id/2684"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2684'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2683" /></td>
+                        <td title="20180704185903266226" name="orderStatusColor4">20180704185903266226</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="货到付款">货到付款</td>
+                        <td>
+                            <a href="/order/shop_template/id/2683" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2683" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2683" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2683" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>货到付款</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-04 18:59:03">2018-07-04 18:59:03</td>
+                        <td>
+                            <a href="/order/order_show/id/2683"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2683'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2682" /></td>
+                        <td title="20180704163948386622" name="orderStatusColor4">20180704163948386622</td>
+                        <td title="东方闪电">东方闪电</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2682" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2682" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2682" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2682" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>支付宝即时到帐</td>
+                        <td>
+                            游客
+                        </td>
+                        <td title="2018-07-04 16:39:48">2018-07-04 16:39:48</td>
+                        <td>
+                            <a href="/order/order_show/id/2682"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2682'})"><i class='operator fa fa-close'></i></a>
+
+                            <a href="/site/home/id/1" target="_blank"><i class='operator fa fa-user' title='商家订单'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2681" /></td>
+                        <td title="20180704160421229425" name="orderStatusColor1">20180704160421229425</td>
+                        <td title="东方闪电">东方闪电</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="货到付款">货到付款</td>
+                        <td>
+                            <a href="/order/shop_template/id/2681" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2681" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2681" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2681" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>货到付款</td>
+                        <td>
+                            游客
+                        </td>
+                        <td title="2018-07-04 16:04:21">2018-07-04 16:04:21</td>
+                        <td>
+                            <a href="/order/order_show/id/2681"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="/order/order_edit/id/2681"><i class='operator fa fa-edit'></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2681'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2680" /></td>
+                        <td title="20180704154553202395" name="orderStatusColor4">20180704154553202395</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="货到付款">货到付款</td>
+                        <td>
+                            <a href="/order/shop_template/id/2680" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2680" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2680" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2680" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>货到付款</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-04 15:45:53">2018-07-04 15:45:53</td>
+                        <td>
+                            <a href="/order/order_show/id/2680"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2680'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2679" /></td>
+                        <td title="20180704142732741725" name="orderStatusColor4">20180704142732741725</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2679" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2679" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2679" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2679" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>微信H5支付</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-04 14:27:32">2018-07-04 14:27:32</td>
+                        <td>
+                            <a href="/order/order_show/id/2679"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2679'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2678" /></td>
+                        <td title="20180704124234357938" name="orderStatusColor4">20180704124234357938</td>
+                        <td title="赵先生">赵先生</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2678" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2678" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2678" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2678" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>微信APP支付</td>
+                        <td>
+                            loverainy									</td>
+                        <td title="2018-07-04 12:42:34">2018-07-04 12:42:34</td>
+                        <td>
+                            <a href="/order/order_show/id/2678"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2678'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2677" /></td>
+                        <td title="20180704123932544786" name="orderStatusColor4">20180704123932544786</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2677" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2677" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2677" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2677" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>支付宝即时到帐</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-04 12:39:32">2018-07-04 12:39:32</td>
+                        <td>
+                            <a href="/order/order_show/id/2677"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2677'})"><i class='operator fa fa-close'></i></a>
+
+                            <a href="/site/home/id/1" target="_blank"><i class='operator fa fa-user' title='商家订单'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2676" /></td>
+                        <td title="20180704123930171176" name="orderStatusColor1">20180704123930171176</td>
+                        <td title="赵先生">赵先生</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="货到付款">货到付款</td>
+                        <td>
+                            <a href="/order/shop_template/id/2676" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2676" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2676" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2676" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>货到付款</td>
+                        <td>
+                            loverainy									</td>
+                        <td title="2018-07-04 12:39:30">2018-07-04 12:39:30</td>
+                        <td>
+                            <a href="/order/order_show/id/2676"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="/order/order_edit/id/2676"><i class='operator fa fa-edit'></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2676'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2675" /></td>
+                        <td title="20180704112455446813" name="orderStatusColor4">20180704112455446813</td>
+                        <td title="赵先生">赵先生</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2675" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2675" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2675" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2675" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>微信二维码支付</td>
+                        <td>
+                            游客
+                        </td>
+                        <td title="2018-07-04 11:24:55">2018-07-04 11:24:55</td>
+                        <td>
+                            <a href="/order/order_show/id/2675"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2675'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2674" /></td>
+                        <td title="20180703165618878517" name="orderStatusColor4">20180703165618878517</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2674" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2674" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2674" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2674" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>支付宝即时到帐</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-03 16:56:18">2018-07-03 16:56:18</td>
+                        <td>
+                            <a href="/order/order_show/id/2674"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2674'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2673" /></td>
+                        <td title="20180703165618295710" name="orderStatusColor4">20180703165618295710</td>
+                        <td title="姚信选">姚信选</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2673" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2673" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2673" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2673" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>支付宝即时到帐</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-03 16:56:18">2018-07-03 16:56:18</td>
+                        <td>
+                            <a href="/order/order_show/id/2673"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2673'})"><i class='operator fa fa-close'></i></a>
+
+                            <a href="/site/home/id/1" target="_blank"><i class='operator fa fa-user' title='商家订单'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="id[]" type="checkbox" value="2672" /></td>
+                        <td title="20180703082727578830" name="orderStatusColor4">20180703082727578830</td>
+                        <td title="测试">测试</td>
+                        <td name="payStatusColor0">未付款</td>
+                        <td name="disStatusColor0">未发货</td>
+                        <td title="快递">快递</td>
+                        <td>
+                            <a href="/order/shop_template/id/2672" target="_blank"><span class="badge bg-red" title="购物清单打印">购</span></a>
+                            <a href="/order/pick_template/id/2672" target="_blank"><span class="badge bg-green" title="配货单打印">配</span></a>
+                            <a href="/order/merge_template/id/2672" target="_blank"><span class="badge bg-yellow" title="联合打印">合</span></a>
+                            <a href="/order/expresswaybill_template/id/2672" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
+                        </td>
+                        <td>微信二维码支付</td>
+                        <td>
+                            nswe									</td>
+                        <td title="2018-07-03 08:27:27">2018-07-03 08:27:27</td>
+                        <td>
+                            <a href="/order/order_show/id/2672"><i class='operator fa fa-eye' title="查看订单"></i></a>
+                            <a href="javascript:void(0)" onclick="delModel({link:'/order/order_del/id/2672'})"><i class='operator fa fa-close'></i></a>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                </form>
+            </table>
+        </div>
+
+        <style>
+            .pagination {
+                display: inline-block;
+                padding-left: 0;
+                margin: 10px 0;
+                border-radius: 4px;
+            }
+            .pagination > li {
+                display: inline !important;
+                width:auto !important;
+                height:auto !important;
+                border:none !important;
+                margin:0 !important;
+                padding: 0 !important;
+            }
+            .pagination > li > a {
+                position: relative !important;
+                float: left !important;
+                padding: 6px 12px !important;
+                line-height: 1.42857143 !important;
+                text-decoration: none !important;
+                color: #337ab7;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                margin-left: -1px !important;
+                width:auto !important;
+                height:auto !important;
+            }
+            .pagination > li:first-child > a {
+                margin-left: 0 !important;
+                border-bottom-left-radius: 4px !important;
+                border-top-left-radius: 4px !important;
+            }
+            .pagination > li:last-child > a {
+                border-bottom-right-radius: 4px !important;
+                border-top-right-radius: 4px !important;
+            }
+            .pagination > li > a:hover,
+            .pagination > li > a:focus {
+                z-index: 2 !important;
+                color: #23527c;
+                background-color: #eeeeee;
+                border-color: #ddd !important;
+            }
+            .pagination > .active > a,
+            .pagination > .active > a:hover,
+            .pagination > .active > a:focus {
+                z-index: 3 !important;
+                color: #fff;
+                background-color: #337ab7;
+                border-color: #337ab7;
+                cursor: default !important;
+            }
+        </style><div style='clear:both'><ul class='pagination'><li><a href='/order/order_list?page=1' >首页</a></li><li class='active'><a href='/order/order_list?page=1' >1</a></li><li class=''><a href='/order/order_list?page=2' >2</a></li><li class=''><a href='/order/order_list?page=3' >3</a></li><li class=''><a href='/order/order_list?page=4' >4</a></li><li class=''><a href='/order/order_list?page=5' >5</a></li><li class=''><a href='/order/order_list?page=6' >6</a></li><li class=''><a href='/order/order_list?page=7' >7</a></li><li class=''><a href='/order/order_list?page=8' >8</a></li><li class=''><a href='/order/order_list?page=9' >9</a></li><li class=''><a href='/order/order_list?page=10' >10</a></li><li><a href='/order/order_list?page=2' >下一页</a></li><li><a href='/order/order_list?page=14' >尾页</a></li><li><a>当前第1页/共14页</a></li></ul></div>
+
+        <script type='text/javascript'>
+            //检索商品
+            function filterResult(iframeWin)
+            {
+                var searchForm   = iframeWin.document.body;
+                var searchString = $(searchForm).find("form").serialize();
+                var jumpUrl      = creatUrl("/order/order_list/"+searchString);
+                window.location.href = jumpUrl;
+            }
+
+            //DOM加载结束
+            $(function(){
+                //高亮色彩
+                $('[name="payStatusColor1"]').addClass('text-green');
+                $('[name="disStatusColor1"]').addClass('text-green');
+                $('[name="orderStatusColor3"]').addClass('text-red');
+                $('[name="orderStatusColor4"]').addClass('text-red');
+                $('[name="orderStatusColor5"]').addClass('text-green');
+            });
+        </script>
+    </div>
+    <!--右侧内容 结束-->
+
+    <!--顶部弹出菜单 开始-->
+    <aside class="control-sidebar control-sidebar-dark">
+        <ul class="control-sidebar-menu">
+            <li><a href="/admin/logout"><i class="fa fa-circle-o text-red"></i> 退出管理</a></li>
+            <li><a href="/system/admin_repwd"><i class="fa fa-circle-o text-yellow"></i> 修改密码</a></li>
+            <li><a href="/system/default"><i class="fa fa-circle-o text-green"></i> 后台首页</a></li>
+            <li><a href="/" target='_blank'><i class="fa fa-circle-o text-aqua"></i> 商城首页</a></li>
+            <li><a href="/system/navigation"><i class="fa fa-circle-o"></i> 快速导航</a></li>
+        </ul>
+    </aside>
+    <!--顶部弹出菜单 结束-->
+</div>
+</body>
+</html>

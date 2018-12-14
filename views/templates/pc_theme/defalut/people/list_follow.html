@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${people.nickName!}所有关注的人 - ${seo_title!}</title>
+    <meta name="keywords" content="问答系统,java问答系统,开源之家问答系统 ,Laravel问答系统,社区问答系统" />
+    <meta name="description" content="${people.nickName!}个人首页 - 开源之家问答系统站长社区交流平台，同时也是开源之家问答系统的实际站点演示。" />
+    <meta name="author" content="28844 Team" />
+    <meta name="copyright" content="2018 28844.com" />
+    <!-- Bootstrap -->
+    <link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/js/vendors/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/global.css" />
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/people.css" />
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
+    <script type="text/javascript" src="/user/status.json"></script>
+</head>
+<body>
+<#include "../common/header.html">
+
+
+<div class="wrap">
+    <div class="container">
+        <div class="row mt-10">
+            <#include "../common/user_header.html">
+
+            <div class="col-xs-12 col-md-9 main">
+                <div class="question-content">
+                    <div class="profile-main">
+                        <ul>
+                            <li><a href="/people/${people.userId!}">动态</a></li>
+                            <li><a href="/people/${people.userId!}/answers">回答<span class="Tabs-meta">${count.countAnswer}</span></a></li>
+                            <li><a href="/people/${people.userId!}/question">提问<span class="Tabs-meta">${count.countQuestion}</span></a></li>
+                            <li><a href="/people/${people.userId!}/article">文章<span class="Tabs-meta">${count.countArticle}</span></a></li>
+                            <li><a href="/people/${people.userId!}/share">分享<span class="Tabs-meta">${count.countShare}</span></a></li>
+                        </ul>
+                    </div>
+                    <div class="profile-main">
+                        <ul>
+                            <li class="activ"><a href="/people/${people.userId!}/follow">TA关注的人</a></li>
+                            <li><a href="/people/${people.userId!}/fans">关注TA的人</a></li>
+                        </ul>
+                    </div>
+                    <@fly_userfanspage userFans="${people.userId!}" p="${p!}" rows="20">
+                    <div class="user-list-body">
+                        <#list fans_page.list as list>
+                        <@fly_userinfo userId="${list.userFollow!}">
+                        <div class="user-list-itme">
+                            <div  class="user">
+                                <div class="author-avatar">
+                                    <a href="/people/${userinfo.userId!}" target="_blank">
+                                        <img class="avatar-60 mr-10" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="${userinfo.nickName!}">
+                                    </a>
+                                </div>
+                                <div class="author-content">
+                                    <div class="author-name">
+                                        <a href="/people/${userinfo.userId!}"><#if userinfo.nickName??>${userinfo.nickName!}<#else>已重置</#if></a>
+                                    </div>
+                                    <div class="author-nick">
+                                        <#if userinfo.signature??>${userinfo.signature!}<#else>这个家伙很懒什么也没留下！</#if>
+                                    </div>
+                                    <div class="ContentItem-status">
+                                        <span class="ContentItem-statusItem">${userinfo.countAnswer!} 回答</span>
+                                        <span class="ContentItem-statusItem">${userinfo.countArticle!} 文章</span>
+                                        <span class="ContentItem-statusItem">${userinfo.countFans!} 关注者</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <#if user??>
+                            <#if list.userFollow != user.userId><button type="button" data-user-id="${list.userFollow!}" class="button-blue <@fly_checkfollow userFollow="${list.userFollow!}" userFans="${user.userId!}"><#if result gt 0> btn-primary button-grey</#if></@fly_checkfollow> userFollow-button"><@fly_checkfollow userFollow="${list.userFollow!}" userFans="${user.userId!}"><#if result=1><i class="fa fa-check"></i> 已关注<#elseif result=2><i class="fa fa-exchange"></i> 互相关注<#else><i class="fa fa-plus"></i> 关注他</#if></@fly_checkfollow></button></#if>
+                            <#else>
+                            <button type="button" data-user-id="${list.userFollow!}" class="button-blue userFollow-button"><i class="fa fa-plus"></i> 关注他</button>
+                            </#if>
+                        </div>
+                        </@fly_userinfo>
+                        </#list>
+                        <div class="text-center">
+                            <ul class="pagination">
+                                ${fans_page.pageNumHtml}
+                            </ul>
+                        </div>
+                    </div>
+                    </@fly_userfanspage>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="widget-user-card">
+                    <div class="card-header">
+                        <div class="card-header-text">个人成就</div>
+                    </div>
+                    <div class="card-profile-body">
+                        <div class="profile-item">
+                            <div class="icon-graf">
+                                <i class="fa fa-pencil-square" aria-hidden="true"></i> <a href="/people/${people.userId!}/logs" target="_blank">参与 2 次公共编辑</a>
+                            </div>
+                            <div class="Profile-sideColumnItemValue"><!--获得 5,904 次感谢 ， 46,355 次收藏--></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <#include "../common/user_card_box.html">
+
+                <div class="widget-box">
+                    <h2 class="h4 widget-box-title">热议话题 <a href="#" title="更多">»</a></h2>
+                    <ul class="taglist-inline multi">
+                        <@fly_topicpage orderby="rand" rows="25">
+                        <#list topic_page.list as list>
+                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.id!}">${list.topic!}</a></li>
+                        </#list>
+                        </@fly_topicpage>
+                    </ul>
+                </div>
+
+                <div class="widget-box mt30">
+                    <h2 class="widget-box-title">
+                        财富榜
+                        <a href="#" title="更多">»</a>
+                    </h2>
+                    <@fly_userhotpage>
+                    <ol class="widget-top10">
+                        <#list hot_page.list as list>
+                        <@fly_userinfo userId="${list.userId!}">
+                        <li class="text-muted">
+                            <img class="avatar-32" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>">
+                        <a href="/people/${userinfo.userId!}" class="ellipsis" target="_blank">${userinfo.nickName!}</a>
+                        <@fly_usercount userId="${list.userId!}">
+                        <span class="text-muted pull-right">${count.score!} 金币</span>
+                        </@fly_usercount>
+                        </li>
+                    </@fly_userinfo>
+                    </#list>
+                    </ol>
+                    </@fly_userhotpage>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<#include "../common/footer.html">
+<script type="text/javascript"> seajs.use('loginbox', function(loginbox){}); </script>
+<script type="text/javascript"> seajs.use('index', function(index){}); </script>
+<script type="text/javascript"> seajs.use('main', function(main){}); </script>
+</body>
+</html>

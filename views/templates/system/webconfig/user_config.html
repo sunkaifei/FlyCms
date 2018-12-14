@@ -1,0 +1,345 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="site">
+    <#assign page_nav="basic">
+    <#include "../common/system_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/admin/index">系统</a>
+                </li>
+                <li class="active">用户设置</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#tab1" data-toggle="tab">注册设置</a></li>
+<!--                    <li><a href="#tab2" data-toggle="tab">信息审核</a></li>
+                    <li><a href="#tab3" data-toggle="tab">其他设置</a></li>
+                    <li><a href="#tab4" data-toggle="tab">邮箱设置</a></li>
+                    <li><a href="#tab5" data-toggle="tab">系统设置</a></li>-->
+                </ul>
+
+                <div class="tab-content">
+                    <!--网站设置-->
+                    <div class="tab-pane active" id="tab1">
+                        <form action="/admin/site/userconfig_updagte" method="post" enctype='multipart/form-data' id='updateUserconfig'>
+                            <table class="table form-table">
+                                <colgroup>
+                                    <col width="140px" />
+                                    <col />
+                                </colgroup>
+                                <tr>
+                                    <th>开启会员功能：</th>
+                                    <td>
+                                        <label class="radio-inline"><input type="radio" name="user_reg" value="1"<#if config.user_reg="1"> checked="checked"</#if>>开启</label>
+                                        <label class="radio-inline"><input type="radio" name="user_reg" value="0"<#if config.user_reg="0"> checked="checked"</#if>>关闭</label>
+                                        <p class="help-block"></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>新注册是否审核：</th>
+                                    <td>
+                                        <label class="radio-inline"><input type="radio" name="user_reg_verify" value="1"<#if config.user_reg_verify="1"> checked="checked"</#if>>否</label>
+                                        <label class="radio-inline"><input type="radio" name="user_reg_verify" value="0"<#if config.user_reg_verify="0"> checked="checked"</#if>>是</label>
+                                        <p class="help-block"></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>注册后状态权限设置：</th>
+                                    <td>
+                                        <select name='user_activation_role' class='form-control' pattern='required'>
+                                            <@fly_usergrouplist>
+                                            <#list grouplist as list>
+                                            <option value='${list.id!}'<#if list.id=config.user_activation_role?number> selected = "selected"</#if>>${list.groupName!}</option>
+                                            </#list>
+                                            </@fly_usergrouplist>
+                                        </select>
+                                        <p class="help-block">注意：本设置为用户未完成昵称等基本信息，将被设置为未激活状态！</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>激活后权限组设置：</th>
+                                    <td>
+                                        <select name='user_role' class='form-control' pattern='required'>
+                                            <@fly_usergrouplist>
+                                            <#list grouplist as list>
+                                            <option value='${list.id!}'<#if list.id=config.user_role?number> selected = "selected"</#if>>${list.groupName!}</option>
+                                            </#list>
+                                            </@fly_usergrouplist>
+                                        </select>
+                                        <p class="help-block">注意：等用户完善后将被修改为指定激活后的权限组！</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>问题审核：</th>
+                                    <td>
+                                        <label class="radio-inline"><input type="radio" name="user_question_verify" value="1"<#if config.user_question_verify="1"> checked="checked"</#if>>开启</label>
+                                        <label class="radio-inline"><input type="radio" name="user_question_verify" value="0"<#if config.user_question_verify="0"> checked="checked"</#if>>关闭</label>
+                                        <p class="help-block"></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>答案审核：</th>
+                                    <td>
+                                        <label class="radio-inline"><input type="radio" name="user_answer_verify" value="1"<#if config.user_answer_verify="1"> checked="checked"</#if>>开启</label>
+                                        <label class="radio-inline"><input type="radio" name="user_answer_verify" value="0"<#if config.user_answer_verify="0"> checked="checked"</#if>>关闭</label>
+                                        <p class="help-block"></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <button class="btn btn-primary" type='submit'>保存注册设置</button>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </form>
+                    </div>
+
+                    <!--网站底部信息设置-->
+                    <div class="tab-pane" id="tab2">
+                        <form action='/system/save_conf/form_index/site_footer_conf' method='post' name='site_footer_conf'>
+                            <table class='table form-table'>
+                                <colgroup>
+                                    <col width="140px" />
+                                    <col />
+                                </colgroup>
+                                <tr>
+                                    <th>站点底部信息：</th>
+                                    <td>
+                                        <textarea id="site_footer_code" name='site_footer_code' style='width:95%;height:300px;'><div class="footer" style="text-align:center"><p class="links"><a href="">关于我们</a>|<a href="">常见问题</a>|<a href="">安全交易</a>|<a href="">购买流程</a>|<a href="">如何付款</a>|<a href="">联系我们</a>|<a href="">合作提案</a></p><p class="copyright">Powered by <a href="http://www.aircheng.com">iWebShop</a></p>Copyright © 2005-2014 <a class="copyys" target="_blank" href="http://www.miibeian.gov.cn/">鲁ICP备01000010号</a></div></textarea>
+                                        <p class="help-block">设置站点底部页面信息，您可以点源代码试图直接进行代码编辑</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td><button type='submit' class='btn btn-primary'>保存站点底部信息</button></td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+
+                    <!--其他设置-->
+                    <div class="tab-pane" id="tab3">
+                        <form action='/system/save_conf/form_index/other_conf' method='post' name='other_conf'>
+                            <table class="table form-table">
+                                <colgroup>
+                                    <col width="140px" />
+                                    <col />
+                                </colgroup>
+                                <tr>
+                                    <th>默认的排序依据：</th>
+                                    <td>
+                                        <select name='order_by' class='form-control'>
+                                            <option value='sort'>默认</option>
+                                            <option value='sale'>销量</option>
+                                            <option value='cpoint'>评分</option>
+                                            <option value='price'>价格</option>
+                                            <option value='new'>最新上架</option>
+                                        </select>
+                                        <p class="help-block">* 在商品列表页中商品的排序依据条件</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>发票税率：</th>
+                                    <td><input type='text' name='tax' class='form-control w-auto' empty pattern='float' alt='请输入正确的整数或者浮点数' />% <p class="help-block">当买家需要发票的时候就要增加<商品金额>*<税率>的费用</p></td>
+                                </tr>
+                                <tr>
+                                    <th>商家结算手续费：</th>
+                                    <td><input type='text' name='commission' class='form-control w-auto' empty pattern='float' alt='请输入正确的整数或者浮点数' />% <p class="help-block">商家结算时，扣除<应结算总额>的百分比，最终商家结算金额为：<应结算总额> - <应结算总额> * <商家结算手续费></p></td>
+                                </tr>
+                                <tr>
+                                    <th>默认备货时间：</th>
+                                    <td><input type='text' class='form-control w-auto' name='stockup_time' pattern='int' alt='请填写整数' />天 <p class="help-block">* 订单确认后需要备货的时间</p></td>
+                                </tr>
+                                <tr>
+                                    <th>新用户注册设置：</th>
+                                    <td>
+                                        <label class='radio-inline'><input type='radio' name='reg_option' value="0" />正常</label>
+                                        <label class='radio-inline'><input type='radio' name='reg_option' value="1" />邮箱验证</label>
+                                        <label class='radio-inline'><input type='radio' name='reg_option' value="3" />手机验证</label>
+                                        <label class='radio-inline'><input type='radio' name='reg_option' value="2" />关闭注册</label>
+                                        <p class="help-block">新用户注册配置，邮箱和手机验证要确保系统与验证接口对接正确</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>库存预警数量：</th>
+                                    <td>
+                                        <input type='text' class='form-control' name='store_num_warning' pattern='int' alt='请填写整数' /> <p class="help-block">当商品数量少于X件时，会在系统后台首页<a href="/system/default"><库存预警></a>显示</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <button class='btn btn-primary' type='submit'>保存配置</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+
+                    <!--邮箱设置-->
+                    <div class="tab-pane" id="tab4">
+                        <form action='/system/save_conf/form_index/mail_conf' method='post' name='mail_conf'>
+                            <table class="table form-table">
+                                <colgroup>
+                                    <col width="140px" />
+                                    <col />
+                                </colgroup>
+                                <tr>
+                                    <th>说明：</th>
+                                    <td>
+                                        邮件配置要根据具体邮件服务器的要求才能正确发送，比如：<a href="http://bbs.aircheng.com/read-1647" target="_blank">163邮箱</a>，<a href="http://bbs.aircheng.com/read-1009" target="_blank">QQ邮箱</a><br/>
+                                        邮件的内容模板在：【classes/mailtemplate.php】可以根据需要自行修改
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>发送Email方式：</th>
+                                    <td>
+                                        <label class='radio-inline'><input type='radio' name='email_type' value='1' checked='checked' onclick="show_mail(1);" />第三方SMTP方式</label>
+                                        <label class='radio-inline'><input type='radio' name='email_type' value='2' onclick="show_mail(2)" />本地mail邮箱</label>
+                                        <p class="help-block">* 如果本地已经搭建好邮件服务，请选择 "本地mail邮箱"，否则选择" 第三方SMTP方式 "来发送邮件</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>发送邮件的地址：</th>
+                                    <td>
+                                        <input type='text' name='mail_address' pattern='email' alt='填写正确的email地址' class='form-control' />
+                                        <p class="help-block">* 发送邮件所使用的email地址，邮件内容中的收件人信息就是显示此信息</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>安全协议：</th>
+                                    <td>
+                                        <label class='radio-inline'><input type='radio' name='email_safe' value='' checked='checked' />默认</label>
+                                        <label class='radio-inline'><input type='radio' name='email_safe' value='ssl' />SSL</label>
+                                        <label class='radio-inline'><input type='radio' name='email_safe' value='tls' />TLS</label>
+                                        <p class="help-block">具体细则请参考各大邮件服务提供商</p>
+                                    </td>
+                                </tr>
+                                <tr name='smtp'>
+                                    <th>SMTP地址：</th>
+                                    <td>
+                                        <input type='text' name='smtp' class='form-control' pattern='required' empty alt='填写正确的email地址' />
+                                        <p class="help-block">第三方的SMTP的URL地址</p>
+                                    </td>
+                                </tr>
+                                <tr name='smtp'>
+                                    <th>用户名：</th>
+                                    <td>
+                                        <input type='text' name='smtp_user' class='form-control' pattern='required' alt='发送邮件' empty />
+                                        <p class="help-block">SMTP用户名</p>
+                                    </td>
+                                </tr>
+                                <tr name='smtp'>
+                                    <th>密码：</th>
+                                    <td><input type='password' name='smtp_pwd' class='form-control' value='' empty /><p class="help-block">SMTP密码</p></td>
+                                </tr>
+                                <tr name='smtp'>
+                                    <th>端口号：</th>
+                                    <td><input type='text' name='smtp_port' class='form-control' empty /><p class="help-block">SMTP端口号(默认：25)</p></td>
+                                </tr>
+                                <tr>
+                                    <th>测试邮件地址：</th>
+                                    <td><input type='text' name='test_address' pattern='email' class='form-control' empty alt='填写正确的email地址' /><p class="help-block">用于测试邮件发送的功能【可选】</p></td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <button class='btn btn-primary' type='submit'>保存邮箱设置</button>
+                                        <button class='btn btn-default' type='button' onclick="test_mail(this);"><span id='testmail'>测试邮件发送</span></button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+
+                    <!--系统设置-->
+                    <div class="tab-pane" id="tab5">
+                        <form action="/system/save_conf/form_index/system_conf" method="post" name='system_conf'>
+                            <table class="table form-table">
+                                <colgroup>
+                                    <col width="150px" />
+                                    <col />
+                                </colgroup>
+                                <tr>
+                                    <th>清理模板缓存：</th>
+                                    <td>
+                                        <button class='btn btn-default' type='button' onclick="clearCache();">开始清理</button>
+                                        <p class="help-block">清理系统编译生成的模板缓存文件</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>私密信息存储：</th>
+                                    <td>
+                                        <select name='safe' class='form-control' pattern='required' alt='请选择一种语言'>
+                                            <option value='cookie'>COOKIE方案(存放于客户端)</option>
+                                            <option value='session'>SESSION方案(存放于服务器端)</option>
+                                        </select>
+                                        <p class="help-block">注意：修改此设置后，用户会被强制退出。默认：COOKIE方案</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>上传容量限制：</th>
+                                    <td><input type='text' name='uploadSize' class='form-control w-auto' empty pattern='int' alt='请输入MB数量' />MB <p class="help-block">上传图片及附件的容量限制，单位：MB</p></td>
+                                </tr>
+                                <tr>
+                                    <th>设置语言包：</th>
+                                    <td>
+                                        <select class='form-control' name='lang' pattern='required' alt='请选择一种语言'>
+                                            <option value='zh_sc'>中文(简体)</option>
+                                        </select>
+                                        <p class="help-block">切换整站语言</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>报错显示设置：</th>
+                                    <td>
+                                        <select class='form-control' name="debug">
+                                            <option value="0">隐藏错误【网站运营阶段】</option>
+                                            <option value="1">部分显示【普通开发阶段】</option>
+                                            <option value="2">全部显示【高质量开发阶段】</option>
+                                        </select>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>伪静态：</th>
+                                    <td>
+                                        <label class='radio-inline'><input type='radio' name='rewriteRule' value="pathinfo" />开启</label>
+                                        <label class='radio-inline'><input type='radio' name='rewriteRule' value="url" />关闭</label>
+                                        <p class="help-block">开启伪静态前请先确保你的服务器环境支持伪静态规则，如果开启后网站无法打开，则需手动修改config/config.php【rewriteRule => url】</p>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>授权编号：</th>
+                                    <td><input type='text' name='authorizeCode' class='form-control' empty /><p class="help-block">购买正式授权的编号 <a href="http://product.aircheng.com" target="_blank">点击查询</a></p></td>
+                                </tr>
+
+                                <tr>
+                                    <th></th>
+                                    <td><button class='btn btn-primary' type='submit'>保存系统设置</button></td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('config', function(config) {});</script>
+</body>
+</html>

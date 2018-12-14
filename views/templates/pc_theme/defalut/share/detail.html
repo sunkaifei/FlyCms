@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${share.title!} - ${seo_title!}</title>
+    <meta name="keywords" content="问答系统,java问答系统,开源之家问答系统 ,spring boot问答系统,社区问答系统" />
+    <meta name="description" content="开源之家问答系统站长社区交流平台，同时也是开源之家问答系统的实际站点演示。" />
+    <meta name="author" content="28844 Team" />
+    <meta name="copyright" content="2018 28844.com" />
+    <!-- Bootstrap -->
+    <link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/js/vendors/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/index.css" />
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/global.css" />
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/share.css" />
+    <link rel="stylesheet" href="/assets/js/vendors/wangEditor/wangEditor.min.css">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
+    <script type="text/javascript" src="/user/status.json"></script>
+</head>
+<body>
+<#include "../common/header.html">
+
+<div class="wrap">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-md-9 mt-10">
+                <div class="question-content share-content" data-info-id="${share.id!}" data-type-id="2">
+                    <div class="list-header">
+                        <h4>${share.title!}</h4>
+                        <div class="List-headerOptions">立即下载</div>
+                    </div>
+                    <div class="question-list-item">
+                        <div class="answer-info">${share.countDigg!} 人推荐了该资源</div>
+                        <div class="summary">
+                            <p class="excerpt wordbreak">${share.content!}</p>
+                        </div>
+                        <div class="post-opt mt-30">
+                            <ul class="list-inline text-muted">
+                                <li><i class="fa fa-clock-o"></i> 发表于 <@fly_dateformat time=share.createTime?string('yyyy-MM-dd HH:mm:ss') /></li>
+                            </ul>
+                        </div>
+                        <@fly_login>
+                        <#if status??><#-- 检查是否登陆 -->
+                        <#if user.userId=share.userId>
+                        <div class="post-opt">
+                            <ul class="list-inline text-muted">
+                                <li><i class="fa fa-pencil"></i> <a href="/ucenter/share/edit-${share.id!}"> 修改</a></li>
+                            </ul>
+                        </div>
+                        </#if>
+                        </#if>
+                        </@fly_login>
+                        <div class="text-center mt-30 mb-20">
+                            <button id="support-button" class="btn btn-success btn-lg mr-5">${share.countDigg!} 推荐</button>
+                            <button id="collect-button" class="btn btn-default btn-lg add-favorite"> 收藏</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="downloads-content mt-20">
+                    <div class="downloads-head"><h3>下载地址</h3></div>
+
+                    <#-- 检查是否是免费资源 -->
+                    <#if share.needmoney gt 0>
+                    <@fly_login>
+                    <#if status??><#-- 检查是否登陆 -->
+                        <#if user.userId=share.userId>
+                            <div class="downloads-login clear">
+                            ${share.downloads!}
+                            </div>
+                        <#else>
+                            <#-- 查询是否购买开始 -->
+                            <@fly_order shareId="${share.id!}" userId="${user.userId!}">
+                            <#if order>
+                            <div class="downloads-login clear">
+                                ${share.downloads!}
+                            </div>
+                            <#else>
+                            <div class="download-pwd-box">
+                                <!--账户余额足时 -->
+                                <div class="download-pay-tip">
+                                    共享分：<b class="font-tahoma red1">${user.score!}</b>共享分；
+                                    此次查看<b>将扣除<span class="font-tahoma red1">${share.needmoney?c}</span>共享分</b>
+                                </div>
+                            </div>
+                            <div class="download-agree-rule" style="font-weight:bold;">
+                                <input type="checkbox" checked="checked" id="J_rule" class="download-agree-checkbox">同意<a href="#" class="blue4 underline" title="开源之家交易说明" hidefocus="true">开源之家交易说明</a>
+                            </div>
+                            <div class="download-link clearfix">
+                                <!--支付查看-->
+                                <a href="javascript:;" onclick="return false;" class="btn-down-best buy-share" data-share-id="${share.id!}" title="点击查看"><img src=""><span>点击查看</span></a>
+                            </div>
+                            </#if>
+                            </@fly_order>
+                            <#-- 查询是否购买结束 -->
+                        </#if>
+                    <#else><#-- 未登陆 -->
+                    <div class="downloads-login clear">
+                        <div class="left">
+                            <p>下载价格：<span class="price">${share.needmoney?c} K币</span></p>
+                            <p>下载地址：******** [隐藏信息购买后可见]</p>
+                        </div>
+                        <!--<p>本下载地址已隐藏，快登录下载吧！:)</p>-->
+                        <div class="right">
+                            <a title="登录" href="javascript:void(0);" class="btn-primary lg-layer">登录</a>
+                            <a title="立即注册" href="javascript:void(0);" class="reg-layer">立即注册</a>
+                        </div>
+                    </div>
+                    </#if>
+                    </@fly_login>
+                    <#else><#-- 免费资源直接显示 -->
+                    ${share.downloads!}
+                    </#if>
+                    <div class="downloads-text">
+                        <ol>
+                            <li>由于文件的可复制性，除下载链接失效等特殊情况，一旦支付不支持退款。</li>
+                            <li>隐藏内容为主题下载地址，支付后刷新页面自动显示，都放在百度网盘，复制百度网盘地址输入提取密码即可，假如您不会百度网盘下载，请勿购买。</li>
+                            <li>VIP可以在1年内下载本站所有隐藏内容，注册登录升级VIP即可，适合需要经常下载教学视频的朋友</li>
+                            <li>下载链接失效等相关问题请发邮件到79678111@qq.com，24小时内处理！</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-3 mt-10">
+                <div class="widget-user-card">
+                    <div class="card-header">
+                        <div class="card-header-text">关于作者</div>
+                    </div>
+                    <@fly_userinfo userId="${share.userId!}">
+                    <div class="card-body">
+                        <div  class="card-user">
+                            <div class="card-avatar">
+                                <a href="/people/${userinfo.userId!}" target="_blank">
+                                    <img class="avatar-38 mr-10 hidden-xs" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="${userinfo.nickName!}">
+                                </a>
+                            </div>
+                            <div class="card-author-content">
+                                <div class="card-author-name">
+                                    <a href="/people/${userinfo.userId!}">${userinfo.nickName!}</a>
+                                </div>
+                                <div class="author-nick">
+                                    <#if userinfo.signature??>${userinfo.signature!}<#else>这个家伙很懒什么也没留下！</#if>
+                                </div>
+                            </div>
+                        </div>
+                        </@fly_userinfo>
+                        <@fly_usercount userId="${share.userId!}">
+                        <div class="card-count-box user-card" data-user-id="${share.userId!}">
+                            <div class="col-xs-4 col-md-4 card-numberboard-items">
+                                <div class="card-itemname">回答</div>
+                                <a href="/people/${share.userId!}/answers"><strong class="card-itemnumber" title="0">${count.countAnswer!}</strong></a>
+                            </div>
+                            <div class="col-xs-4 col-md-4 card-numberboard-items">
+                                <div class="card-itemname">文章</div>
+                                <a href="/people/${share.userId!}/article"><strong class="card-itemnumber" title="0">${count.countArticle!}</strong></a>
+                            </div>
+                            <div class="col-xs-4 col-md-4 card-numberboard-items">
+                                <div class="card-itemname">关注者</div>
+                                <a href="/people/${share.userId!}/fans"><strong class="card-itemnumber" title="0">${count.countFans!}</strong></a>
+                            </div>
+                        </div>
+                        </@fly_usercount>
+                        <div class="card-follow">
+                            <#if user??>
+                            <span data-user-id="${share.userId!}" class="btn btn-primary<@fly_checkfollow userFollow="${share.userId!}" userFans="${user.userId!}"><#if result gt 0> button-grey</#if></@fly_checkfollow> userFollow-button"><@fly_checkfollow userFollow="${share.userId!}" userFans="${user.userId!}"><#if result=1><i class="fa fa-check"></i> 已关注<#elseif result=2><i class="fa fa-exchange"></i> 互相关注<#else><i class="fa fa-plus"></i> 关注他</#if></@fly_checkfollow></span>
+                            <#else>
+                            <span data-user-id="${share.userId!}" class="btn btn-primary userFollow-button"><i class="fa fa-plus"></i> 关注他</span>
+                            </#if>
+                            <span class="btn btn-default"><i class="fa fa-comments"></i> 发私信</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><i class="es-icon es-icon-whatshot"></i>你可能感兴趣的</h3>
+                    </div>
+                    <div class="panel-body">
+                        <@fly_infopage title="${share.title!}" notId="2-${share.id!}" rows="10">
+                        <#list info_page.list as list>
+                        <div class="media media-number">
+                            <div class="media-left">
+                                <span class="num">${list_index+1}</span>
+                            </div>
+                            <div class="media-body">
+                                <#if list.infoType=0>
+                                <a class="link-dark" href="/question/${list.infoId!}" title="">${list.title!}</a>
+                            </#if>
+                            <#if list.infoType=1>
+                            <a class="link-dark" href="/article/${list.infoId!}" title="">${list.title!}</a>
+                            </#if>
+                            <#if list.infoType=2>
+                            <a class="link-dark" href="/share${list.infoId!}" title="">${list.title!}</a>
+                            </#if>
+                            </div>
+                        </div>
+                        </#list>
+                        </@fly_infopage>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">热议话题 <a href="/topics" title="更多">»</a></h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="taglist-inline multi">
+                            <@fly_topicpage orderby="rand" rows="25">
+                            <#list topic_page.list as list>
+                            <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.id!}">${list.topic!}</a></li>
+                            </#list>
+                            </@fly_topicpage>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+${web_footer_code!}
+<script type="text/javascript"> seajs.use('loginbox', function(loginbox){}); </script>
+<script type="text/javascript"> seajs.use('answereditor', function(answereditor){}); </script>
+<script type="text/javascript"> seajs.use('main', function(main){}); </script>
+</body>
+</html>

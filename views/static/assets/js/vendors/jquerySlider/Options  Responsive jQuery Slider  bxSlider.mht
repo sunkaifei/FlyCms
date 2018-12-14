@@ -1,0 +1,3945 @@
+From: =?gb2312?B?08kgV2luZG93cyBJbnRlcm5ldCBFeHBsb3JlciA5ILGjtOY=?=
+Subject: Options | Responsive jQuery Slider | bxSlider
+Date: Wed, 22 Jun 2016 19:17:39 +0800
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_0000_01D1CCBA.BDC717E0"
+X-MimeOLE: Produced By Microsoft MimeOLE V6.1.7601.17609
+
+这是 MIME 格式的多方邮件。
+
+------=_NextPart_000_0000_01D1CCBA.BDC717E0
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://bxslider.com/options
+
+=EF=BB=BF<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE html><HTML><HEAD><TITLE>Options | Responsive jQuery Slider |=20
+bxSlider</TITLE>
+<META content=3D"text/html; charset=3Dutf-8" =
+http-equiv=3D"Content-Type">
+<META name=3D"viewport" content=3D"width=3Ddevice-width, =
+minimum-scale=3D1.0, maximum-scale=3D1.0, user-scalable=3Dno">
+<META name=3D"keywords" content=3D"content slider, responsive image =
+gallery, responsive image gallery, image slider, image fade, image =
+rotator">
+<META name=3D"description" content=3D"Respsonsive jQuery content =
+slider.">
+<META name=3D"google-site-verification" =
+content=3D"25AuAMRK4hudMM4ZYCQnmQp9W9XtTtsutIDiZmKnjOo"><LINK=20
+rel=3D"stylesheet" type=3D"text/css" =
+href=3D"http://bxslider.com/lib/jquery.bxslider.css"><LINK=20
+rel=3D"stylesheet" type=3D"text/css" =
+href=3D"http://bxslider.com/css/styles.css"><LINK=20
+rel=3D"stylesheet" type=3D"text/css" =
+href=3D"http://bxslider.com/css/github.css"><!--[if lt IE 9]>=0A=
+  <script src=3D"/js/html5shiv.js"></script>=0A=
+  <![endif]-->
+<SCRIPT src=3D"http://bxslider.com/js/jquery.min.js"></SCRIPT>
+
+<SCRIPT src=3D"http://bxslider.com/lib/jquery.bxslider.js"></SCRIPT>
+
+<SCRIPT src=3D"http://bxslider.com/js/rainbow.min.js"></SCRIPT>
+
+<SCRIPT src=3D"http://bxslider.com/js/scripts.js"></SCRIPT>
+
+<SCRIPT type=3D"text/javascript">=0A=
+=0A=
+    var _gaq =3D _gaq || [];=0A=
+    _gaq.push(['_setAccount', 'UA-36499930-1']);=0A=
+    _gaq.push(['_trackPageview']);=0A=
+=0A=
+    (function() {=0A=
+      var ga =3D document.createElement('script'); ga.type =3D =
+'text/javascript'; ga.async =3D true;=0A=
+      ga.src =3D ('https:' =3D=3D document.location.protocol ? =
+'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';=0A=
+      var s =3D document.getElementsByTagName('script')[0]; =
+s.parentNode.insertBefore(ga, s);=0A=
+    })();=0A=
+=0A=
+  </SCRIPT>
+
+<META name=3D"GENERATOR" content=3D"MSHTML 9.00.8112.16737"></HEAD>
+<BODY class=3D"options"><HEADER>
+<DIV class=3D"inner clearfix">
+<DIV class=3D"logo"><A href=3D"http://bxslider.com/"><SPAN =
+class=3D"icon-icomoon-bx-star"></SPAN>=20
+bxSlider</A></DIV><NAV><A href=3D"http://bxslider.com/">Home</A><A =
+href=3D"http://bxslider.com/examples">Examples</A><A=20
+class=3D"active" href=3D"http://bxslider.com/options">Options</A><A =
+href=3D"http://bxslider.com/faqs">FAQs</A>
+</NAV>
+<DIV class=3D"download"><A class=3D"btn" =
+onclick=3D"_gaq.push(['_trackEvent', 'ZIP', 'Download', =
+'bxSlider.zip']);"=20
+href=3D"http://bxslider.com/lib/jquery.bxslider.zip"><SPAN =
+class=3D"icon-fontello-down"></SPAN>=20
+Download</A></DIV></DIV></HEADER><SECTION id=3D"main">
+<DIV class=3D"inner clearfix"><ASIDE>
+<DIV class=3D"block block-advert">
+<DIV data-zone=3D"ros" data-format=3D"300x250" =
+data-publisher=3D"bxslider.com"=20
+data-type=3D"ad"></DIV></DIV>
+<DIV class=3D"block block-buttons">
+<FORM id=3D"frm-paypal" method=3D"post" =
+action=3D"https://www.paypal.com/cgi-bin/webscr"><INPUT=20
+name=3D"cmd" value=3D"_s-xclick" type=3D"hidden"><INPUT =
+name=3D"hosted_button_id" value=3D"V5KXSVDQLUY9J"=20
+type=3D"hidden"><INPUT value=3D"Buy me a beer" type=3D"submit"><IMG =
+border=3D"0" alt=3D""=20
+src=3D"https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width=3D"1"=20
+height=3D"1"></FORM><A class=3D"btn btn-donate" =
+href=3D"http://bxslider.com/"><SPAN=20
+class=3D"icon-icomoon-beer"></SPAN> Buy me a beer</A><A class=3D"btn" =
+href=3D"https://github.com/wandoledzep/bxslider-4"=20
+target=3D"_blank"><SPAN class=3D"icon-icomoon-github"></SPAN> View on=20
+Github</A></DIV>
+<DIV class=3D"block block-signup">
+<FORM id=3D"mc-embedded-subscribe-form" class=3D"validate" =
+method=3D"post" name=3D"mc-embedded-subscribe-form"=20
+action=3D"http://bxslider.us1.list-manage.com/subscribe/post?u=3D16b4e3f9=
+7dfcc63dead888bd8&amp;id=3Df176749817"=20
+target=3D"_blank" novalidate=3D"">
+<H4>Receive updates<BR>about bxSlider</H4><INPUT id=3D"mce-EMAIL" =
+class=3D"required email"=20
+name=3D"EMAIL" type=3D"text" placeholder=3D"Email address">
+<DIV class=3D"error">A valid email address is required</DIV><INPUT =
+id=3D"mc-embedded-subscribe" class=3D"button" name=3D"subscribe" =
+value=3D"Subscribe" type=3D"submit"></FORM></DIV>
+<DIV class=3D"block block-v3">
+<H4>Still using the old<BR>slider (v3)?</H4><A=20
+href=3D"http://bxslider.com/v3">Click here for v3 =
+documentation</A></DIV>
+<DIV class=3D"block block-about">
+<H4>Wondering how bxSlider was made?</H4>
+<P><A href=3D"http://bxslider.com/about">Click here to see the annotated =
+source=20
+code with a description of the coding process</A></P></DIV></ASIDE>
+<DIV id=3D"primary">
+<H1>Options</H1>
+<P class=3D"intro">No two projects are the same. That is why bxSlider is =
+packed=20
+full of options that allow the slider to adapt to the project=E2=80=99s =
+specific needs.=20
+Check the <A href=3D"http://bxslider.com/examples">examples</A> page for =
+detailed=20
+implementations.</P>
+<DIV class=3D"reference-wrap">
+<H3>Quick options reference <SPAN =
+class=3D"icon-icomoon-double-arrow"></SPAN></H3>
+<DIV class=3D"reference-content clearfix">
+<DIV class=3D"reference-content-inner">
+<DIV class=3D"col col-general">
+<H4>General</H4>
+<UL>
+  <LI><A href=3D"http://bxslider.com/" data-name=3D"mode">mode</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"speed">speed</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+data-name=3D"slideMargin">slideMargin</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"startSlide">startSlide</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+data-name=3D"randomStart">randomStart</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"slideSelector">slideSelector</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"infiniteLoop">infiniteLoop</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"hideControlOnEnd">hideControlOnEnd</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"easing">easing</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"captions">captions</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"ticker">ticker</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+data-name=3D"tickerHover">tickerHover</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"adaptiveHeight">adaptiveHeight</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"adaptiveHeightSpeed">adaptiveHeightSpeed</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"video">video</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"responsive">responsive</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"useCSS">useCSS</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"preloadImages">preloadImages</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"touchEnabled">touchEnabled</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"swipeThreshold">swipeThreshold</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"oneToOneTouch">oneToOneTouch</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"preventDefaultSwipeX">preventDefaultSwipeX</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  =
+data-name=3D"preventDefaultSwipeY">preventDefaultSwipeY</A></LI></UL></DI=
+V>
+<DIV class=3D"col col-pager">
+<H4>Pager</H4>
+<UL>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"pager">pager</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"pagerType">pagerType</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"pagerShortSeparator">pagerShortSeparator</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"pagerSelector">pagerSelector</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+data-name=3D"pagerCustom">pagerCustom</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+data-name=3D"buildPager">buildPager</A></LI></UL></DIV>
+<DIV class=3D"col col-controls">
+<H4>Controls</H4>
+<UL>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"controls">controls</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"nextText">nextText</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"prevText">prevText</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"nextSelector">nextSelector</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"prevSelector">prevSelector</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"autoControls">autoControls</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"startText">startText</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"stopText">stopText</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"autoControlsCombine">autoControlsCombine</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  =
+data-name=3D"autoControlsSelector">autoControlsSelector</A></LI></UL></DI=
+V>
+<DIV class=3D"col col-auto">
+<H4>Auto</H4>
+<UL>
+  <LI><A href=3D"http://bxslider.com/" data-name=3D"auto">auto</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"pause">pause</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"autoStart">autoStart</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"autoDirection">autoDirection</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"autoHover">autoHover</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+data-name=3D"autoDelay">autoDelay</A></LI></UL></DIV>
+<DIV class=3D"col col-carousel">
+<H4>Carousel</H4>
+<UL>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"minSlides">minSlides</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"maxSlides">maxSlides</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"moveSlides">moveSlides</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+data-name=3D"slideWidth">slideWidth</A></LI></UL></DIV>
+<DIV class=3D"col col-callbacks">
+<H4>Callbacks</H4>
+<UL>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"onSliderLoad">onSliderLoad</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"onSlideBefore">onSlideBefore</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"onSlideAfter">onSlideAfter</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+data-name=3D"onSlideNext">onSlideNext</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+data-name=3D"onSlidePrev">onSlidePrev</A></LI></UL></DIV>
+<DIV class=3D"col col-public methods">
+<H4>Public methods</H4>
+<UL>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"goToSlide">goToSlide</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"goToNextSlide">goToNextSlide</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"goToPrevSlide">goToPrevSlide</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"startAuto">startAuto</A></LI>
+  <LI><A href=3D"http://bxslider.com/" =
+data-name=3D"stopAuto">stopAuto</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"getCurrentSlide">getCurrentSlide</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"getSlideCount">getSlideCount</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  data-name=3D"reloadSlider">reloadSlider</A></LI>
+  <LI><A href=3D"http://bxslider.com/"=20
+  =
+data-name=3D"destroySlider">destroySlider</A></LI></UL></DIV></DIV></DIV>=
+</DIV>
+<DIV class=3D"category-wrap">
+<H2>General</H2>
+<DIV id=3D"mode" class=3D"option-name">mode</DIV>
+<DIV class=3D"option-desc">Type of transition between =
+slides</DIV><PRE><CODE data-language=3D"javascript">default: 'horizontal'=0A=
+options: 'horizontal', 'vertical', 'fade'=0A=
+</CODE></PRE>
+<DIV id=3D"speed" class=3D"option-name">speed</DIV>
+<DIV class=3D"option-desc">Slide transition duration (in =
+ms)</DIV><PRE><CODE data-language=3D"javascript">default: 500=0A=
+options: integer=0A=
+</CODE></PRE>
+<DIV id=3D"slideMargin" class=3D"option-name">slideMargin</DIV>
+<DIV class=3D"option-desc">Margin between each slide</DIV><PRE><CODE =
+data-language=3D"javascript">default: 0=0A=
+options: integer=0A=
+</CODE></PRE>
+<DIV id=3D"startSlide" class=3D"option-name">startSlide</DIV>
+<DIV class=3D"option-desc">Starting slide index =
+(zero-based)</DIV><PRE><CODE data-language=3D"javascript">default: 0=0A=
+options: integer=0A=
+</CODE></PRE>
+<DIV id=3D"randomStart" class=3D"option-name">randomStart</DIV>
+<DIV class=3D"option-desc">Start slider on a random =
+slide</DIV><PRE><CODE data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"slideSelector" class=3D"option-name">slideSelector</DIV>
+<DIV class=3D"option-desc">Element to use as slides (ex.=20
+<CODE>'div.slide'</CODE>).<BR>Note: by default, bxSlider will use all =
+immediate=20
+children of the slider element</DIV><PRE><CODE =
+data-language=3D"javascript">default: ''=0A=
+options: jQuery selector=0A=
+</CODE></PRE>
+<DIV id=3D"infiniteLoop" class=3D"option-name">infiniteLoop</DIV>
+<DIV class=3D"option-desc">If <CODE>true</CODE>, clicking "Next" while =
+on the last=20
+slide will transition to the first slide and vice-versa</DIV><PRE><CODE =
+data-language=3D"javascript">default: true=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"hideControlOnEnd" =
+class=3D"option-name">hideControlOnEnd</DIV>
+<DIV class=3D"option-desc">If <CODE>true</CODE>, "Next" control will be =
+hidden on=20
+last slide and vice-versa<BR>Note: Only used when <CODE>infiniteLoop:=20
+false</CODE></DIV><PRE><CODE data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"easing" class=3D"option-name">easing</DIV>
+<DIV class=3D"option-desc">The type of "easing" to use during =
+transitions. If=20
+using CSS transitions, include a value for the=20
+<CODE>transition-timing-function</CODE> property. If not using CSS =
+transitions,=20
+you may include <CODE>plugins/jquery.easing.1.3.js</CODE> for many=20
+options.<BR>See <A href=3D"http://gsgd.co.uk/sandbox/jquery/easing/" =
+target=3D"_blank">http://gsgd.co.uk/sandbox/jquery/easing/</A>=20
+for more info.</DIV><PRE><CODE data-language=3D"javascript">default: null=0A=
+options: if using CSS: 'linear', 'ease', 'ease-in', 'ease-out', =
+'ease-in-out', 'cubic-bezier(n,n,n,n)'. If not using CSS: 'swing', =
+'linear' (see the above file for more options)=0A=
+</CODE></PRE>
+<DIV id=3D"captions" class=3D"option-name">captions</DIV>
+<DIV class=3D"option-desc">Include image captions. Captions are derived =
+from the=20
+image's <CODE>title</CODE> attribute</DIV><PRE><CODE =
+data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"ticker" class=3D"option-name">ticker</DIV>
+<DIV class=3D"option-desc">Use slider in ticker mode (similar to a news=20
+ticker)</DIV><PRE><CODE data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"tickerHover" class=3D"option-name">tickerHover</DIV>
+<DIV class=3D"option-desc">Ticker will pause when mouse hovers over =
+slider. Note:=20
+this functionality does NOT work if using CSS =
+transitions!</DIV><PRE><CODE data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"adaptiveHeight" class=3D"option-name">adaptiveHeight</DIV>
+<DIV class=3D"option-desc">Dynamically adjust slider height based on =
+each slide's=20
+height</DIV><PRE><CODE data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"adaptiveHeightSpeed" =
+class=3D"option-name">adaptiveHeightSpeed</DIV>
+<DIV class=3D"option-desc">Slide height transition duration (in ms). =
+Note: only=20
+used if <CODE>adaptiveHeight: true</CODE></DIV><PRE><CODE =
+data-language=3D"javascript">default: 500=0A=
+options: integer=0A=
+</CODE></PRE>
+<DIV id=3D"video" class=3D"option-name">video</DIV>
+<DIV class=3D"option-desc">If any slides contain video, set this to=20
+<CODE>true</CODE>. Also, include =
+<CODE>plugins/jquery.fitvids.js</CODE><BR>See=20
+<A href=3D"http://fitvidsjs.com/" =
+target=3D"_blank">http://fitvidsjs.com/</A> for=20
+more info</DIV><PRE><CODE data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"responsive" class=3D"option-name">responsive</DIV>
+<DIV class=3D"option-desc">Enable or disable auto resize of the slider. =
+Useful if=20
+you need to use fixed width sliders.</DIV><PRE><CODE =
+data-language=3D"javascript">default: true=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"useCSS" class=3D"option-name">useCSS</DIV>
+<DIV class=3D"option-desc">If true, CSS transitions will be used for =
+horizontal=20
+and vertical slide animations (this uses native hardware acceleration). =
+If=20
+false, jQuery animate() will be used.</DIV><PRE><CODE =
+data-language=3D"javascript">default: true=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"preloadImages" class=3D"option-name">preloadImages</DIV>
+<DIV class=3D"option-desc">If 'all', preloads all images before starting =
+the=20
+slider. If 'visible', preloads only images in the initially visible =
+slides=20
+before starting the slider (tip: use 'visible' if all slides are =
+identical=20
+dimensions)</DIV><PRE><CODE data-language=3D"javascript">default: visible=0A=
+options: 'all', 'visible'=0A=
+</CODE></PRE>
+<DIV id=3D"touchEnabled" class=3D"option-name">touchEnabled</DIV>
+<DIV class=3D"option-desc">If <CODE>true</CODE>, slider will allow touch =
+swipe=20
+transitions</DIV><PRE><CODE data-language=3D"javascript">default: true=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"swipeThreshold" class=3D"option-name">swipeThreshold</DIV>
+<DIV class=3D"option-desc">Amount of pixels a touch swipe needs to =
+exceed in order=20
+to execute a slide transition. Note: only used if <CODE>touchEnabled:=20
+true</CODE></DIV><PRE><CODE data-language=3D"javascript">default: 50=0A=
+options: integer=0A=
+</CODE></PRE>
+<DIV id=3D"oneToOneTouch" class=3D"option-name">oneToOneTouch</DIV>
+<DIV class=3D"option-desc">If <CODE>true</CODE>, non-fade slides follow =
+the finger=20
+as it swipes</DIV><PRE><CODE data-language=3D"javascript">default: true=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"preventDefaultSwipeX" =
+class=3D"option-name">preventDefaultSwipeX</DIV>
+<DIV class=3D"option-desc">If <CODE>true</CODE>, touch screen will not =
+move along=20
+the x-axis as the finger swipes</DIV><PRE><CODE =
+data-language=3D"javascript">default: true=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"preventDefaultSwipeY" =
+class=3D"option-name">preventDefaultSwipeY</DIV>
+<DIV class=3D"option-desc">If <CODE>true</CODE>, touch screen will not =
+move along=20
+the y-axis as the finger swipes</DIV><PRE><CODE =
+data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE></DIV>
+<DIV class=3D"category-wrap">
+<H2>Pager</H2>
+<DIV id=3D"pager" class=3D"option-name">pager</DIV>
+<DIV class=3D"option-desc">If <CODE>true</CODE>, a pager will be =
+added</DIV><PRE><CODE data-language=3D"javascript">default: true=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"pagerType" class=3D"option-name">pagerType</DIV>
+<DIV class=3D"option-desc">If <CODE>'full'</CODE>, a pager link will be =
+generated=20
+for each slide. If <CODE>'short'</CODE>, a x / y pager will be used (ex. =
+1 /=20
+5)</DIV><PRE><CODE data-language=3D"javascript">default: 'full'=0A=
+options: 'full', 'short'=0A=
+</CODE></PRE>
+<DIV id=3D"pagerShortSeparator" =
+class=3D"option-name">pagerShortSeparator</DIV>
+<DIV class=3D"option-desc">If <CODE>pagerType: 'short'</CODE>, pager =
+will use this=20
+value as the separating character</DIV><PRE><CODE =
+data-language=3D"javascript">default: ' / '=0A=
+options: string=0A=
+</CODE></PRE>
+<DIV id=3D"pagerSelector" class=3D"option-name">pagerSelector</DIV>
+<DIV class=3D"option-desc">Element used to populate the populate the =
+pager. By=20
+default, the pager is appended to the bx-viewport</DIV><PRE><CODE =
+data-language=3D"javascript">default: ''=0A=
+options: jQuery selector=0A=
+</CODE></PRE>
+<DIV id=3D"pagerCustom" class=3D"option-name">pagerCustom</DIV>
+<DIV class=3D"option-desc">Parent element to be used as the pager. =
+Parent element=20
+must contain a <CODE>&lt;a data-slide-index=3D"x"&gt;</CODE> element for =
+each=20
+slide. See example <A=20
+href=3D"http://bxslider.com/examples/thumbnail-method-1">here</A>. Not =
+for use=20
+with dynamic carousels.</DIV><PRE><CODE =
+data-language=3D"javascript">default: null=0A=
+options: jQuery selector=0A=
+</CODE></PRE>
+<DIV id=3D"buildPager" class=3D"option-name">buildPager</DIV>
+<DIV class=3D"option-desc">If supplied, function is called on every =
+slide element,=20
+and the returned value is used as the pager item markup.<BR>See <A =
+href=3D"http://bxslider.com/examples">examples</A>=20
+for detailed implementation</DIV><PRE><CODE =
+data-language=3D"javascript">default: null=0A=
+options: function(slideIndex)=0A=
+</CODE></PRE></DIV>
+<DIV class=3D"category-wrap">
+<H2>Controls</H2>
+<DIV id=3D"controls" class=3D"option-name">controls</DIV>
+<DIV class=3D"option-desc">If <CODE>true</CODE>, "Next" / "Prev" =
+controls will be=20
+added</DIV><PRE><CODE data-language=3D"javascript">default: true=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"nextText" class=3D"option-name">nextText</DIV>
+<DIV class=3D"option-desc">Text to be used for the "Next" =
+control</DIV><PRE><CODE data-language=3D"javascript">default: 'Next'=0A=
+options: string=0A=
+</CODE></PRE>
+<DIV id=3D"prevText" class=3D"option-name">prevText</DIV>
+<DIV class=3D"option-desc">Text to be used for the "Prev" =
+control</DIV><PRE><CODE data-language=3D"javascript">default: 'Prev'=0A=
+options: string=0A=
+</CODE></PRE>
+<DIV id=3D"nextSelector" class=3D"option-name">nextSelector</DIV>
+<DIV class=3D"option-desc">Element used to populate the "Next" =
+control</DIV><PRE><CODE data-language=3D"javascript">default: null=0A=
+options: jQuery selector=0A=
+</CODE></PRE>
+<DIV id=3D"prevSelector" class=3D"option-name">prevSelector</DIV>
+<DIV class=3D"option-desc">Element used to populate the "Prev" =
+control</DIV><PRE><CODE data-language=3D"javascript">default: null=0A=
+options: jQuery selector=0A=
+</CODE></PRE>
+<DIV id=3D"autoControls" class=3D"option-name">autoControls</DIV>
+<DIV class=3D"option-desc">If <CODE>true</CODE>, "Start" / "Stop" =
+controls will be=20
+added</DIV><PRE><CODE data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"startText" class=3D"option-name">startText</DIV>
+<DIV class=3D"option-desc">Text to be used for the "Start" =
+control</DIV><PRE><CODE data-language=3D"javascript">default: 'Start'=0A=
+options: string=0A=
+</CODE></PRE>
+<DIV id=3D"stopText" class=3D"option-name">stopText</DIV>
+<DIV class=3D"option-desc">Text to be used for the "Stop" =
+control</DIV><PRE><CODE data-language=3D"javascript">default: 'Stop'=0A=
+options: string=0A=
+</CODE></PRE>
+<DIV id=3D"autoControlsCombine" =
+class=3D"option-name">autoControlsCombine</DIV>
+<DIV class=3D"option-desc">When slideshow is playing only "Stop" control =
+is=20
+displayed and vice-versa</DIV><PRE><CODE =
+data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"autoControlsSelector" =
+class=3D"option-name">autoControlsSelector</DIV>
+<DIV class=3D"option-desc">Element used to populate the auto =
+controls</DIV><PRE><CODE data-language=3D"javascript">default: null=0A=
+options: jQuery selector=0A=
+</CODE></PRE></DIV>
+<DIV class=3D"category-wrap">
+<H2>Auto</H2>
+<DIV id=3D"auto" class=3D"option-name">auto</DIV>
+<DIV class=3D"option-desc">Slides will automatically =
+transition</DIV><PRE><CODE data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"pause" class=3D"option-name">pause</DIV>
+<DIV class=3D"option-desc">The amount of time (in ms) between each auto=20
+transition</DIV><PRE><CODE data-language=3D"javascript">default: 4000=0A=
+options: integer=0A=
+</CODE></PRE>
+<DIV id=3D"autoStart" class=3D"option-name">autoStart</DIV>
+<DIV class=3D"option-desc">Auto show starts playing on load. If=20
+<CODE>false</CODE>, slideshow will start when the "Start" control is=20
+clicked</DIV><PRE><CODE data-language=3D"javascript">default: true=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"autoDirection" class=3D"option-name">autoDirection</DIV>
+<DIV class=3D"option-desc">The direction of auto show slide =
+transitions</DIV><PRE><CODE data-language=3D"javascript">default: 'next'=0A=
+options: 'next', 'prev'=0A=
+</CODE></PRE>
+<DIV id=3D"autoHover" class=3D"option-name">autoHover</DIV>
+<DIV class=3D"option-desc">Auto show will pause when mouse hovers over=20
+slider</DIV><PRE><CODE data-language=3D"javascript">default: false=0A=
+options: boolean (true / false)=0A=
+</CODE></PRE>
+<DIV id=3D"autoDelay" class=3D"option-name">autoDelay</DIV>
+<DIV class=3D"option-desc">Time (in ms) auto show should wait before=20
+starting</DIV><PRE><CODE data-language=3D"javascript">default: 0=0A=
+options: integer=0A=
+</CODE></PRE></DIV>
+<DIV class=3D"category-wrap">
+<H2>Carousel</H2>
+<DIV id=3D"minSlides" class=3D"option-name">minSlides</DIV>
+<DIV class=3D"option-desc">The minimum number of slides to be shown. =
+Slides will=20
+be sized down if carousel becomes smaller than the original =
+size.</DIV><PRE><CODE data-language=3D"javascript">default: 1=0A=
+options: integer=0A=
+</CODE></PRE>
+<DIV id=3D"maxSlides" class=3D"option-name">maxSlides</DIV>
+<DIV class=3D"option-desc">The maximum number of slides to be shown. =
+Slides will=20
+be sized up if carousel becomes larger than the original =
+size.</DIV><PRE><CODE data-language=3D"javascript">default: 1=0A=
+options: integer=0A=
+</CODE></PRE>
+<DIV id=3D"moveSlides" class=3D"option-name">moveSlides</DIV>
+<DIV class=3D"option-desc">The number of slides to move on transition. =
+This value=20
+must be <CODE>&gt;=3D minSlides</CODE>, and <CODE>&lt;=3D =
+maxSlides</CODE>. If zero=20
+(default), the number of fully-visible slides will be =
+used.</DIV><PRE><CODE data-language=3D"javascript">default: 0=0A=
+options: integer=0A=
+</CODE></PRE>
+<DIV id=3D"slideWidth" class=3D"option-name">slideWidth</DIV>
+<DIV class=3D"option-desc">The width of each slide. This setting is =
+required for=20
+all horizontal carousels!</DIV><PRE><CODE =
+data-language=3D"javascript">default: 0=0A=
+options: integer=0A=
+</CODE></PRE></DIV>
+<DIV class=3D"category-wrap">
+<H2>Callbacks</H2>
+<DIV id=3D"onSliderLoad" class=3D"option-name">onSliderLoad</DIV>
+<DIV class=3D"option-desc">Executes immediately after the slider is =
+fully=20
+loaded</DIV><PRE><CODE data-language=3D"javascript">default: function(){}=0A=
+options: function(currentIndex){ // your code here }=0A=
+arguments:=0A=
+  currentIndex: element index of the current slide=0A=
+</CODE></PRE>
+<DIV id=3D"onSlideBefore" class=3D"option-name">onSlideBefore</DIV>
+<DIV class=3D"option-desc">Executes immediately before each slide=20
+transition.</DIV><PRE><CODE data-language=3D"javascript">default: =
+function(){}=0A=
+options: function($slideElement, oldIndex, newIndex){ // your code here }=0A=
+arguments:=0A=
+  $slideElement: jQuery element of the destination element=0A=
+  oldIndex: element index of the previous slide (before the transition)=0A=
+  newIndex: element index of the destination slide (after the transition)=0A=
+</CODE></PRE>
+<DIV id=3D"onSlideAfter" class=3D"option-name">onSlideAfter</DIV>
+<DIV class=3D"option-desc">Executes immediately after each slide =
+transition.=20
+Function argument is the current slide element (when transition=20
+completes).</DIV><PRE><CODE data-language=3D"javascript">default: =
+function(){}=0A=
+options: function($slideElement, oldIndex, newIndex){ // your code here }=0A=
+arguments:=0A=
+  $slideElement: jQuery element of the destination element=0A=
+  oldIndex: element index of the previous slide (before the transition)=0A=
+  newIndex: element index of the destination slide (after the transition)=0A=
+</CODE></PRE>
+<DIV id=3D"onSlideNext" class=3D"option-name">onSlideNext</DIV>
+<DIV class=3D"option-desc">Executes immediately before each "Next" slide =
+
+transition. Function argument is the target (next) slide =
+element.</DIV><PRE><CODE data-language=3D"javascript">default: =
+function(){}=0A=
+options: function($slideElement, oldIndex, newIndex){ // your code here }=0A=
+arguments:=0A=
+  $slideElement: jQuery element of the destination element=0A=
+  oldIndex: element index of the previous slide (before the transition)=0A=
+  newIndex: element index of the destination slide (after the transition)=0A=
+</CODE></PRE>
+<DIV id=3D"onSlidePrev" class=3D"option-name">onSlidePrev</DIV>
+<DIV class=3D"option-desc">Executes immediately before each "Prev" slide =
+
+transition. Function argument is the target (prev) slide =
+element.</DIV><PRE><CODE data-language=3D"javascript">default: =
+function(){}=0A=
+options: function($slideElement, oldIndex, newIndex){ // your code here }=0A=
+arguments:=0A=
+  $slideElement: jQuery element of the destination element=0A=
+  oldIndex: element index of the previous slide (before the transition)=0A=
+  newIndex: element index of the destination slide (after the transition)=0A=
+</CODE></PRE></DIV>
+<DIV class=3D"category-wrap">
+<H2>Public methods</H2>
+<DIV id=3D"goToSlide" class=3D"option-name">goToSlide</DIV>
+<DIV class=3D"option-desc">Performs a slide transition to the supplied =
+slide index=20
+(zero-based)</DIV><PRE><CODE data-language=3D"javascript">example:=0A=
+slider =3D $('.bxslider').bxSlider();=0A=
+slider.goToSlide(3);</CODE></PRE>
+<DIV id=3D"goToNextSlide" class=3D"option-name">goToNextSlide</DIV>
+<DIV class=3D"option-desc">Performs a "Next" slide =
+transition</DIV><PRE><CODE data-language=3D"javascript">example:=0A=
+slider =3D $('.bxslider').bxSlider();=0A=
+slider.goToNextSlide();</CODE></PRE>
+<DIV id=3D"goToPrevSlide" class=3D"option-name">goToPrevSlide</DIV>
+<DIV class=3D"option-desc">Performs a "Prev" slide =
+transition</DIV><PRE><CODE data-language=3D"javascript">example:=0A=
+slider =3D $('.bxslider').bxSlider();=0A=
+slider.goToPrevSlide();</CODE></PRE>
+<DIV id=3D"startAuto" class=3D"option-name">startAuto</DIV>
+<DIV class=3D"option-desc">Starts the auto show. Provide an argument=20
+<CODE>false</CODE> to prevent the auto controls from being =
+updated.</DIV><PRE><CODE data-language=3D"javascript">example:=0A=
+slider =3D $('.bxslider').bxSlider();=0A=
+slider.startAuto();</CODE></PRE>
+<DIV id=3D"stopAuto" class=3D"option-name">stopAuto</DIV>
+<DIV class=3D"option-desc">Stops the auto show. Provide an argument=20
+<CODE>false</CODE> to prevent the auto controls from being =
+updated.</DIV><PRE><CODE data-language=3D"javascript">example:=0A=
+slider =3D $('.bxslider').bxSlider();=0A=
+slider.stopAuto();</CODE></PRE>
+<DIV id=3D"getCurrentSlide" class=3D"option-name">getCurrentSlide</DIV>
+<DIV class=3D"option-desc">Returns the current active =
+slide</DIV><PRE><CODE data-language=3D"javascript">example:=0A=
+slider =3D $('.bxslider').bxSlider();=0A=
+var current =3D slider.getCurrentSlide();</CODE></PRE>
+<DIV id=3D"getSlideCount" class=3D"option-name">getSlideCount</DIV>
+<DIV class=3D"option-desc">Returns the total number of slides in the =
+slider</DIV><PRE><CODE data-language=3D"javascript">example:=0A=
+slider =3D $('.bxslider').bxSlider();=0A=
+var slideQty =3D slider.getSlideCount();</CODE></PRE>
+<DIV id=3D"reloadSlider" class=3D"option-name">reloadSlider</DIV>
+<DIV class=3D"option-desc">Reload the slider. Useful when adding slides =
+on the=20
+fly. Accepts an optional settings object. <A =
+href=3D"http://bxslider.com/examples/reload-slider-settings">See=20
+here for an example.</A></DIV><PRE><CODE =
+data-language=3D"javascript">example:=0A=
+slider =3D $('.bxslider').bxSlider();=0A=
+slider.reloadSlider();</CODE></PRE>
+<DIV id=3D"destroySlider" class=3D"option-name">destroySlider</DIV>
+<DIV class=3D"option-desc">Destroy the slider. This reverts all slider =
+elements=20
+back to their original state (before calling the =
+slider).</DIV><PRE><CODE data-language=3D"javascript">example:=0A=
+slider =3D $('.bxslider').bxSlider();=0A=
+slider.destroySlider();</CODE></PRE></DIV></DIV></DIV></SECTION><FOOTER>
+<DIV class=3D"inner clearfix">
+<DIV class=3D"clearfix">
+<DIV class=3D"left first">
+<P>Designed and built by:</P>
+<H4>Steven Wanderski - <A href=3D"http://stevenwanderski.com/"=20
+target=3D"_blank">Chicago web developer</A></H4>
+<DIV class=3D"twitter"><A class=3D"twitter-follow-button" =
+href=3D"https://twitter.com/stevenwanderski"=20
+data-size=3D"large" data-show-count=3D"false">Follow =
+@stevenwanderski</A>
+<SCRIPT>!function(d,s,id){var =
+js,fjs=3Dd.getElementsByTagName(s)[0],p=3D/^http:/.test(d.location)?'http=
+':'https';if(!d.getElementById(id)){js=3Dd.createElement(s);js.id=3Did;js=
+.src=3Dp+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore=
+(js,fjs);}}(document, 'script', 'twitter-wjs');</SCRIPT>
+</DIV></DIV>
+<DIV class=3D"left">
+<P>Founder and CEO:</P>
+<H4><SPAN class=3D"icon-icomoon-bx-star"></SPAN> bxCreative - <A =
+href=3D"http://bxcreative.com/"=20
+target=3D"_blank">Chicago web development</A></H4></DIV></DIV>
+<P class=3D"pix">Check out our useful button generator: <A =
+href=3D"http://css3buttongenerator.com/">CSS=20
+Button Generator</A></P></DIV></FOOTER>
+<SCRIPT type=3D"text/javascript">=0A=
+  function _dmBootstrap(file) {=0A=
+      var _dma =3D document.createElement('script');=0A=
+      _dma.type =3D 'text/javascript';=0A=
+      _dma.async =3D true;=0A=
+      _dma.src =3D ('https:' =3D=3D document.location.protocol ? =
+'https://' : 'http://') + file;=0A=
+      (document.getElementsByTagName('head')[0] || =
+document.getElementsByTagName('body')[0]).appendChild(_dma);=0A=
+  }=0A=
+  function _dmFollowup(file) { if (typeof DMAds =3D=3D=3D 'undefined') =
+_dmBootstrap('cdn2.DeveloperMedia.com/a.min.js'); }=0A=
+  (function () { _dmBootstrap('cdn1.DeveloperMedia.com/a.min.js'); =
+setTimeout(_dmFollowup, 2000); })();=0A=
+  </SCRIPT>
+</BODY></HTML>
+
+------=_NextPart_000_0000_01D1CCBA.BDC717E0
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: https://www.paypalobjects.com/en_US/i/scr/pixel.gif
+
+R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==
+
+------=_NextPart_000_0000_01D1CCBA.BDC717E0
+Content-Type: text/css;
+	charset="gb2312"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://bxslider.com/lib/jquery.bxslider.css
+
+.bx-wrapper {
+	margin: 0px auto 60px; padding: 0px; position: relative;
+}
+.bx-wrapper img {
+	display: block; max-width: 100%;
+}
+.bx-wrapper .bx-viewport {
+	background: rgb(255, 255, 255); border: 5px solid rgb(255, 255, 255); =
+left: -5px; box-shadow: 0px 0px 5px #ccc; -moz-box-shadow: 0 0 5px #ccc; =
+-webkit-box-shadow: 0 0 5px #ccc; -webkit-transform: translatez(0); =
+-moz-transform: translatez(0); -o-transform: translatez(0); transform: =
+translatez(0);
+}
+.bx-wrapper .bx-pager {
+	width: 100%; bottom: -30px; position: absolute;
+}
+.bx-wrapper .bx-controls-auto {
+	width: 100%; bottom: -30px; position: absolute;
+}
+.bx-wrapper .bx-loading {
+	background: url("images/bx_loader.gif") no-repeat center rgb(255, 255, =
+255); left: 0px; top: 0px; width: 100%; height: 100%; position: =
+absolute; z-index: 2000; min-height: 50px;
+}
+.bx-wrapper .bx-pager {
+	text-align: center; color: rgb(102, 102, 102); padding-top: 20px; =
+font-family: Arial; font-size: 0.85em; font-weight: bold;
+}
+.bx-wrapper .bx-pager .bx-pager-item {
+	display: inline-block;
+}
+.bx-wrapper .bx-controls-auto .bx-controls-auto-item {
+	display: inline-block;
+}
+.bx-wrapper .bx-default-pager.bx-pager a {
+	background: rgb(102, 102, 102); margin: 0px 5px; outline: 0px; =
+border-radius: 5px; width: 10px; height: 10px; text-indent: -9999px; =
+display: block; -moz-border-radius: 5px; -webkit-border-radius: 5px;
+}
+.bx-wrapper .bx-default-pager.bx-pager a:hover {
+	background: rgb(0, 0, 0);
+}
+.bx-wrapper .bx-default-pager.bx-pager a.active {
+	background: rgb(0, 0, 0);
+}
+.bx-wrapper .bx-prev {
+	background: url("images/controls.png") no-repeat 0px -32px; left: 10px;
+}
+.bx-wrapper .bx-next {
+	background: url("images/controls.png") no-repeat -43px -32px; right: =
+10px;
+}
+.bx-wrapper .bx-prev:hover {
+=09
+}
+.bx-wrapper .bx-next:hover {
+	background-position: -43px 0px;
+}
+.bx-wrapper .bx-controls-direction a {
+	outline: 0px; top: 50%; width: 32px; height: 32px; text-indent: =
+-9999px; margin-top: -16px; position: absolute; z-index: 9999;
+}
+.bx-wrapper .bx-controls-direction a.disabled {
+	display: none;
+}
+.bx-wrapper .bx-controls-auto {
+	text-align: center;
+}
+.bx-wrapper .bx-controls-auto .bx-start {
+	background: url("images/controls.png") no-repeat -86px -11px; margin: =
+0px 3px; outline: 0px; width: 10px; height: 11px; text-indent: -9999px; =
+display: block;
+}
+.bx-wrapper .bx-controls-auto .bx-start:hover {
+	background-position: -86px 0px;
+}
+.bx-wrapper .bx-controls-auto .active.bx-start {
+	background-position: -86px 0px;
+}
+.bx-wrapper .bx-controls-auto .bx-stop {
+	background: url("images/controls.png") no-repeat -86px -44px; margin: =
+0px 3px; outline: 0px; width: 9px; height: 11px; text-indent: -9999px; =
+display: block;
+}
+.bx-wrapper .bx-controls-auto .bx-stop:hover {
+	background-position: -86px -33px;
+}
+.bx-wrapper .bx-controls-auto .active.bx-stop {
+	background-position: -86px -33px;
+}
+.bx-wrapper .bx-has-pager.bx-has-controls-auto.bx-controls .bx-pager {
+	width: 80%; text-align: left;
+}
+.bx-wrapper .bx-has-pager.bx-has-controls-auto.bx-controls =
+.bx-controls-auto {
+	width: 35px; right: 0px;
+}
+.bx-wrapper .bx-caption {
+	background: rgba(80, 80, 80, 0.75); left: 0px; width: 100%; bottom: =
+0px; position: absolute;
+}
+.bx-wrapper .bx-caption span {
+	padding: 10px; color: rgb(255, 255, 255); font-family: Arial; =
+font-size: 0.85em; display: block;
+}
+
+------=_NextPart_000_0000_01D1CCBA.BDC717E0
+Content-Type: text/css;
+	charset="gb2312"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://bxslider.com/css/styles.css
+
+@font-face {
+	font-family: fontello;
+	src: url(fonts/fontello.eot?#iefix) format("embedded-opentype"), =
+url(fonts/fontello.woff) format("woff"), url(fonts/fontello.ttf) =
+format("truetype"), url(fonts/fontello.svg#fontello) format("svg");
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: icomoon;
+	src: url(fonts/icomoon.eot?#iefix) format("embedded-opentype"), =
+url(fonts/icomoon.svg#icomoon) format("svg"), url(fonts/icomoon.woff) =
+format("woff"), url(fonts/icomoon.ttf) format("truetype");
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: KievitWeb;
+	src: url(fonts/KievitWeb.eot?#iefix) format("embedded-opentype"), =
+url(fonts/KievitWeb.woff) format("woff"), =
+url(fonts/kievitcomp-bold-webfont.svg#KievitComp-BoldRegular) =
+format("svg");
+	font-weight: normal;
+}
+@font-face {
+	font-family: KievitWeb;
+	src: url(fonts/KievitWeb-Bold.eot?#iefix) format("embedded-opentype"), =
+url(fonts/KievitWeb-Bold.woff) format("woff"), =
+url(fonts/kievitcomp-bold-webfont.svg#KievitComp-BoldRegular) =
+format("svg");
+	font-weight: bold;
+}
+[class^=3D'icon-fontello']::before {
+	width: 1em; text-align: center; line-height: 1em; font-family: =
+"fontello"; font-style: normal; font-weight: normal; text-decoration: =
+inherit; margin-right: 0.2em; display: inline-block; speak: none;
+}
+[class*=3D' icon-fontello']::before {
+	width: 1em; text-align: center; line-height: 1em; font-family: =
+"fontello"; font-style: normal; font-weight: normal; text-decoration: =
+inherit; margin-right: 0.2em; display: inline-block; speak: none;
+}
+.icon-fontello-down::before {
+	content: "\2193";
+}
+.icon-fontello-resize-full::before {
+	content: "\e744";
+}
+.icon-fontello-github::before {
+	content: "\f308";
+}
+.icon-fontello-thumbs-up::before {
+	content: "\2a";
+}
+[class^=3D'icon-icomoon']::before {
+	font-family: "icomoon"; font-style: normal; font-weight: normal; speak: =
+none; -webkit-font-smoothing: antialiased;
+}
+[class*=3D' icon-icomoon']::before {
+	font-family: "icomoon"; font-style: normal; font-weight: normal; speak: =
+none; -webkit-font-smoothing: antialiased;
+}
+.icon-icomoon-tablet::before {
+	content: "\e000";
+}
+.icon-icomoon-desktop::before {
+	content: "\e002";
+}
+.icon-icomoon-phone::before {
+	content: "\e001";
+}
+.icon-icomoon-bx-star::before {
+	content: "\e004";
+}
+.icon-icomoon-github::before {
+	content: "\e005";
+}
+.icon-icomoon-beer::before {
+	content: "\e003";
+}
+.icon-icomoon-double-arrow::before {
+	content: "\e006";
+}
+html {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+body {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+div {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+span {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+applet {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+object {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+iframe {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+h1 {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+h2 {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+h3 {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+h4 {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+h5 {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+h6 {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+p {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+blockquote {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+pre {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+a {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+abbr {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+acronym {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+address {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+big {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+cite {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+code {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+del {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+dfn {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+em {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+img {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+ins {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+kbd {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+q {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+s {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+samp {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+small {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+strike {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+strong {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+sub {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+sup {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+tt {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+var {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+b {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+u {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+i {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+center {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+dl {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+dt {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+dd {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+ol {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+ul {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+li {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+fieldset {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+form {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+label {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+legend {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+table {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+caption {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+tbody {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+tfoot {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+thead {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+tr {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+th {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+td {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+article {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+aside {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+canvas {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+details {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+embed {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+figure {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+figcaption {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+footer {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+header {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+hgroup {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+menu {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+nav {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+output {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+ruby {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+section {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+summary {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+time {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+mark {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+audio {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+video {
+	font: inherit; margin: 0px; padding: 0px; border: 0px currentColor; =
+vertical-align: baseline; font-size-adjust: inherit; font-stretch: =
+inherit;
+}
+article {
+	display: block;
+}
+aside {
+	display: block;
+}
+details {
+	display: block;
+}
+figcaption {
+	display: block;
+}
+figure {
+	display: block;
+}
+footer {
+	display: block;
+}
+header {
+	display: block;
+}
+hgroup {
+	display: block;
+}
+menu {
+	display: block;
+}
+nav {
+	display: block;
+}
+section {
+	display: block;
+}
+body {
+	background: rgb(245, 245, 245); color: rgb(65, 65, 65); line-height: 1; =
+font-family: "Helvetica", "Arial", sans-serif;
+}
+ol {
+	list-style: none;
+}
+ul {
+	list-style: none;
+}
+blockquote {
+	quotes: none;
+}
+q {
+	quotes: none;
+}
+blockquote::before {
+	content: none;
+}
+blockquote::after {
+	content: none;
+}
+q::before {
+	content: none;
+}
+q::after {
+	content: none;
+}
+table {
+	border-collapse: collapse; border-spacing: 0;
+}
+.clearfix::after {
+	clear: both; display: table; content: "";
+}
+a {
+	color: rgb(82, 128, 221); text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+em {
+	font-style: italic;
+}
+strong {
+	font-weight: bold;
+}
+h1 {
+	font-family: "KievitWeb", "Arial"; font-weight: bold;
+}
+h2 {
+	font-family: "KievitWeb", "Arial"; font-weight: bold;
+}
+h3 {
+	font-family: "KievitWeb", "Arial"; font-weight: bold;
+}
+h4 {
+	font-family: "KievitWeb", "Arial"; font-weight: bold;
+}
+h5 {
+	font-family: "KievitWeb", "Arial"; font-weight: bold;
+}
+h6 {
+	font-family: "KievitWeb", "Arial"; font-weight: bold;
+}
+h1 {
+	font-size: 3.5em;
+}
+h2 {
+	font-size: 2.37em; margin-bottom: 35px;
+}
+h3 {
+	font-size: 1.37em; margin-bottom: 10px;
+}
+p {
+	color: rgb(85, 85, 85); line-height: 1.35em; font-size: 0.87em; =
+margin-bottom: 20px;
+}
+p.intro {
+	font-size: 1.12em; margin-bottom: 35px;
+}
+pre {
+	margin: 15px 0px; overflow: auto; word-wrap: normal !important;
+}
+code {
+=09
+}
+hr {
+	border-width: 1px 0px 0px; border-style: solid none none; border-color: =
+rgb(221, 221, 221) currentColor currentColor; margin: 40px 0px;
+}
+.inner {
+	margin: 0px auto; width: 1200px; position: relative;
+}
+#main {
+	padding: 50px 0px;
+}
+#primary {
+	margin: 0px 350px 0px 0px; position: relative;
+}
+aside {
+	width: 300px; float: right;
+}
+.home h1 {
+	text-align: center; line-height: 1.25em; font-size: 3.75em;
+}
+.home .bx-wrapper {
+	margin: 30px auto 40px;
+}
+.home #primary ul {
+	margin: 0px 0px 40px 16px;
+}
+.home #primary li {
+	color: rgb(85, 85, 85); font-size: 1em; margin-bottom: 10px;
+}
+.home-slider-wrapper {
+	margin-right: auto; margin-left: auto; max-width: 1000px;
+}
+.pictogram {
+	padding: 20px 0px; text-align: center;
+}
+.pictogram div {
+	display: inline-block; position: relative;
+}
+.pictogram .icon-icomoon-desktop {
+	font-size: 8em;
+}
+.pictogram .icon-icomoon-tablet {
+	top: -15px; font-size: 6em;
+}
+.pictogram .icon-icomoon-phone {
+	top: -30px; font-size: 4em;
+}
+.pictogram .icon-fontello-thumbs-up {
+	top: -30px; font-size: 7em;
+}
+.pictogram .operator {
+	margin: 0px 20px; top: -45px; color: rgb(197, 197, 197); font-size: =
+3.5em; font-weight: bold;
+}
+.step {
+	margin-bottom: 45px;
+}
+.home p.pop {
+	margin: 6px 0px 80px; text-align: center; color: rgb(222, 51, 41); =
+font-family: "KievitWeb", "Arial"; font-size: 1.5em; font-weight: bold;
+}
+.example-item h1 {
+	font-size: 2.5em; margin-bottom: 30px;
+}
+.code-switch {
+	height: 25px; margin-top: 20px;
+}
+.code-switch a {
+	background: rgb(152, 152, 152); padding: 5px 0px; width: 70px; =
+text-align: center; color: rgb(255, 255, 255); font-family: "Consolas", =
+"Monaco", "Courier", serif; font-size: 0.87em; float: left; display: =
+block;
+}
+.code-switch a.active {
+	background: rgb(82, 128, 221);
+}
+.code-switch .js {
+	border-radius: 5px 0px 0px 5px; -moz-border-radius: 5px 0 0 5px; =
+-webkit-border-radius: 5px 0 0 5px;
+}
+.code-switch .html {
+	border-radius: 0px 5px 5px 0px; -moz-border-radius: 0 5px 5px 0; =
+-webkit-border-radius: 0 5px 5px 0;
+}
+.code-wrap .code {
+	display: none;
+}
+.code-wrap .active.code {
+	display: block;
+}
+.example-item .examples-list {
+	margin-top: 60px;
+}
+.examples-list ol {
+	margin-left: 30px;
+}
+.examples-list ol li {
+	list-style: decimal; color: rgb(102, 102, 102); margin-bottom: 8px;
+}
+.example-item ol li {
+	font-size: 0.87em;
+}
+.example-item .slider a {
+	line-height: 1.5em;
+}
+.example-item #bx-pager {
+	text-align: center; margin-top: -30px;
+}
+.example-item #bx-pager a {
+	margin: 0px 3px;
+}
+.example-item #bx-pager a img {
+	padding: 3px; border: 1px solid rgb(204, 204, 204);
+}
+.example-item #bx-pager a:hover img {
+	border: 1px solid rgb(82, 128, 221);
+}
+.example-item #bx-pager a.active img {
+	border: 1px solid rgb(82, 128, 221);
+}
+.carousel-demystified aside {
+	display: none;
+}
+.carousel-demystified #primary {
+	margin: 0px;
+}
+.carousel-demystified h2 {
+	font-size: 1.75em; margin-bottom: 30px;
+}
+.carousel-demystified ol li {
+	list-style: decimal; margin: 0px 0px 5px 50px; color: rgb(85, 85, 85); =
+line-height: 1.35em;
+}
+.options h1 {
+	margin-bottom: 10px;
+}
+.options h2 {
+	font-size: 1.5em; margin-bottom: 15px;
+}
+.option-name {
+	font-size: 0.87em; font-weight: bold; margin-bottom: 2px;
+}
+.option-desc {
+	color: rgb(102, 102, 102); line-height: 1.25em; font-size: 0.8em;
+}
+.options pre {
+	margin: 10px 0px 25px;
+}
+.category-wrap {
+	margin-bottom: 40px;
+}
+.reference-wrap {
+	background: rgb(228, 228, 228); border-radius: 10px; top: 0px; right: =
+0px; position: absolute; -moz-border-radius: 10px; =
+-webkit-border-radius: 10px;
+}
+.reference-wrap h3 {
+	background: rgb(228, 228, 228); margin: 0px; padding: 10px 15px; =
+border-radius: 10px; text-align: right; font-size: 1.12em; cursor: =
+pointer; -moz-border-radius: 10px; -webkit-border-radius: 10px;
+}
+.reference-wrap h3 span {
+	top: 2px; color: rgb(147, 147, 147); margin-left: 5px; position: =
+relative;
+}
+.reference-content {
+	padding: 20px; display: none;
+}
+.reference-content h4 {
+	margin-bottom: 5px;
+}
+.reference-content a {
+	padding: 3px 0px; font-size: 0.8em; display: block;
+}
+.reference-content .col {
+	margin-bottom: 20px;
+}
+.reference-content .col-wrap {
+=09
+}
+.reference-content .last.col-wrap {
+	margin-right: 0px;
+}
+.reference-content-inner {
+	height: 300px; overflow: auto;
+}
+.faqs h3 {
+	line-height: 1.25em; font-size: 1.15em; margin-bottom: 3px;
+}
+.faqs .questions p {
+	margin-bottom: 10px;
+}
+.faqs .question {
+	margin-bottom: 30px;
+}
+.faqs ul {
+	margin: 0px 0px 20px 20px;
+}
+.about ul {
+	margin: 0px 0px 20px 20px;
+}
+.faqs ul li {
+	color: rgb(85, 85, 85); line-height: 1.25em; font-size: 0.87em; =
+margin-bottom: 7px;
+}
+.about ul li {
+	color: rgb(85, 85, 85); line-height: 1.25em; font-size: 0.87em; =
+margin-bottom: 7px;
+}
+.about h3 {
+	margin-top: 50px;
+}
+aside .block {
+	padding: 30px 0px; border-bottom-color: rgb(194, 194, 194); =
+border-bottom-width: 1px; border-bottom-style: solid;
+}
+aside .block-advert {
+	padding-top: 0px;
+}
+aside .block-advert .bsa_it_ad {
+	margin-bottom: 5px;
+}
+aside .block-advert .one .bsa_it_ad .bsa_it_i {
+	margin-right: 25px;
+}
+aside .block-advert .yoggrt-link {
+	font-size: 0.87em;
+}
+aside .block-buttons {
+	padding-bottom: 35px;
+}
+aside .block-buttons form {
+	display: none;
+}
+aside .btn {
+	background: rgb(216, 216, 216); padding: 5px 14px 3px; border-radius: =
+10px; color: rgb(65, 65, 65); font-family: "KievitWeb", "Arial"; =
+font-size: 1.5em; font-weight: bold; display: block; position: relative; =
+box-shadow: 0px 5px 0px #9f9f9f; -moz-box-shadow: 0 5px 0 #9f9f9f; =
+-webkit-box-shadow: 0 5px 0 #9f9f9f; -moz-border-radius: 10px; =
+-webkit-border-radius: 10px;
+}
+aside .btn span {
+	top: 2px; padding-right: 4px; font-weight: normal; position: relative;
+}
+aside .btn-donate {
+	margin-bottom: 20px;
+}
+aside .btn-donate span {
+	padding-right: 6px; font-size: 1.1em;
+}
+aside .btn:hover {
+	color: rgb(82, 128, 221); text-decoration: none;
+}
+aside .btn:hover span {
+	color: rgb(65, 65, 65);
+}
+aside .btn:active {
+	top: 5px; box-shadow: none; -moz-box-shadow: none; -webkit-box-shadow: =
+none;
+}
+aside h4 {
+	line-height: 1.25em; font-size: 1.37em; margin-bottom: 8px;
+}
+aside .block-about {
+	margin-bottom: 0px; border-bottom-color: currentColor; =
+border-bottom-width: 0px; border-bottom-style: none;
+}
+aside .block p {
+	line-height: 1.25em; font-size: 1em;
+}
+aside input[type=3D'text'] {
+	padding: 3px 5px; border: 1px solid rgb(194, 194, 194); width: 93%; =
+margin-bottom: 10px; display: block;
+}
+aside label {
+	font-size: 0.87em; margin-bottom: 3px; display: block;
+}
+aside input[type=3D'submit'] {
+	background: rgb(82, 128, 221); padding: 4px 10px; border-radius: 5px; =
+border: currentColor; color: rgb(255, 255, 255); font-size: 0.87em; =
+cursor: pointer; -moz-border-radius: 5px; -webkit-border-radius: 5px; =
+-webkit-appearance: none;
+}
+aside input[type=3D'submit']:hover {
+	background: rgb(114, 203, 118);
+}
+aside .block-signup .error {
+	color: red; font-size: 0.87em; margin-bottom: 10px; display: none;
+}
+header {
+	background: rgb(224, 224, 224); border-bottom-color: rgb(195, 195, =
+195); border-bottom-width: 3px; border-bottom-style: solid;
+}
+.logo {
+	padding: 18px 0px; font-family: "KievitWeb", "Arial"; font-size: =
+2.25em; float: left;
+}
+.logo a {
+	color: rgb(65, 65, 65); font-weight: bold;
+}
+.logo a:hover {
+	text-decoration: none;
+}
+.icon-icomoon-bx-star {
+	top: 4px; color: rgb(222, 51, 41); position: relative;
+}
+header .download {
+	top: 27px; right: 0px; position: absolute;
+}
+nav {
+	top: 31px; right: 150px; font-family: "KievitWeb", "Arial"; position: =
+absolute;
+}
+nav a {
+	padding: 0px 10px; color: rgb(65, 65, 65); font-size: 1.1em; =
+font-weight: bold;
+}
+nav a.active {
+	color: rgb(222, 51, 41); text-decoration: none;
+}
+nav a:hover {
+	color: rgb(222, 51, 41); text-decoration: none;
+}
+header .btn {
+	background: rgb(82, 128, 221); padding: 5px 14px 3px; border-radius: =
+10px; color: rgb(255, 255, 255); font-family: "KievitWeb", "Arial"; =
+font-size: 1.1em; font-weight: bold; position: relative; box-shadow: 0px =
+5px 0px #365491; -moz-box-shadow: 0 5px 0 #365491; -webkit-box-shadow: 0 =
+5px 0 #365491; -moz-border-radius: 10px; -webkit-border-radius: 10px;
+}
+header .btn:hover {
+	background: rgb(114, 203, 118); text-decoration: none; box-shadow: 0px =
+5px 0px #549557; -moz-box-shadow: 0 5px 0 #549557; -webkit-box-shadow: 0 =
+5px 0 #549557;
+}
+header .btn:active {
+	top: 5px; box-shadow: none; -moz-box-shadow: none; -webkit-box-shadow: =
+none;
+}
+#news-flash {
+	background: rgb(65, 65, 65);
+}
+#news-flash .inner {
+	color: rgb(255, 255, 255);
+}
+#news-flash h5 {
+	background: url("/images/icons/icon_alert.png") no-repeat left; =
+padding: 14px 0px 14px 34px; font-weight: 300; margin-left: 5px;
+}
+#news-flash a {
+	color: rgb(255, 255, 255); padding-left: 10px; text-decoration: =
+underline;
+}
+footer {
+	background: rgb(224, 224, 224); padding: 40px 0px 65px; font-family: =
+"KievitWeb", "Arial"; border-top-color: rgb(195, 195, 195); =
+border-top-width: 3px; border-top-style: solid;
+}
+footer p {
+	font-size: 1em; margin-bottom: 5px;
+}
+footer h4 {
+	font-size: 1.25em; font-weight: bold;
+}
+footer .left {
+	width: 500px; float: left;
+}
+footer .first h4 {
+	padding-top: 3px;
+}
+footer .icon-icomoon-bx-star {
+	top: 2px;
+}
+footer p.pix {
+	margin-top: 25px;
+}
+footer .twitter {
+	margin-top: 16px;
+}
+.inner {
+	width: 100%;
+}
+.reference-wrap {
+	right: 20px;
+}
+aside {
+	padding-right: 20px;
+}
+#primary {
+	padding: 0px 20px;
+}
+.home h1 {
+	margin: 0px auto; width: 90%; font-size: 3em;
+}
+.home .bx-wrapper {
+	width: 90%;
+}
+.pictogram .operator {
+	margin: 0px 18px;
+}
+header .logo {
+	padding-left: 20px;
+}
+header .download {
+	right: 20px;
+}
+header nav {
+	right: 170px;
+}
+footer .left {
+	width: auto; padding-left: 20px; float: none;
+}
+footer .first {
+	margin-bottom: 30px;
+}
+footer p.pix {
+	padding-left: 20px;
+}
+#primary {
+	margin: 0px 0px 1100px;
+}
+aside {
+	padding: 0px 20px; width: 70%; bottom: 0px; float: none; position: =
+absolute;
+}
+header .logo {
+	margin: 0px auto; padding: 10px 0px; text-align: center; float: none;
+}
+header nav {
+	text-align: center; position: static;
+}
+header .download {
+	margin: 25px 0px; text-align: center; position: static;
+}
+.home h1 {
+	font-size: 2.25em;
+}
+#main {
+	padding-top: 20px;
+}
+.example-item h1 {
+	line-height: 1.25em; font-size: 2em;
+}
+aside {
+	font-size: 90%;
+}
+.home p.pop {
+	font-size: 1.25em; margin-bottom: 30px;
+}
+.reference-wrap {
+	display: none;
+}
+footer {
+	font-size: 85%;
+}
+h1 {
+	font-size: 2.5em;
+}
+.example-item h1 {
+	line-height: 1.25em; font-size: 1.5em;
+}
+.pictogram {
+	font-size: 45%;
+}
+.home h1 {
+	font-size: 1.75em;
+}
+nav a {
+	padding: 0px 5px;
+}
+#primary {
+	font-size: 100%; margin-bottom: 850px;
+}
+body .one .bsa_it_ad:hover img {
+	box-shadow: 0px 0px 3px #000; -moz-box-shadow: 0 0 3px #000; =
+-webkit-box-shadow: 0 0 3px #000;
+}
+body .one .bsa_it_ad .bsa_it_i {
+	margin: 0px 0px 5px; padding: 0px; float: none; display: block;
+}
+body .one .bsa_it_ad .bsa_it_i img {
+	padding: 0px; border: currentColor;
+}
+body .one .bsa_it_ad .bsa_it_t {
+	padding: 6px 0px;
+}
+body .one .bsa_it_ad .bsa_it_d {
+	padding: 0px; color: rgb(51, 51, 51); font-size: 12px;
+}
+body .one .bsa_it_p {
+	display: none;
+}
+body #bsap_aplink {
+	margin: 12px 15px 0px; text-align: right; font-size: 10px; display: =
+block;
+}
+body #bsap_aplink:hover {
+	margin: 12px 15px 0px; text-align: right; font-size: 10px; display: =
+block;
+}
+
+------=_NextPart_000_0000_01D1CCBA.BDC717E0
+Content-Type: text/css;
+	charset="gb2312"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://bxslider.com/css/github.css
+
+pre {
+	padding: 6px 10px; border: 1px solid rgb(204, 204, 204); line-height: =
+19px; margin-bottom: 20px; word-wrap: break-word;
+}
+code {
+	margin: 0px 2px; padding: 0px 5px; border: 1px solid rgb(234, 234, =
+234); font-size: 12px;
+}
+pre code {
+	margin: 0px; padding: 0px; border-radius: 0px; border: 0px =
+currentColor; -moz-border-radius: 0px; -webkit-border-radius: 0px;
+}
+pre {
+	background: rgb(248, 248, 248); border-radius: 3px; color: rgb(51, 51, =
+51); font-family: "Consolas", "Monaco", "Courier", monospace; =
+-moz-border-radius: 3px; -webkit-border-radius: 3px;
+}
+code {
+	background: rgb(248, 248, 248); border-radius: 3px; color: rgb(51, 51, =
+51); font-family: "Consolas", "Monaco", "Courier", monospace; =
+-moz-border-radius: 3px; -webkit-border-radius: 3px;
+}
+pre {
+	font-size: 0.87em;
+}
+pre code {
+	font-size: 0.87em;
+}
+pre .comment {
+	color: rgb(153, 153, 136);
+}
+pre .support {
+	color: rgb(0, 134, 179);
+}
+pre .tag {
+	color: navy;
+}
+pre .tag-name {
+	color: navy;
+}
+pre .keyword {
+	font-weight: bold;
+}
+pre .css-property {
+	font-weight: bold;
+}
+pre .vendor-prefix {
+	font-weight: bold;
+}
+pre .sass {
+	font-weight: bold;
+}
+pre .class {
+	font-weight: bold;
+}
+pre .id {
+	font-weight: bold;
+}
+pre .css-value {
+	font-weight: bold;
+}
+pre .function.entity {
+	font-weight: bold;
+}
+pre .function.storage {
+	font-weight: bold;
+}
+pre .css-property {
+	color: rgb(51, 51, 51);
+}
+pre .css-value {
+	color: rgb(51, 51, 51);
+}
+pre .vendor-prefix {
+	color: rgb(51, 51, 51);
+}
+pre .namespace.support {
+	color: rgb(51, 51, 51);
+}
+pre .numeric.constant {
+	color: rgb(0, 153, 153); font-weight: normal;
+}
+pre .unit.keyword {
+	color: rgb(0, 153, 153); font-weight: normal;
+}
+pre .hex-color {
+	color: rgb(0, 153, 153); font-weight: normal;
+}
+pre .class.entity {
+	color: rgb(68, 85, 136);
+}
+pre .id.entity {
+	color: rgb(153, 0, 0);
+}
+pre .function.entity {
+	color: rgb(153, 0, 0);
+}
+pre .attribute {
+	color: teal;
+}
+pre .variable {
+	color: teal;
+}
+pre .string {
+	color: rgb(221, 17, 68); font-weight: normal;
+}
+pre .value.support {
+	color: rgb(221, 17, 68); font-weight: normal;
+}
+pre .regexp {
+	color: rgb(0, 153, 38);
+}
+
+------=_NextPart_000_0000_01D1CCBA.BDC717E0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://bxslider.com/lib/jquery.bxslider.js
+
+/**=0A=
+ * BxSlider v4.1.2 - Fully loaded, responsive content slider=0A=
+ * http://bxslider.com=0A=
+ *=0A=
+ * Copyright 2014, Steven Wanderski - http://stevenwanderski.com - =
+http://bxcreative.com=0A=
+ * Written while drinking Belgian ales and listening to jazz=0A=
+ *=0A=
+ * Released under the MIT license - http://opensource.org/licenses/MIT=0A=
+ */=0A=
+=0A=
+;(function($){=0A=
+=0A=
+	var plugin =3D {};=0A=
+=0A=
+	var defaults =3D {=0A=
+=0A=
+		// GENERAL=0A=
+		mode: 'horizontal',=0A=
+		slideSelector: '',=0A=
+		infiniteLoop: true,=0A=
+		hideControlOnEnd: false,=0A=
+		speed: 500,=0A=
+		easing: null,=0A=
+		slideMargin: 0,=0A=
+		startSlide: 0,=0A=
+		randomStart: false,=0A=
+		captions: false,=0A=
+		ticker: false,=0A=
+		tickerHover: false,=0A=
+		adaptiveHeight: false,=0A=
+		adaptiveHeightSpeed: 500,=0A=
+		video: false,=0A=
+		useCSS: true,=0A=
+		preloadImages: 'visible',=0A=
+		responsive: true,=0A=
+		slideZIndex: 50,=0A=
+		wrapperClass: 'bx-wrapper',=0A=
+=0A=
+		// TOUCH=0A=
+		touchEnabled: true,=0A=
+		swipeThreshold: 50,=0A=
+		oneToOneTouch: true,=0A=
+		preventDefaultSwipeX: true,=0A=
+		preventDefaultSwipeY: false,=0A=
+=0A=
+		// PAGER=0A=
+		pager: true,=0A=
+		pagerType: 'full',=0A=
+		pagerShortSeparator: ' / ',=0A=
+		pagerSelector: null,=0A=
+		buildPager: null,=0A=
+		pagerCustom: null,=0A=
+=0A=
+		// CONTROLS=0A=
+		controls: true,=0A=
+		nextText: 'Next',=0A=
+		prevText: 'Prev',=0A=
+		nextSelector: null,=0A=
+		prevSelector: null,=0A=
+		autoControls: false,=0A=
+		startText: 'Start',=0A=
+		stopText: 'Stop',=0A=
+		autoControlsCombine: false,=0A=
+		autoControlsSelector: null,=0A=
+=0A=
+		// AUTO=0A=
+		auto: false,=0A=
+		pause: 4000,=0A=
+		autoStart: true,=0A=
+		autoDirection: 'next',=0A=
+		autoHover: false,=0A=
+		autoDelay: 0,=0A=
+		autoSlideForOnePage: false,=0A=
+=0A=
+		// CAROUSEL=0A=
+		minSlides: 1,=0A=
+		maxSlides: 1,=0A=
+		moveSlides: 0,=0A=
+		slideWidth: 0,=0A=
+=0A=
+		// CALLBACKS=0A=
+		onSliderLoad: function() {},=0A=
+		onSlideBefore: function() {},=0A=
+		onSlideAfter: function() {},=0A=
+		onSlideNext: function() {},=0A=
+		onSlidePrev: function() {},=0A=
+		onSliderResize: function() {}=0A=
+	}=0A=
+=0A=
+	$.fn.bxSlider =3D function(options){=0A=
+=0A=
+		if(this.length =3D=3D 0) return this;=0A=
+=0A=
+		// support mutltiple elements=0A=
+		if(this.length > 1){=0A=
+			this.each(function(){$(this).bxSlider(options)});=0A=
+			return this;=0A=
+		}=0A=
+=0A=
+		// create a namespace to be used throughout the plugin=0A=
+		var slider =3D {};=0A=
+		// set a reference to our slider element=0A=
+		var el =3D this;=0A=
+		plugin.el =3D this;=0A=
+=0A=
+		/**=0A=
+		 * Makes slideshow responsive=0A=
+		 */=0A=
+		// first get the original window dimens (thanks alot IE)=0A=
+		var windowWidth =3D $(window).width();=0A=
+		var windowHeight =3D $(window).height();=0A=
+=0A=
+=0A=
+=0A=
+		/**=0A=
+		 * =
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+		 * =3D PRIVATE FUNCTIONS=0A=
+		 * =
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+		 */=0A=
+=0A=
+		/**=0A=
+		 * Initializes namespace settings to be used throughout plugin=0A=
+		 */=0A=
+		var init =3D function(){=0A=
+			// merge user-supplied options with the defaults=0A=
+			slider.settings =3D $.extend({}, defaults, options);=0A=
+			// parse slideWidth setting=0A=
+			slider.settings.slideWidth =3D parseInt(slider.settings.slideWidth);=0A=
+			// store the original children=0A=
+			slider.children =3D el.children(slider.settings.slideSelector);=0A=
+			// check if actual number of slides is less than minSlides / maxSlides=0A=
+			if(slider.children.length < slider.settings.minSlides) =
+slider.settings.minSlides =3D slider.children.length;=0A=
+			if(slider.children.length < slider.settings.maxSlides) =
+slider.settings.maxSlides =3D slider.children.length;=0A=
+			// if random start, set the startSlide setting to random number=0A=
+			if(slider.settings.randomStart) slider.settings.startSlide =3D =
+Math.floor(Math.random() * slider.children.length);=0A=
+			// store active slide information=0A=
+			slider.active =3D { index: slider.settings.startSlide }=0A=
+			// store if the slider is in carousel mode (displaying / moving =
+multiple slides)=0A=
+			slider.carousel =3D slider.settings.minSlides > 1 || =
+slider.settings.maxSlides > 1;=0A=
+			// if carousel, force preloadImages =3D 'all'=0A=
+			if(slider.carousel) slider.settings.preloadImages =3D 'all';=0A=
+			// calculate the min / max width thresholds based on min / max number =
+of slides=0A=
+			// used to setup and update carousel slides dimensions=0A=
+			slider.minThreshold =3D (slider.settings.minSlides * =
+slider.settings.slideWidth) + ((slider.settings.minSlides - 1) * =
+slider.settings.slideMargin);=0A=
+			slider.maxThreshold =3D (slider.settings.maxSlides * =
+slider.settings.slideWidth) + ((slider.settings.maxSlides - 1) * =
+slider.settings.slideMargin);=0A=
+			// store the current state of the slider (if currently animating, =
+working is true)=0A=
+			slider.working =3D false;=0A=
+			// initialize the controls object=0A=
+			slider.controls =3D {};=0A=
+			// initialize an auto interval=0A=
+			slider.interval =3D null;=0A=
+			// determine which property to use for transitions=0A=
+			slider.animProp =3D slider.settings.mode =3D=3D 'vertical' ? 'top' : =
+'left';=0A=
+			// determine if hardware acceleration can be used=0A=
+			slider.usingCSS =3D slider.settings.useCSS && slider.settings.mode =
+!=3D 'fade' && (function(){=0A=
+				// create our test div element=0A=
+				var div =3D document.createElement('div');=0A=
+				// css transition properties=0A=
+				var props =3D ['WebkitPerspective', 'MozPerspective', =
+'OPerspective', 'msPerspective'];=0A=
+				// test for each property=0A=
+				for(var i in props){=0A=
+					if(div.style[props[i]] !=3D=3D undefined){=0A=
+						slider.cssPrefix =3D props[i].replace('Perspective', =
+'').toLowerCase();=0A=
+						slider.animProp =3D '-' + slider.cssPrefix + '-transform';=0A=
+						return true;=0A=
+					}=0A=
+				}=0A=
+				return false;=0A=
+			}());=0A=
+			// if vertical mode always make maxSlides and minSlides equal=0A=
+			if(slider.settings.mode =3D=3D 'vertical') slider.settings.maxSlides =
+=3D slider.settings.minSlides;=0A=
+			// save original style data=0A=
+			el.data("origStyle", el.attr("style"));=0A=
+			el.children(slider.settings.slideSelector).each(function() {=0A=
+			  $(this).data("origStyle", $(this).attr("style"));=0A=
+			});=0A=
+			// perform all DOM / CSS modifications=0A=
+			setup();=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Performs all DOM and CSS modifications=0A=
+		 */=0A=
+		var setup =3D function(){=0A=
+			// wrap el in a wrapper=0A=
+			el.wrap('<div class=3D"' + slider.settings.wrapperClass + '"><div =
+class=3D"bx-viewport"></div></div>');=0A=
+			// store a namspace reference to .bx-viewport=0A=
+			slider.viewport =3D el.parent();=0A=
+			// add a loading div to display while images are loading=0A=
+			slider.loader =3D $('<div class=3D"bx-loading" />');=0A=
+			slider.viewport.prepend(slider.loader);=0A=
+			// set el to a massive width, to hold any needed slides=0A=
+			// also strip any margin and padding from el=0A=
+			el.css({=0A=
+				width: slider.settings.mode =3D=3D 'horizontal' ? =
+(slider.children.length * 100 + 215) + '%' : 'auto',=0A=
+				position: 'relative'=0A=
+			});=0A=
+			// if using CSS, add the easing property=0A=
+			if(slider.usingCSS && slider.settings.easing){=0A=
+				el.css('-' + slider.cssPrefix + '-transition-timing-function', =
+slider.settings.easing);=0A=
+			// if not using CSS and no easing value was supplied, use the default =
+JS animation easing (swing)=0A=
+			}else if(!slider.settings.easing){=0A=
+				slider.settings.easing =3D 'swing';=0A=
+			}=0A=
+			var slidesShowing =3D getNumberSlidesShowing();=0A=
+			// make modifications to the viewport (.bx-viewport)=0A=
+			slider.viewport.css({=0A=
+				width: '100%',=0A=
+				overflow: 'hidden',=0A=
+				position: 'relative'=0A=
+			});=0A=
+			slider.viewport.parent().css({=0A=
+				maxWidth: getViewportMaxWidth()=0A=
+			});=0A=
+			// make modification to the wrapper (.bx-wrapper)=0A=
+			if(!slider.settings.pager) {=0A=
+				slider.viewport.parent().css({=0A=
+				margin: '0 auto 0px'=0A=
+				});=0A=
+			}=0A=
+			// apply css to all slider children=0A=
+			slider.children.css({=0A=
+				'float': slider.settings.mode =3D=3D 'horizontal' ? 'left' : 'none',=0A=
+				listStyle: 'none',=0A=
+				position: 'relative'=0A=
+			});=0A=
+			// apply the calculated width after the float is applied to prevent =
+scrollbar interference=0A=
+			slider.children.css('width', getSlideWidth());=0A=
+			// if slideMargin is supplied, add the css=0A=
+			if(slider.settings.mode =3D=3D 'horizontal' && =
+slider.settings.slideMargin > 0) slider.children.css('marginRight', =
+slider.settings.slideMargin);=0A=
+			if(slider.settings.mode =3D=3D 'vertical' && =
+slider.settings.slideMargin > 0) slider.children.css('marginBottom', =
+slider.settings.slideMargin);=0A=
+			// if "fade" mode, add positioning and z-index CSS=0A=
+			if(slider.settings.mode =3D=3D 'fade'){=0A=
+				slider.children.css({=0A=
+					position: 'absolute',=0A=
+					zIndex: 0,=0A=
+					display: 'none'=0A=
+				});=0A=
+				// prepare the z-index on the showing element=0A=
+				slider.children.eq(slider.settings.startSlide).css({zIndex: =
+slider.settings.slideZIndex, display: 'block'});=0A=
+			}=0A=
+			// create an element to contain all slider controls (pager, start / =
+stop, etc)=0A=
+			slider.controls.el =3D $('<div class=3D"bx-controls" />');=0A=
+			// if captions are requested, add them=0A=
+			if(slider.settings.captions) appendCaptions();=0A=
+			// check if startSlide is last slide=0A=
+			slider.active.last =3D slider.settings.startSlide =3D=3D =
+getPagerQty() - 1;=0A=
+			// if video is true, set up the fitVids plugin=0A=
+			if(slider.settings.video) el.fitVids();=0A=
+			// set the default preload selector (visible)=0A=
+			var preloadSelector =3D =
+slider.children.eq(slider.settings.startSlide);=0A=
+			if (slider.settings.preloadImages =3D=3D "all") preloadSelector =3D =
+slider.children;=0A=
+			// only check for control addition if not in "ticker" mode=0A=
+			if(!slider.settings.ticker){=0A=
+				// if pager is requested, add it=0A=
+				if(slider.settings.pager) appendPager();=0A=
+				// if controls are requested, add them=0A=
+				if(slider.settings.controls) appendControls();=0A=
+				// if auto is true, and auto controls are requested, add them=0A=
+				if(slider.settings.auto && slider.settings.autoControls) =
+appendControlsAuto();=0A=
+				// if any control option is requested, add the controls wrapper=0A=
+				if(slider.settings.controls || slider.settings.autoControls || =
+slider.settings.pager) slider.viewport.after(slider.controls.el);=0A=
+			// if ticker mode, do not allow a pager=0A=
+			}else{=0A=
+				slider.settings.pager =3D false;=0A=
+			}=0A=
+			// preload all images, then perform final DOM / CSS modifications =
+that depend on images being loaded=0A=
+			loadElements(preloadSelector, start);=0A=
+		}=0A=
+=0A=
+		var loadElements =3D function(selector, callback){=0A=
+			var total =3D selector.find('img, iframe').length;=0A=
+			if (total =3D=3D 0){=0A=
+				callback();=0A=
+				return;=0A=
+			}=0A=
+			var count =3D 0;=0A=
+			selector.find('img, iframe').each(function(){=0A=
+				$(this).one('load', function() {=0A=
+				  if(++count =3D=3D total) callback();=0A=
+				}).each(function() {=0A=
+				  if(this.complete) $(this).load();=0A=
+				});=0A=
+			});=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Start the slider=0A=
+		 */=0A=
+		var start =3D function(){=0A=
+			// if infinite loop, prepare additional slides=0A=
+			if(slider.settings.infiniteLoop && slider.settings.mode !=3D 'fade' =
+&& !slider.settings.ticker){=0A=
+				var slice =3D slider.settings.mode =3D=3D 'vertical' ? =
+slider.settings.minSlides : slider.settings.maxSlides;=0A=
+				var sliceAppend =3D slider.children.slice(0, =
+slice).clone().addClass('bx-clone');=0A=
+				var slicePrepend =3D =
+slider.children.slice(-slice).clone().addClass('bx-clone');=0A=
+				el.append(sliceAppend).prepend(slicePrepend);=0A=
+			}=0A=
+			// remove the loading DOM element=0A=
+			slider.loader.remove();=0A=
+			// set the left / top position of "el"=0A=
+			setSlidePosition();=0A=
+			// if "vertical" mode, always use adaptiveHeight to prevent odd =
+behavior=0A=
+			if (slider.settings.mode =3D=3D 'vertical') =
+slider.settings.adaptiveHeight =3D true;=0A=
+			// set the viewport height=0A=
+			slider.viewport.height(getViewportHeight());=0A=
+			// make sure everything is positioned just right (same as a window =
+resize)=0A=
+			el.redrawSlider();=0A=
+			// onSliderLoad callback=0A=
+			slider.settings.onSliderLoad(slider.active.index);=0A=
+			// slider has been fully initialized=0A=
+			slider.initialized =3D true;=0A=
+			// bind the resize call to the window=0A=
+			if (slider.settings.responsive) $(window).bind('resize', =
+resizeWindow);=0A=
+			// if auto is true and has more than 1 page, start the show=0A=
+			if (slider.settings.auto && slider.settings.autoStart && =
+(getPagerQty() > 1 || slider.settings.autoSlideForOnePage)) initAuto();=0A=
+			// if ticker is true, start the ticker=0A=
+			if (slider.settings.ticker) initTicker();=0A=
+			// if pager is requested, make the appropriate pager link active=0A=
+			if (slider.settings.pager) =
+updatePagerActive(slider.settings.startSlide);=0A=
+			// check for any updates to the controls (like hideControlOnEnd =
+updates)=0A=
+			if (slider.settings.controls) updateDirectionControls();=0A=
+			// if touchEnabled is true, setup the touch events=0A=
+			if (slider.settings.touchEnabled && !slider.settings.ticker) =
+initTouch();=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Returns the calculated height of the viewport, used to determine =
+either adaptiveHeight or the maxHeight value=0A=
+		 */=0A=
+		var getViewportHeight =3D function(){=0A=
+			var height =3D 0;=0A=
+			// first determine which children (slides) should be used in our =
+height calculation=0A=
+			var children =3D $();=0A=
+			// if mode is not "vertical" and adaptiveHeight is false, include all =
+children=0A=
+			if(slider.settings.mode !=3D 'vertical' && =
+!slider.settings.adaptiveHeight){=0A=
+				children =3D slider.children;=0A=
+			}else{=0A=
+				// if not carousel, return the single active child=0A=
+				if(!slider.carousel){=0A=
+					children =3D slider.children.eq(slider.active.index);=0A=
+				// if carousel, return a slice of children=0A=
+				}else{=0A=
+					// get the individual slide index=0A=
+					var currentIndex =3D slider.settings.moveSlides =3D=3D 1 ? =
+slider.active.index : slider.active.index * getMoveBy();=0A=
+					// add the current slide to the children=0A=
+					children =3D slider.children.eq(currentIndex);=0A=
+					// cycle through the remaining "showing" slides=0A=
+					for (i =3D 1; i <=3D slider.settings.maxSlides - 1; i++){=0A=
+						// if looped back to the start=0A=
+						if(currentIndex + i >=3D slider.children.length){=0A=
+							children =3D children.add(slider.children.eq(i - 1));=0A=
+						}else{=0A=
+							children =3D children.add(slider.children.eq(currentIndex + i));=0A=
+						}=0A=
+					}=0A=
+				}=0A=
+			}=0A=
+			// if "vertical" mode, calculate the sum of the heights of the =
+children=0A=
+			if(slider.settings.mode =3D=3D 'vertical'){=0A=
+				children.each(function(index) {=0A=
+				  height +=3D $(this).outerHeight();=0A=
+				});=0A=
+				// add user-supplied margins=0A=
+				if(slider.settings.slideMargin > 0){=0A=
+					height +=3D slider.settings.slideMargin * =
+(slider.settings.minSlides - 1);=0A=
+				}=0A=
+			// if not "vertical" mode, calculate the max height of the children=0A=
+			}else{=0A=
+				height =3D Math.max.apply(Math, children.map(function(){=0A=
+					return $(this).outerHeight(false);=0A=
+				}).get());=0A=
+			}=0A=
+=0A=
+			if(slider.viewport.css('box-sizing') =3D=3D 'border-box'){=0A=
+				height +=3D	parseFloat(slider.viewport.css('padding-top')) + =
+parseFloat(slider.viewport.css('padding-bottom')) +=0A=
+							parseFloat(slider.viewport.css('border-top-width')) + =
+parseFloat(slider.viewport.css('border-bottom-width'));=0A=
+			}else if(slider.viewport.css('box-sizing') =3D=3D 'padding-box'){=0A=
+				height +=3D	parseFloat(slider.viewport.css('padding-top')) + =
+parseFloat(slider.viewport.css('padding-bottom'));=0A=
+			}=0A=
+=0A=
+			return height;=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Returns the calculated width to be used for the outer wrapper / =
+viewport=0A=
+		 */=0A=
+		var getViewportMaxWidth =3D function(){=0A=
+			var width =3D '100%';=0A=
+			if(slider.settings.slideWidth > 0){=0A=
+				if(slider.settings.mode =3D=3D 'horizontal'){=0A=
+					width =3D (slider.settings.maxSlides * slider.settings.slideWidth) =
++ ((slider.settings.maxSlides - 1) * slider.settings.slideMargin);=0A=
+				}else{=0A=
+					width =3D slider.settings.slideWidth;=0A=
+				}=0A=
+			}=0A=
+			return width;=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Returns the calculated width to be applied to each slide=0A=
+		 */=0A=
+		var getSlideWidth =3D function(){=0A=
+			// start with any user-supplied slide width=0A=
+			var newElWidth =3D slider.settings.slideWidth;=0A=
+			// get the current viewport width=0A=
+			var wrapWidth =3D slider.viewport.width();=0A=
+			// if slide width was not supplied, or is larger than the viewport =
+use the viewport width=0A=
+			if(slider.settings.slideWidth =3D=3D 0 ||=0A=
+				(slider.settings.slideWidth > wrapWidth && !slider.carousel) ||=0A=
+				slider.settings.mode =3D=3D 'vertical'){=0A=
+				newElWidth =3D wrapWidth;=0A=
+			// if carousel, use the thresholds to determine the width=0A=
+			}else if(slider.settings.maxSlides > 1 && slider.settings.mode =3D=3D =
+'horizontal'){=0A=
+				if(wrapWidth > slider.maxThreshold){=0A=
+					// newElWidth =3D (wrapWidth - (slider.settings.slideMargin * =
+(slider.settings.maxSlides - 1))) / slider.settings.maxSlides;=0A=
+				}else if(wrapWidth < slider.minThreshold){=0A=
+					newElWidth =3D (wrapWidth - (slider.settings.slideMargin * =
+(slider.settings.minSlides - 1))) / slider.settings.minSlides;=0A=
+				}=0A=
+			}=0A=
+			return newElWidth;=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Returns the number of slides currently visible in the viewport =
+(includes partially visible slides)=0A=
+		 */=0A=
+		var getNumberSlidesShowing =3D function(){=0A=
+			var slidesShowing =3D 1;=0A=
+			if(slider.settings.mode =3D=3D 'horizontal' && =
+slider.settings.slideWidth > 0){=0A=
+				// if viewport is smaller than minThreshold, return minSlides=0A=
+				if(slider.viewport.width() < slider.minThreshold){=0A=
+					slidesShowing =3D slider.settings.minSlides;=0A=
+				// if viewport is larger than minThreshold, return maxSlides=0A=
+				}else if(slider.viewport.width() > slider.maxThreshold){=0A=
+					slidesShowing =3D slider.settings.maxSlides;=0A=
+				// if viewport is between min / max thresholds, divide viewport =
+width by first child width=0A=
+				}else{=0A=
+					var childWidth =3D slider.children.first().width() + =
+slider.settings.slideMargin;=0A=
+					slidesShowing =3D Math.floor((slider.viewport.width() +=0A=
+						slider.settings.slideMargin) / childWidth);=0A=
+				}=0A=
+			// if "vertical" mode, slides showing will always be minSlides=0A=
+			}else if(slider.settings.mode =3D=3D 'vertical'){=0A=
+				slidesShowing =3D slider.settings.minSlides;=0A=
+			}=0A=
+			return slidesShowing;=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Returns the number of pages (one full viewport of slides is one =
+"page")=0A=
+		 */=0A=
+		var getPagerQty =3D function(){=0A=
+			var pagerQty =3D 0;=0A=
+			// if moveSlides is specified by the user=0A=
+			if(slider.settings.moveSlides > 0){=0A=
+				if(slider.settings.infiniteLoop){=0A=
+					pagerQty =3D Math.ceil(slider.children.length / getMoveBy());=0A=
+				}else{=0A=
+					// use a while loop to determine pages=0A=
+					var breakPoint =3D 0;=0A=
+					var counter =3D 0=0A=
+					// when breakpoint goes above children length, counter is the =
+number of pages=0A=
+					while (breakPoint < slider.children.length){=0A=
+						++pagerQty;=0A=
+						breakPoint =3D counter + getNumberSlidesShowing();=0A=
+						counter +=3D slider.settings.moveSlides <=3D =
+getNumberSlidesShowing() ? slider.settings.moveSlides : =
+getNumberSlidesShowing();=0A=
+					}=0A=
+				}=0A=
+			// if moveSlides is 0 (auto) divide children length by sides showing, =
+then round up=0A=
+			}else{=0A=
+				pagerQty =3D Math.ceil(slider.children.length / =
+getNumberSlidesShowing());=0A=
+			}=0A=
+			return pagerQty;=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Returns the number of indivual slides by which to shift the slider=0A=
+		 */=0A=
+		var getMoveBy =3D function(){=0A=
+			// if moveSlides was set by the user and moveSlides is less than =
+number of slides showing=0A=
+			if(slider.settings.moveSlides > 0 && slider.settings.moveSlides <=3D =
+getNumberSlidesShowing()){=0A=
+				return slider.settings.moveSlides;=0A=
+			}=0A=
+			// if moveSlides is 0 (auto)=0A=
+			return getNumberSlidesShowing();=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Sets the slider's (el) left or top position=0A=
+		 */=0A=
+		var setSlidePosition =3D function(){=0A=
+			// if last slide, not infinite loop, and number of children is larger =
+than specified maxSlides=0A=
+			if(slider.children.length > slider.settings.maxSlides && =
+slider.active.last && !slider.settings.infiniteLoop){=0A=
+				if (slider.settings.mode =3D=3D 'horizontal'){=0A=
+					// get the last child's position=0A=
+					var lastChild =3D slider.children.last();=0A=
+					var position =3D lastChild.position();=0A=
+					// set the left position=0A=
+					setPositionProperty(-(position.left - (slider.viewport.width() - =
+lastChild.outerWidth())), 'reset', 0);=0A=
+				}else if(slider.settings.mode =3D=3D 'vertical'){=0A=
+					// get the last showing index's position=0A=
+					var lastShowingIndex =3D slider.children.length - =
+slider.settings.minSlides;=0A=
+					var position =3D slider.children.eq(lastShowingIndex).position();=0A=
+					// set the top position=0A=
+					setPositionProperty(-position.top, 'reset', 0);=0A=
+				}=0A=
+			// if not last slide=0A=
+			}else{=0A=
+				// get the position of the first showing slide=0A=
+				var position =3D slider.children.eq(slider.active.index * =
+getMoveBy()).position();=0A=
+				// check for last slide=0A=
+				if (slider.active.index =3D=3D getPagerQty() - 1) slider.active.last =
+=3D true;=0A=
+				// set the repective position=0A=
+				if (position !=3D undefined){=0A=
+					if (slider.settings.mode =3D=3D 'horizontal') =
+setPositionProperty(-position.left, 'reset', 0);=0A=
+					else if (slider.settings.mode =3D=3D 'vertical') =
+setPositionProperty(-position.top, 'reset', 0);=0A=
+				}=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Sets the el's animating property position (which in turn will =
+sometimes animate el).=0A=
+		 * If using CSS, sets the transform property. If not using CSS, sets =
+the top / left property.=0A=
+		 *=0A=
+		 * @param value (int)=0A=
+		 *  - the animating property's value=0A=
+		 *=0A=
+		 * @param type (string) 'slider', 'reset', 'ticker'=0A=
+		 *  - the type of instance for which the function is being=0A=
+		 *=0A=
+		 * @param duration (int)=0A=
+		 *  - the amount of time (in ms) the transition should occupy=0A=
+		 *=0A=
+		 * @param params (array) optional=0A=
+		 *  - an optional parameter containing any variables that need to be =
+passed in=0A=
+		 */=0A=
+		var setPositionProperty =3D function(value, type, duration, params){=0A=
+			// use CSS transform=0A=
+			if(slider.usingCSS){=0A=
+				// determine the translate3d value=0A=
+				var propValue =3D slider.settings.mode =3D=3D 'vertical' ? =
+'translate3d(0, ' + value + 'px, 0)' : 'translate3d(' + value + 'px, 0, =
+0)';=0A=
+				// add the CSS transition-duration=0A=
+				el.css('-' + slider.cssPrefix + '-transition-duration', duration / =
+1000 + 's');=0A=
+				if(type =3D=3D 'slide'){=0A=
+					// set the property value=0A=
+					el.css(slider.animProp, propValue);=0A=
+					// bind a callback method - executes when CSS transition completes=0A=
+					el.bind('transitionend webkitTransitionEnd oTransitionEnd =
+MSTransitionEnd', function(){=0A=
+						// unbind the callback=0A=
+						el.unbind('transitionend webkitTransitionEnd oTransitionEnd =
+MSTransitionEnd');=0A=
+						updateAfterSlideTransition();=0A=
+					});=0A=
+				}else if(type =3D=3D 'reset'){=0A=
+					el.css(slider.animProp, propValue);=0A=
+				}else if(type =3D=3D 'ticker'){=0A=
+					// make the transition use 'linear'=0A=
+					el.css('-' + slider.cssPrefix + '-transition-timing-function', =
+'linear');=0A=
+					el.css(slider.animProp, propValue);=0A=
+					// bind a callback method - executes when CSS transition completes=0A=
+					el.bind('transitionend webkitTransitionEnd oTransitionEnd =
+MSTransitionEnd', function(){=0A=
+						// unbind the callback=0A=
+						el.unbind('transitionend webkitTransitionEnd oTransitionEnd =
+MSTransitionEnd');=0A=
+						// reset the position=0A=
+						setPositionProperty(params['resetValue'], 'reset', 0);=0A=
+						// start the loop again=0A=
+						tickerLoop();=0A=
+					});=0A=
+				}=0A=
+			// use JS animate=0A=
+			}else{=0A=
+				var animateObj =3D {};=0A=
+				animateObj[slider.animProp] =3D value;=0A=
+				if(type =3D=3D 'slide'){=0A=
+					el.animate(animateObj, duration, slider.settings.easing, function(){=0A=
+						updateAfterSlideTransition();=0A=
+					});=0A=
+				}else if(type =3D=3D 'reset'){=0A=
+					el.css(slider.animProp, value)=0A=
+				}else if(type =3D=3D 'ticker'){=0A=
+					el.animate(animateObj, speed, 'linear', function(){=0A=
+						setPositionProperty(params['resetValue'], 'reset', 0);=0A=
+						// run the recursive loop after animation=0A=
+						tickerLoop();=0A=
+					});=0A=
+				}=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Populates the pager with proper amount of pages=0A=
+		 */=0A=
+		var populatePager =3D function(){=0A=
+			var pagerHtml =3D '';=0A=
+			var pagerQty =3D getPagerQty();=0A=
+			// loop through each pager item=0A=
+			for(var i=3D0; i < pagerQty; i++){=0A=
+				var linkContent =3D '';=0A=
+				// if a buildPager function is supplied, use it to get pager link =
+value, else use index + 1=0A=
+				if(slider.settings.buildPager && =
+$.isFunction(slider.settings.buildPager)){=0A=
+					linkContent =3D slider.settings.buildPager(i);=0A=
+					slider.pagerEl.addClass('bx-custom-pager');=0A=
+				}else{=0A=
+					linkContent =3D i + 1;=0A=
+					slider.pagerEl.addClass('bx-default-pager');=0A=
+				}=0A=
+				// var linkContent =3D slider.settings.buildPager && =
+$.isFunction(slider.settings.buildPager) ? slider.settings.buildPager(i) =
+: i + 1;=0A=
+				// add the markup to the string=0A=
+				pagerHtml +=3D '<div class=3D"bx-pager-item"><a href=3D"" =
+data-slide-index=3D"' + i + '" class=3D"bx-pager-link">' + linkContent + =
+'</a></div>';=0A=
+			};=0A=
+			// populate the pager element with pager links=0A=
+			slider.pagerEl.html(pagerHtml);=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Appends the pager to the controls element=0A=
+		 */=0A=
+		var appendPager =3D function(){=0A=
+			if(!slider.settings.pagerCustom){=0A=
+				// create the pager DOM element=0A=
+				slider.pagerEl =3D $('<div class=3D"bx-pager" />');=0A=
+				// if a pager selector was supplied, populate it with the pager=0A=
+				if(slider.settings.pagerSelector){=0A=
+					$(slider.settings.pagerSelector).html(slider.pagerEl);=0A=
+				// if no pager selector was supplied, add it after the wrapper=0A=
+				}else{=0A=
+					slider.controls.el.addClass('bx-has-pager').append(slider.pagerEl);=0A=
+				}=0A=
+				// populate the pager=0A=
+				populatePager();=0A=
+			}else{=0A=
+				slider.pagerEl =3D $(slider.settings.pagerCustom);=0A=
+			}=0A=
+			// assign the pager click binding=0A=
+			slider.pagerEl.on('click', 'a', clickPagerBind);=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Appends prev / next controls to the controls element=0A=
+		 */=0A=
+		var appendControls =3D function(){=0A=
+			slider.controls.next =3D $('<a class=3D"bx-next" href=3D"">' + =
+slider.settings.nextText + '</a>');=0A=
+			slider.controls.prev =3D $('<a class=3D"bx-prev" href=3D"">' + =
+slider.settings.prevText + '</a>');=0A=
+			// bind click actions to the controls=0A=
+			slider.controls.next.bind('click', clickNextBind);=0A=
+			slider.controls.prev.bind('click', clickPrevBind);=0A=
+			// if nextSlector was supplied, populate it=0A=
+			if(slider.settings.nextSelector){=0A=
+				$(slider.settings.nextSelector).append(slider.controls.next);=0A=
+			}=0A=
+			// if prevSlector was supplied, populate it=0A=
+			if(slider.settings.prevSelector){=0A=
+				$(slider.settings.prevSelector).append(slider.controls.prev);=0A=
+			}=0A=
+			// if no custom selectors were supplied=0A=
+			if(!slider.settings.nextSelector && !slider.settings.prevSelector){=0A=
+				// add the controls to the DOM=0A=
+				slider.controls.directionEl =3D $('<div =
+class=3D"bx-controls-direction" />');=0A=
+				// add the control elements to the directionEl=0A=
+				=
+slider.controls.directionEl.append(slider.controls.prev).append(slider.co=
+ntrols.next);=0A=
+				// slider.viewport.append(slider.controls.directionEl);=0A=
+				=
+slider.controls.el.addClass('bx-has-controls-direction').append(slider.co=
+ntrols.directionEl);=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Appends start / stop auto controls to the controls element=0A=
+		 */=0A=
+		var appendControlsAuto =3D function(){=0A=
+			slider.controls.start =3D $('<div class=3D"bx-controls-auto-item"><a =
+class=3D"bx-start" href=3D"">' + slider.settings.startText + =
+'</a></div>');=0A=
+			slider.controls.stop =3D $('<div class=3D"bx-controls-auto-item"><a =
+class=3D"bx-stop" href=3D"">' + slider.settings.stopText + '</a></div>');=0A=
+			// add the controls to the DOM=0A=
+			slider.controls.autoEl =3D $('<div class=3D"bx-controls-auto" />');=0A=
+			// bind click actions to the controls=0A=
+			slider.controls.autoEl.on('click', '.bx-start', clickStartBind);=0A=
+			slider.controls.autoEl.on('click', '.bx-stop', clickStopBind);=0A=
+			// if autoControlsCombine, insert only the "start" control=0A=
+			if(slider.settings.autoControlsCombine){=0A=
+				slider.controls.autoEl.append(slider.controls.start);=0A=
+			// if autoControlsCombine is false, insert both controls=0A=
+			}else{=0A=
+				=
+slider.controls.autoEl.append(slider.controls.start).append(slider.contro=
+ls.stop);=0A=
+			}=0A=
+			// if auto controls selector was supplied, populate it with the =
+controls=0A=
+			if(slider.settings.autoControlsSelector){=0A=
+				$(slider.settings.autoControlsSelector).html(slider.controls.autoEl);=0A=
+			// if auto controls selector was not supplied, add it after the =
+wrapper=0A=
+			}else{=0A=
+				=
+slider.controls.el.addClass('bx-has-controls-auto').append(slider.control=
+s.autoEl);=0A=
+			}=0A=
+			// update the auto controls=0A=
+			updateAutoControls(slider.settings.autoStart ? 'stop' : 'start');=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Appends image captions to the DOM=0A=
+		 */=0A=
+		var appendCaptions =3D function(){=0A=
+			// cycle through each child=0A=
+			slider.children.each(function(index){=0A=
+				// get the image title attribute=0A=
+				var title =3D $(this).find('img:first').attr('title');=0A=
+				// append the caption=0A=
+				if (title !=3D undefined && ('' + title).length) {=0A=
+                    $(this).append('<div class=3D"bx-caption"><span>' + =
+title + '</span></div>');=0A=
+                }=0A=
+			});=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Click next binding=0A=
+		 *=0A=
+		 * @param e (event)=0A=
+		 *  - DOM event object=0A=
+		 */=0A=
+		var clickNextBind =3D function(e){=0A=
+			// if auto show is running, stop it=0A=
+			if (slider.settings.auto) el.stopAuto();=0A=
+			el.goToNextSlide();=0A=
+			e.preventDefault();=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Click prev binding=0A=
+		 *=0A=
+		 * @param e (event)=0A=
+		 *  - DOM event object=0A=
+		 */=0A=
+		var clickPrevBind =3D function(e){=0A=
+			// if auto show is running, stop it=0A=
+			if (slider.settings.auto) el.stopAuto();=0A=
+			el.goToPrevSlide();=0A=
+			e.preventDefault();=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Click start binding=0A=
+		 *=0A=
+		 * @param e (event)=0A=
+		 *  - DOM event object=0A=
+		 */=0A=
+		var clickStartBind =3D function(e){=0A=
+			el.startAuto();=0A=
+			e.preventDefault();=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Click stop binding=0A=
+		 *=0A=
+		 * @param e (event)=0A=
+		 *  - DOM event object=0A=
+		 */=0A=
+		var clickStopBind =3D function(e){=0A=
+			el.stopAuto();=0A=
+			e.preventDefault();=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Click pager binding=0A=
+		 *=0A=
+		 * @param e (event)=0A=
+		 *  - DOM event object=0A=
+		 */=0A=
+		var clickPagerBind =3D function(e){=0A=
+			// if auto show is running, stop it=0A=
+			if (slider.settings.auto) el.stopAuto();=0A=
+			var pagerLink =3D $(e.currentTarget);=0A=
+			if(pagerLink.attr('data-slide-index') !=3D=3D undefined){=0A=
+				var pagerIndex =3D parseInt(pagerLink.attr('data-slide-index'));=0A=
+				// if clicked pager link is not active, continue with the goToSlide =
+call=0A=
+				if(pagerIndex !=3D slider.active.index) el.goToSlide(pagerIndex);=0A=
+				e.preventDefault();=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Updates the pager links with an active class=0A=
+		 *=0A=
+		 * @param slideIndex (int)=0A=
+		 *  - index of slide to make active=0A=
+		 */=0A=
+		var updatePagerActive =3D function(slideIndex){=0A=
+			// if "short" pager type=0A=
+			var len =3D slider.children.length; // nb of children=0A=
+			if(slider.settings.pagerType =3D=3D 'short'){=0A=
+				if(slider.settings.maxSlides > 1) {=0A=
+					len =3D Math.ceil(slider.children.length/slider.settings.maxSlides);=0A=
+				}=0A=
+				slider.pagerEl.html( (slideIndex + 1) + =
+slider.settings.pagerShortSeparator + len);=0A=
+				return;=0A=
+			}=0A=
+			// remove all pager active classes=0A=
+			slider.pagerEl.find('a').removeClass('active');=0A=
+			// apply the active class for all pagers=0A=
+			slider.pagerEl.each(function(i, el) { =
+$(el).find('a').eq(slideIndex).addClass('active'); });=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Performs needed actions after a slide transition=0A=
+		 */=0A=
+		var updateAfterSlideTransition =3D function(){=0A=
+			// if infinte loop is true=0A=
+			if(slider.settings.infiniteLoop){=0A=
+				var position =3D '';=0A=
+				// first slide=0A=
+				if(slider.active.index =3D=3D 0){=0A=
+					// set the new position=0A=
+					position =3D slider.children.eq(0).position();=0A=
+				// carousel, last slide=0A=
+				}else if(slider.active.index =3D=3D getPagerQty() - 1 && =
+slider.carousel){=0A=
+					position =3D slider.children.eq((getPagerQty() - 1) * =
+getMoveBy()).position();=0A=
+				// last slide=0A=
+				}else if(slider.active.index =3D=3D slider.children.length - 1){=0A=
+					position =3D slider.children.eq(slider.children.length - =
+1).position();=0A=
+				}=0A=
+				if(position){=0A=
+					if (slider.settings.mode =3D=3D 'horizontal') { =
+setPositionProperty(-position.left, 'reset', 0); }=0A=
+					else if (slider.settings.mode =3D=3D 'vertical') { =
+setPositionProperty(-position.top, 'reset', 0); }=0A=
+				}=0A=
+			}=0A=
+			// declare that the transition is complete=0A=
+			slider.working =3D false;=0A=
+			// onSlideAfter callback=0A=
+			slider.settings.onSlideAfter(slider.children.eq(slider.active.index), =
+slider.oldIndex, slider.active.index);=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Updates the auto controls state (either active, or combined switch)=0A=
+		 *=0A=
+		 * @param state (string) "start", "stop"=0A=
+		 *  - the new state of the auto show=0A=
+		 */=0A=
+		var updateAutoControls =3D function(state){=0A=
+			// if autoControlsCombine is true, replace the current control with =
+the new state=0A=
+			if(slider.settings.autoControlsCombine){=0A=
+				slider.controls.autoEl.html(slider.controls[state]);=0A=
+			// if autoControlsCombine is false, apply the "active" class to the =
+appropriate control=0A=
+			}else{=0A=
+				slider.controls.autoEl.find('a').removeClass('active');=0A=
+				slider.controls.autoEl.find('a:not(.bx-' + state + =
+')').addClass('active');=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Updates the direction controls (checks if either should be hidden)=0A=
+		 */=0A=
+		var updateDirectionControls =3D function(){=0A=
+			if(getPagerQty() =3D=3D 1){=0A=
+				slider.controls.prev.addClass('disabled');=0A=
+				slider.controls.next.addClass('disabled');=0A=
+			}else if(!slider.settings.infiniteLoop && =
+slider.settings.hideControlOnEnd){=0A=
+				// if first slide=0A=
+				if (slider.active.index =3D=3D 0){=0A=
+					slider.controls.prev.addClass('disabled');=0A=
+					slider.controls.next.removeClass('disabled');=0A=
+				// if last slide=0A=
+				}else if(slider.active.index =3D=3D getPagerQty() - 1){=0A=
+					slider.controls.next.addClass('disabled');=0A=
+					slider.controls.prev.removeClass('disabled');=0A=
+				// if any slide in the middle=0A=
+				}else{=0A=
+					slider.controls.prev.removeClass('disabled');=0A=
+					slider.controls.next.removeClass('disabled');=0A=
+				}=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Initialzes the auto process=0A=
+		 */=0A=
+		var initAuto =3D function(){=0A=
+			// if autoDelay was supplied, launch the auto show using a =
+setTimeout() call=0A=
+			if(slider.settings.autoDelay > 0){=0A=
+				var timeout =3D setTimeout(el.startAuto, slider.settings.autoDelay);=0A=
+			// if autoDelay was not supplied, start the auto show normally=0A=
+			}else{=0A=
+				el.startAuto();=0A=
+			}=0A=
+			// if autoHover is requested=0A=
+			if(slider.settings.autoHover){=0A=
+				// on el hover=0A=
+				el.hover(function(){=0A=
+					// if the auto show is currently playing (has an active interval)=0A=
+					if(slider.interval){=0A=
+						// stop the auto show and pass true agument which will prevent =
+control update=0A=
+						el.stopAuto(true);=0A=
+						// create a new autoPaused value which will be used by the =
+relative "mouseout" event=0A=
+						slider.autoPaused =3D true;=0A=
+					}=0A=
+				}, function(){=0A=
+					// if the autoPaused value was created be the prior "mouseover" =
+event=0A=
+					if(slider.autoPaused){=0A=
+						// start the auto show and pass true agument which will prevent =
+control update=0A=
+						el.startAuto(true);=0A=
+						// reset the autoPaused value=0A=
+						slider.autoPaused =3D null;=0A=
+					}=0A=
+				});=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Initialzes the ticker process=0A=
+		 */=0A=
+		var initTicker =3D function(){=0A=
+			var startPosition =3D 0;=0A=
+			// if autoDirection is "next", append a clone of the entire slider=0A=
+			if(slider.settings.autoDirection =3D=3D 'next'){=0A=
+				el.append(slider.children.clone().addClass('bx-clone'));=0A=
+			// if autoDirection is "prev", prepend a clone of the entire slider, =
+and set the left position=0A=
+			}else{=0A=
+				el.prepend(slider.children.clone().addClass('bx-clone'));=0A=
+				var position =3D slider.children.first().position();=0A=
+				startPosition =3D slider.settings.mode =3D=3D 'horizontal' ? =
+-position.left : -position.top;=0A=
+			}=0A=
+			setPositionProperty(startPosition, 'reset', 0);=0A=
+			// do not allow controls in ticker mode=0A=
+			slider.settings.pager =3D false;=0A=
+			slider.settings.controls =3D false;=0A=
+			slider.settings.autoControls =3D false;=0A=
+			// if autoHover is requested=0A=
+			if(slider.settings.tickerHover && !slider.usingCSS){=0A=
+				// on el hover=0A=
+				slider.viewport.hover(function(){=0A=
+					el.stop();=0A=
+				}, function(){=0A=
+					// calculate the total width of children (used to calculate the =
+speed ratio)=0A=
+					var totalDimens =3D 0;=0A=
+					slider.children.each(function(index){=0A=
+					  totalDimens +=3D slider.settings.mode =3D=3D 'horizontal' ? =
+$(this).outerWidth(true) : $(this).outerHeight(true);=0A=
+					});=0A=
+					// calculate the speed ratio (used to determine the new speed to =
+finish the paused animation)=0A=
+					var ratio =3D slider.settings.speed / totalDimens;=0A=
+					// determine which property to use=0A=
+					var property =3D slider.settings.mode =3D=3D 'horizontal' ? 'left' =
+: 'top';=0A=
+					// calculate the new speed=0A=
+					var newSpeed =3D ratio * (totalDimens - =
+(Math.abs(parseInt(el.css(property)))));=0A=
+					tickerLoop(newSpeed);=0A=
+				});=0A=
+			}=0A=
+			// start the ticker loop=0A=
+			tickerLoop();=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Runs a continuous loop, news ticker-style=0A=
+		 */=0A=
+		var tickerLoop =3D function(resumeSpeed){=0A=
+			speed =3D resumeSpeed ? resumeSpeed : slider.settings.speed;=0A=
+			var position =3D {left: 0, top: 0};=0A=
+			var reset =3D {left: 0, top: 0};=0A=
+			// if "next" animate left position to last child, then reset left to 0=0A=
+			if(slider.settings.autoDirection =3D=3D 'next'){=0A=
+				position =3D el.find('.bx-clone').first().position();=0A=
+			// if "prev" animate left position to 0, then reset left to first =
+non-clone child=0A=
+			}else{=0A=
+				reset =3D slider.children.first().position();=0A=
+			}=0A=
+			var animateProperty =3D slider.settings.mode =3D=3D 'horizontal' ? =
+-position.left : -position.top;=0A=
+			var resetValue =3D slider.settings.mode =3D=3D 'horizontal' ? =
+-reset.left : -reset.top;=0A=
+			var params =3D {resetValue: resetValue};=0A=
+			setPositionProperty(animateProperty, 'ticker', speed, params);=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Initializes touch events=0A=
+		 */=0A=
+		var initTouch =3D function(){=0A=
+			// initialize object to contain all touch values=0A=
+			slider.touch =3D {=0A=
+				start: {x: 0, y: 0},=0A=
+				end: {x: 0, y: 0}=0A=
+			}=0A=
+			slider.viewport.bind('touchstart', onTouchStart);=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Event handler for "touchstart"=0A=
+		 *=0A=
+		 * @param e (event)=0A=
+		 *  - DOM event object=0A=
+		 */=0A=
+		var onTouchStart =3D function(e){=0A=
+			if(slider.working){=0A=
+				e.preventDefault();=0A=
+			}else{=0A=
+				// record the original position when touch starts=0A=
+				slider.touch.originalPos =3D el.position();=0A=
+				var orig =3D e.originalEvent;=0A=
+				// record the starting touch x, y coordinates=0A=
+				slider.touch.start.x =3D orig.changedTouches[0].pageX;=0A=
+				slider.touch.start.y =3D orig.changedTouches[0].pageY;=0A=
+				// bind a "touchmove" event to the viewport=0A=
+				slider.viewport.bind('touchmove', onTouchMove);=0A=
+				// bind a "touchend" event to the viewport=0A=
+				slider.viewport.bind('touchend', onTouchEnd);=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Event handler for "touchmove"=0A=
+		 *=0A=
+		 * @param e (event)=0A=
+		 *  - DOM event object=0A=
+		 */=0A=
+		var onTouchMove =3D function(e){=0A=
+			var orig =3D e.originalEvent;=0A=
+			// if scrolling on y axis, do not prevent default=0A=
+			var xMovement =3D Math.abs(orig.changedTouches[0].pageX - =
+slider.touch.start.x);=0A=
+			var yMovement =3D Math.abs(orig.changedTouches[0].pageY - =
+slider.touch.start.y);=0A=
+			// x axis swipe=0A=
+			if((xMovement * 3) > yMovement && =
+slider.settings.preventDefaultSwipeX){=0A=
+				e.preventDefault();=0A=
+			// y axis swipe=0A=
+			}else if((yMovement * 3) > xMovement && =
+slider.settings.preventDefaultSwipeY){=0A=
+				e.preventDefault();=0A=
+			}=0A=
+			if(slider.settings.mode !=3D 'fade' && slider.settings.oneToOneTouch){=0A=
+				var value =3D 0;=0A=
+				// if horizontal, drag along x axis=0A=
+				if(slider.settings.mode =3D=3D 'horizontal'){=0A=
+					var change =3D orig.changedTouches[0].pageX - slider.touch.start.x;=0A=
+					value =3D slider.touch.originalPos.left + change;=0A=
+				// if vertical, drag along y axis=0A=
+				}else{=0A=
+					var change =3D orig.changedTouches[0].pageY - slider.touch.start.y;=0A=
+					value =3D slider.touch.originalPos.top + change;=0A=
+				}=0A=
+				setPositionProperty(value, 'reset', 0);=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Event handler for "touchend"=0A=
+		 *=0A=
+		 * @param e (event)=0A=
+		 *  - DOM event object=0A=
+		 */=0A=
+		var onTouchEnd =3D function(e){=0A=
+			slider.viewport.unbind('touchmove', onTouchMove);=0A=
+			var orig =3D e.originalEvent;=0A=
+			var value =3D 0;=0A=
+			// record end x, y positions=0A=
+			slider.touch.end.x =3D orig.changedTouches[0].pageX;=0A=
+			slider.touch.end.y =3D orig.changedTouches[0].pageY;=0A=
+			// if fade mode, check if absolute x distance clears the threshold=0A=
+			if(slider.settings.mode =3D=3D 'fade'){=0A=
+				var distance =3D Math.abs(slider.touch.start.x - slider.touch.end.x);=0A=
+				if(distance >=3D slider.settings.swipeThreshold){=0A=
+					slider.touch.start.x > slider.touch.end.x ? el.goToNextSlide() : =
+el.goToPrevSlide();=0A=
+					el.stopAuto();=0A=
+				}=0A=
+			// not fade mode=0A=
+			}else{=0A=
+				var distance =3D 0;=0A=
+				// calculate distance and el's animate property=0A=
+				if(slider.settings.mode =3D=3D 'horizontal'){=0A=
+					distance =3D slider.touch.end.x - slider.touch.start.x;=0A=
+					value =3D slider.touch.originalPos.left;=0A=
+				}else{=0A=
+					distance =3D slider.touch.end.y - slider.touch.start.y;=0A=
+					value =3D slider.touch.originalPos.top;=0A=
+				}=0A=
+				// if not infinite loop and first / last slide, do not attempt a =
+slide transition=0A=
+				if(!slider.settings.infiniteLoop && ((slider.active.index =3D=3D 0 =
+&& distance > 0) || (slider.active.last && distance < 0))){=0A=
+					setPositionProperty(value, 'reset', 200);=0A=
+				}else{=0A=
+					// check if distance clears threshold=0A=
+					if(Math.abs(distance) >=3D slider.settings.swipeThreshold){=0A=
+						distance < 0 ? el.goToNextSlide() : el.goToPrevSlide();=0A=
+						el.stopAuto();=0A=
+					}else{=0A=
+						// el.animate(property, 200);=0A=
+						setPositionProperty(value, 'reset', 200);=0A=
+					}=0A=
+				}=0A=
+			}=0A=
+			slider.viewport.unbind('touchend', onTouchEnd);=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Window resize event callback=0A=
+		 */=0A=
+		var resizeWindow =3D function(e){=0A=
+			// don't do anything if slider isn't initialized.=0A=
+			if(!slider.initialized) return;=0A=
+			// get the new window dimens (again, thank you IE)=0A=
+			var windowWidthNew =3D $(window).width();=0A=
+			var windowHeightNew =3D $(window).height();=0A=
+			// make sure that it is a true window resize=0A=
+			// *we must check this because our dinosaur friend IE fires a window =
+resize event when certain DOM elements=0A=
+			// are resized. Can you just die already?*=0A=
+			if(windowWidth !=3D windowWidthNew || windowHeight !=3D =
+windowHeightNew){=0A=
+				// set the new window dimens=0A=
+				windowWidth =3D windowWidthNew;=0A=
+				windowHeight =3D windowHeightNew;=0A=
+				// update all dynamic elements=0A=
+				el.redrawSlider();=0A=
+				// Call user resize handler=0A=
+				slider.settings.onSliderResize.call(el, slider.active.index);=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * =
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+		 * =3D PUBLIC FUNCTIONS=0A=
+		 * =
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+		 */=0A=
+=0A=
+		/**=0A=
+		 * Performs slide transition to the specified slide=0A=
+		 *=0A=
+		 * @param slideIndex (int)=0A=
+		 *  - the destination slide's index (zero-based)=0A=
+		 *=0A=
+		 * @param direction (string)=0A=
+		 *  - INTERNAL USE ONLY - the direction of travel ("prev" / "next")=0A=
+		 */=0A=
+		el.goToSlide =3D function(slideIndex, direction){=0A=
+			// if plugin is currently in motion, ignore request=0A=
+			if(slider.working || slider.active.index =3D=3D slideIndex) return;=0A=
+			// declare that plugin is in motion=0A=
+			slider.working =3D true;=0A=
+			// store the old index=0A=
+			slider.oldIndex =3D slider.active.index;=0A=
+			// if slideIndex is less than zero, set active index to last child =
+(this happens during infinite loop)=0A=
+			if(slideIndex < 0){=0A=
+				slider.active.index =3D getPagerQty() - 1;=0A=
+			// if slideIndex is greater than children length, set active index to =
+0 (this happens during infinite loop)=0A=
+			}else if(slideIndex >=3D getPagerQty()){=0A=
+				slider.active.index =3D 0;=0A=
+			// set active index to requested slide=0A=
+			}else{=0A=
+				slider.active.index =3D slideIndex;=0A=
+			}=0A=
+			// onSlideBefore, onSlideNext, onSlidePrev callbacks=0A=
+			=
+slider.settings.onSlideBefore(slider.children.eq(slider.active.index), =
+slider.oldIndex, slider.active.index);=0A=
+			if(direction =3D=3D 'next'){=0A=
+				slider.settings.onSlideNext(slider.children.eq(slider.active.index), =
+slider.oldIndex, slider.active.index);=0A=
+			}else if(direction =3D=3D 'prev'){=0A=
+				slider.settings.onSlidePrev(slider.children.eq(slider.active.index), =
+slider.oldIndex, slider.active.index);=0A=
+			}=0A=
+			// check if last slide=0A=
+			slider.active.last =3D slider.active.index >=3D getPagerQty() - 1;=0A=
+			// update the pager with active class=0A=
+			if(slider.settings.pager) updatePagerActive(slider.active.index);=0A=
+			// // check for direction control update=0A=
+			if(slider.settings.controls) updateDirectionControls();=0A=
+			// if slider is set to mode: "fade"=0A=
+			if(slider.settings.mode =3D=3D 'fade'){=0A=
+				// if adaptiveHeight is true and next height is different from =
+current height, animate to the new height=0A=
+				if(slider.settings.adaptiveHeight && slider.viewport.height() !=3D =
+getViewportHeight()){=0A=
+					slider.viewport.animate({height: getViewportHeight()}, =
+slider.settings.adaptiveHeightSpeed);=0A=
+				}=0A=
+				// fade out the visible child and reset its z-index value=0A=
+				=
+slider.children.filter(':visible').fadeOut(slider.settings.speed).css({zI=
+ndex: 0});=0A=
+				// fade in the newly requested slide=0A=
+				slider.children.eq(slider.active.index).css('zIndex', =
+slider.settings.slideZIndex+1).fadeIn(slider.settings.speed, function(){=0A=
+					$(this).css('zIndex', slider.settings.slideZIndex);=0A=
+					updateAfterSlideTransition();=0A=
+				});=0A=
+			// slider mode is not "fade"=0A=
+			}else{=0A=
+				// if adaptiveHeight is true and next height is different from =
+current height, animate to the new height=0A=
+				if(slider.settings.adaptiveHeight && slider.viewport.height() !=3D =
+getViewportHeight()){=0A=
+					slider.viewport.animate({height: getViewportHeight()}, =
+slider.settings.adaptiveHeightSpeed);=0A=
+				}=0A=
+				var moveBy =3D 0;=0A=
+				var position =3D {left: 0, top: 0};=0A=
+				// if carousel and not infinite loop=0A=
+				if(!slider.settings.infiniteLoop && slider.carousel && =
+slider.active.last){=0A=
+					if(slider.settings.mode =3D=3D 'horizontal'){=0A=
+						// get the last child position=0A=
+						var lastChild =3D slider.children.eq(slider.children.length - 1);=0A=
+						position =3D lastChild.position();=0A=
+						// calculate the position of the last slide=0A=
+						moveBy =3D slider.viewport.width() - lastChild.outerWidth();=0A=
+					}else{=0A=
+						// get last showing index position=0A=
+						var lastShowingIndex =3D slider.children.length - =
+slider.settings.minSlides;=0A=
+						position =3D slider.children.eq(lastShowingIndex).position();=0A=
+					}=0A=
+					// horizontal carousel, going previous while on first slide =
+(infiniteLoop mode)=0A=
+				}else if(slider.carousel && slider.active.last && direction =3D=3D =
+'prev'){=0A=
+					// get the last child position=0A=
+					var eq =3D slider.settings.moveSlides =3D=3D 1 ? =
+slider.settings.maxSlides - getMoveBy() : ((getPagerQty() - 1) * =
+getMoveBy()) - (slider.children.length - slider.settings.maxSlides);=0A=
+					var lastChild =3D el.children('.bx-clone').eq(eq);=0A=
+					position =3D lastChild.position();=0A=
+				// if infinite loop and "Next" is clicked on the last slide=0A=
+				}else if(direction =3D=3D 'next' && slider.active.index =3D=3D 0){=0A=
+					// get the last clone position=0A=
+					position =3D el.find('> =
+.bx-clone').eq(slider.settings.maxSlides).position();=0A=
+					slider.active.last =3D false;=0A=
+				// normal non-zero requests=0A=
+				}else if(slideIndex >=3D 0){=0A=
+					var requestEl =3D slideIndex * getMoveBy();=0A=
+					position =3D slider.children.eq(requestEl).position();=0A=
+				}=0A=
+=0A=
+				/* If the position doesn't exist=0A=
+				 * (e.g. if you destroy the slider on a next click),=0A=
+				 * it doesn't throw an error.=0A=
+				 */=0A=
+				if ("undefined" !=3D=3D typeof(position)) {=0A=
+					var value =3D slider.settings.mode =3D=3D 'horizontal' ? =
+-(position.left - moveBy) : -position.top;=0A=
+					// plugin values to be animated=0A=
+					setPositionProperty(value, 'slide', slider.settings.speed);=0A=
+				}=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Transitions to the next slide in the show=0A=
+		 */=0A=
+		el.goToNextSlide =3D function(){=0A=
+			// if infiniteLoop is false and last page is showing, disregard call=0A=
+			if (!slider.settings.infiniteLoop && slider.active.last) return;=0A=
+			var pagerIndex =3D parseInt(slider.active.index) + 1;=0A=
+			el.goToSlide(pagerIndex, 'next');=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Transitions to the prev slide in the show=0A=
+		 */=0A=
+		el.goToPrevSlide =3D function(){=0A=
+			// if infiniteLoop is false and last page is showing, disregard call=0A=
+			if (!slider.settings.infiniteLoop && slider.active.index =3D=3D 0) =
+return;=0A=
+			var pagerIndex =3D parseInt(slider.active.index) - 1;=0A=
+			el.goToSlide(pagerIndex, 'prev');=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Starts the auto show=0A=
+		 *=0A=
+		 * @param preventControlUpdate (boolean)=0A=
+		 *  - if true, auto controls state will not be updated=0A=
+		 */=0A=
+		el.startAuto =3D function(preventControlUpdate){=0A=
+			// if an interval already exists, disregard call=0A=
+			if(slider.interval) return;=0A=
+			// create an interval=0A=
+			slider.interval =3D setInterval(function(){=0A=
+				slider.settings.autoDirection =3D=3D 'next' ? el.goToNextSlide() : =
+el.goToPrevSlide();=0A=
+			}, slider.settings.pause);=0A=
+			// if auto controls are displayed and preventControlUpdate is not true=0A=
+			if (slider.settings.autoControls && preventControlUpdate !=3D true) =
+updateAutoControls('stop');=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Stops the auto show=0A=
+		 *=0A=
+		 * @param preventControlUpdate (boolean)=0A=
+		 *  - if true, auto controls state will not be updated=0A=
+		 */=0A=
+		el.stopAuto =3D function(preventControlUpdate){=0A=
+			// if no interval exists, disregard call=0A=
+			if(!slider.interval) return;=0A=
+			// clear the interval=0A=
+			clearInterval(slider.interval);=0A=
+			slider.interval =3D null;=0A=
+			// if auto controls are displayed and preventControlUpdate is not true=0A=
+			if (slider.settings.autoControls && preventControlUpdate !=3D true) =
+updateAutoControls('start');=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Returns current slide index (zero-based)=0A=
+		 */=0A=
+		el.getCurrentSlide =3D function(){=0A=
+			return slider.active.index;=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Returns current slide element=0A=
+		 */=0A=
+		el.getCurrentSlideElement =3D function(){=0A=
+			return slider.children.eq(slider.active.index);=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Returns number of slides in show=0A=
+		 */=0A=
+		el.getSlideCount =3D function(){=0A=
+			return slider.children.length;=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Update all dynamic slider elements=0A=
+		 */=0A=
+		el.redrawSlider =3D function(){=0A=
+			// resize all children in ratio to new screen size=0A=
+			slider.children.add(el.find('.bx-clone')).width(getSlideWidth());=0A=
+			// adjust the height=0A=
+			slider.viewport.css('height', getViewportHeight());=0A=
+			// update the slide position=0A=
+			if(!slider.settings.ticker) setSlidePosition();=0A=
+			// if active.last was true before the screen resize, we want=0A=
+			// to keep it last no matter what screen size we end on=0A=
+			if (slider.active.last) slider.active.index =3D getPagerQty() - 1;=0A=
+			// if the active index (page) no longer exists due to the resize, =
+simply set the index as last=0A=
+			if (slider.active.index >=3D getPagerQty()) slider.active.last =3D =
+true;=0A=
+			// if a pager is being displayed and a custom pager is not being =
+used, update it=0A=
+			if(slider.settings.pager && !slider.settings.pagerCustom){=0A=
+				populatePager();=0A=
+				updatePagerActive(slider.active.index);=0A=
+			}=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Destroy the current instance of the slider (revert everything back =
+to original state)=0A=
+		 */=0A=
+		el.destroySlider =3D function(){=0A=
+			// don't do anything if slider has already been destroyed=0A=
+			if(!slider.initialized) return;=0A=
+			slider.initialized =3D false;=0A=
+			$('.bx-clone', this).remove();=0A=
+			slider.children.each(function() {=0A=
+				$(this).data("origStyle") !=3D undefined ? $(this).attr("style", =
+$(this).data("origStyle")) : $(this).removeAttr('style');=0A=
+			});=0A=
+			$(this).data("origStyle") !=3D undefined ? this.attr("style", =
+$(this).data("origStyle")) : $(this).removeAttr('style');=0A=
+			$(this).unwrap().unwrap();=0A=
+			if(slider.controls.el) slider.controls.el.remove();=0A=
+			if(slider.controls.next) slider.controls.next.remove();=0A=
+			if(slider.controls.prev) slider.controls.prev.remove();=0A=
+			if(slider.pagerEl && slider.settings.controls) =
+slider.pagerEl.remove();=0A=
+			$('.bx-caption', this).remove();=0A=
+			if(slider.controls.autoEl) slider.controls.autoEl.remove();=0A=
+			clearInterval(slider.interval);=0A=
+			if(slider.settings.responsive) $(window).unbind('resize', =
+resizeWindow);=0A=
+		}=0A=
+=0A=
+		/**=0A=
+		 * Reload the slider (revert all DOM changes, and re-initialize)=0A=
+		 */=0A=
+		el.reloadSlider =3D function(settings){=0A=
+			if (settings !=3D undefined) options =3D settings;=0A=
+			el.destroySlider();=0A=
+			init();=0A=
+		}=0A=
+=0A=
+		init();=0A=
+=0A=
+		// returns the current jQuery object=0A=
+		return this;=0A=
+	}=0A=
+=0A=
+})(jQuery);=0A=
+
+------=_NextPart_000_0000_01D1CCBA.BDC717E0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://bxslider.com/js/rainbow.min.js
+
+/* Rainbow v1.1.8 rainbowco.de | included languages: generic, =
+javascript, html, css */=0A=
+window.Rainbow=3Dfunction(){function q(a){var =
+b,c=3Da.getAttribute&&a.getAttribute("data-language")||0;if(!c){a=3Da.att=
+ributes;for(b=3D0;b<a.length;++b)if("data-language"=3D=3D=3Da[b].nodeName=
+)return a[b].nodeValue}return c}function B(a){var =
+b=3Dq(a)||q(a.parentNode);if(!b){var =
+c=3D/\blang(?:uage)?-(\w+)/;(a=3Da.className.match(c)||a.parentNode.class=
+Name.match(c))&&(b=3Da[1])}return b}function C(a,b){for(var c in =
+e[d]){c=3DparseInt(c,10);if(a=3D=3Dc&&b=3D=3De[d][c]?0:a<=3Dc&&b>=3De[d][=
+c])delete e[d][c],delete j[d][c];if(a>=3Dc&&a<e[d][c]||=0A=
+b>c&&b<e[d][c])return!0}return!1}function r(a,b){return'<span =
+class=3D"'+a.replace(/\./g," ")+(l?" "+l:"")+'">'+b+"</span>"}function =
+s(a,b,c,h){var f=3Da.exec(c);if(f){++t;!b.name&&"string"=3D=3Dtypeof =
+b.matches[0]&&(b.name=3Db.matches[0],delete b.matches[0]);var =
+k=3Df[0],i=3Df.index,u=3Df[0].length+i,g=3Dfunction(){function =
+f(){s(a,b,c,h)}t%100>0?f():setTimeout(f,0)};if(C(i,u))g();else{var =
+m=3Dv(b.matches),l=3Dfunction(a,c,h){if(a>=3Dc.length)h(k);else{var =
+d=3Df[c[a]];if(d){var =
+e=3Db.matches[c[a]],i=3De.language,g=3De.name&&e.matches?=0A=
+e.matches:e,j=3Dfunction(b,d,e){var i;i=3D0;var =
+g;for(g=3D1;g<c[a];++g)f[g]&&(i=3Di+f[g].length);d=3De?r(e,d):d;k=3Dk.sub=
+str(0,i)+k.substr(i).replace(b,d);l(++a,c,h)};i?n(d,i,function(a){j(d,a)}=
+):typeof =
+e=3D=3D=3D"string"?j(d,d,e):w(d,g.length?g:[g],function(a){j(d,a,e.matche=
+s?e.name:0)})}else =
+l(++a,c,h)}};l(0,m,function(a){b.name&&(a=3Dr(b.name,a));if(!j[d]){j[d]=3D=
+{};e[d]=3D{}}j[d][i]=3D{replace:f[0],"with":a};e[d][i]=3Du;g()})}}else =
+h()}function v(a){var b=3D[],c;for(c in =
+a)a.hasOwnProperty(c)&&b.push(c);return b.sort(function(a,=0A=
+b){return b-a})}function w(a,b,c){function =
+h(b,k){k<b.length?s(b[k].pattern,b[k],a,function(){h(b,++k)}):D(a,functio=
+n(a){delete j[d];delete e[d];--d;c(a)})}++d;h(b,0)}function =
+D(a,b){function c(a,b,h,e){if(h<b.length){++x;var =
+g=3Db[h],l=3Dj[d][g],a=3Da.substr(0,g)+a.substr(g).replace(l.replace,l["w=
+ith"]),g=3Dfunction(){c(a,b,++h,e)};0<x%250?g():setTimeout(g,0)}else =
+e(a)}var h=3Dv(j[d]);c(a,h,0,b)}function n(a,b,c){var =
+d=3Dm[b]||[],f=3Dm[y]||[],b=3Dz[b]?d:d.concat(f);w(a.replace(/</g,"&lt;")=
+.replace(/>/g,"&gt;").replace(/&(?![\w\#]+;)/g,=0A=
+"&amp;"),b,c)}function o(a,b,c){if(b<a.length){var =
+d=3Da[b],f=3DB(d);return!(-1<(" "+d.className+" ").indexOf(" rainbow =
+"))&&f?(f=3Df.toLowerCase(),d.className+=3Dd.className?" =
+rainbow":"rainbow",n(d.innerHTML,f,function(k){d.innerHTML=3Dk;j=3D{};e=3D=
+{};p&&p(d,f);setTimeout(function(){o(a,++b,c)},0)})):o(a,++b,c)}c&&c()}fu=
+nction A(a,b){var a=3Da&&"function"=3D=3Dtypeof =
+a.getElementsByTagName?a:document,c=3Da.getElementsByTagName("pre"),d=3Da=
+.getElementsByTagName("code"),f,e=3D[];for(f=3D0;f<d.length;++f)e.push(d[=
+f]);for(f=3D0;f<=0A=
+c.length;++f)c[f].getElementsByTagName("code").length||e.push(c[f]);o(e,0=
+,b)}var =
+j=3D{},e=3D{},m=3D{},z=3D{},d=3D0,y=3D0,t=3D0,x=3D0,l,p;return{extend:fun=
+ction(a,b,c){1=3D=3Darguments.length&&(b=3Da,a=3Dy);z[a]=3Dc;m[a]=3Db.con=
+cat(m[a]||[])},b:function(a){p=3Da},a:function(a){l=3Da},color:function(a=
+,b,c){if("string"=3D=3Dtypeof a)return =
+n(a,b,c);if("function"=3D=3Dtypeof a)return =
+A(0,a);A(a,b)}}}();window.addEventListener?window.addEventListener("load"=
+,Rainbow.color,!1):window.attachEvent("onload",Rainbow.color);Rainbow.onH=
+ighlight=3DRainbow.b;=0A=
+Rainbow.addClass=3DRainbow.a;Rainbow.extend([{matches:{1:{name:"keyword.o=
+perator",pattern:/\=3D/g},2:{name:"string",matches:{name:"constant.charac=
+ter.escape",pattern:/\\('|"){1}/g}}},pattern:/(\(|\s|\[|\=3D|:)(('|")([^\=
+\\1]|\\.)*?(\3))/gm},{name:"comment",pattern:/\/\*[\s\S]*?\*\/|(\/\/|\#)[=
+\s\S]*?$/gm},{name:"constant.numeric",pattern:/\b(\d+(\.\d+)?(e(\+|\-)?\d=
++)?(f|d)?|0x[\da-f]+)\b/gi},{matches:{1:"keyword"},pattern:/\b(and|array|=
+as|bool(ean)?|c(atch|har|lass|onst)|d(ef|elete|o(uble)?)|e(cho|lse(if)?|x=
+it|xtends|xcept)|f(inally|loat|or(each)?|unction)|global|if|import|int(eg=
+er)?|long|new|object|or|pr(int|ivate|otected)|public|return|self|st(ring|=
+ruct|atic)|switch|th(en|is|row)|try|(un)?signed|var|void|while)(?=3D\(|\b=
+)/gi},=0A=
+{name:"constant.language",pattern:/true|false|null/g},{name:"keyword.oper=
+ator",pattern:/\+|\!|\-|&(gt|lt|amp);|\||\*|\=3D/g},{matches:{1:"function=
+.call"},pattern:/(\w+?)(?=3D\()/g},{matches:{1:"storage.function",2:"enti=
+ty.name.function"},pattern:/(function)\s(.*?)(?=3D\()/g}]);Rainbow.extend=
+("javascript",[{name:"selector",pattern:/(\s|^)\$(?=3D\.|\()/g},{name:"su=
+pport",pattern:/\b(window|document)\b/g},{matches:{1:"support.property"},=
+pattern:/\.(length|node(Name|Value))\b/g},{matches:{1:"support.function"}=
+,pattern:/(setTimeout|setInterval)(?=3D\()/g},{matches:{1:"support.method=
+"},pattern:/\.(getAttribute|push|getElementById|getElementsByClassName|lo=
+g|setTimeout|setInterval)(?=3D\()/g},{matches:{1:"support.tag.script",2:[=
+{name:"string",pattern:/('|")(.*?)(\1)/g},{name:"entity.tag.script",=0A=
+pattern:/(\w+)/g}],3:"support.tag.script"},pattern:/(&lt;\/?)(script.*?)(=
+&gt;)/g},{name:"string.regexp",matches:{1:"string.regexp.open",2:{name:"c=
+onstant.regexp.escape",pattern:/\\(.){1}/g},3:"string.regexp.close",4:"st=
+ring.regexp.modifier"},pattern:/(\/)(?!\*)(.+)(\/)([igm]{0,3})/g},{matche=
+s:{1:"storage",3:"entity.function"},pattern:/(var)?(\s|^)(.*)(?=3D\s?=3D\=
+s?function\()/g},{name:"entity.function",pattern:/(\w+)(?=3D:\s{0,}functi=
+on)/g}]);Rainbow.extend("html",[{name:"source.php.embedded",matches:{2:{l=
+anguage:"php"}},pattern:/&lt;\?=3D?(?!xml)(php)?([\s\S]*?)(\?&gt;)/gm},{n=
+ame:"source.css.embedded",matches:{"0":{language:"css"}},pattern:/&lt;sty=
+le(.*?)&gt;([\s\S]*?)&lt;\/style&gt;/gm},{name:"source.js.embedded",match=
+es:{"0":{language:"javascript"}},pattern:/&lt;script(?! =
+src)(.*?)&gt;([\s\S]*?)&lt;\/script&gt;/gm},{name:"comment.html",pattern:=
+/&lt;\!--[\S\s]*?--&gt;/g},{matches:{1:"support.tag.open",2:"support.tag.=
+close"},pattern:/(&lt;)|(\/?\??&gt;)/g},=0A=
+{name:"support.tag",matches:{1:"support.tag",2:"support.tag.special",3:"s=
+upport.tag-name"},pattern:/(&lt;\??)(\/|\!?)(\w+)/g},{matches:{1:"support=
+.attribute"},pattern:/([a-z-]+)(?=3D\=3D)/g},{matches:{1:"support.operato=
+r",2:"string.quote",3:"string.value",4:"string.quote"},pattern:/(=3D)('|"=
+)(.*?)(\2)/g},{matches:{1:"support.operator",2:"support.value"},pattern:/=
+(=3D)([a-zA-Z\-0-9]*)\b/g},{matches:{1:"support.attribute"},pattern:/\s(\=
+w+)(?=3D\s|&gt;)(?![\s\S]*&lt;)/g}],!0);Rainbow.extend("css",[{name:"comm=
+ent",pattern:/\/\*[\s\S]*?\*\//gm},{name:"constant.hex-color",pattern:/#(=
+[a-f0-9]{3}|[a-f0-9]{6})(?=3D;|\s)/gi},{matches:{1:"constant.numeric",2:"=
+keyword.unit"},pattern:/(\d+)(px|em|cm|s|%)?/g},{name:"string",pattern:/(=
+'|")(.*?)\1/g},{name:"support.css-property",matches:{1:"support.vendor-pr=
+efix"},pattern:/(-o-|-moz-|-webkit-|-ms-)?[\w-]+(?=3D\s?:)(?!.*\{)/g},{ma=
+tches:{1:[{name:"entity.name.sass",pattern:/&amp;/g},{name:"direct-descen=
+dant",pattern:/&gt;/g},{name:"entity.name.class",=0A=
+pattern:/\.[\w\-_]+/g},{name:"entity.name.id",pattern:/\#[\w\-_]+/g},{nam=
+e:"entity.name.pseudo",pattern:/:[\w\-_]+/g},{name:"entity.name.tag",patt=
+ern:/\w+/g}]},pattern:/([\w\ =
+,:\.\#\&\;\-_]+)(?=3D.*\{)/g},{matches:{2:"support.vendor-prefix",3:"supp=
+ort.css-value"},pattern:/(:|,)\s?(-o-|-moz-|-webkit-|-ms-)?([a-zA-Z-]*)(?=
+=3D\b)(?!.*\{)/g},{matches:{1:"support.tag.style",2:[{name:"string",patte=
+rn:/('|")(.*?)(\1)/g},{name:"entity.tag.style",pattern:/(\w+)/g}],3:"supp=
+ort.tag.style"},pattern:/(&lt;\/?)(style.*?)(&gt;)/g}],=0A=
+!0);=0A=
+
+------=_NextPart_000_0000_01D1CCBA.BDC717E0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://bxslider.com/js/scripts.js
+
+$(function(){=0A=
+=0A=
+  $('.home .bxslider').bxSlider({=0A=
+    auto: true,=0A=
+    mode: 'fade'=0A=
+  });=0A=
+=0A=
+  /**=0A=
+   * DOWNLOAD BUTTON=0A=
+   */=0A=
+  // =
+$.getJSON("https://api.github.com/repos/stevenwanderski/bxslider-4/tags")=
+.done(function(json){=0A=
+  //   $('.download a').attr('href', json[0].zipball_url);=0A=
+  // });=0A=
+=0A=
+  /**=0A=
+   * QUICK REFERENCE=0A=
+   */=0A=
+=0A=
+  // check if the window bindings should be applied (only if the element =
+is present)=0A=
+  var $reference =3D $('.reference-wrap');=0A=
+  if($reference.length > 0){=0A=
+=0A=
+    // toggle the menu=0A=
+    $('.reference-wrap h3').click(function() {=0A=
+      $('.reference-content').slideToggle(300);=0A=
+    });=0A=
+=0A=
+    // scroll to the elements=0A=
+    $('.reference-content a').click(function(){=0A=
+      $('.reference-content').slideToggle(300);=0A=
+      var id =3D $(this).html();=0A=
+      $('html, body').animate({=0A=
+        scrollTop: $('#' + id).offset().top - 20=0A=
+      }, 300);=0A=
+      return false;=0A=
+    });=0A=
+=0A=
+    $(window).bind('scroll resize', positionQuickReference);=0A=
+  }=0A=
+=0A=
+  // check if .reference-wrap should be sticky=0A=
+  function positionQuickReference(){=0A=
+    var windowTop =3D $(window).scrollTop();=0A=
+    if(windowTop >=3D 112){=0A=
+      $reference.css({=0A=
+        position: 'fixed',=0A=
+        top: 20,=0A=
+        right: $(window).width() > 700 ? $(window).width() - =
+($('#primary h1').offset().left + $('#primary').width()) : 20=0A=
+      });=0A=
+    }else{=0A=
+      $reference.css({=0A=
+        position: 'absolute',=0A=
+        top: 0,=0A=
+        right: $(window).width() > 1040 ? 0 : 20=0A=
+      });=0A=
+    }=0A=
+  }=0A=
+=0A=
+  /**=0A=
+   * SIDEBAR=0A=
+   */=0A=
+=0A=
+  $('.btn-donate').click(function() {=0A=
+    $('#frm-paypal').submit();=0A=
+    return false;=0A=
+  });=0A=
+=0A=
+  $('.block-signup form').submit(function() {=0A=
+    var email =3D $('#mce-EMAIL').val();=0A=
+    if(!isValidEmailAddress(email)){=0A=
+      $('.block-signup .error').show();=0A=
+      return false;=0A=
+    }=0A=
+  });=0A=
+=0A=
+});=0A=
+=0A=
+function isValidEmailAddress(emailAddress) {=0A=
+  var pattern =3D new =
+RegExp(/^((([a-z]|\d|[!#\$%&'\*\+\-\/=3D\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900=
+-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=3D\?\^_`{\|}~]|[\u00=
+A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a=
+))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5=
+d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c=
+\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\=
+x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\=
+uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z=
+]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A=
+0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\u=
+FDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a=
+-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0=
+-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i);=0A=
+  return pattern.test(emailAddress);=0A=
+};=0A=
+=0A=
+/**=0A=
+ * Create a cookie=0A=
+ */=0A=
+function createCookie(name, value, days) {=0A=
+  if (days) {=0A=
+    var date =3D new Date();=0A=
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));=0A=
+    var expires =3D "; expires=3D" + date.toGMTString();=0A=
+  }=0A=
+  else var expires =3D "";=0A=
+  document.cookie =3D name + "=3D" + value + expires + "; path=3D/";=0A=
+}=0A=
+=0A=
+/**=0A=
+ * Get a cookie=0A=
+ */=0A=
+function getCookie(c_name) {=0A=
+  if (document.cookie.length > 0) {=0A=
+    c_start =3D document.cookie.indexOf(c_name + "=3D");=0A=
+    if (c_start !=3D -1) {=0A=
+      c_start =3D c_start + c_name.length + 1;=0A=
+      c_end =3D document.cookie.indexOf(";", c_start);=0A=
+      if (c_end =3D=3D -1) {=0A=
+        c_end =3D document.cookie.length;=0A=
+      }=0A=
+      return unescape(document.cookie.substring(c_start, c_end));=0A=
+    }=0A=
+  }=0A=
+  return "";=0A=
+}
+------=_NextPart_000_0000_01D1CCBA.BDC717E0--

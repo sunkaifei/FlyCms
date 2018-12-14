@@ -1,0 +1,4 @@
+@charset "utf-8";
+/* form validate */
+textarea.invalid-text,input.invalid-text,select.invalid-text{border:2px #DD0000 solid !important;}
+textarea.valid-text,input.valid-text,select.valid-text{border:1px #06AC87 solid;}

@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="renderer" content="webkit" />
+    <title>发表文章 - ${seo_title!}</title>
+    <meta name="description" content="专注于程序员开发者的社区平台，提供开发相关的高质量问答，专栏，笔记，招聘，线下活动等服务。" />
+    <meta name="keywords" content="开源之家" />
+    <link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/js/vendors/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/global.css" />
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/editor.css" />
+    <link rel="stylesheet" media="screen" href="/assets/js/vendors/prettify/sunburst-by-james-for-prettify.css" />
+    <link type="image/x-icon" rel="icon" href="/assets/images/favicon.ico" />
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
+</head>
+<body class="user-index">
+<#include "../common/header.html">
+<div class="wrap">
+    <div class="container">
+        <div class="row mt-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <ol class="breadcrumb">
+                        <li><a href="/article/list">文章列表</a></li>
+                        <li class="active">发布文章</li>
+                    </ol>
+                    <form id="add_form" action="/ucenter/article/article_save" method="post">
+                        <div class="form-group  ">
+                            <label for="myTitle">文章标题 :</label>
+                            <input id="myTitle" type="text" name="title" required="" data-error="" autocomplete="off" class="form-control tagClose" placeholder="请在这里概述您的问题" value="">
+                        </div>
+                        <div class="form-group  ">
+                            <label for="category">选择分类 :</label>
+                            <div id="category"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="content">文章内容 :</label>
+                            <div id="content"></div>
+                            <textarea id="txt_content" name="content" class="hidden"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="tags">话题：至少1个，最多5个，回车添加。</label>
+                            <input type="hidden" name="tags" id="fieldTags" value="">
+                            <ul id="tags" class="tagit ui-widget ui-widget-content ui-corner-all"></ul>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-xs-12 col-md-1 pull-right">
+                                <button type="submit" class="btn btn-primary pull-right submit-btn">发布文章</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">seajs.use('editor', function(editor) {});</script>
+<script type="text/javascript"> seajs.use('main', function(main){}); </script>
+${web_footer_code!}
+</body>
+</html>

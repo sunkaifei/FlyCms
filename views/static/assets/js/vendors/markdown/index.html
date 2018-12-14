@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet"
+	href="http://cdn.bootcss.com/font-awesome/4.2.0/css/font-awesome.min.css" />
+<link rel="stylesheet"
+	href="http://cdn.bootcss.com/bootstrap/3.3.1/css/bootstrap.min.css" />
+
+<script type="text/javascript" src="marked.js"></script>
+<script type="text/javascript" src="CodeMirror.js"></script>
+<script type="text/javascript" src="editor.js"></script>
+<link rel="stylesheet" href="editor.css" />
+
+<title>Editor</title>
+<style type="text/css">
+body {
+	padding: 0;
+	margin: 0;
+	background-color: #f9f9f7;
+}
+
+.wrapper {
+	max-width: 680px;
+	padding: 10px;
+	margin: 60px auto;
+}
+</style>
+</head>
+<body>
+	<div class="wrapper">
+		<textarea id="editor" placeholder="Content here ...."></textarea>
+	</div>
+	<!-- only required for loading sample markdown into the textarea -->
+	<script type="text/javascript"
+		src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript">
+    $(function() {
+    
+        var editor = new Editor();
+        editor.render();
+    });
+    </script>
+</body>
+</html>

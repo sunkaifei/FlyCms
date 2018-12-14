@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         updateCheck="false" monitoring="autodetect"
+         dynamicConfig="true">
+  <diskStore path="./ehcache"/>
+    <defaultCache
+            maxEntriesLocalHeap="10000"
+            eternal="false"
+            overflowToDisk="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            diskSpoolBufferSizeMB="30"
+            maxEntriesLocalDisk="10000000"
+            diskExpiryThreadIntervalSeconds="120"
+            memoryStoreEvictionPolicy="LRU"
+    />
+    <cache
+            name="longterm"
+            maxElementsOnDisk="20000"
+            maxElementsInMemory="2000"
+            eternal="true"
+            overflowToDisk="true"
+            diskPersistent="true" />
+    <cache
+      name="config"
+      maxElementsOnDisk="20000"
+      maxElementsInMemory="2000"
+      eternal="true"
+      overflowToDisk="true"
+      diskPersistent="true" />
+    <cache
+      name="user"
+      maxElementsOnDisk="20000"
+      maxElementsInMemory="2000"
+      eternal="true"
+      overflowToDisk="true"
+      diskPersistent="true" />
+     <cache
+      name="areas"
+      maxElementsOnDisk="20000"
+      maxElementsInMemory="2000"
+      eternal="true"
+      overflowToDisk="true"
+      diskPersistent="true" />
+    <cache
+            name="article"
+            maxElementsOnDisk="0"
+            maxElementsInMemory="50"
+            eternal="true"
+            overflowToDisk="true"
+            diskPersistent="true"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            diskSpoolBufferSizeMB="30"
+            maxEntriesLocalDisk="10000000"
+            diskExpiryThreadIntervalSeconds="120"
+            memoryStoreEvictionPolicy="LRU"
+    />
+    <cache
+          name="question"
+          maxElementsOnDisk="20000"
+          maxElementsInMemory="2000"
+          eternal="true"
+          overflowToDisk="true"
+          diskPersistent="true" />
+  <cache
+          name="share"
+          maxElementsOnDisk="20000"
+          maxElementsInMemory="2000"
+          eternal="true"
+          overflowToDisk="true"
+          diskPersistent="true" />
+</ehcache>

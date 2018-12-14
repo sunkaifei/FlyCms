@@ -1,0 +1,280 @@
+.user-card{
+    margin: 0px 0px 10px 0px;
+    background: #fff;
+    overflow: hidden;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(26,26,26,.1);
+    box-sizing: border-box;
+}
+.profile-header-wrapper{
+    position: relative;
+    width: 100%;
+    background: #fff;
+    box-sizing: border-box;
+}
+.user-cover{
+    position: relative;
+    height: 140px;
+    overflow: hidden;
+    background: #f6f6f6;
+    border-top-right-radius: 1px;
+    border-top-left-radius: 1px;
+    transition: height .3s;
+}
+.profile-header-main{
+    position: relative;
+    margin: 0 20px 24px;
+}
+.profile-header-avatar{
+    position: absolute;
+    top: -25px;
+    left: 0;
+    z-index: 1;
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    background-color: #fff;
+    border: 4px solid #fff;
+    border-radius: 8px;
+}
+.profile-header-content{
+    padding-top: 16px;
+    padding-left: 32px;
+    border-left: 164px solid transparent;
+}
+.profile-header-content-head{
+    position: relative;
+    padding-right: 106px;
+    margin-bottom: 16px;
+}
+.profile-header-title{
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.profile-header-name{
+    font-size: 26px;
+    font-weight: 600;
+    font-synthesis: style;
+    line-height: 30px;
+}
+.profile-header-headline{
+    margin-left: 12px;
+    font-size: 18px;
+    white-space: nowrap;
+    word-break: break-word;
+    line-height: 1.6;
+}
+.profile-header-content-body{
+    overflow: hidden;
+    transition: height 300ms ease-out;
+    height: 20px;
+    position: relative;
+    width: 524px;
+}
+.profile-header-info{
+    font-size: 14px;
+    line-height: 20px;
+    box-sizing: border-box;
+}
+.profile-header-info-item{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.profile-header-content-footer{
+    position: relative;
+    padding-top: 8px;
+}
+.profile-header-buttons{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+.question-list-item .title {
+    font-size: 18px;
+    font-weight: 600;
+    font-synthesis: style;
+    line-height: 1.6;
+    color: #1a1a1a;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+.question-list-item .title a {
+    color: #1a1a1a;
+}
+.question-list-item .item-actions {align-items: center;padding-top: 10px;color: #646464;clear: both;}
+.item-actions button {padding: 0 16px;font-size: 14px;line-height: 32px;color: #8590a6;text-align: center;cursor: pointer;background: none;border-radius: 3px;float: left;}
+.item-actions button{ outline:none; }
+.item-actions .vote-button{margin-right: 5px;padding: 0 10px;color: #0084ff;background: rgba(0,132,255,.1);border: 1px solid;border-color: transparent;}
+.item-actions .button-plain {border: none;}
+/*ul只有一个子元素的样式*/
+.question-list-item:nth-last-child(1):first-child{border-bottom:none;}
+/*最后一个子元素的样式*/
+.question-list-item:last-child{border-bottom:none;}
+.profile-main ul{
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    border-bottom: 1px solid #f6f6f6;
+}
+.profile-main ul li{
+    display: inline-block;
+    padding: 0px 0px;
+    margin-right: 15px;
+    margin-left: 15px;
+}
+.profile-main ul .activ {
+    font-weight: 600;
+    border-bottom: 2px solid #0084ff;
+}
+.profile-main ul li a{
+    position: relative;
+    display: inline-block;
+    padding: 14px 0;
+    font-size: 16px;
+    line-height: 18px;
+    color: #1a1a1a;
+    text-align: center;
+    text-decoration: none;
+}
+.profile-main ul li span {
+    margin-left: 6px;
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 20px;
+    color: #999;
+}
+.widget-user-card{
+    margin-bottom: 10px;
+    background: #fff;
+    overflow: hidden;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(26,26,26,.1);
+    box-sizing: border-box;
+}
+.widget-user-card .card-header{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    height: 50px;
+    padding: 0 20px;
+    border-bottom: 1px solid #f6f6f6;
+    box-sizing: border-box;
+}
+.widget-user-card .card-header-text{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    font-synthesis: style;
+}
+.widget-user-card .card-profile-body{
+    width: 100%;
+    padding: 12px 0;
+    color: #646464;
+}
+.widget-user-card .card-profile-body .profile-item {
+    padding: 6px 20px;
+    color: #646464;
+}
+.widget-user-card .card-profile-body .profile-item .icon-graf {
+    margin-bottom: 12px;
+}
+.IconGraf-iconWrapper {
+    display: inline-block;
+    width: 28px;
+}
+.profile-item a:hover {
+    color: #175199;
+}
+.profile-item a {
+    color: #646464;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+
+/*  右侧用户信息 */
+.card-box{
+    float: left;
+    width: 100%;
+    margin-top:10px;
+    margin-bottom: 10px;
+    padding: 15px 10px 15px 10px;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(26,26,26,.1);
+    box-sizing: border-box;
+}
+.card-body{
+    float: left;
+    width: 100%;
+    margin: 0px 0px 15px 0px;
+    padding: 0px;
+}
+.card-box .card-numberboard-items{
+    height: 50px;
+    display: inline-block;
+    font-size: 14px;
+    line-height: 32px;
+    color: #8590a6;
+    text-align: center;
+    line-height: 1.6;
+    cursor: pointer;
+    background: none;
+    border-radius: 3px;
+}
+.card-itemname{
+    font-size: 14px;
+    color: #8590a6;
+    text-align: center;
+    line-height: 1.6;
+}
+.card-itemnumber{
+    display: inline-block;
+    font-size: 18px;
+    color: #1a1a1a;
+    font-weight: 600;
+    font-synthesis: style;
+}
+.card-box .card-numberboard-items:last-child{
+    border-left: 1px solid #ebebeb;
+}
+/** 粉丝列表 **/
+.user-list-body{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.user-list-itme{
+    position: relative;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #eee
+}
+.user-list-itme button {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    transition: opacity .3s;
+    padding: 0 16px;
+    font-size: 14px;
+    line-height: 32px;
+    color: #fff;
+    background-color: #0084ff;
+    border: 1px solid #0084ff;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 3px;
+}

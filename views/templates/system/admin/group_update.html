@@ -1,0 +1,58 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+	<#assign page_tab="index">
+	<#assign page_nav="permission">
+	<#include "../common/system_menu.html">
+
+	<!--右侧内容 开始-->
+	<div id="admin_right" class="content-wrapper">
+		<div class="breadcrumbs" id="breadcrumbs">
+			<ul class="breadcrumb">
+				<li><i class="home-icon fa fa-home"></i><a href="/system/index">系统</a></li>
+				<li><a href="/system/admin/group_list">权限组列表</a></li>
+				<li class="active">编辑角色</li>
+			</ul>
+		</div>
+
+		<div class="content">
+			<form action="/system/admin/update_group_save" method="post" id="group_edit">
+				<table class="table form-table">
+					<colgroup>
+						<col width="80px" />
+						<col />
+					</colgroup>
+
+					<tr>
+						<th>名称：</th>
+						<td><input type='text' class='form-control' name='name' value="${group.name!}" pattern='required' placeholder='请填写角色名称' /></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>
+							<input type="hidden" name='id' value="${group.id!}">
+							<button class='btn btn-primary' type='submit'>保 存</button>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	<!--右侧内容 结束-->
+
+	<!--顶部弹出菜单 开始-->
+	<aside class="control-sidebar control-sidebar-dark">
+		<ul class="control-sidebar-menu">
+			<li><a href="/admin/logout"><i class="fa fa-circle-o text-red"></i> 退出管理</a></li>
+			<li><a href="/system/admin_repwd"><i class="fa fa-circle-o text-yellow"></i> 修改密码</a></li>
+			<li><a href="/system/default"><i class="fa fa-circle-o text-green"></i> 后台首页</a></li>
+			<li><a href="/" target='_blank'><i class="fa fa-circle-o text-aqua"></i> 商城首页</a></li>
+			<li><a href="/system/navigation"><i class="fa fa-circle-o"></i> 快速导航</a></li>
+		</ul>
+	</aside>
+	<!--顶部弹出菜单 结束-->
+</div>
+<script type="text/javascript">seajs.use('permission', function(permission) {});</script>
+</body>
+</html>

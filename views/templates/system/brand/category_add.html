@@ -1,0 +1,61 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="goods">
+    <#include "../goods/goods_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">商品</a>
+                </li>
+                <li>
+                    <a href="#">品牌管理</a>
+                </li>
+                <li class="active">编辑分类</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <form action="/index.php?controller=brand&action=category_save" method="post" name="brandForm">
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px" />
+                        <col />
+                    </colgroup>
+
+                    <tr>
+                        <th>分类名称：</th>
+                        <td>
+                            <input class="form-control" name="name" type="text" value="" pattern="required" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>所属商品分类：</th>
+                        <td>
+                            <span id="__categoryBox" style="margin-bottom:8px"></span>
+                            <button class="btn btn-default" type="button" name="_goodsCategoryButton">设置分类</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td><td><button class='btn btn-primary' type="submit">确定</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+        <script type="text/javascript">
+            //表单回填
+            var formObj = new Form('brandForm');
+            formObj.init(null);
+        </script>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('brand', function(brand) {});</script>
+</body>
+</html>

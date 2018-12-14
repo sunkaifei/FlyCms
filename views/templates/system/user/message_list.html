@@ -1,0 +1,296 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="user">
+    <#assign page_nav="basic">
+    <#include "user_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">会员</a>
+                </li>
+                <li>
+                    <a href="#">会员管理</a>
+                </li>
+                <li class="active">会员消息</li>
+            </ul>
+        </div>
+
+        <form action="/comment/message_del" method="post" name="message_list" onsubmit="return checkboxCheck('check[]','尚未选中任何记录！')">
+            <div class="content">
+                <table class="table list-table">
+                    <colgroup>
+                        <col width="35px" />
+                        <col />
+                        <col width="250px" />
+                        <col width="150px" />
+                    </colgroup>
+                    <caption>
+                        <a class="btn btn-default" onclick="sendMessage()">
+                            <i class="fa fa-send"></i>发送
+                        </a>
+                        <a class="btn btn-default" onclick="selectAll('check[]')">
+                            <i class="fa fa-check"></i>全选
+                        </a>
+                        <a class="btn btn-default" onclick="delModel({'form':'message_list',msg:'确定要删除选中的记录吗？'})">
+                            <i class="fa fa-close"></i>批量删除
+                        </a>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>标题</th>
+                        <th>时间</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="9" /></td>
+                        <td>55</td>
+                        <td>2017-03-27 15:45:23</td>
+                        <td>
+                            <a href="/comment/message_show/id/9"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/9'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="11" /></td>
+                        <td>test</td>
+                        <td>2017-04-10 22:53:32</td>
+                        <td>
+                            <a href="/comment/message_show/id/11"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/11'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="12" /></td>
+                        <td>测试</td>
+                        <td>2017-04-18 11:08:54</td>
+                        <td>
+                            <a href="/comment/message_show/id/12"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/12'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="13" /></td>
+                        <td>测试</td>
+                        <td>2017-04-18 11:09:27</td>
+                        <td>
+                            <a href="/comment/message_show/id/13"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/13'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="14" /></td>
+                        <td>视觉科技官方网站</td>
+                        <td>2017-04-28 21:29:03</td>
+                        <td>
+                            <a href="/comment/message_show/id/14"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/14'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="15" /></td>
+                        <td>你好啊</td>
+                        <td>2017-05-03 01:00:07</td>
+                        <td>
+                            <a href="/comment/message_show/id/15"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/15'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="16" /></td>
+                        <td>你好</td>
+                        <td>2017-05-25 11:53:02</td>
+                        <td>
+                            <a href="/comment/message_show/id/16"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/16'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="17" /></td>
+                        <td>gdf</td>
+                        <td>2017-07-07 17:13:11</td>
+                        <td>
+                            <a href="/comment/message_show/id/17"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/17'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="18" /></td>
+                        <td>测试1111</td>
+                        <td>2017-08-09 11:31:07</td>
+                        <td>
+                            <a href="/comment/message_show/id/18"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/18'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="19" /></td>
+                        <td>wu</td>
+                        <td>2017-09-18 00:08:29</td>
+                        <td>
+                            <a href="/comment/message_show/id/19"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/19'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="20" /></td>
+                        <td>啊啊</td>
+                        <td>2017-09-28 18:05:00</td>
+                        <td>
+                            <a href="/comment/message_show/id/20"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/20'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="21" /></td>
+                        <td>点点滴滴</td>
+                        <td>2017-09-28 18:05:18</td>
+                        <td>
+                            <a href="/comment/message_show/id/21"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/21'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="22" /></td>
+                        <td>asd</td>
+                        <td>2017-10-05 18:51:07</td>
+                        <td>
+                            <a href="/comment/message_show/id/22"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/22'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="23" /></td>
+                        <td>hi</td>
+                        <td>2017-10-16 09:22:38</td>
+                        <td>
+                            <a href="/comment/message_show/id/23"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/23'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="25" /></td>
+                        <td>121212</td>
+                        <td>2017-12-19 17:08:48</td>
+                        <td>
+                            <a href="/comment/message_show/id/25"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/25'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="36" /></td>
+                        <td>1111</td>
+                        <td>2018-05-08 13:58:12</td>
+                        <td>
+                            <a href="/comment/message_show/id/36"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/36'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="37" /></td>
+                        <td>测试</td>
+                        <td>2018-05-19 10:42:31</td>
+                        <td>
+                            <a href="/comment/message_show/id/37"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/37'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="38" /></td>
+                        <td>ccccc</td>
+                        <td>2018-05-30 16:59:21</td>
+                        <td>
+                            <a href="/comment/message_show/id/38"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/38'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="39" /></td>
+                        <td>你有一张优惠券</td>
+                        <td>2018-05-31 17:09:03</td>
+                        <td>
+                            <a href="/comment/message_show/id/39"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/39'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input name="check[]" type="checkbox" value="27" /></td>
+                        <td>11</td>
+                        <td>2018-01-05 20:34:58</td>
+                        <td>
+                            <a href="/comment/message_show/id/27"><i class='operator fa fa-eye'></i></a>
+                            <a onclick="delModel({link:'/comment/message_del/check/27'})"><i class='operator fa fa-close'></i></a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <style>
+                .pagination {
+                    display: inline-block;
+                    padding-left: 0;
+                    margin: 10px 0;
+                    border-radius: 4px;
+                }
+                .pagination > li {
+                    display: inline !important;
+                    width:auto !important;
+                    height:auto !important;
+                    border:none !important;
+                    margin:0 !important;
+                    padding: 0 !important;
+                }
+                .pagination > li > a {
+                    position: relative !important;
+                    float: left !important;
+                    padding: 6px 12px !important;
+                    line-height: 1.42857143 !important;
+                    text-decoration: none !important;
+                    color: #337ab7;
+                    background-color: #fff;
+                    border: 1px solid #ddd;
+                    margin-left: -1px !important;
+                    width:auto !important;
+                    height:auto !important;
+                }
+                .pagination > li:first-child > a {
+                    margin-left: 0 !important;
+                    border-bottom-left-radius: 4px !important;
+                    border-top-left-radius: 4px !important;
+                }
+                .pagination > li:last-child > a {
+                    border-bottom-right-radius: 4px !important;
+                    border-top-right-radius: 4px !important;
+                }
+                .pagination > li > a:hover,
+                .pagination > li > a:focus {
+                    z-index: 2 !important;
+                    color: #23527c;
+                    background-color: #eeeeee;
+                    border-color: #ddd !important;
+                }
+                .pagination > .active > a,
+                .pagination > .active > a:hover,
+                .pagination > .active > a:focus {
+                    z-index: 3 !important;
+                    color: #fff;
+                    background-color: #337ab7;
+                    border-color: #337ab7;
+                    cursor: default !important;
+                }
+            </style><div style='clear:both'><ul class='pagination'><li><a href='/comment/message_list?page=1' >首页</a></li><li class='active'><a href='/comment/message_list?page=1' >1</a></li><li class=''><a href='/comment/message_list?page=2' >2</a></li><li><a href='/comment/message_list?page=2' >尾页</a></li><li><a>当前第1页/共2页</a></li></ul></div></form>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+</body>
+</html>

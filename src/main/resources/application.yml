@@ -1,0 +1,104 @@
+server:
+  port: 80
+spring:
+  application:
+    name: FlyCms
+  mvc:
+    favicon:
+      enabled: true
+    static-path-pattern: /**
+  devtools:
+    enabled: true
+  resources:
+    static-locations:
+      - file:./uploadfiles/
+      - file:./views/static/
+  freemarker:
+    checkTemplateLocation: false
+    template-loader-path:
+    - file:./views/templates/
+    cache: false
+    settings:
+          auto_import: /spring.ftl as spring
+          number_format: 0.##
+    suffix: .html
+  cache:
+     type : ehcache
+     ehcache:
+       config: classpath:ehcache.xml
+  servlet:
+      session:
+         cookie:
+           httpOnly: false
+      multipart:
+        max-file-size: 2MB
+        max-request-size: 2MB
+  messages:
+     fallbackToSystemLocale: false
+     basename: i18n/messages
+     encoding: UTF-8
+  ##数据库连接信息
+  datasource:
+      url: jdbc:mysql://127.0.0.1:3306/flycms?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+      username: 你的用戶名
+      password: 你的密碼
+      driver-class-name: com.mysql.jdbc.Driver
+      ###################以下为druid增加的配置###########################
+      type: com.alibaba.druid.pool.DruidDataSource
+      # 下面为连接池的补充设置，应用到上面所有数据源中
+      # 初始化大小，最小，最大
+      initialSize: 5
+      minIdle: 5
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      filters: stat,wall,log4j
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      # 合并多个DruidDataSource的监控数据
+      useGlobalDataSourceStat: true
+      ###############以上为配置druid添加的配置########################################
+
+mybatis:
+    type-aliases-package: com.flycms.module.**.model
+    mapper-locations: classpath:com/flycms/module/**/dao/*.xml
+    configuration:
+        mapUnderscoreToCamelCase: true
+        default-fetch-size: 100
+        default-statement-timeout: 30
+        cache-enabled: true
+
+# 打印sql
+logging:
+    level:
+        learning: trace
+        #com.flycms.module.score.dao : DEBUG  #直接写包路径，不能用*通配符
+        #com.flycms.module.user.dao : DEBUG
+        #com.flycms.module.article.dao : DEBUG
+        #com.flycms.module.question.dao : DEBUG
+        #com.flycms.module.topic.dao : DEBUG
+        #com.flycms.module.other.dao : DEBUG
+        #com.flycms.module.job.dao : DEBUG
+        #com.flycms.module.links.dao : DEBUG
+    pattern:
+        console: "%d{yyyy/MM/dd-HH:mm:ss} [%thread] %-5level %logger- %msg%n"
+    file: "logs/flycms-logging.log"
+
+#网站基本设置
+site:
+  #sessionKey名称
+  sessionKey: "FlyCmsId"
+  #cookie所在的域
+  cookieDomain: ".28844.com"

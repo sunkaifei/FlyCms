@@ -1,0 +1,832 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="tools">
+    <#include "tools_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">工具</a>
+                </li>
+                <li>
+                    <a href="#">数据库管理</a>
+                </li>
+                <li class="active">备份数据库</li>
+            </ul>
+        </div>
+        <div class="content">
+            <form>
+                <table class="table list-table">
+                    <colgroup>
+                        <col width="35px" />
+                        <col width="220px" />
+                        <col width="120px" />
+                        <col width="115px" />
+                        <col width="120px" />
+                        <col />
+                    </colgroup>
+                    <caption>
+                        <a class="btn btn-default" onclick="selectAll('name[]')">
+                            <i class="fa fa-check"></i>全选
+                        </a>
+                        <a class="btn btn-default" onclick="confirm('确定要备份么？','backup_act()');">
+                            <i class="fa fa-database"></i>备份
+                        </a>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>数据库表</th>
+                        <th>记录条数</th>
+                        <th>占用空间</th>
+                        <th>编码</th>
+                        <th>说明</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_account_log" /></td>
+                        <td>iwebshop_account_log</td>
+                        <td>422</td>
+                        <td>96 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>账户余额日志表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_ad_manage" /></td>
+                        <td>iwebshop_ad_manage</td>
+                        <td>0</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>广告记录表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_ad_position" /></td>
+                        <td>iwebshop_ad_position</td>
+                        <td>1</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>广告位记录表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_address" /></td>
+                        <td>iwebshop_address</td>
+                        <td>111</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>收货信息表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_admin" /></td>
+                        <td>iwebshop_admin</td>
+                        <td>4</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>管理员用户表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_admin_role" /></td>
+                        <td>iwebshop_admin_role</td>
+                        <td>25</td>
+                        <td>49 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>后台角色分组表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_announcement" /></td>
+                        <td>iwebshop_announcement</td>
+                        <td>10</td>
+                        <td>376 B</td>
+                        <td>utf8_general_ci</td>
+                        <td>公告消息表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_areas" /></td>
+                        <td>iwebshop_areas</td>
+                        <td>47498</td>
+                        <td>1388 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>地区信息</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_article" /></td>
+                        <td>iwebshop_article</td>
+                        <td>2</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>文章表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_article_category" /></td>
+                        <td>iwebshop_article_category</td>
+                        <td>9</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>文章分类</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_attribute" /></td>
+                        <td>iwebshop_attribute</td>
+                        <td>25</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>属性表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_banner" /></td>
+                        <td>iwebshop_banner</td>
+                        <td>3</td>
+                        <td>48 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>Banner表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_bill" /></td>
+                        <td>iwebshop_bill</td>
+                        <td>15</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商家货款结算单表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_brand" /></td>
+                        <td>iwebshop_brand</td>
+                        <td>8</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>品牌表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_brand_category" /></td>
+                        <td>iwebshop_brand_category</td>
+                        <td>5</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>品牌分类表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_category" /></td>
+                        <td>iwebshop_category</td>
+                        <td>40</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>产品分类表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_category_extend" /></td>
+                        <td>iwebshop_category_extend</td>
+                        <td>469</td>
+                        <td>48 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商品扩展分类表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_category_extend_seller" /></td>
+                        <td>iwebshop_category_extend_seller</td>
+                        <td>9</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商家店内商品分类与商品关系表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_category_seller" /></td>
+                        <td>iwebshop_category_seller</td>
+                        <td>6</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商家店内商品分类表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_collection_doc" /></td>
+                        <td>iwebshop_collection_doc</td>
+                        <td>478</td>
+                        <td>64 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>收款单</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_commend_goods" /></td>
+                        <td>iwebshop_commend_goods</td>
+                        <td>33</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>推荐类商品</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_comment" /></td>
+                        <td>iwebshop_comment</td>
+                        <td>43</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商品评论表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_commission_distribution" /></td>
+                        <td>iwebshop_commission_distribution</td>
+                        <td>50</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>用户佣金记录表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_commission_goods" /></td>
+                        <td>iwebshop_commission_goods</td>
+                        <td>2</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>单个商品佣金设置表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_commission_order" /></td>
+                        <td>iwebshop_commission_order</td>
+                        <td>157</td>
+                        <td>64 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>订单佣金记录表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_commission_relation" /></td>
+                        <td>iwebshop_commission_relation</td>
+                        <td>180</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>用户推介关系表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_commission_withdraw_apply" /></td>
+                        <td>iwebshop_commission_withdraw_apply</td>
+                        <td>1</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>佣金提现申请表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_cost_point" /></td>
+                        <td>iwebshop_cost_point</td>
+                        <td>2</td>
+                        <td>80 B</td>
+                        <td>utf8_general_ci</td>
+                        <td>商品积分兑换表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_delivery" /></td>
+                        <td>iwebshop_delivery</td>
+                        <td>2</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>配送方式表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_delivery_doc" /></td>
+                        <td>iwebshop_delivery_doc</td>
+                        <td>7</td>
+                        <td>224 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>发货单</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_delivery_extend" /></td>
+                        <td>iwebshop_delivery_extend</td>
+                        <td>7</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商家配送方式扩展表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_delivery_trace" /></td>
+                        <td>iwebshop_delivery_trace</td>
+                        <td>2</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>订单物流跟踪表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_discussion" /></td>
+                        <td>iwebshop_discussion</td>
+                        <td>3</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商品讨论表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_email_registry" /></td>
+                        <td>iwebshop_email_registry</td>
+                        <td>0</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>Email订阅表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_expresswaybill" /></td>
+                        <td>iwebshop_expresswaybill</td>
+                        <td>54</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>快递单打印物流公司</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_favorite" /></td>
+                        <td>iwebshop_favorite</td>
+                        <td>46</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>收藏夹表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_find_password" /></td>
+                        <td>iwebshop_find_password</td>
+                        <td>1</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>找回密码</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_freight_company" /></td>
+                        <td>iwebshop_freight_company</td>
+                        <td>16</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>货运公司</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_goods" /></td>
+                        <td>iwebshop_goods</td>
+                        <td>290</td>
+                        <td>2560 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商品信息表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_goods_attribute" /></td>
+                        <td>iwebshop_goods_attribute</td>
+                        <td>95</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>属性值表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_goods_car" /></td>
+                        <td>iwebshop_goods_car</td>
+                        <td>84</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>购物车</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_goods_photo" /></td>
+                        <td>iwebshop_goods_photo</td>
+                        <td>1517</td>
+                        <td>176 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>图片表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_goods_photo_relation" /></td>
+                        <td>iwebshop_goods_photo_relation</td>
+                        <td>1780</td>
+                        <td>128 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>相册商品关系表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_group_price" /></td>
+                        <td>iwebshop_group_price</td>
+                        <td>2</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>记录某件商品对于某组会员的价格关系表，优先权大于组设定的折扣率</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_guide" /></td>
+                        <td>iwebshop_guide</td>
+                        <td>4</td>
+                        <td>140 B</td>
+                        <td>utf8_general_ci</td>
+                        <td>首页导航栏</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_help" /></td>
+                        <td>iwebshop_help</td>
+                        <td>29</td>
+                        <td>336 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>帮助内容</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_help_category" /></td>
+                        <td>iwebshop_help_category</td>
+                        <td>5</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>帮助分类</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_invoice" /></td>
+                        <td>iwebshop_invoice</td>
+                        <td>3</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>发票表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_keyword" /></td>
+                        <td>iwebshop_keyword</td>
+                        <td>12</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>关键词</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_kuaishangtong" /></td>
+                        <td>iwebshop_kuaishangtong</td>
+                        <td>1</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>快商通在线客服</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_log_error" /></td>
+                        <td>iwebshop_log_error</td>
+                        <td>0</td>
+                        <td>0 B</td>
+                        <td>utf8_general_ci</td>
+                        <td>错误日志表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_log_operation" /></td>
+                        <td>iwebshop_log_operation</td>
+                        <td>782</td>
+                        <td>474 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>日志操作记录</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_log_sql" /></td>
+                        <td>iwebshop_log_sql</td>
+                        <td>0</td>
+                        <td>0 B</td>
+                        <td>utf8_general_ci</td>
+                        <td>SQL日志记录</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_marketing_sms" /></td>
+                        <td>iwebshop_marketing_sms</td>
+                        <td>8</td>
+                        <td>256 B</td>
+                        <td>utf8_general_ci</td>
+                        <td>营销短信</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_member" /></td>
+                        <td>iwebshop_member</td>
+                        <td>110</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>用户信息表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_merch_ship_info" /></td>
+                        <td>iwebshop_merch_ship_info</td>
+                        <td>7</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商家发货点信息</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_message" /></td>
+                        <td>iwebshop_message</td>
+                        <td>27</td>
+                        <td>2 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>会员消息</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_model" /></td>
+                        <td>iwebshop_model</td>
+                        <td>7</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>模型表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_multicity_admin" /></td>
+                        <td>iwebshop_multicity_admin</td>
+                        <td>1</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>城市分站管理员表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_multicity_site" /></td>
+                        <td>iwebshop_multicity_site</td>
+                        <td>0</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>城市分站表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_notify_registry" /></td>
+                        <td>iwebshop_notify_registry</td>
+                        <td>0</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>到货通知表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_oauth" /></td>
+                        <td>iwebshop_oauth</td>
+                        <td>5</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>认证方案</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_oauth_user" /></td>
+                        <td>iwebshop_oauth_user</td>
+                        <td>431</td>
+                        <td>48 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>oauth开发平台绑定用户表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_online_recharge" /></td>
+                        <td>iwebshop_online_recharge</td>
+                        <td>179</td>
+                        <td>48 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>在线充值表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_online_service" /></td>
+                        <td>iwebshop_online_service</td>
+                        <td>2</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>QQ客服插件</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_order" /></td>
+                        <td>iwebshop_order</td>
+                        <td>2143</td>
+                        <td>1552 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>订单表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_order_goods" /></td>
+                        <td>iwebshop_order_goods</td>
+                        <td>2914</td>
+                        <td>1552 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>订单商品表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_order_log" /></td>
+                        <td>iwebshop_order_log</td>
+                        <td>2335</td>
+                        <td>320 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>订单日志表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_payment" /></td>
+                        <td>iwebshop_payment</td>
+                        <td>18</td>
+                        <td>5 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>支付方式表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_plugin" /></td>
+                        <td>iwebshop_plugin</td>
+                        <td>14</td>
+                        <td>2 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>插件表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_point_log" /></td>
+                        <td>iwebshop_point_log</td>
+                        <td>65</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>积分增减记录表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_products" /></td>
+                        <td>iwebshop_products</td>
+                        <td>568</td>
+                        <td>176 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>货品表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_promotion" /></td>
+                        <td>iwebshop_promotion</td>
+                        <td>5</td>
+                        <td>260 B</td>
+                        <td>utf8_general_ci</td>
+                        <td>记录促销活动的表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_prop" /></td>
+                        <td>iwebshop_prop</td>
+                        <td>22898</td>
+                        <td>2576 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>道具表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_quick_naviga" /></td>
+                        <td>iwebshop_quick_naviga</td>
+                        <td>12</td>
+                        <td>752 B</td>
+                        <td>utf8_general_ci</td>
+                        <td>管理员快速导航</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_refer" /></td>
+                        <td>iwebshop_refer</td>
+                        <td>11</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>咨询表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_refundment_doc" /></td>
+                        <td>iwebshop_refundment_doc</td>
+                        <td>119</td>
+                        <td>64 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>退款单</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_regiment" /></td>
+                        <td>iwebshop_regiment</td>
+                        <td>4</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>团购</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_relation" /></td>
+                        <td>iwebshop_relation</td>
+                        <td>1</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>文章商品关系表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_right" /></td>
+                        <td>iwebshop_right</td>
+                        <td>141</td>
+                        <td>10 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>权限资源码</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_search" /></td>
+                        <td>iwebshop_search</td>
+                        <td>1228</td>
+                        <td>39 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>搜索关键字</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_seller" /></td>
+                        <td>iwebshop_seller</td>
+                        <td>6</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商家表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_seller_decorate" /></td>
+                        <td>iwebshop_seller_decorate</td>
+                        <td>1</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商家店铺装饰</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_seller_message" /></td>
+                        <td>iwebshop_seller_message</td>
+                        <td>4</td>
+                        <td>268 B</td>
+                        <td>utf8_general_ci</td>
+                        <td>商家消息</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_seo" /></td>
+                        <td>iwebshop_seo</td>
+                        <td>21</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>SEO优化插件</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_session" /></td>
+                        <td>iwebshop_session</td>
+                        <td>416</td>
+                        <td>433 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>session会话表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_spec" /></td>
+                        <td>iwebshop_spec</td>
+                        <td>40</td>
+                        <td>29 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>规格表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_spec_photo" /></td>
+                        <td>iwebshop_spec_photo</td>
+                        <td>13</td>
+                        <td>2 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>规格图片表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_suggestion" /></td>
+                        <td>iwebshop_suggestion</td>
+                        <td>4</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>意见箱表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_takeself" /></td>
+                        <td>iwebshop_takeself</td>
+                        <td>3</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>商品物流自提地点</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_ticket" /></td>
+                        <td>iwebshop_ticket</td>
+                        <td>44</td>
+                        <td>2 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>代金券类型表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_user" /></td>
+                        <td>iwebshop_user</td>
+                        <td>110</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>用户表</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_user_group" /></td>
+                        <td>iwebshop_user_group</td>
+                        <td>8</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>用户组</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" name="name[]" value="iwebshop_withdraw" /></td>
+                        <td>iwebshop_withdraw</td>
+                        <td>12</td>
+                        <td>16 KB</td>
+                        <td>utf8_general_ci</td>
+                        <td>提现记录</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+        <script type="text/javascript">
+            //备份数据库表
+            function backup_act()
+            {
+                loadding('正在备份请稍候......');
+                var jsonData = getArray('name[]','checkbox');
+                $.post('/tools/db_act_bak',{name:jsonData},function(c){
+                    if(c.isError == true)
+                    {
+                        alert(c.message);
+                    }
+                    else
+                    {
+                        window.location.href=c.redirect;
+                    }
+                    unloadding();
+                },'json');
+            }
+        </script>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+</body>
+</html>

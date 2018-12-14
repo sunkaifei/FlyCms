@@ -1,0 +1,70 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="article">
+    <#assign page_nav="basic">
+    <#include "content_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/system/index">系统</a>
+                </li>
+                <li>
+                    <a href="#">文章管理</a>
+                </li>
+                <li class="active">编辑分类</li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <form action='/system/article/article_category_save' method='post' name='cat'>
+                <input type='hidden' name='id' value='' />
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px" />
+                        <col />
+                    </colgroup>
+
+                    <tr>
+                        <th>上级分类：</th>
+                        <td id="box">
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>名称：</th>
+                        <td>
+                            <input type='text' class='form-control' name='name' value='' pattern='required' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>是否系统分类：</th>
+                        <td>
+                            <label class='radio-inline'><input type='radio' name='issys' value='0' checked=checked />否</label>
+                            <label class='radio-inline'><input type='radio' name='issys' value='1' />是</label>
+                            <p class="help-block">系统分类前台不展示，仅作为不可见的文章分类，主要是给管理员归纳文章使用的</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>排序：</th>
+                        <td>
+                            <input type='text' class='form-control' name='sort' value='' pattern='int' placeholder='请填写一个数字' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <!--右侧内容 结束-->
+</div>
+<script type="text/javascript"> seajs.use('tools', function(tools){}); </script>
+</body>
+</html>

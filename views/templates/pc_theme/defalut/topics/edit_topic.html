@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${topic.topic!} - ${seo_title!}</title>
+    <meta name="keywords" content="${seo_keywords!}" />
+    <meta name="description" content="${seo_description!}" />
+    <meta name="author" content="28844 Team" />
+    <meta name="copyright" content="2018 28844.com" />
+    <!-- Bootstrap -->
+    <link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/js/vendors/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/global.css" />
+    <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/topics.css" />
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
+    <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
+    <script type="text/javascript" src="/user/status.json"></script>
+</head>
+<body>
+<#include "../common/header.html">
+
+<div class="wrap">
+    <div class="container">
+        <div class="col-xs-12 col-md-9">
+            <div class="topic-card" data-topic-id="${topic.id!}">
+                <div class="card-body">
+                    <div class="topic-card-item">
+                        <img class="topic-card-item-image" alt="${topic.topic!}" src="<#if topic.topicImage??>${topic.topicImage!}<#else>/assets/skin/pc_theme/defalut/images/logo/avatar_logo.jpg</#if>">
+                    </div>
+                    <div class="topic-card-head">
+                        <h2>${topic.topic!} </h2>
+                        <div class="topic-card-description">
+                            <span class="ztext"><#if topic.content?? && topic.content!="">${topic.content!}<#else>暂无该话题相关介绍！</#if></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="topic-card-actions">
+                    <a href="javascript:void(0);" class="topic-actions-link follow-topic"><i class="fa fa-plus"></i> 关注话题</a>
+                    <a href="#" class="topic-actions-link"><i class="fa fa-cog"></i> 管理</a>
+                    <a href="/ucenter/topics/edit-${topic.id!}" class="btn button-blue edit-topic"><i class="fa fa-pencil-square-o"></i> 编辑</a>
+                    <a href="#" class="topic-actions-link"><i class="fa fa-list-ul"></i> 日志</a>
+                    <a href="#" class="topic-actions-link"><i class="fa fa-paper-plane"></i> 分享</a>
+                </div>
+            </div>
+            <div class="answer-add">
+                <form id="add_form" action="/ucenter/topics/topic_update" method="post">
+                    <div class="user">
+                        <div class="author-avatar">
+                            <a href="/people/${user.userId!}" target="_blank">
+                                <img class="avatar-38 mr-10 hidden-xs" src="<#if user.avatar??><@fly_avatar avatarurl=user.avatar avatar="avatar1"/><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>?${.now?string("hhmmSSsss")}" alt="${user.nickName!}"></a>
+                        </div>
+                        <div class="author-content">
+                            <div class="author-name">${user.nickName!}</div>
+                            <div class="author-nick"><#if user.signature??>${user.signature!}<#else>这个家伙很懒什么也没留下！</#if></div>
+                        </div>
+                    </div>
+                    <div class="form-group mt-10">
+                        <textarea id="txt_content" name="content" class="hidden">${topic.content!}</textarea>
+                    </div>
+                    <div class="row mt-20">
+                        <div class="answer-footer">
+                            <input type="hidden" name='topicId' value="${topic.id!}">
+                            <button type="submit" class="btn btn-primary pull-right submit-btn">提交答案</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-3 hidden-xs side">
+            <div class="card-box">
+                <div class="col-xs-6 col-md-6 card-numberboard-items">
+                    <div class="card-itemname">关注者</div>
+                    <strong class="card-itemnumber" title="${topic.countFollow!}">${topic.countFollow!}</strong>
+                </div>
+                <div class="col-xs-6 col-md-6 card-numberboard-items">
+                    <div class="card-itemname">问题数</div>
+                    <strong class="card-itemnumber" title="${topic.countNum!}">${topic.countNum!}</strong>
+                </div>
+            </div>
+
+            <div class="widget-box">
+                <h2 class="h4 widget-box-title">热议话题 <a href="#" title="更多">»</a></h2>
+                <ul class="taglist-inline multi">
+                    <@fly_topicpage rows="25">
+                    <#list topic_page.list as list>
+                    <li class="tagPopup"><a  href="/topics/${list.id!}">${list.topic!}</a></li>
+                    </#list>
+                </@fly_topicpage>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<#include "../common/footer.html">
+<script type="text/javascript"> seajs.use('topic', function(topic){}); </script>
+<script type="text/javascript"> seajs.use('main', function(main){}); </script>
+</body>
+</html>

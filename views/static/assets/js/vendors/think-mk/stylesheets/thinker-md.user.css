@@ -1,0 +1,26 @@
+* {
+	font-family: 'Microsoft YaHei', Verdana, sans-serif, SimSun;
+	font-size: 13px
+}
+
+html body {
+	margin: 0;
+	padding: 20px 50px
+}
+
+#preview, textarea {
+	width: 100%;
+	padding: 15px
+}
+
+textarea {
+	height: 300px;
+	resize: none
+}
+
+#preview {
+	height: auto;
+	min-height: 300px;
+	margin: 5px 0;
+	border: 1px solid #999
+}

@@ -1,0 +1,80 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="goods">
+    <#include "../goods/goods_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="#">商品</a>
+                </li>
+                <li>
+                    <a href="#">品牌管理</a>
+                </li>
+                <li class="active">编辑品牌</li>
+            </ul>
+        </div>
+        <div class="content">
+            <form action="/admin/brand/brand_category_save" method="post" enctype='multipart/form-data'>
+                <input name="id" value="" type="hidden" />
+
+                <table class="table form-table">
+                    <colgroup>
+                        <col width="130px" />
+                        <col />
+                    </colgroup>
+
+                    <tr>
+                        <th>品牌名称：</th>
+                        <td>
+                            <input class="form-control" name="name" type="text" value="" pattern="required" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>排序：</th><td><input class="form-control" name="sort" type="text" value="" pattern='int' empty /></td>
+                    </tr>
+                    <tr>
+                        <th>网址：</th>
+                        <td>
+                            <input class="form-control" name="url" type="text" value="" pattern='url' empty  />
+                            <p class="help-block">完整的URL链接地址，如：http://www.aircheng.com</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>LOGO：</th>
+                        <td><div><input type='file' name='logo'/></div></td>
+                    </tr>
+                    <tr>
+                        <th>所属分类：</th>
+                        <td>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" name='category_ids[]' value="5" />酒品牌                    </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" name='category_ids[]' value="4" />牛奶                    </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" name='category_ids[]' value="3" />衣服                    </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" name='category_ids[]' value="2" />衣服                    </label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" name='category_ids[]' value="1" />商品                    </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>描述：</th><td><textarea class="form-control" name="description" style="width:100%;height:200px;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td></td><td><button class='btn btn-primary' type="submit">确定</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">seajs.use('brand', function(brand) {});</script>
+</body>
+</html>

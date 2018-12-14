@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="renderer" content="webkit" />
+<title>编辑问答信息 - ${seo_title!}</title>
+<meta name="description" content="${seo_description!}" />
+<meta name="keywords" content="${seo_keywords!}" />
+	<link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/assets/js/vendors/font-awesome/css/font-awesome.css" rel="stylesheet">
+	<link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/global.css" />
+	<link rel="stylesheet" href="/assets/js/vendors/syntaxhighlighter/styles/shCore.css">
+	<link rel="stylesheet" href="/assets/js/vendors/syntaxhighlighter/styles/shCoreDefault.css">
+<link type="image/x-icon" rel="icon" href="/assets/images/favicon.ico" />
+	<script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
+	<script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
+</head>
+<body class="user-index">
+	<#include "../common/header.html">
+	<div class="wrap">
+		<div class="container">
+
+			<div class="row mt-10">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<ol class="breadcrumb">
+							<li><a href="/explore/">问答</a></li>
+							<li class="active">编辑提问</li>
+						</ol>
+						<form id="add_form"
+							action="/ucenter/question/add" method="post">
+							<div class="form-group  ">
+								<label for="myTitle">请将您的问题告诉我们  :</label>
+								<input id="myTitle" type="text" name="title" required="" data-error="" autocomplete="off" class="form-control tagClose" placeholder="请在这里概述您的问题" value="">
+							</div>
+							<div class="form-group">
+								<label for="content">问题描述(选填)</label>
+								<div id="content"></div>
+								<textarea id="txt_content" name="content" class="hidden"></textarea>
+							</div>
+
+							<div class="form-group">
+								<label for="tags">话题：至少1个，最多5个，回车添加。</label>
+								<input type="hidden" name="tags" id="fieldTags" value="">
+								<ul id="tags" class="tagit ui-widget ui-widget-content ui-corner-all"></ul>
+							</div>
+
+							<div class="row mt-20">
+								<div class="col-xs-12 col-md-11">
+									<ul class="list-inline">
+										<li>
+											<select name="price">
+												<option value="0">0</option><option value="5">5</option><option value="10">10</option><option value="15">20</option><option value="30">30</option><option value="50">50</option><option value="80">80</option><option value="100">100</option>
+											</select>&nbsp;金币
+										</li>
+										<li><input type="checkbox" name="hide" value="1">&nbsp;匿名</li>
+									</ul>
+								</div>
+								<div class="col-xs-12 col-md-1">
+									<button type="submit" class="btn btn-primary pull-right submit-btn">发布问题</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<script type="text/javascript">seajs.use('editor', function(editor) {});</script>
+    <script type="text/javascript"> seajs.use('main', function(main){}); </script>
+	${web_footer_code!}
+</body>
+</html>

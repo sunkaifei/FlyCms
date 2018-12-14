@@ -1,0 +1,59 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+	<#assign page_tab="index">
+	<#assign page_nav="permission">
+	<#include "../common/system_menu.html">
+
+	<!--右侧内容 开始-->
+	<div id="admin_right" class="content-wrapper">
+		<div class="breadcrumbs" id="breadcrumbs">
+			<ul class="breadcrumb">
+				<li>
+					<i class="home-icon fa fa-home"></i>
+					<a href="/admin/index">系统</a>
+				</li>
+				<li>
+					<a href="/admin/user/permission_list">权限管理</a>
+				</li>
+				<li class="active">编辑角色</li>
+			</ul>
+		</div>
+
+		<div class="content">
+			<form action="/admin/user/permission_update_save" method="post" id="update">
+				<table class="table form-table">
+					<colgroup>
+						<col width="80px" />
+						<col />
+					</colgroup>
+
+					<tr>
+						<th>actionKey：</th>
+						<td><input type='text' class='form-control' disabled value="${permission.actionKey!}" placeholder='请填写角色名称' /></td>
+					</tr>
+					<tr>
+						<th>controller：</th>
+						<td><input type='text' class='form-control' disabled value="${permission.controller!}" placeholder='请填写角色名称' /></td>
+					</tr>
+					<tr>
+						<th>备注：</th>
+						<td><input type='text' class='form-control' name='remark' value="${permission.remark!}" pattern='required' placeholder='请填写链接页面说明' /></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>
+							<input type="hidden" name='id' value="${permission.id!}">
+							<button class='btn btn-primary' type='submit'>保 存</button>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	<!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('user', function(user) {});</script>
+</body>
+</html>
