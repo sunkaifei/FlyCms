@@ -38,7 +38,7 @@
 
 	<!-- 增加标签与内容关联信息-->
 	<insert id="addTopicAndInfo" parameterType="Integer">
-		insert into fly_topic_info (info_id,topic_id,info_type,status) values (#{infoId},#{topicId},#{infoType},#{status})
+		insert into fly_topic_info_merge (info_id,topic_id,info_type,status) values (#{infoId},#{topicId},#{infoType},#{status})
 	</insert>
 
 	<!-- 添加用户关注的关注的标签id-->
@@ -108,7 +108,7 @@
 
 	<!-- 删除话题和信息关联信息 -->
 	<delete id="deleteTopicAndInfo">
-		delete from fly_topic_info where info_id=#{infoId} and topic_id=#{topicId} and info_type=#{infoType}
+		delete from fly_topic_info_merge where info_id=#{infoId} and topic_id=#{topicId} and info_type=#{infoType}
 	</delete>
 	<!-- ############################## -->
 	<!-- ###### 修改 ###### -->
@@ -121,7 +121,7 @@
 
     <!-- 按id更新话题统计信息 -->
     <update id="updateTopicByCount">
-		update fly_topic set count_num=(select count(*) from fly_topic_info where topic_id=#{id}) where id=#{id}
+		update fly_topic set count_num=(select count(*) from fly_topic_info_merge where topic_id=#{id}) where id=#{id}
 	</update>
 
     <!-- 按id更新审核状态 -->
@@ -255,19 +255,22 @@
 
 	<!-- 按id查询话题关联的所有内容数量 -->
 	<select id="getTopicAndInfoCount" resultType="Integer">
-		select count(1) from fly_topic_info
-        <where>
-            <if test="status == 0">and status &gt;= 0</if>
-            <if test="status == 1">and status = 0</if>
-            <if test="status == 2">and status = 1</if>
-            <if test="infoType != null">and info_type=#{infoType}</if>
-            <if test="topicId != null">and topic_id=#{topicId}</if>
-        </where>
+		select count(1) from (
+			select id from fly_topic_info_merge
+			<where>
+				<if test="status == 0">and status &gt;= 0</if>
+				<if test="status == 1">and status = 0</if>
+				<if test="status == 2">and status = 1</if>
+				<if test="infoType != null">and info_type=#{infoType}</if>
+				<if test="topicId != null">and topic_id=#{topicId}</if>
+			</where>
+            GROUP BY info_id order by id desc
+		) f
 	</select>
 
     <!-- 按话题id查标所有内容列表 -->
     <select id="getTopicAndInfoList" resultType="com.flycms.module.topic.model.TopicInfo">
-        select info_type,info_id from fly_topic_info
+        select info_type,info_id from fly_topic_info_merge
         <where>
             <if test="status == 0">and status &gt;= 0</if>
             <if test="status == 1">and status = 0</if>
@@ -285,7 +288,7 @@
 
 	<!-- 按文章id查询所有文章关联的标签 -->
 	<select id="getInfoByTopicList" resultType="com.flycms.module.topic.model.Topic">
-		select t.* from fly_topic t left join fly_topic_info ti  on t.id=ti.topic_id where t.status = 1 and ti.info_type=#{infoType} and ti.info_id=#{infoId}
+		select t.* from fly_topic t left join fly_topic_info_merge ti  on t.id=ti.topic_id where t.status = 1 and ti.info_type=#{infoType} and ti.info_id=#{infoId}
 	</select>
 
 	<!-- 按用户id查询所有关注标签数量 -->

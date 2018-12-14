@@ -57,6 +57,12 @@
                     <#if list.infoType=0>
                     <#include "../common/type_question.html">
                     </#if>
+                    <#if list.infoType=1>
+                    <#include "../common/type_article.html">
+                    </#if>
+                    <#if list.infoType=2>
+                    <#include "../common/type_share.html">
+                    </#if>
                     </#list>
                     <#else>
                     <div class="init">
