@@ -1,6 +1,5 @@
 package com.flycms.web.front;
 
-import com.alibaba.fastjson.JSONArray;
 import com.flycms.core.base.BaseController;
 import com.flycms.core.entity.DataVo;
 import com.flycms.module.article.model.*;
@@ -9,7 +8,6 @@ import com.flycms.module.article.service.ArticleService;
 import com.flycms.module.other.service.FilterKeywordService;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -94,7 +92,7 @@ public class ArticleController extends BaseController {
     //文章详细页面
     @ResponseBody
     @RequestMapping(value = "/findArticleById/{id}")
-    public DataVo findArticleById(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
+    public DataVo findArticleById(@PathVariable(value = "id", required = false) String id, ModelMap modelMap){
         DataVo data = DataVo.failure("操作失败");
         if (!NumberUtils.isNumber(id)) {
             return data = DataVo.failure("id参数错误");
@@ -198,6 +196,7 @@ public class ArticleController extends BaseController {
                 return data=DataVo.failure("只能修改属于自己的文章！");
             }
             article.setUserId(getUser().getUserId());
+            article.setShortUrl(info.getShortUrl());
             data = articleService.editArticleById(article);
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
@@ -232,7 +231,7 @@ public class ArticleController extends BaseController {
     //处理顶（用户推荐）信息
     @ResponseBody
     @PostMapping(value = "/article/digg")
-    public DataVo articleDigg(@RequestParam(value = "id", required = false) String id,@RequestParam(value = "type", defaultValue = "0") String type) {
+    public DataVo articleDigg(@RequestParam(value = "id", required = false) String id, @RequestParam(value = "type", defaultValue = "0") String type) {
         DataVo data = DataVo.failure("操作失败");
         try {
             if(!StringUtils.isBlank(id)){
