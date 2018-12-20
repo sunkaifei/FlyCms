@@ -32,7 +32,7 @@ public class Topicinfolist extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_28);
 		// 获取页面的参数
 		//
-		Integer infoId = 0;
+		long infoId = 0;
 		Integer type = 0;
 		//处理标签变量
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
@@ -41,7 +41,7 @@ public class Topicinfolist extends AbstractTagPlugin {
 				type = Integer.parseInt(paramWrap.get(str).toString());
 			}
 			if("infoId".equals(str)){
-				infoId = Integer.parseInt(paramWrap.get(str).toString());
+				infoId = Long.parseLong(paramWrap.get(str).toString());
 			}
 		}
 		List<Topic> topiclist = topicService.getInfoByTopicList(type,infoId);

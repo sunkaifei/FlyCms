@@ -1,6 +1,7 @@
 package com.flycms.module.share.service;
 
 import com.flycms.core.entity.DataVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.article.model.ArticleCategory;
 import com.flycms.module.share.dao.ShareCategoryDao;
 import com.flycms.module.share.model.ShareCategory;
@@ -36,12 +37,14 @@ public class ShareCategoryService {
 
     //ztree添加分类
     @Transactional
-    public DataVo addShareCategory(Integer pid, String name){
+    public DataVo addShareCategory(Long pid, String name){
         DataVo data = DataVo.failure("操作失败");
         if(this.checkShareCategoryByName(name,null)){
             return data = DataVo.failure("分类名称不得重复");
         }
         ShareCategory category=new ShareCategory();
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        category.setId(snowFlake.nextId());
         category.setFatherId(pid);
         category.setName(name);
         shareCategoryDao.addShareCategory(category);
@@ -66,7 +69,9 @@ public class ShareCategoryService {
         }
         //转换为数组
         String[] str = shareCategory.getCategoryId().split(",");
-        shareCategory.setFatherId(Integer.valueOf(str[str.length - 1]));
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        shareCategory.setId(snowFlake.nextId());
+        shareCategory.setFatherId(Long.parseLong(str[str.length - 1]));
         shareCategoryDao.addShareCategory(shareCategory);
         if(shareCategory.getId()>0){
             data = DataVo.success("添加成功");
@@ -94,7 +99,7 @@ public class ShareCategoryService {
     // /////        修改      ////////
     // ///////////////////////////////
     @Transactional
-    public DataVo editShareCategoryById(Integer id,String name){
+    public DataVo editShareCategoryById(Long id,String name){
         DataVo data = DataVo.failure("操作失败");
         if(this.checkShareCategoryByName(name,id)){
             return data = DataVo.failure("分类名称已存在！");
@@ -113,7 +118,7 @@ public class ShareCategoryService {
 
     //拖拽操作保存分类归属和排序
     @Transactional
-    public DataVo editCategoryDragsById(Integer id,Integer pId){
+    public DataVo editCategoryDragsById(Long id,Long pId){
         DataVo data = DataVo.failure("操作失败");
         if(this.checkCategoryById(id,0)){
             return data = DataVo.failure("分类不存在！");
@@ -148,7 +153,7 @@ public class ShareCategoryService {
         if((Integer.valueOf(str[str.length - 1])).equals(shareCategory.getId())){
             return data = DataVo.failure("不能选自己为父级目录");
         }
-        shareCategory.setFatherId(Integer.valueOf(str[str.length - 1]));
+        shareCategory.setFatherId(Long.parseLong(str[str.length - 1]));
         shareCategoryDao.editShareCategoryById(shareCategory);
         if(shareCategory.getId()>0){
             data = DataVo.success("更新成功");
@@ -161,7 +166,7 @@ public class ShareCategoryService {
     // /////        查詢      ////////
     // ///////////////////////////////
     //按id查询资源分享分类信息
-    public ShareCategory findCategoryById(Integer id,Integer status){
+    public ShareCategory findCategoryById(Long id,Integer status){
         return shareCategoryDao.findCategoryById(id,status);
     }
 
@@ -174,7 +179,7 @@ public class ShareCategoryService {
      *         审核状态
      * @return
      */
-    public boolean checkCategoryById(Integer id,Integer status) {
+    public boolean checkCategoryById(Long id,Integer status) {
         return shareCategoryDao.findCategoryById(id,status)==null;
     }
 
@@ -185,13 +190,13 @@ public class ShareCategoryService {
      *         分类名称
      * @return
      */
-    public boolean checkShareCategoryByName(String name,Integer id) {
+    public boolean checkShareCategoryByName(String name,Long id) {
         int totalCount = shareCategoryDao.checkShareCategoryByName(name,id);
         return totalCount > 0 ? true : false;
     }
 
     //根据资源分享分类id查询所属的所有子类
-    public List<ShareCategory> getCategoryListByFatherId(Integer fatherId){
+    public List<ShareCategory> getCategoryListByFatherId(Long fatherId){
         return shareCategoryDao.getCategoryListByFatherId(fatherId);
     }
 

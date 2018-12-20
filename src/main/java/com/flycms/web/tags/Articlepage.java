@@ -36,7 +36,7 @@ public class Articlepage extends AbstractTagPlugin {
 		//问题标题
 		String title = null;
 		//用户id
-		Integer userId = null;
+		long userId = 0;
 		//添加时间
 		String createTime = null;
 		//审核状态
@@ -56,7 +56,7 @@ public class Articlepage extends AbstractTagPlugin {
 				title = paramWrap.get(str).toString();
 			}
 			if("userId".equals(str)){
-				userId = Integer.parseInt(paramWrap.get(str).toString());
+				userId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("createTime".equals(str)){
 				createTime = paramWrap.get(str).toString();

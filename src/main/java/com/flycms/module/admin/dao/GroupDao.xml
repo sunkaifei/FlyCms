@@ -14,11 +14,13 @@
 		insert into fly_admin_group
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
 			<if test="name != null">name,</if>
 			<if test="createAt != null">createAt,</if>
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
 			<if test="name != null">#{name},</if>
 			<if test="createAt != null">#{createAt},</if>
 		</trim>
@@ -43,12 +45,12 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按id删除角色信息 -->
-	<delete id="deleteGroup" parameterType="Integer">
+	<delete id="deleteGroup">
 		delete from fly_admin_group where id = #{id}
 	</delete>
 
 	<!-- 按id删除角色和权限关联信息 -->
-	<delete id="deleteGroupPermission" parameterType="Integer">
+	<delete id="deleteGroupPermission">
 		delete from fly_admin_group_permission_merge
 		<where>
 			<if test="groupId != null and groupId !='' ">and group_id=#{groupId}</if>

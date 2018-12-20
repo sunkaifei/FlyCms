@@ -34,19 +34,19 @@ public class Checktagfollow extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		try {
 			// 被关注者id
-			Integer userId = null;
+			Long userId = null;
 			// 获取文件的分页
 			//话题id
-			Integer topicId = 0;
+			Long topicId = null;
 			//处理标签变量
 			@SuppressWarnings("unchecked")
 			Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 			for(String str:paramWrap.keySet()){ 
 				if("userId".equals(str)){
-					userId = Integer.parseInt(paramWrap.get(str).toString());
+					userId = Long.parseLong(paramWrap.get(str).toString());
 				}
 				if("topicId".equals(str)){
-					topicId = Integer.parseInt(paramWrap.get(str).toString());
+					topicId = Long.parseLong(paramWrap.get(str).toString());
 				}
 
 			}

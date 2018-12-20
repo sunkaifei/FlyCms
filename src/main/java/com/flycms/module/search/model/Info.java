@@ -18,12 +18,14 @@ import lombok.Setter;
 public class Info {
     //solrID
     private String id;
+    //短域名
+    private String shortUrl;
     //用户id
     private Integer userId;
     //信息标题
     private String title;
     //信息id
-    private Integer infoId;
+    private long infoId;
     //信息类型
     private Integer infoType;
     //信息分类搜索id

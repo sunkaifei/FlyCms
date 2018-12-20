@@ -11,13 +11,15 @@ import java.util.Date;
 public class Article implements Serializable {
     private static final long serialVersionUID = 1L;
     //文章id
-    private Integer id;
+    private Long id;
+    //短域名
+    private String shortUrl;
     //用户id
-    private Integer userId;
+    private Long userId;
     //文章标题
     private String title;
     //分类id
-    private Integer typeId;
+    private Long typeId;
     //分类所有归属id
     private String categoryId;
     //文章关键词

@@ -39,7 +39,7 @@
                             <ul class="list-inline text-muted">
                                 <li><i class="fa fa-clock-o"></i> 发表于 <@fly_dateformat time=article.createTime?string('yyyy-MM-dd HH:mm:ss') /> </li>
                                 <li>阅读 ( ${article.countView!} )</li>
-                                <li>分类：<a href="/a/${article.typeId!}" target="_blank"><@fly_articletypeinfo id="${article.typeId!}">${type.name!}</@fly_articletypeinfo></a></li>
+                                <li>分类：<a href="/ac/${article.typeId!}" target="_blank"><@fly_articletypeinfo id="${article.typeId!}">${type.name!}</@fly_articletypeinfo></a></li>
                             </ul>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                         <#if (topiclist?size>0)>
                         <div class="tags-box">
                             <#list topiclist as list>
-                            <span class="tat-content"><a class="TopicLink" href="/topics/${list.id!}" target="_blank">${list.topic!}</a></span>
+                            <span class="tat-content"><a class="TopicLink" href="/topics/${list.shortUrl!}" target="_blank">${list.topic!}</a></span>
                             </#list>
                         </div>
                         </#if>
@@ -89,11 +89,11 @@
                             <@fly_userinfo userId="${list.userId!}">
                             <div class="media">
                                 <div class="media-left">
-                                    <a href="/people/${userinfo.userId!}" target="_blank"><img class="media-object avatar-27" alt="香草大叔" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>"></a>
+                                    <a href="/people/${userinfo.shortUrl!}" target="_blank"><img class="media-object avatar-27" alt="香草大叔" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>"></a>
                                 </div>
                                 <div class="media-body">
                                     <div class="media-heading">
-                                        <a href="/people/${userinfo.userId!}" target="_blank">${userinfo.nickName!}</a>
+                                        <a href="/people/${userinfo.shortUrl!}" target="_blank">${userinfo.nickName!}</a>
                                     </div>
                                     <div class="content">${list.content!}</div>
                                     <div class="media-footer">
@@ -135,13 +135,13 @@
                     <div class="card-body">
                         <div  class="card-user">
                             <div class="card-avatar">
-                                <a href="/people/${userinfo.userId!}" target="_blank">
+                                <a href="/people/${userinfo.shortUrl!}" target="_blank">
                                     <img class="avatar-38 mr-10 hidden-xs" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="${userinfo.nickName!}">
                                 </a>
                             </div>
                             <div class="card-author-content">
                                 <div class="card-author-name">
-                                    <a href="/people/${userinfo.userId!}">${userinfo.nickName!}</a>
+                                    <a href="/people/${userinfo.shortUrl!}">${userinfo.nickName!}</a>
                                 </div>
                                 <div class="author-nick">
                                     <#if userinfo.signature??>${userinfo.signature!}<#else>这个家伙很懒什么也没留下！</#if>
@@ -188,14 +188,14 @@
                             </div>
                             <div class="media-body">
                                 <#if list.infoType=0>
-                                <a class="link-dark" href="/question/${list.infoId!}" title="">${list.title!}</a>
-                            </#if>
-                            <#if list.infoType=1>
-                            <a class="link-dark" href="/article/${list.infoId!}" title="">${list.title!}</a>
-                            </#if>
-                            <#if list.infoType=2>
-                            <a class="link-dark" href="/share${list.infoId!}" title="">${list.title!}</a>
-                            </#if>
+                                <a class="link-dark" href="/q/${list.shortUrl!}" title="">${list.title!}</a>
+                                </#if>
+                                <#if list.infoType=1>
+                                <a class="link-dark" href="/a/${list.shortUrl!}" title="">${list.title!}</a>
+                                </#if>
+                                <#if list.infoType=2>
+                                <a class="link-dark" href="/s/${list.shortUrl!}" title="">${list.title!}</a>
+                                </#if>
                             </div>
                         </div>
                         </#list>
@@ -210,7 +210,7 @@
                         <ul class="taglist-inline multi">
                             <@fly_topicpage orderby="rand" rows="25">
                             <#list topic_page.list as list>
-                            <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.id!}">${list.topic!}</a></li>
+                            <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
                             </#list>
                             </@fly_topicpage>
                         </ul>

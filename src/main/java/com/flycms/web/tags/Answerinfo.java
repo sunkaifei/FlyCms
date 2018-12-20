@@ -35,14 +35,14 @@ public class Answerinfo extends AbstractTagPlugin {
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
-		Integer answerId = 0;
+		Long answerId = null;
 		Integer status = 0;
 		
 		@SuppressWarnings("unchecked")
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){ 
 			if("answerId".equals(str)){
-				answerId = Integer.parseInt(paramWrap.get(str).toString());
+				answerId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("status".equals(str)){
 				status = Integer.parseInt(paramWrap.get(str).toString());

@@ -55,7 +55,7 @@ public interface UserPermissionDao {
      * @Date: 11:58 2018/6/28
      *
      */
-    public List<UserPermission> findPermissionByUserId(@Param("userId") Integer userId);
+    public List<UserPermission> findPermissionByUserId(@Param("userId") Long userId);
 
     //查询所有权限数量
     public int getPermissionCount();
@@ -67,5 +67,5 @@ public interface UserPermissionDao {
     public List<UserPermission> getAllPermissions();
 
     //检查是否有权限
-    public int markAssignedPermissions(@Param("groupId") Integer groupId, @Param("permissionId") Integer permissionId);
+    public int markAssignedPermissions(@Param("groupId") Long groupId, @Param("permissionId") Long permissionId);
 }

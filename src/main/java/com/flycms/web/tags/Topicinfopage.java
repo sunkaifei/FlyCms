@@ -36,7 +36,7 @@ public class Topicinfopage extends AbstractTagPlugin {
 		//所属主信息类型，0是所有，1是文章，2是小组话题
 		Integer infoType = null;
 
-		Integer topicId = null;
+		Long topicId = null;
 
 		Integer status=2;
 		/**
@@ -62,7 +62,7 @@ public class Topicinfopage extends AbstractTagPlugin {
 				infoType = Integer.parseInt(paramWrap.get(str).toString());
 			}
 			if("topicId".equals(str)){
-				topicId = Integer.parseInt(paramWrap.get(str).toString());
+				topicId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("status".equals(str)){
 				status = Integer.parseInt(paramWrap.get(str).toString());
@@ -82,12 +82,17 @@ public class Topicinfopage extends AbstractTagPlugin {
 			}
 		}
 		// 获取文件的分页
+		System.out.println("===================1==============");
 		try {
+			System.out.println("===================2==============");
 			PageVo<TopicInfo> pageVo = topicService.getTopicAndInfoListPage(infoType,topicId,status,orderby,order,p,rows);
+			System.out.println("===================3==============");
 			env.setVariable("topic_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			System.out.println("===================4==============");
 			env.setVariable("topic_page", builder.build().wrap(null));
 		}
+		System.out.println("===================5==============");
 		body.render(env.getOut());
 	}
 }

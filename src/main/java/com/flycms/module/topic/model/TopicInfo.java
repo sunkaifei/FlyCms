@@ -19,8 +19,8 @@ import java.io.Serializable;
 @Getter
 public class TopicInfo implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer infoId;
-    private Integer topicId;
-    private Integer userId;
+    private Long infoId;
+    private Long topicId;
+    private Long userId;
     private Integer infoType;
 }

@@ -41,7 +41,7 @@ public class Questionpage extends AbstractTagPlugin {
 		//所属主信息类型，0是所有，1是文章，2是小组话题
 		String title = null;
 
-		Integer userId = null;
+		Long userId = null;
 
 		String createTime=null;
 		
@@ -69,7 +69,7 @@ public class Questionpage extends AbstractTagPlugin {
 				title = paramWrap.get(str).toString();
 			}
 			if("userId".equals(str)){
-				userId = Integer.parseInt(paramWrap.get(str).toString());
+				userId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("createTime".equals(str)){
 				createTime = paramWrap.get(str).toString();

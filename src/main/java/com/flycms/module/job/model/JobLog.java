@@ -22,12 +22,12 @@ import java.util.Date;
 @Getter
 public class JobLog implements Serializable {
 
-    private Integer id;
+    private Long id;
 
     /**
      * 任务id
      */
-    private Integer jobId;
+    private Long jobId;
 
     /**
      * Bean名称

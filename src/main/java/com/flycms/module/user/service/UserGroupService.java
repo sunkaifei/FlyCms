@@ -42,7 +42,7 @@ public class UserGroupService {
         return data;
     }
 
-    public boolean addUserGroupPermission(int groupId,int permissionId){
+    public boolean addUserGroupPermission(Long groupId,Long permissionId){
         int totalCount = userGroupDao.addUserGroupPermission(groupId,permissionId);
         return totalCount > 0 ? true : false;
     }
@@ -50,14 +50,14 @@ public class UserGroupService {
     // /////        删除      ////////
     // ///////////////////////////////
     //按id删除角色信息
-    public boolean deleteUserGroup(int id){
+    public boolean deleteUserGroup(Long id){
         userGroupDao.deleteUserGroupPermission(id,null);
         int totalCount = userGroupDao.deleteUserGroup(id);
         return totalCount > 0 ? true : false;
     }
 
     //按id删除角色和权限关联信息
-    public boolean deleteUserGroupPermission(int roleId,int permissionId){
+    public boolean deleteUserGroupPermission(Long roleId,Long permissionId){
         int totalCount = userGroupDao.deleteUserGroupPermission(roleId,permissionId);
         return totalCount > 0 ? true : false;
     }
@@ -84,7 +84,7 @@ public class UserGroupService {
 
 
     //更新用户组排序
-    public DataVo updateGroupSort(Integer id,Integer sort){
+    public DataVo updateGroupSort(Long id,Integer sort){
         DataVo data = DataVo.failure("操作失败");
         if(userGroupDao.updateGroupSort(id,sort)>0){
             data=DataVo.success("修改成功");
@@ -97,17 +97,17 @@ public class UserGroupService {
     // /////       查询       ////////
     // ///////////////////////////////
     //按id查询用户组信息
-    public UserGroup findUserGroupByid(Integer id){
+    public UserGroup findUserGroupByid(Long id){
         return userGroupDao.findUserGroupByid(id);
     }
 
     //按用户userId查询所在的用户组信息
-    public UserGroup findUuserGroupByUserId(int userId){
+    public UserGroup findUuserGroupByUserId(Long userId){
         return userGroupDao.findUuserGroupByUserId(userId);
     }
 
     //查询用户组名是否存在
-    public boolean checkUuserGroupByName(String groupName,Integer id) {
+    public boolean checkUuserGroupByName(String groupName,Long id) {
         int totalCount = userGroupDao.checkUuserGroupByName(groupName,id);
         return totalCount > 0 ? true : false;
     }

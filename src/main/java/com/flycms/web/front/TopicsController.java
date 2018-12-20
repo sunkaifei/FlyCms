@@ -6,6 +6,7 @@ import com.flycms.module.topic.model.Topic;
 import com.flycms.module.topic.model.TopicEdit;
 import com.flycms.module.topic.service.TopicService;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,15 +49,18 @@ public class TopicsController extends BaseController {
     }
 
     //话题详细页面
-    @GetMapping(value = "/topics/{id}")
-    public String findTopicById(@RequestParam(value = "p", defaultValue = "1") int p,@PathVariable(value = "id", required = false) String id, ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/topics/{shortUrl}")
+    public String findTopicById(@RequestParam(value = "p", defaultValue = "1") int p,@PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
+            return theme.getPcTemplate("404");
+        }
+        Topic topic = topicService.findTopicByShorturl(shortUrl);
+        if(topic==null){
             return theme.getPcTemplate("404");
         }
         if (getUser() != null) {
             modelMap.addAttribute("user", getUser());
         }
-        Topic topic = topicService.findTopicById(Integer.valueOf(id),2);
         modelMap.addAttribute("p", p);
         modelMap.addAttribute("topic", topic);
         return theme.getPcTemplate("topics/detail");
@@ -74,7 +78,7 @@ public class TopicsController extends BaseController {
             if(getUser()==null){
                 return data=DataVo.failure("请登陆后关注");
             }
-            data=topicService.addTopicAndUser(getUser().getUserId(),Integer.valueOf(id));
+            data=topicService.addTopicAndUser(getUser().getUserId(),Long.parseLong(id));
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -87,7 +91,7 @@ public class TopicsController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return theme.getPcTemplate("404");
         }
-        Topic topic = topicService.findTopicById(Integer.valueOf(id),2);
+        Topic topic = topicService.findTopicById(Long.parseLong(id),2);
         if(topic==null){
             return theme.getPcTemplate("404");
         }

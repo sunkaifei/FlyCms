@@ -19,6 +19,6 @@ import java.io.Serializable;
 @Getter
 public class QuestionFollow implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer questionId;
-    private Integer userId;
+    private Long questionId;
+    private Long userId;
 }

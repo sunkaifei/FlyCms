@@ -8,13 +8,13 @@
                                 <@fly_userinfo userId="${question.userId!}">
                                 <div  class="user">
                                     <div class="author-avatar">
-                                        <a href="/people/${userinfo.userId!}">
+                                        <a href="/people/${userinfo.shortUrl!}">
                                             <img class="avatar-38 mr-10 hidden-xs" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="${userinfo.nickName!}">
                                         </a>
                                     </div>
                                     <div class="author-content">
                                         <div class="author-name">
-                                            <a href="/people/${userinfo.userId!}">${userinfo.nickName!}</a>
+                                            <a href="/people/${userinfo.shortUrl!}">${userinfo.nickName!}</a>
                                         </div>
                                         <div class="author-nick">
                                             <#if userinfo.signature??>${userinfo.signature!}<#else>这个家伙很懒什么也没留下！</#if>
@@ -22,7 +22,7 @@
                                     </div>
                                 </div>
                                 </@fly_userinfo>
-                                <h2 class="title"><a href="/question/${question.id}">${question.title!}</a></h2>
+                                <h2 class="title"><a href="/q/${question.shortUrl}">${question.title!}</a></h2>
                                 <#if question.countAnswer gt 0>
                                 <@fly_newest_answerinfo questionId="${question.id!}">
                                 <div class="summary">

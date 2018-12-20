@@ -51,7 +51,7 @@ public class UserPermissionService {
                 //替换前后中括号
                 urlstr=urlstr.replaceAll("[\\[\\]]", "");
                 // 只处理后台管理 action，其它跳过
-                if (!urlstr.startsWith("/admin")) {
+                if (!urlstr.startsWith("/system") || urlstr.startsWith("/ucenter")) {
                     per.setActionKey(urlstr);
                     per.setController(map.get(info).getBean().toString());
                     String str=per.getActionKey();
@@ -140,7 +140,7 @@ public class UserPermissionService {
      * @param userId
      * @return
      */
-    public List<UserPermission> findPermissionByUserId(int userId) {
+    public List<UserPermission> findPermissionByUserId(Long userId) {
         return userPermissionDao.findPermissionByUserId(userId);
     }
 
@@ -170,7 +170,7 @@ public class UserPermissionService {
      * 标记出 role 拥有的权限，用于在界面输出 checkbox 的 checked 属性
      * 未来用 permission left join role_permission 来优化
      */
-    public boolean markAssignedPermissions(int groupId,int permissionId) {
+    public boolean markAssignedPermissions(Long groupId,Long permissionId) {
         int totalCount = userPermissionDao.markAssignedPermissions(groupId,permissionId);
         return totalCount > 0 ? true : false;
     }

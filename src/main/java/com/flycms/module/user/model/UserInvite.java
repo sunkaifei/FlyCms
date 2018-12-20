@@ -21,11 +21,11 @@ import java.util.Date;
 @Getter
 public class UserInvite implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
+    private Long id;
     //被邀请人ID
-    private Integer toUserId;
+    private Long toUserId;
     //邀请人ID
-    private Integer formUserId;
+    private Long formUserId;
     //状态
     private Integer status;
     private Date createTime;

@@ -10,14 +10,16 @@ import java.util.Date;
 @Getter
 public class Share implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
-    private Integer typeId;
+    private Long id;
+    //短域名
+    private String shortUrl;
+    private Long typeId;
     private String categoryId;
     private String title;
     private String content;
     //添加话题
     private String tags;
-    private Integer userId;
+    private Long userId;
     private Integer needmoney;
     private String downloads;
     //是否匿名，0否，1是

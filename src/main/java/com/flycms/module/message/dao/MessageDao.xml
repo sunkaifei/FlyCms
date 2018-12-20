@@ -14,6 +14,7 @@
         insert into fly_message
         <!-- 添加表字段 -->
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
             <if test="fromId != null">from_id,</if>
             <if test="toId != null">to_id,</if>
             <if test="subject != null">subject,</if>
@@ -26,6 +27,7 @@
         </trim>
         <!-- 注入控制层字段 -->
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
             <if test="fromId != null">#{fromId},</if>
             <if test="toId != null">#{toId},</if>
             <if test="subject != null">#{subject},</if>

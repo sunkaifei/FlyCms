@@ -39,15 +39,15 @@ public class Usergroup extends AbstractTagPlugin {
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
-		int userId=0;
+		Long userId=0L;
 		//处理标签变量
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){
 			if("userId".equals(str)){
 				if (!NumberUtils.isNumber(paramWrap.get(str).toString())) {
-					userId = 0;
+					userId = 0L;
 				}else{
-					userId = Integer.parseInt(paramWrap.get(str).toString());
+					userId = Long.parseLong(paramWrap.get(str).toString());
 				}
 			}
 		}

@@ -1,0 +1,51 @@
+<#include "../common/header.html">
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+<div class="wrapper" style="height: auto; min-height: 100%;">
+    <#assign page_tab="question">
+    <#assign page_nav="questionlist">
+    <#include "content_menu.html">
+
+    <!--右侧内容 开始-->
+    <div id="admin_right" class="content-wrapper">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <ul class="breadcrumb">
+                <li>
+                    <i class="home-icon fa fa-home"></i>
+                    <a href="/system/index">系统</a>
+                </li>
+                <li>
+                    <a href="/system/indexes/content_index">索引管理</a>
+                </li>
+                <li class="active">问答列表</li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="col-md-6">
+                <div class="box box-danger box-solid">
+                    <div class="box-header">
+                        <h3 class="box-title">删除全部索引</h3>
+                    </div>
+                    <div class="box-body">
+                        清除所有索引内容
+                    </div>
+                    <div class="box-footer clearfix no-border">
+                        <button type="button" class="btn btn-default pull-right clean-index"><i class="fa fa-plus"></i>执行清除</button>
+                    </div>
+                    <!-- /.box-body -->
+                    <!-- Loading (remove the following to stop the loading)-->
+                    <div class="overlay" style="display: none">
+                        <i class="fa fa-refresh fa-spin"></i>
+                    </div>
+                    <!-- end loading -->
+                </div>
+
+            </div>
+
+        </div>
+</div>
+<!--右侧内容 结束-->
+</div>
+<script type="text/javascript">seajs.use('content', function(content) {});</script>
+</body>
+</html>

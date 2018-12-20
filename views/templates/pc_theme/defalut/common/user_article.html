@@ -6,17 +6,17 @@
                         <#else>
                         <button data-user-id="${list.userId!}" class="Button button-blue right-close userFollow-button" style="display: block;"><i class="fa fa-plus"></i> 关注他</button>
                         </#if>
-                        <h2 class="title"><a href="/article/${article.id}">${article.title!}</a></h2>
+                        <h2 class="title"><a href="/a/${article.shortUrl}">${article.title!}</a></h2>
                         <@fly_userinfo userId="${list.userId!}">
                         <div  class="user">
                             <div class="author-avatar">
-                                <a href="/people/${userinfo.userId!}" target="_blank">
+                                <a href="/people/${userinfo.shortUrl!}" target="_blank">
                                     <img class="avatar-38 mr-10 hidden-xs" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="${userinfo.nickName!}">
                                 </a>
                             </div>
                             <div class="author-content">
                                 <div class="author-name">
-                                    <a href="/people/${userinfo.userId!}">${userinfo.nickName!}</a>
+                                    <a href="/people/${userinfo.shortUrl!}">${userinfo.nickName!}</a>
                                 </div>
                                 <div class="author-nick">
                                     <#if userinfo.signature??>${userinfo.signature!}<#else>这个家伙很懒什么也没留下！</#if>

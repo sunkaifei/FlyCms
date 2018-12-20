@@ -151,7 +151,7 @@
                     <ul class="taglist-inline multi">
                         <@fly_topicpage  orderby="rand" rows="25">
                         <#list topic_page.list as list>
-                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.id!}">${list.topic!}</a></li>
+                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
                         </#list>
                         </@fly_topicpage>
                     </ul>

@@ -14,6 +14,8 @@
 		insert into fly_share
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="shortUrl != null">short_url,</if>
 			<if test="title != null and title !=''">title,</if>
 			<if test="content != null">content,</if>
 			<if test="userId != null">user_id,</if>
@@ -24,6 +26,8 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="shortUrl != null">#{shortUrl},</if>
 			<if test="title != null and title !=''">#{title},</if>
 			<if test="content != null">#{content},</if>
 			<if test="userId != null">#{userId},</if>
@@ -89,6 +93,11 @@
 	<!-- ############################## -->
 	<!-- ###### 查询 ###### -->
 	<!-- ############################## -->
+	<!-- 按shortUrl查询文章信息 -->
+	<select id="findShareByShorturl" resultType="com.flycms.module.share.model.Share">
+        select * from fly_share where short_url=#{shortUrl} and status = 1
+    </select>
+
 	<!-- 按id查询分享信息 -->
 	<select id="findShareById" resultType="com.flycms.module.share.model.Share">
 		select * from fly_share
@@ -105,6 +114,11 @@
 	<!-- 按id查询分享信息 -->
 	<select id="findShareCountById" resultType="com.flycms.module.share.model.ShareCount">
 		select * from fly_share_count where share_id=#{shareId}
+	</select>
+
+	<!-- 查询分享短域名是否被占用 -->
+	<select id="checkShareByShorturl" resultType="Integer">
+		select count(1) from fly_share where short_url=#{shortUrl}
 	</select>
 
 	<!-- 查询该用户同样标题内容是否已存在！ -->

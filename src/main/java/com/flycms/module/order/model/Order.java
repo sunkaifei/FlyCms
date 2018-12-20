@@ -22,9 +22,9 @@ import java.util.Date;
 @Getter
 public class Order implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String id;
-    private Integer shareId;
-    private Integer userId;
+    private Long id;
+    private Long shareId;
+    private Long userId;
     private Integer status;
     private Date createTime;
 }

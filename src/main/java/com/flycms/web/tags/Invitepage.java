@@ -37,7 +37,7 @@ public class Invitepage extends AbstractTagPlugin {
         DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
         // 获取页面的参数
         //用户id
-        Integer userId = null;
+        Long userId = null;
         //审核状态
         Integer status = null;
 
@@ -52,7 +52,7 @@ public class Invitepage extends AbstractTagPlugin {
         Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
         for(String str:paramWrap.keySet()){
             if("userId".equals(str)){
-                userId = Integer.parseInt(paramWrap.get(str).toString());
+                userId = Long.parseLong(paramWrap.get(str).toString());
             }
             if("status".equals(str)){
                 status = Integer.parseInt(paramWrap.get(str).toString());

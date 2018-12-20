@@ -2,6 +2,7 @@ package com.flycms.module.admin.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.admin.dao.GroupDao;
 import com.flycms.module.admin.dao.PermissionDao;
 import com.flycms.module.admin.model.Permission;
@@ -55,10 +56,12 @@ public class PermissionService {
                         if(s!=null){
                             if (!checkPermission(StringUtils.deleteWhitespace(s), per.getController())) {
                                 per.setActionKey(StringUtils.deleteWhitespace(s));
+                                SnowFlake snowFlake = new SnowFlake(2, 3);
+                                per.setId(snowFlake.nextId());
                                 int permissionId=permissionDao.addPermission(per);
-                                if(!this.markAssignedPermissions(1,per.getId())){
-                                    //默认超级管理员组添加新的权限关联
-                                    groupDao.addGroupPermission(1,per.getId());
+                                if(!this.markAssignedPermissions(272835742965968896L,per.getId())){
+                                    //默认超级管理员组添加新的权限关联，272835742965968896为超级管理员组ID
+                                    groupDao.addGroupPermission(272835742965968896L,per.getId());
                                 }
                             }
                             //添加当前Controller里所有的权限路径到list里
@@ -83,7 +86,7 @@ public class PermissionService {
     // ///////////////////////////////
     //按id删除权限权限
     @Transactional
-    public boolean deletePermission(int id){
+    public boolean deletePermission(Long id){
         int totalCount = permissionDao.deletePermission(id);
         permissionDao.deleteRolePermission(id);
         return totalCount > 0 ? true : false;
@@ -107,7 +110,7 @@ public class PermissionService {
     // /////       查询       ////////
     // ///////////////////////////////
     //按id查询权限组信息
-    public Permission findPermissionById(int id){
+    public Permission findPermissionById(Long id){
         return permissionDao.findPermissionById(id);
     }
 
@@ -137,7 +140,7 @@ public class PermissionService {
      * @param userId
      * @return
      */
-    public List<Permission> findPermissionByUserId(int userId) {
+    public List<Permission> findPermissionByUserId(Long userId) {
         return permissionDao.findPermissionByUserId(userId);
     }
 
@@ -167,7 +170,7 @@ public class PermissionService {
      * 标记出 role 拥有的权限，用于在界面输出 checkbox 的 checked 属性
      * 未来用 permission left join role_permission 来优化
      */
-    public boolean markAssignedPermissions(int groupId,int permissionId) {
+    public boolean markAssignedPermissions(Long groupId,Long permissionId) {
         int totalCount = permissionDao.markAssignedPermissions(groupId,permissionId);
         return totalCount > 0 ? true : false;
     }

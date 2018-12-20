@@ -14,6 +14,7 @@
 		insert into fly_topic
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
 			<if test="topic != null">topic,</if>
 			<if test="url != null">url,</if>
 			<if test="content != null">content,</if>
@@ -25,6 +26,7 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
 			<if test="topic != null">#{topic},</if>
 			<if test="url != null">#{url},</if>
 			<if test="content != null">#{content},</if>
@@ -37,7 +39,7 @@
 	</insert>
 
 	<!-- 增加标签与内容关联信息-->
-	<insert id="addTopicAndInfo" parameterType="Integer">
+	<insert id="addTopicAndInfo">
 		insert into fly_topic_info_merge (info_id,topic_id,info_type,status) values (#{infoId},#{topicId},#{infoType},#{status})
 	</insert>
 
@@ -51,6 +53,7 @@
 		insert into fly_topic_category
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
 			<if test="fatherId != null">father_id,</if>
 			<if test="name != null">name,</if>
 			<if test="customUrl != null">custom_url,</if>
@@ -62,7 +65,8 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
-			<if test="fatherId != null">#{fatherId},</if>
+            <if test="id != null">#{id},</if>
+            <if test="fatherId != null">#{fatherId},</if>
 			<if test="name != null">#{name},</if>
 			<if test="customUrl != null">#{customUrl},</if>
 			<if test="keywords != null">#{keywords},</if>
@@ -136,6 +140,11 @@
 	<!-- ############################## -->
 	<!-- ###### 查询 ###### -->
 	<!-- ############################## -->
+	<!-- 按shortUrl查询话题信息 -->
+	<select id="findTopicByShorturl" resultType="com.flycms.module.topic.model.Topic">
+        select * from fly_topic where short_url=#{shortUrl} and status = 1
+    </select>
+
 	<!-- 按id查询话题信息 -->
 	<select id="findTopicById" resultType="com.flycms.module.topic.model.Topic">
 		select * from fly_topic
@@ -150,6 +159,11 @@
     <!-- 按话题查询是否存在 -->
     <select id="findTopicByTopic" resultType="com.flycms.module.topic.model.Topic">
 		select * from fly_topic where topic=#{topic} limit 1
+	</select>
+
+	<!-- 查询话题短域名是否被占用 -->
+	<select id="checkTopicByShorturl" resultType="Integer">
+		select count(1) from fly_topic where short_url=#{shortUrl}
 	</select>
 
 	<!-- 按话题关键词查询tag是否存在 -->
@@ -298,6 +312,6 @@
 
 	<!-- 按用户id查询所有关注标签列表-->
 	<select id="getUserTagsList" resultType="com.flycms.module.topic.model.Topic">
-		select * from (select * from (select t.tag_id, row_number() OVER(ORDER BY t.count_num DESC) AS row_number from fly_user_tags u left join fly_tags t on u.tag_id=t.tag_id where u.user_id=#{user_id}) p where p.row_number &gt; #{offset} ) q where rownum &lt;= #{rows}
+		select * from (select * from (select t.tag_id, row_number() OVER(ORDER BY t.count_num DESC) AS row_number from fly_user_tags u left join fly_tags t on u.tag_id=t.tag_id where u.user_id=#{userId}) p where p.row_number &gt; #{offset} ) q where rownum &lt;= #{rows}
 	</select>
 </mapper>  

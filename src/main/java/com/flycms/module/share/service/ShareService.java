@@ -2,6 +2,8 @@ package com.flycms.module.share.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.ShortUrlUtils;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.search.service.SolrService;
 import com.flycms.module.share.dao.ShareDao;
 import com.flycms.module.share.model.Share;
@@ -14,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -61,6 +64,10 @@ public class ShareService {
         if(this.checkShareByTitle(share.getTitle(),share.getUserId(),null)){
             return data = DataVo.failure("该分享标题已存在");
         }
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        share.setId(snowFlake.nextId());
+        String code=this.shortUrl();
+        share.setShortUrl(code);
         share.setTitle(StringEscapeUtils.escapeHtml4(share.getTitle()));
         share.setContent(StringEscapeUtils.escapeHtml4(share.getContent()));
         share.setDownloads(StringEscapeUtils.escapeHtml4(share.getDownloads()));
@@ -150,7 +157,7 @@ public class ShareService {
      *         分享id
      * @return
      */
-    public int updateShareViewCount(Integer shareId){
+    public int updateShareViewCount(Long shareId){
         return shareDao.updateShareViewCount(shareId);
     }
 
@@ -167,7 +174,7 @@ public class ShareService {
      */
     @CacheEvict(value = "share", allEntries = true)
     @Transactional
-    public DataVo updateShareStatusById(Integer id, Integer status, Integer recommend) throws Exception {
+    public DataVo updateShareStatusById(Long id, Integer status, Integer recommend) throws Exception {
         DataVo data = DataVo.failure("该信息不存在或已删除");
         Share share=this.findShareById(id,0);
         if(share==null){
@@ -197,16 +204,44 @@ public class ShareService {
     // ///////////////////////////////
     // /////        查詢      ////////
     // ///////////////////////////////
+    @Cacheable(value = "share")
+    public Share findShareByShorturl(String shortUrl){
+        return shareDao.findShareByShorturl(shortUrl);
+    }
+
     //按id查询分享信息
-    public Share findShareById(Integer id,Integer status){
+    public Share findShareById(Long id,Integer status){
         return shareDao.findShareById(id,status);
     }
 
     //按id查询分享统计信息
-    public ShareCount findShareCountById(Integer shareId){
+    public ShareCount findShareCountById(Long shareId){
         return shareDao.findShareCountById(shareId);
     }
 
+    /**
+     * 查询文章短域名是否存在
+     *
+     * @param shortUrl
+     * @return
+     */
+    public boolean checkShareByShorturl(String shortUrl) {
+        int totalCount = shareDao.checkShareByShorturl(shortUrl);
+        return totalCount > 0 ? true : false;
+    }
+
+    public String shortUrl(){
+        String[] aResult = ShortUrlUtils.shortUrl (null);
+        String code=null;
+        for ( int i = 0; i < aResult. length ; i++) {
+            code=aResult[i];
+            //查询问答短域名是否被占用
+            if(!this.checkShareByShorturl(code)){
+                break;
+            }
+        }
+        return code;
+    }
     /**
      * 查询该用户同样标题内容是否已存在
      *
@@ -218,13 +253,13 @@ public class ShareService {
      *         排除当前内容id
      * @return
      */
-    public boolean checkShareByTitle(String title,Integer userId,Integer id) {
+    public boolean checkShareByTitle(String title,Long userId,Long id) {
         int totalCount = shareDao.checkShareByTitle(title,userId,id);
         return totalCount > 0 ? true : false;
     }
 
     //查询信息总数
-    public int getShareCount(String title, Integer userId, String createTime, Integer status){
+    public int getShareCount(String title, Long userId, String createTime, Integer status){
         return shareDao.getShareCount(title,userId,createTime,status);
     }
 
@@ -241,7 +276,7 @@ public class ShareService {
      * @return
      * @throws Exception
      */
-    public PageVo<Share> getShareListPage(String title, Integer userId, String createTime, Integer status, String orderby, String order, int pageNum, int rows) {
+    public PageVo<Share> getShareListPage(String title, Long userId, String createTime, Integer status, String orderby, String order, int pageNum, int rows) {
         PageVo<Share> pageVo = new PageVo<Share>(pageNum);
         pageVo.setRows(rows);
         List<Share> list = new ArrayList<Share>();

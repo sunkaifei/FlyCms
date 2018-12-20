@@ -22,7 +22,7 @@ import java.io.Serializable;
 public class ArticleCount implements Serializable {
     private static final long serialVersionUID = 1L;
     //文章id
-    private Integer articleId;
+    private Long articleId;
     //顶
     private Integer countDigg;
     //踩

@@ -36,7 +36,7 @@ public class Articletypelist extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
 		//指定父级id
-		int fatherId = 0;
+		long fatherId = 0;
 		
 		//处理标签变量
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
@@ -48,7 +48,7 @@ public class Articletypelist extends AbstractTagPlugin {
 					if(!StringHelperUtils.checkInteger(paramWrap.get(str).toString())) {
 						fatherId=0;
 					}else {
-						fatherId = Integer.parseInt(paramWrap.get(str).toString());
+						fatherId = Long.parseLong(paramWrap.get(str).toString());
 					}
 				}
 			}

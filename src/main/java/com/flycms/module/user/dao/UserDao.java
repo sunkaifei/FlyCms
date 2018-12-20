@@ -34,7 +34,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int addUserCount(@Param("userId") Integer userId);
+    public int addUserCount(@Param("userId") long userId);
 
     /**
      * 添加用户关联信息
@@ -43,7 +43,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int addUserAccount(@Param("userId") Integer userId);
+    public int addUserAccount(@Param("userId") long userId);
 
     /**
      * 添加用户与权限组关联信息
@@ -54,7 +54,7 @@ public interface UserDao {
      *        用户id
      * @return
      */
-    public int addUserAndGroup(@Param("groupId") Integer groupId,@Param("userId") Integer userId);
+    public int addUserAndGroup(@Param("groupId") Long groupId,@Param("userId") Long userId);
 
     //添加用户注册验证操作记录
     public int addUserActivation(UserActivation userActivation);
@@ -66,10 +66,10 @@ public interface UserDao {
     // /////        刪除      ////////
     // ///////////////////////////////
     //按id删除用户信息
-    public int deleteUserById(@Param("userId") Integer userId);
+    public int deleteUserById(@Param("userId") Long userId);
 
     //按关注人id和粉丝ID删除用户粉丝关联信息
-    public int deleteUserFans(@Param("userFollow") Integer userFollow,@Param("userFans") Integer userFans);
+    public int deleteUserFans(@Param("userFollow") Long userFollow,@Param("userFans") Long userFans);
 
     /**
      * 按用户seeeionKey查询删除用户登陆保持记录
@@ -95,7 +95,7 @@ public interface UserDao {
      * @param password
      * @return Integer
      */
-    public int updatePassword(@Param("userId") Integer userId, @Param("password") String password);
+    public int updatePassword(@Param("userId") Long userId, @Param("password") String password);
 
     /**
      * 更新统计用户所有提的问题数量
@@ -104,7 +104,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateQuestionCount(@Param("userId") Integer userId);
+    public int updateQuestionCount(@Param("userId") Long userId);
 
     /**
      * 更新统计用户所有关注的问题数量
@@ -113,7 +113,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateQuestionFollowCount(@Param("userId") Integer userId);
+    public int updateQuestionFollowCount(@Param("userId") Long userId);
 
     /**
      * 更新统计用户所有发布文章数量
@@ -122,7 +122,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateArticleCount(@Param("userId") Integer userId);
+    public int updateArticleCount(@Param("userId") Long userId);
 
     /**
      * 更新统计用户所有发布分享数量
@@ -131,7 +131,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateShareCount(@Param("userId") Integer userId);
+    public int updateShareCount(@Param("userId") Long userId);
 
     /**
      * 更新统计用户所有加入的话题数量
@@ -140,7 +140,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateTopicCount(@Param("userId") Integer userId);
+    public int updateTopicCount(@Param("userId") Long userId);
 
     /**
      * 更新统计用户所有发布的答案数量
@@ -149,7 +149,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateAnswerCount(@Param("userId") Integer userId);
+    public int updateAnswerCount(@Param("userId") Long userId);
 
     /**
      * 更新统计用户所有关注人数数量
@@ -158,7 +158,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateUserFollwCount(@Param("userId") Integer userId);
+    public int updateUserFollwCount(@Param("userId") Long userId);
 
     /**
      * 更新统计用户所有粉丝数量
@@ -167,7 +167,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateUserFansCount(@Param("userId") Integer userId);
+    public int updateUserFansCount(@Param("userId") Long userId);
 
     /**
      * 按用户名（邮箱、手机号）+ 验证码查询修改验证状态为已验证，0未验证，1为已验证
@@ -187,7 +187,7 @@ public interface UserDao {
      * @param avatar
      * @return
      */
-    public int updateAvatar(@Param("userId") Integer userId, @Param("avatar") String avatar);
+    public int updateAvatar(@Param("userId") Long userId, @Param("avatar") String avatar);
 
     /**
      * 更新用户最终积分
@@ -200,7 +200,7 @@ public interface UserDao {
      *        用户id
      * @return
      */
-    public int updateUserAccountScore(@Param("calculate") String calculate,@Param("score") Integer score,@Param("userId") Integer userId);
+    public int updateUserAccountScore(@Param("calculate") String calculate,@Param("score") Integer score,@Param("userId") Long userId);
 
     /**
      * 修改用户登录手机号码
@@ -211,7 +211,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateuUserMobile(@Param("userMobile") String userMobile,@Param("userId") Integer userId);
+    public int updateuUserMobile(@Param("userMobile") String userMobile,@Param("userId") Long userId);
 
 
     /**
@@ -223,7 +223,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateuUserEmail(@Param("userEmail") String userEmail,@Param("userId") Integer userId);
+    public int updateuUserEmail(@Param("userEmail") String userEmail,@Param("userId") Long userId);
 
     /**
      * 更新用户权限组信息
@@ -239,6 +239,9 @@ public interface UserDao {
     // ///////////////////////////////
     // /////       查询       ////////
     // ///////////////////////////////
+    //按shortUrl查询用户信息
+    public User findUserByShorturl(@Param("shortUrl") String shortUrl);
+
     /**
      * 通过userId查询用户信息
      * 用户状态0是所有 1未审核 2正常状态 3 删除至回收站 4锁定
@@ -249,16 +252,24 @@ public interface UserDao {
      *         审核状态
      * @return User
      */
-    public User findUserById(@Param("userId") Integer userId, @Param("status") Integer status);
+    public User findUserById(@Param("userId") Long userId, @Param("status") Integer status);
 
     //按用户id查询用户统计信息
-    public UserCount findUserCountById(@Param("userId") Integer userId);
+    public UserCount findUserCountById(@Param("userId") Long userId);
 
     //按用户id查询用户信息
-    public UserAccount findUserAccountById(@Param("userId") Integer userId);
+    public UserAccount findUserAccountById(@Param("userId") Long userId);
+
+    /**
+     * 查询问答短域名是否被占用
+     *
+     * @param shortUrl
+     * @return
+     */
+    public int checkUserByShorturl(@Param("shortUrl") String shortUrl);
 
     //按id查询用户是否存在
-    public int checkUserById(@Param("userId") Integer userId);
+    public int checkUserById(@Param("userId") Long userId);
 
     /**
      * 通过username查询用户信息
@@ -293,7 +304,7 @@ public interface UserDao {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public int checkUserByUserName(@Param("userName") String userName,@Param("userId") Integer userId);
+    public int checkUserByUserName(@Param("userName") String userName,@Param("userId") Long userId);
 
     /**
      * 排除当前用户id后查询手机号码是否存在,如果userId设置为null则查全部的手机号码
@@ -304,7 +315,7 @@ public interface UserDao {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public int checkUserByMobile(@Param("userMobile") String userMobile,@Param("userId") Integer userId);
+    public int checkUserByMobile(@Param("userMobile") String userMobile,@Param("userId") Long userId);
 
     /**
      * 排除当前用户id后查询当前邮箱是否存在,如果userId设置为null则查全部的邮箱
@@ -315,7 +326,7 @@ public interface UserDao {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public int checkUserByEmail(@Param("userEmail") String userEmail,@Param("userId") Integer userId);
+    public int checkUserByEmail(@Param("userEmail") String userEmail,@Param("userId") Long userId);
 
     /**
      * 排除当前用户id后查询当前昵称是否存在,如果userId设置为null则查全部的昵称
@@ -326,7 +337,7 @@ public interface UserDao {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public int checkUserByNickName(@Param("nickName") String nickName,@Param("userId") Integer userId);
+    public int checkUserByNickName(@Param("nickName") String nickName,@Param("userId") Long userId);
 
     /**
      * 查询当前用户权限是否存在
@@ -335,7 +346,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int checkUserByRole(@Param("userId") Integer userId);
+    public int checkUserByRole(@Param("userId") Long userId);
 
     /**
      * 查询当前用户是否是未激活权限组内用户
@@ -346,7 +357,7 @@ public interface UserDao {
      *         未激活权限组id
      * @return
      */
-    public int checkUserByActivation(@Param("userId") Integer userId,@Param("groupId") Integer groupId);
+    public int checkUserByActivation(@Param("userId") Long userId,@Param("groupId") Long groupId);
 
     /**
      * 查询验证码在当前时间5分钟内获取并且是否过时或不存在
@@ -377,7 +388,7 @@ public interface UserDao {
      *         粉丝id
      * @return
      */
-    public int checkUserFans(@Param("userFollow") Integer userFollow,@Param("userFans") Integer userFans);
+    public int checkUserFans(@Param("userFollow") Long userFollow,@Param("userFans") Long userFans);
 
     /**
      * 查询是否是互相关注用户，等于2则为互相关注
@@ -388,7 +399,7 @@ public interface UserDao {
      *         粉丝id
      * @return
      */
-    public int checkUserMutualFans(@Param("userFollow") Integer userFollow,@Param("userFans") Integer userFans);
+    public int checkUserMutualFans(@Param("userFollow") Long userFollow,@Param("userFans") Long userFans);
 
     //查询用户组总数
     public int getUserCount(@Param("userName") String userName,
@@ -407,13 +418,13 @@ public interface UserDao {
                                   @Param("rows") int rows);
 
     //查询粉丝总数
-    public int getUserFansCount(@Param("userFollow") Integer userFollow,
-                            @Param("userFans") Integer userFans,
+    public int getUserFansCount(@Param("userFollow") Long userFollow,
+                            @Param("userFans") Long userFans,
                             @Param("createTime") String createTime);
 
     //粉丝列表
-    public List<UserFans> getUserFansList(@Param("userFollow") Integer userFollow,
-                                  @Param("userFans") Integer userFans,
+    public List<UserFans> getUserFansList(@Param("userFollow") Long userFollow,
+                                  @Param("userFans") Long userFans,
                                   @Param("createTime") String createTime,
                                   @Param("orderby") String orderby,
                                   @Param("order") String order,
@@ -461,6 +472,6 @@ public interface UserDao {
      *         当前用户id
      * @return
      */
-    public int checkUserSessionByUserId(@Param("userId") Integer userId);
+    public int checkUserSessionByUserId(@Param("userId") Long userId);
 
 }

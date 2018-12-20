@@ -5,7 +5,10 @@ import com.flycms.core.entity.DataVo;
 import com.flycms.module.search.service.SolrService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -23,6 +26,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class SolrAdminController extends BaseController {
     @Autowired
     private SolrService solrService;
+
+    //索引列表
+    @GetMapping(value = "/content_index")
+    public String indexList(ModelMap modelMap){
+        modelMap.addAttribute("admin", getAdminUser());
+        return theme.getAdminTemplate("content/content_index");
+    }
 
     //删除全部索引
     @ResponseBody

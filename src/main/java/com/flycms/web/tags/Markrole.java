@@ -39,19 +39,19 @@ public class Markrole extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		try {
 			// 获取页面的参数
-			Integer roleId = 0;
+			Long roleId = 0L;
 			// 获取文件的分页
 			//审核设置，默认0
-			Integer permissionId = 0;
+			Long permissionId = 0L;
 			//处理标签变量
 			@SuppressWarnings("unchecked")
 			Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 			for(String str:paramWrap.keySet()){ 
 				if("roleId".equals(str)){
-					roleId = Integer.parseInt(paramWrap.get(str).toString());
+					roleId = Long.parseLong(paramWrap.get(str).toString());
 				}
 				if("permissionId".equals(str)){
-					permissionId = Integer.parseInt(paramWrap.get(str).toString());
+					permissionId = Long.parseLong(paramWrap.get(str).toString());
 				}
 
 			}

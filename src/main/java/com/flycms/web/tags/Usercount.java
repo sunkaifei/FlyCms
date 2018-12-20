@@ -33,13 +33,13 @@ public class Usercount extends AbstractTagPlugin {
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
-		Integer userId = 0;
+		Long userId = null;
 		
 		@SuppressWarnings("unchecked")
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){ 
 			if("userId".equals(str)){
-                userId = Integer.parseInt(paramWrap.get(str).toString());
+                userId = Long.parseLong(paramWrap.get(str).toString());
 			}
 		}
 		// 获取文件的分页

@@ -34,21 +34,21 @@ public class ScheduleUtils {
     /**
      * 获取触发器key
      */
-    private static TriggerKey getTriggerKey(Integer id) {
+    private static TriggerKey getTriggerKey(Long id) {
         return TriggerKey.triggerKey(JOB_NAME + id);
     }
 
     /**
      * 获取jobKey
      */
-    private static JobKey getJobKey(Integer id) {
+    private static JobKey getJobKey(Long id) {
         return JobKey.jobKey(JOB_NAME + id);
     }
 
     /**
      * 获取表达式触发器
      */
-    public static CronTrigger getCronTrigger(Scheduler scheduler, Integer jobId) {
+    public static CronTrigger getCronTrigger(Scheduler scheduler, Long jobId) {
         try {
             return (CronTrigger) scheduler.getTrigger(getTriggerKey(jobId));
         } catch (SchedulerException e) {
@@ -151,7 +151,7 @@ public class ScheduleUtils {
     /**
      * 暂停任务
      */
-    public static void pauseJob(Scheduler scheduler, Integer jobId) {
+    public static void pauseJob(Scheduler scheduler, Long jobId) {
         try {
             scheduler.pauseJob(getJobKey(jobId));
         } catch (SchedulerException e) {
@@ -163,7 +163,7 @@ public class ScheduleUtils {
     /**
      * 恢复任务
      */
-    public static void resumeJob(Scheduler scheduler, Integer jobId) {
+    public static void resumeJob(Scheduler scheduler, Long jobId) {
         try {
             scheduler.resumeJob(getJobKey(jobId));
         } catch (SchedulerException e) {
@@ -175,7 +175,7 @@ public class ScheduleUtils {
     /**
      * 删除定时任务
      */
-    public static void deleteScheduleJob(Scheduler scheduler, Integer jobId) {
+    public static void deleteScheduleJob(Scheduler scheduler, Long jobId) {
         try {
             scheduler.deleteJob(getJobKey(jobId));
         } catch (SchedulerException e) {

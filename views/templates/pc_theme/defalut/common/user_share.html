@@ -8,13 +8,13 @@
                                 <@fly_userinfo userId="${list.userId!}">
                                 <div  class="user">
                                     <div class="author-avatar">
-                                        <a href="/people/${userinfo.userId!}" target="_blank">
+                                        <a href="/people/${userinfo.shortUrl!}" target="_blank">
                                             <img class="avatar-38 mr-10 hidden-xs" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="${userinfo.nickName!}">
                                         </a>
                                     </div>
                                     <div class="author-content">
                                         <div class="author-name">
-                                            <a href="/people/${userinfo.userId!}">${userinfo.nickName!}</a>
+                                            <a href="/people/${userinfo.shortUrl!}">${userinfo.nickName!}</a>
                                         </div>
                                         <div class="author-nick">
                                             <#if userinfo.signature??>${userinfo.signature!}<#else>这个家伙很懒什么也没留下！</#if>
@@ -22,7 +22,7 @@
                                     </div>
                                 </div>
                                 </@fly_userinfo>
-                                <h2 class="title"><a href="/share/${share.id}">${share.title!}</a></h2>
+                                <h2 class="title"><a href="/s/${share.shortUrl}">${share.title!}</a></h2>
                                 <div class="summary">
                                     <div class="excerpt">
                                         <#if share.content?? && share.content!=""><@fly_stringcut content="${share.content!}" num="200">${info_content}</@fly_stringcut></#if>

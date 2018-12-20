@@ -127,7 +127,7 @@ public class ArticleAdminController extends BaseController {
     //文章
     @PostMapping("/del")
     @ResponseBody
-    public DataVo deleteRole(@RequestParam(value = "id") int id){
+    public DataVo deleteRole(@RequestParam(value = "id") Long id){
         DataVo data = DataVo.failure("操作失败");
         data = articleService.deleteArticleById(id);
         return data;
@@ -146,7 +146,7 @@ public class ArticleAdminController extends BaseController {
     //按父级id查询id下所有地区列表
     @ResponseBody
     @RequestMapping(value = "/category_child")
-    public List<ArticleCategory> getCategoryChild(@RequestParam(value = "parentId", defaultValue = "0") int parentId){
+    public List<ArticleCategory> getCategoryChild(@RequestParam(value = "parentId", defaultValue = "0") Long parentId){
         List<ArticleCategory> list=articleCategoryService.getCategoryListByFatherId(parentId);
         return list;
     }
@@ -190,7 +190,7 @@ public class ArticleAdminController extends BaseController {
             if (StringUtils.isBlank(name)) {
                 return DataVo.failure("分类名称不能为空");
             }
-            data = articleCategoryService.addArticleCategory(Integer.valueOf(pid),name);
+            data = articleCategoryService.addArticleCategory(Long.parseLong(pid),name);
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -212,7 +212,7 @@ public class ArticleAdminController extends BaseController {
             if (StringUtils.isBlank(name)) {
                 return DataVo.failure("分类名称不能为空");
             }
-            data = articleCategoryService.editArticleCategoryById(Integer.valueOf(id),name);
+            data = articleCategoryService.editArticleCategoryById(Long.parseLong(id),name);
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -237,7 +237,7 @@ public class ArticleAdminController extends BaseController {
             if (!NumberUtils.isNumber(pId)) {
                 data = DataVo.failure("父级id错误！");
             }
-            data = articleCategoryService.editCategoryDragsById(Integer.valueOf(id),Integer.valueOf(pId));
+            data = articleCategoryService.editCategoryDragsById(Long.parseLong(id),Long.parseLong(pId));
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -256,7 +256,7 @@ public class ArticleAdminController extends BaseController {
             if (!NumberUtils.isNumber(id)) {
                 data = DataVo.failure("分类id错误！");
             }
-            data = articleCategoryService.deleteArticleCategoryById(Integer.valueOf(id));
+            data = articleCategoryService.deleteArticleCategoryById(Long.parseLong(id));
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }

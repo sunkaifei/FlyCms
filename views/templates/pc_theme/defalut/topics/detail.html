@@ -100,9 +100,9 @@
                 <ul class="taglist-inline multi">
                     <@fly_topicpage rows="25">
                     <#list topic_page.list as list>
-                    <li class="tagPopup"><a  href="/topics/${list.id!}">${list.topic!}</a></li>
-                </#list>
-                </@fly_topicpage>
+                    <li class="tagPopup"><a  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
+                    </#list>
+                    </@fly_topicpage>
                 </ul>
             </div>
         </div>

@@ -3,6 +3,7 @@ package com.flycms.web.front;
 import com.flycms.core.base.BaseController;
 import com.flycms.module.user.model.User;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -26,12 +27,12 @@ public class PeopleController extends BaseController {
     private static Logger logger = LoggerFactory.getLogger(PeopleController.class);
 
     //用户首页页面
-    @GetMapping(value = "/people/{id}")
-    public String people(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "id", required = false) String id, ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/people/{shortUrl}")
+    public String people(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
         }
-        User people=userService.findUserById(Integer.valueOf(id),0);
+        User people=userService.findUserByShorturl(shortUrl);
         if(people==null){
             return theme.getPcTemplate("404");
         }
@@ -45,12 +46,12 @@ public class PeopleController extends BaseController {
     }
 
     //用户问题列表页面
-    @GetMapping(value = "/people/{id}/question")
-    public String peopleQuestion(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "id", required = false) String id, ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/people/{shortUrl}/question")
+    public String peopleQuestion(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
         }
-        User people=userService.findUserById(Integer.valueOf(id),0);
+        User people=userService.findUserByShorturl(shortUrl);
         if(people==null){
             return theme.getPcTemplate("404");
         }
@@ -64,12 +65,12 @@ public class PeopleController extends BaseController {
     }
 
     //用户问题列表页面
-    @GetMapping(value = "/people/{id}/answers")
-    public String peopleAnswers(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "id", required = false) String id, ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/people/{shortUrl}/answers")
+    public String peopleAnswers(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
         }
-        User people=userService.findUserById(Integer.valueOf(id),0);
+        User people=userService.findUserByShorturl(shortUrl);
         if(people==null){
             return theme.getPcTemplate("404");
         }
@@ -83,12 +84,12 @@ public class PeopleController extends BaseController {
     }
 
     //用户问题列表页面
-    @GetMapping(value = "/people/{id}/article")
-    public String peopleArticle(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "id", required = false) String id, ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/people/{shortUrl}/article")
+    public String peopleArticle(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
         }
-        User people=userService.findUserById(Integer.valueOf(id),0);
+        User people=userService.findUserByShorturl(shortUrl);
         if(people==null){
             return theme.getPcTemplate("404");
         }
@@ -102,12 +103,12 @@ public class PeopleController extends BaseController {
     }
 
     //用户问题列表页面
-    @GetMapping(value = "/people/{id}/share")
-    public String peopleShare(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "id", required = false) String id, ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/people/{shortUrl}/share")
+    public String peopleShare(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
         }
-        User people=userService.findUserById(Integer.valueOf(id),0);
+        User people=userService.findUserByShorturl(shortUrl);
         if(people==null){
             return theme.getPcTemplate("404");
         }
@@ -121,12 +122,12 @@ public class PeopleController extends BaseController {
     }
 
     //用户关注列表页面
-    @GetMapping(value = "/people/{id}/follow")
-    public String peopleFollow(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "id", required = false) String id, ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/people/{shortUrl}/follow")
+    public String peopleFollow(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
         }
-        User people=userService.findUserById(Integer.valueOf(id),0);
+        User people=userService.findUserByShorturl(shortUrl);
         if(people==null){
             return theme.getPcTemplate("404");
         }
@@ -139,12 +140,12 @@ public class PeopleController extends BaseController {
         return theme.getPcTemplate("/people/list_follow");
     }
     //用户问题列表页面
-    @GetMapping(value = "/people/{id}/fans")
-    public String peopleFans(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "id", required = false) String id, ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/people/{shortUrl}/fans")
+    public String peopleFans(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
         }
-        User people=userService.findUserById(Integer.valueOf(id),0);
+        User people=userService.findUserByShorturl(shortUrl);
         if(people==null){
             return theme.getPcTemplate("404");
         }

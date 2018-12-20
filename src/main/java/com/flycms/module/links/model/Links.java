@@ -23,7 +23,7 @@ import java.util.Date;
 @Getter
 public class Links implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private Integer id;
+	private Long id;
 	private int type;
 	@NotEmpty(message="请填写网站名称！")
 	private String linkName;

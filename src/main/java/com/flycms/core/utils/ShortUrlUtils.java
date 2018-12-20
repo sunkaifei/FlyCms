@@ -1,4 +1,7 @@
 package com.flycms.core.utils;
+
+import java.io.IOException;
+
 /**
  * Open source house, All rights reserved
  * 开发公司：28844.com<br/>
@@ -26,13 +29,12 @@ public class ShortUrlUtils {
        };  
        // 对传入网址进行 MD5 加密  
        String sMD5EncryptResult = Md5Utils.getStringMD5(key + url);
-       String hex = sMD5EncryptResult;  
-   
+
        String[] resUrl = new String[4];  
        for ( int i = 0; i < 4; i++) {  
    
            // 把加密字符按照 8 位一组 16 进制与 0x3FFFFFFF 进行位与运算  
-           String sTempSubString = hex.substring(i * 8, i * 8 + 8);  
+           String sTempSubString = sMD5EncryptResult.substring(i * 8, i * 8 + 8);
    
            // 这里需要使用 long 型来转换，因为 Inteper .parseInt() 只能处理 31 位 , 首位为符号位 , 如果不用 long ，则会越界  
            long lHexLong = 0x3FFFFFFF & Long.parseLong (sTempSubString, 16);  
@@ -49,5 +51,16 @@ public class ShortUrlUtils {
            resUrl[i] = outChars;  
        }  
        return resUrl;  
-    }  
+    }
+
+    public static void main(String[] args) throws IOException {
+        String text = null;
+        String[] aResult = shortUrl (text);
+        String invite=null;
+        for ( int i = 0; i < aResult. length ; i++) {
+            invite=aResult[i];
+            System.out.println(invite);
+        }
+
+    }
 }

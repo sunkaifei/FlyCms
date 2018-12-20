@@ -91,13 +91,13 @@ public class ScoreAdminController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return DataVo.failure("参数传递错误");
         }
-        return scoreRuleService.updateRuleStatus(Integer.valueOf(id));
+        return scoreRuleService.updateRuleStatus(Long.parseLong(id));
     }
 
     //添加积分规则
     @GetMapping(value = "/update_scorerule/{id}")
     public String updateScoreRule(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
-        ScoreRule rule=scoreRuleService.findScoreRuleById(Integer.valueOf(id),0);
+        ScoreRule rule=scoreRuleService.findScoreRuleById(Long.parseLong(id),0);
         if(rule==null){
             return theme.getPcTemplate("404");
         }

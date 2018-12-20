@@ -34,7 +34,7 @@
                 <div class="widget-category">
                     <div class="topic-square">
                         <@fly_login><#if status??>
-                        <a href="/people/${user.userId!}/topics" class="topic-link-gray pull-right">
+                        <a href="/people/${user.shortUrl!}/topics" class="topic-link-gray pull-right">
                             <span>已关注 12 个话题</span>
                         </a>
                         </#if></@fly_login>
@@ -44,7 +44,7 @@
                         <ul class="list">
                             <@fly_topicpage isgood="1" rows="25">
                             <#list topic_page.list as list>
-                            <li><a href="/topics/${list.id!}">${list.topic!}</a></li>
+                            <li><a href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
                             </#list>
                             </@fly_topicpage>
                         </ul>
@@ -86,7 +86,7 @@
                 <ul class="taglist-inline multi">
                     <@fly_topicpage rows="25">
                     <#list topic_page.list as list>
-                    <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.id!}">${list.topic!}</a></li>
+                    <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
                     </#list>
                     </@fly_topicpage>
                 </ul>

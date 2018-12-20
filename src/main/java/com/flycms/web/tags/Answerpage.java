@@ -34,9 +34,9 @@ public class Answerpage extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
 		//问题id
-		Integer questionId = null;
+		Long questionId = null;
 		//用户id
-		Integer userId = null;
+		Long userId = null;
 		//添加时间
 		String addTime = null;
 		//审核状态
@@ -53,10 +53,10 @@ public class Answerpage extends AbstractTagPlugin {
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){ 
 			if("questionId".equals(str)){
-				questionId = Integer.parseInt(paramWrap.get(str).toString());
+				questionId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("userId".equals(str)){
-				userId = Integer.parseInt(paramWrap.get(str).toString());
+				userId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("addTime".equals(str)){
 				addTime = paramWrap.get(str).toString();

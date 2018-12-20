@@ -12,6 +12,7 @@
 	    insert into fly_score_detail
 	    <!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
 			<if test="userId != null and userId !=''">user_id,</if>
 			<if test="type != null">type,</if>
 			<if test="score != null">score,</if>
@@ -23,6 +24,7 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
 			<if test="userId != null and userId !=''">#{userId},</if>
 			<if test="type != null">#{type},</if>
 			<if test="score != null">#{score},</if>

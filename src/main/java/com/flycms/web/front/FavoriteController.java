@@ -42,7 +42,7 @@ public class FavoriteController extends BaseController {
             if(getUser()==null){
                 return data=DataVo.failure("请登陆后关注");
             }
-            data=favoriteService.addFavorite(getUser().getUserId(),Integer.valueOf(type),Integer.valueOf(id));
+            data=favoriteService.addFavorite(getUser().getUserId(),Integer.valueOf(type),Long.parseLong(id));
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }

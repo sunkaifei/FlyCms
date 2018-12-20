@@ -20,7 +20,7 @@ import java.util.Date;
 @Getter
 public class UserActivation implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer actId;
+    private Integer id;
     private String userName;
     private String code;
     private Integer codeType;

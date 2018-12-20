@@ -19,8 +19,10 @@ import java.util.Date;
 @Getter
 public class Question implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
-    private Integer userId;
+    private Long id;
+    //短域名
+    private String shortUrl;
+    private Long userId;
     private String title;
     private String content;
     //最佳答案奖励金币数量

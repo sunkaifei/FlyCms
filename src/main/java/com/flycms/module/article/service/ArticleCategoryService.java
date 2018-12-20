@@ -1,6 +1,7 @@
 package com.flycms.module.article.service;
 
 import com.flycms.core.entity.DataVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.article.dao.ArticleCategoryDao;
 import com.flycms.module.article.model.ArticleCategory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +35,14 @@ public class ArticleCategoryService {
     // ///////////////////////////////
 
     @Transactional
-    public DataVo addArticleCategory(Integer pid,String name){
+    public DataVo addArticleCategory(Long pid,String name){
         DataVo data = DataVo.failure("操作失败");
         if(this.checkArticleCategoryByName(name,null)){
             return data = DataVo.failure("分类名称不得重复");
         }
         ArticleCategory category=new ArticleCategory();
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        category.setId(snowFlake.nextId());
         category.setFatherId(pid);
         category.setName(name);
         articleCategoryDao.addArticleCategory(category);
@@ -59,7 +62,7 @@ public class ArticleCategoryService {
     // /////        刪除      ////////
     // ///////////////////////////////
     @Transactional
-    public DataVo deleteArticleCategoryById(Integer id) {
+    public DataVo deleteArticleCategoryById(Long id) {
         DataVo data = DataVo.failure("操作失败");
         int totalCount =articleCategoryDao.deleteArticleCategoryById(id);
         if(totalCount>0){
@@ -73,7 +76,7 @@ public class ArticleCategoryService {
     // /////        修改      ////////
     // ///////////////////////////////
     @Transactional
-    public DataVo editArticleCategoryById(Integer id,String name){
+    public DataVo editArticleCategoryById(Long id,String name){
         DataVo data = DataVo.failure("操作失败");
         if(this.checkArticleCategoryByName(name,id)){
             return data = DataVo.failure("分类名称已存在！");
@@ -92,7 +95,7 @@ public class ArticleCategoryService {
 
     //拖拽操作保存分类归属和排序
     @Transactional
-    public DataVo editCategoryDragsById(Integer id,Integer pId){
+    public DataVo editCategoryDragsById(Long id,Long pId){
         DataVo data = DataVo.failure("操作失败");
         if(this.checkCategoryById(id,0)){
             return data = DataVo.failure("分类不存在！");
@@ -113,7 +116,7 @@ public class ArticleCategoryService {
     // /////        查詢      ////////
     // ///////////////////////////////
     //按id查询分类信息
-    public ArticleCategory findCategoryById(Integer id,Integer status){
+    public ArticleCategory findCategoryById(Long id,Integer status){
         return articleCategoryDao.findCategoryById(id,status);
     }
 
@@ -126,7 +129,7 @@ public class ArticleCategoryService {
      *         审核状态
      * @return
      */
-    public boolean checkCategoryById(Integer id,Integer status) {
+    public boolean checkCategoryById(Long id,Integer status) {
         return articleCategoryDao.findCategoryById(id,status)==null;
     }
 
@@ -137,13 +140,13 @@ public class ArticleCategoryService {
      *         分类名称
      * @return
      */
-    public boolean checkArticleCategoryByName(String name,Integer id) {
+    public boolean checkArticleCategoryByName(String name,Long id) {
         int totalCount = articleCategoryDao.checkArticleCategoryByName(name,id);
         return totalCount > 0 ? true : false;
     }
 
     //根据分类id查询所属的所有子类
-    public List<ArticleCategory> getCategoryListByFatherId(Integer fatherId){
+    public List<ArticleCategory> getCategoryListByFatherId(Long fatherId){
         return articleCategoryDao.getCategoryListByFatherId(fatherId);
     }
 
@@ -177,7 +180,7 @@ public class ArticleCategoryService {
             ArticleCategory nodemap = null;
             for (ArticleCategory item : itemList) {
                 if(node!=null){
-                    if (item.getFatherId().equals(node.getFatherId())) {
+                    if (item.getFatherId()==node.getFatherId()) {
                         map = new HashMap<String, Object>();
                         map.put("id", item.getId());
                         map.put("fatherId", item.getFatherId());
@@ -187,7 +190,7 @@ public class ArticleCategoryService {
                     }
                     if(node.getFatherId()>=0 && item.getId() == node.getFatherId()){
                         nodemap = new ArticleCategory();
-                        if (item.getId().equals(node.getFatherId())) {
+                        if (item.getId()==node.getFatherId()) {
                             nodemap.setId(item.getId());
                             nodemap.setName(item.getName());
                             nodemap.setFatherId(item.getFatherId());
@@ -239,19 +242,19 @@ public class ArticleCategoryService {
         Map<String, Object> sonMap;
         ArticleCategory nodemapz=null;
         for (ArticleCategory item : itemList) {
-            if (node.getFatherId().equals(item.getFatherId())) {
+            if (node.getFatherId()==item.getFatherId()) {
                 sonMap = new HashMap<String, Object>();
                 sonMap.put("id", item.getId());
                 sonMap.put("fatherId", item.getFatherId());
                 sonMap.put("name", item.getName());
                 //sonMap.put("expanded", "true");
-                if(node.getId().equals(item.getId())){
+                if(node.getId()==item.getId()){
                     sonMap.put("children", rusult);
                 }
                 sonList.add(sonMap);
             }
             if(node.getFatherId()>0 && item.getId() == node.getFatherId()){
-                if (item.getId().equals(node.getFatherId())) {
+                if (item.getId()==node.getFatherId()) {
                     nodemapz = new ArticleCategory();
                     nodemapz.setId(item.getId());
                     nodemapz.setName(item.getName());

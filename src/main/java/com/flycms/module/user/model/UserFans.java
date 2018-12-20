@@ -21,11 +21,11 @@ import java.util.Date;
 public class UserFans implements Serializable {
     private static final long serialVersionUID = 1L;
     //id
-    private Integer id;
+    private Long id;
     //被关注者用户id
-    private Integer userFollow;
+    private Long userFollow;
     //粉丝id，关注者的id
-    private Integer userFans;
+    private Long userFans;
     //信息id
     private Date createTime;
 }

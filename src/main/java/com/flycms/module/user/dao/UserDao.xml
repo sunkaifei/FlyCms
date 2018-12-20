@@ -14,6 +14,7 @@
 		insert into fly_user
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
 			<if test="userName != null">user_name,</if>
 			<if test="password != null">password,</if>
 			<if test="userEmail != null">user_email,</if>
@@ -32,6 +33,7 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
 			<if test="userName != null">#{userName},</if>
 			<if test="password != null">#{password},</if>
 			<if test="userEmail != null">#{userEmail},</if>
@@ -115,7 +117,8 @@
         insert into fly_user_activation
         <!--  添加表字段  -->
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="userName != null">user_name,</if>
+			<if test="id != null">id,</if>
+			<if test="userName != null">user_name,</if>
             <if test="code != null">code,</if>
             <if test="codeType != null">code_type,</if>
             <if test="referTime != null">refer_time,</if>
@@ -123,7 +126,8 @@
         </trim>
         <!--  注入控制层字段  -->
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="userName != null">#{userName},</if>
+			<if test="id != null">#{id},</if>
+			<if test="userName != null">#{userName},</if>
             <if test="code != null">#{code},</if>
             <if test="codeType != null">#{codeType},</if>
             <if test="referTime != null">#{referTime},</if>
@@ -137,13 +141,15 @@
         insert into fly_user_fans
         <!--  添加表字段  -->
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="userFollow != null">user_follow,</if>
+			<if test="id != null">id,</if>
+			<if test="userFollow != null">user_follow,</if>
             <if test="userFans != null">user_fans,</if>
             <if test="createTime != null">create_time,</if>
         </trim>
         <!--  注入控制层字段  -->
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="userFollow != null">#{userFollow},</if>
+			<if test="id != null">#{id},</if>
+			<if test="userFollow != null">#{userFollow},</if>
             <if test="userFans != null">#{userFans},</if>
             <if test="createTime != null">#{createTime},</if>
         </trim>
@@ -219,7 +225,7 @@
 
 	<!-- 更新统计用户所有关注的问题数量 -->
 	<update id="updateQuestionFollowCount">
-		update fly_user_count set count_question_follw=(select count(*) from fly_question_follow where user_id=#{userId}) where user_id=#{userId}
+		update fly_user_count set count_question_follw=(select count(*) from fly_question_follow_merge where user_id=#{userId}) where user_id=#{userId}
 	</update>
 
 	<!-- 更新统计用户所有发布文章数量 -->
@@ -312,6 +318,11 @@
 	<!-- ############################## -->
 	<!-- ######       查询       ###### -->
 	<!-- ############################## -->
+	<!-- 按shortUrl查询用户信息 -->
+	<select id="findUserByShorturl" resultType="com.flycms.module.user.model.User">
+        select u.* ,a.balance,a.score from fly_user u inner join fly_user_account a on u.user_id=a.user_id where u.short_url=#{shortUrl} and u.status = 1
+    </select>
+
 	<!-- 按用户id查询用户注册信息 用户状态0是所有 1未审核 2正常状态 3 删除至回收站 4锁定 -->
 	<select id="findUserById" resultType="com.flycms.module.user.model.User">
 		select u.* ,a.balance,a.score from fly_user u inner join fly_user_account a on u.user_id=a.user_id
@@ -348,6 +359,11 @@
     <!-- 按手机号查询用户注册信息 -->
     <select id="findByMobile" resultType="com.flycms.module.user.model.User">
 		select * from fly_user where user_mobile=#{userMobile} limit 1
+	</select>
+
+	<!-- 查询问答短域名是否被占用 -->
+	<select id="checkUserByShorturl" resultType="Integer">
+		select count(1) from fly_user where short_url=#{shortUrl}
 	</select>
 
     <!-- 按id查询用户是否存在 -->

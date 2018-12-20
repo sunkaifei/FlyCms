@@ -27,7 +27,7 @@ public interface ArticleCategoryDao {
     // /////        刪除      ////////
     // ///////////////////////////////
     //按分类id删除该分类信息
-    public int deleteArticleCategoryById(Integer id);
+    public int deleteArticleCategoryById(Long id);
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////
@@ -39,13 +39,13 @@ public interface ArticleCategoryDao {
     // /////        查詢      ////////
     // ///////////////////////////////
     //查询分类名称是否存在
-    public int checkArticleCategoryByName(@Param("name") String name,@Param("id") Integer id);
+    public int checkArticleCategoryByName(@Param("name") String name,@Param("id") Long id);
 
     //按id查询分类信息
-    public ArticleCategory findCategoryById(@Param("id") Integer id,@Param("status") Integer status);
+    public ArticleCategory findCategoryById(@Param("id") Long id,@Param("status") Integer status);
 
     //根据分类id查询所属的所有子类
-    public List<ArticleCategory> getCategoryListByFatherId(@Param("fatherId") Integer fatherId);
+    public List<ArticleCategory> getCategoryListByFatherId(@Param("fatherId") Long fatherId);
 
     //查询所有分类
     public List<ArticleCategory> getCategoryAllList();

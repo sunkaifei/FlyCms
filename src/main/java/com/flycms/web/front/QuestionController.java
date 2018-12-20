@@ -31,7 +31,7 @@ public class QuestionController extends BaseController {
      *
      * @return
      */
-    @GetMapping(value = {"/question/" , "/question/index"})
+    @GetMapping(value = {"/qc/" , "/qc/index"})
     public String indexShare(@RequestParam(value = "p", defaultValue = "1") int p,ModelMap modelMap){
         modelMap.addAttribute("p", p);
         modelMap.addAttribute("user", getUser());
@@ -39,12 +39,12 @@ public class QuestionController extends BaseController {
     }
 
     //问答详细页面
-    @GetMapping(value = "/question/{id}")
-    public String question(@PathVariable(value = "id", required = false) String id,@RequestParam(value = "p", defaultValue = "1") int p,ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/q/{shortUrl}")
+    public String question(@PathVariable(value = "shortUrl", required = false) String shortUrl,@RequestParam(value = "p", defaultValue = "1") int p,ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
         }
-        Question question=questionService.findQuestionById(Integer.valueOf(id),2);
+        Question question=questionService.findQuestionByShorturl(shortUrl);
         if(question==null){
             return theme.getPcTemplate("404");
         }
@@ -81,7 +81,7 @@ public class QuestionController extends BaseController {
             if(question.getCountAnswer()==0){
                 map.put("content",question.getContent());
             }else{
-                Answer answer = answerService.findNewestAnswerById(Integer.valueOf(id));
+                Answer answer = answerService.findNewestAnswerById(Long.parseLong(id));
                 map.put("content",answer.getContent());
             }
         }
@@ -157,7 +157,7 @@ public class QuestionController extends BaseController {
             if (StringUtils.isBlank(content)) {
                 return DataVo.failure("答案内容不能为空");
             }
-            data=answerService.addAnswer(Integer.valueOf(questionId),getUser().getUserId(),content);
+            data=answerService.addAnswer(Long.parseLong(questionId),getUser().getUserId(),content);
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -165,21 +165,42 @@ public class QuestionController extends BaseController {
     }
 
     //编辑问题
-    @GetMapping(value = "/ucenter/answer/edit")
+    @GetMapping(value = "/ucenter/answer/edit-{id}")
     public String editAnswer(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
         if (!NumberUtils.isNumber(id)) {
             return theme.getPcTemplate("404");
         }
 
-        Answer answer=answerService.findAnswerByIdAndUserId(Integer.valueOf(id),getUser().getUserId());
+        Answer answer=answerService.findAnswerByIdAndUserId(Long.parseLong(id),getUser().getUserId());
         if (answer == null) {
             return theme.getPcTemplate("404");
         }
+        answer.setContent(StringHelperUtils.htmlspecialchars(answer.getContent()));
         Question question=questionService.findQuestionById(answer.getQuestionId(),0);
         modelMap.addAttribute("question", question);
         modelMap.addAttribute("answer", answer);
         modelMap.addAttribute("user", getUser());
         return theme.getPcTemplate("question/edit_answer");
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/ucenter/answer/edit_save")
+    public DataVo editAnswer(@RequestParam(value = "id", required = false) String id,
+                            @RequestParam(value = "content", required = false) String content,
+                            ModelMap modelMap) {
+        DataVo data = DataVo.failure("操作失败");
+        try {
+            if (!NumberUtils.isNumber(id)) {
+                return data=DataVo.failure("话题参数错误");
+            }
+            if (StringUtils.isBlank(content)) {
+                return DataVo.failure("答案内容不能为空");
+            }
+            data=answerService.updateAnswerById(Long.parseLong(id),getUser().getUserId(),content);
+        } catch (Exception e) {
+            data = DataVo.failure(e.getMessage());
+        }
+        return data;
     }
 
     //处理关注信息
@@ -194,7 +215,7 @@ public class QuestionController extends BaseController {
             if(getUser()==null){
                 return data=DataVo.failure("请登陆后关注");
             }
-            data=questionService.QuestionFollow(Integer.valueOf(questionId),getUser().getUserId());
+            data=questionService.QuestionFollow(Long.parseLong(questionId),getUser().getUserId());
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -209,7 +230,7 @@ public class QuestionController extends BaseController {
             if (!NumberUtils.isNumber(id)) {
                 return data=DataVo.failure("话题参数错误");
             }
-            questionService.updateQuestionByViewCount(Integer.valueOf(id));
+            questionService.updateQuestionByViewCount(Long.parseLong(id));
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }

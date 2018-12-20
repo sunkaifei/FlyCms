@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.links.dao.LinksDao;
 import com.flycms.module.links.model.Links;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,8 @@ public class LinksService {
 		if(this.checkLinksByLinkUrl(links.getLinkUrl())){
 			return DataVo.failure("网站连接已存在！");
 		}
+		SnowFlake snowFlake = new SnowFlake(2, 3);
+		links.setId(snowFlake.nextId());
 		links.setCreateTime(new Date());
 		int totalCount=linksDao.addLinks(links);
 		if(totalCount > 0){

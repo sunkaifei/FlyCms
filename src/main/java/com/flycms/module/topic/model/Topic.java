@@ -20,7 +20,9 @@ import java.util.Date;
 @Getter
 public class Topic implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
+    private Long id;
+    //短域名
+    private String shortUrl;
     private Integer infoType;
     private String topic;
     private String url;

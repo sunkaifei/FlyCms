@@ -21,21 +21,8 @@ CKEDITOR.editorConfig = function( config ) {
             ['TextColor','BGColor','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
             ['Image','Syntaxhighlight']
         ];
-
-    config.extraPlugins = 'clipboard,lineutils,widget,dialog,codesnippet';
-    // Remove some buttons provided by the standard plugins, which are
-    // not needed in the Standard(s) toolbar.
-    config.removeButtons = 'Underline,Subscript,Superscript';
-
-    // Set the most common block elements.
-    config.format_tags = 'p;h1;h2;h3;pre';
-
-    //从word中粘贴内容时是否移除格式
-    config.pasteFromWordRemoveFontStyles = true;
-    config.pasteFromWordRemoveStyles = true;
-
-    // Simplify the dialog windows.
-    config.removeDialogTabs = 'image:advanced;link:advanced;image:Link';
+    config.allowedContent = true;
+    config.fullPage = true;
 
     // 图片上传配置
       /* config.filebrowserUploadUrl = '/ucenter/uploadImage';*/

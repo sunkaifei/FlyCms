@@ -51,7 +51,7 @@ public class UserAdminController extends BaseController {
     }
 
     @GetMapping(value = "/assignPermissions/{id}")
-    public String assignPermissions(@PathVariable int id, ModelMap modelMap){
+    public String assignPermissions(@PathVariable Long id, ModelMap modelMap){
         UserGroup group = userGroupService.findUserGroupByid(id);
         List<UserPermission> permissionList = userPermissionService.getAllPermissions();
         LinkedHashMap<String, List<UserPermission>> permissionMap = userPermissionService.groupByController(permissionList);
@@ -63,7 +63,7 @@ public class UserAdminController extends BaseController {
 
     @ResponseBody
     @PostMapping(value = "/markpermissions")
-    public DataVo addRole(@RequestParam(value = "groupId", defaultValue = "0") Integer groupId,@RequestParam(value = "permissionId", defaultValue = "0") Integer permissionId) {
+    public DataVo addRole(@RequestParam(value = "groupId", defaultValue = "0") Long groupId,@RequestParam(value = "permissionId", defaultValue = "0") Long permissionId) {
         DataVo data = DataVo.failure("操作失败");
         if(groupId==0 || permissionId==0){
             return data.failure("参数错误！");
@@ -136,7 +136,7 @@ public class UserAdminController extends BaseController {
             if (!NumberUtils.isNumber(sort)) {
                 return data=DataVo.failure("话题参数错误");
             }
-            data = userGroupService.updateGroupSort(Integer.valueOf(id),Integer.valueOf(sort));
+            data = userGroupService.updateGroupSort(Long.parseLong(id),Integer.valueOf(sort));
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -197,7 +197,7 @@ public class UserAdminController extends BaseController {
     //删除权限组
     @PostMapping("/group_del")
     @ResponseBody
-    public DataVo deleteRole(@RequestParam(value = "id") int id){
+    public DataVo deleteRole(@RequestParam(value = "id") Long id){
         DataVo data = DataVo.failure("操作失败");
         if(id==1){
             return data = DataVo.failure("超级管理员组不能删除");
@@ -208,7 +208,7 @@ public class UserAdminController extends BaseController {
 
     //编辑用户
     @GetMapping(value = "/user_edit/{id}")
-    public String userEdit(@PathVariable int id,ModelMap modelMap){
+    public String userEdit(@PathVariable Long id,ModelMap modelMap){
         User user=userService.findUserById(id,0);
         modelMap.addAttribute("user",user);
         modelMap.addAttribute("admin", getAdminUser());
@@ -273,7 +273,7 @@ public class UserAdminController extends BaseController {
 
     //修改用户组
     @GetMapping(value = "/group_edit/{id}")
-    public String groupEdit(@PathVariable int id,ModelMap modelMap){
+    public String groupEdit(@PathVariable Long id,ModelMap modelMap){
         UserGroup group=userGroupService.findUserGroupByid(id);
         modelMap.addAttribute("group", group);
         modelMap.addAttribute("admin", getAdminUser());

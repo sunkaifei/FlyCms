@@ -14,6 +14,7 @@
         insert into fly_job
         <!-- 添加表字段 -->
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
             <if test="beanName != null and beanName!=''">bean_name,</if>
             <if test="cronExpression != null and cronExpression!=''">cron_expression,</if>
             <if test="methodName != null and methodName!=''">method_name,</if>
@@ -24,6 +25,7 @@
         </trim>
         <!-- 注入控制层字段 -->
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
             <if test="beanName != null and beanName!=''">#{beanName},</if>
             <if test="cronExpression != null and cronExpression!=''">#{cronExpression},</if>
             <if test="methodName != null and methodName!=''">#{methodName},</if>
@@ -39,6 +41,7 @@
         insert into fly_job_log
         <!-- 添加表字段 -->
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
             <if test="beanName != null and beanName!=''">bean_name,</if>
             <if test="cronExpression != null and cronExpression!=''">cron_expression,</if>
             <if test="errorMsg != null and errorMsg!=''">error_msg,</if>
@@ -51,6 +54,7 @@
         </trim>
         <!-- 注入控制层字段 -->
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
             <if test="beanName != null and beanName!=''">#{beanName},</if>
             <if test="cronExpression != null and cronExpression!=''">#{cronExpression},</if>
             <if test="errorMsg != null and errorMsg!=''">#{errorMsg},</if>

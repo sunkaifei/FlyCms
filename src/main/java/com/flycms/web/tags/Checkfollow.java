@@ -34,10 +34,10 @@ public class Checkfollow extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		try {
 			// 被关注者id
-			Integer userFollow = 0;
+			Long userFollow = null;
 			// 获取文件的分页
 			//粉丝id
-			Integer userFans = 0;
+			Long userFans = null;
 			//关注状态，0未关注，1已关注，2已互相关注
             Integer status = 0;
 			//处理标签变量
@@ -45,10 +45,10 @@ public class Checkfollow extends AbstractTagPlugin {
 			Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 			for(String str:paramWrap.keySet()){ 
 				if("userFollow".equals(str)){
-					userFollow = Integer.parseInt(paramWrap.get(str).toString());
+					userFollow = Long.parseLong(paramWrap.get(str).toString());
 				}
 				if("userFans".equals(str)){
-					userFans = Integer.parseInt(paramWrap.get(str).toString());
+					userFans = Long.parseLong(paramWrap.get(str).toString());
 				}
 
 			}

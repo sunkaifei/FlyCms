@@ -12,6 +12,7 @@
 	    insert into fly_score_rule
         <!-- 添加表字段 -->
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
             <if test="name != null">name,</if>
             <if test="score != null">score,</if>
             <if test="remark != null">remark,</if>
@@ -22,6 +23,7 @@
         </trim>
         <!-- 注入控制层字段 -->
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
             <if test="name != null">#{name},</if>
             <if test="score != null">#{score},</if>
             <if test="remark != null">#{remark},</if>

@@ -89,7 +89,7 @@ public class JobAdminController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return theme.getPcTemplate("404");
         }
-        Job job = jobService.findJobById(Integer.valueOf(id));
+        Job job = jobService.findJobById(Long.parseLong(id));
         modelMap.put("job", job);
         modelMap.addAttribute("admin", getAdminUser());
         return theme.getAdminTemplate("/job/edit_job");
@@ -132,7 +132,7 @@ public class JobAdminController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return data = DataVo.failure("操作失败");
         }
-        Job job = jobService.findJobById(Integer.valueOf(id));
+        Job job = jobService.findJobById(Long.parseLong(id));
         if(job==null){
             return data = DataVo.failure("该任务不存在");
         }
@@ -158,11 +158,11 @@ public class JobAdminController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return data = DataVo.failure("操作失败");
         }
-        Job job = jobService.findJobById(Integer.valueOf(id));
+        Job job = jobService.findJobById(Long.parseLong(id));
         if(job==null){
             return data = DataVo.failure("该任务不存在");
         }
-        data = jobService.deleteJobById(Integer.valueOf(id));
+        data = jobService.deleteJobById(Long.parseLong(id));
         return data;
     }
 

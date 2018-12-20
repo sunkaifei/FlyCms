@@ -21,8 +21,8 @@ import java.io.Serializable;
 @Getter
 public class TopicCategory implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
-    private Integer fatherId;
+    private Long id;
+    private Long fatherId;
     private String name;
     private String customUrl;
     private String keywords;

@@ -5,6 +5,7 @@ import com.flycms.core.utils.BCryptUtils;
 import com.flycms.core.utils.IpUtils;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.admin.dao.AdminDao;
 import com.flycms.module.admin.model.Admin;
 import com.flycms.module.config.service.ConfigService;
@@ -39,6 +40,8 @@ public class AdminService {
         if(this.checkAdminByName(admin.getAdminName())){
             return data=DataVo.success("用户名已被占用！");
         }
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        admin.setId(snowFlake.nextId());
         admin.setPassword(BCryptUtils.hashpw(admin.getPassword(), BCryptUtils.gensalt()));
         admin.setCreateAt(new Date());
         admin.setLastLoginTime(new Date());
@@ -54,7 +57,7 @@ public class AdminService {
     // ///////////////////////////////
     //按id删除管理员信息
     @Transactional
-    public DataVo deleteAdminById(int adminId){
+    public DataVo deleteAdminById(Long adminId){
         DataVo data = DataVo.failure("操作失败");
         int totalCount = adminDao.deleteAdminById(adminId);
         if(totalCount > 0){
@@ -133,7 +136,7 @@ public class AdminService {
     /**
      * 修改管理员密码
      *
-     * @param userId
+     * @param adminId
      *        用户id
      * @param oldPassword
      *        旧密码
@@ -141,15 +144,15 @@ public class AdminService {
      *        新密码
      */
     @Transactional
-    public DataVo updateAdminPassword(Integer userId, String oldPassword, String password) {
+    public DataVo updateAdminPassword(Long adminId, String oldPassword, String password) {
         DataVo data = DataVo.failure("操作失败");
-        Admin user = adminDao.findAdminById(userId,0);
+        Admin user = adminDao.findAdminById(adminId,0);
         if (user == null) {
             return data = DataVo.failure("用户信息错误");
         }
         if (BCryptUtils.checkpw(oldPassword, user.getPassword())) {
             String pwHash = BCryptUtils.hashpw(password, BCryptUtils.gensalt());
-            adminDao.updateAdminPassword(userId,pwHash);
+            adminDao.updateAdminPassword(adminId,pwHash);
         } else {
             return data = DataVo.failure("原始密码错误");
         }
@@ -160,7 +163,7 @@ public class AdminService {
     // ///////////////////////////////
 
     //按用户id查询管理员信息
-    public Admin findAdminById(int adminId, int status){
+    public Admin findAdminById(Long adminId, int status){
         return adminDao.findAdminById(adminId, status);
     }
 
@@ -191,7 +194,7 @@ public class AdminService {
      * @param admin_name
      * @return
      */
-    public boolean checkAdminByName(String admin_name,Integer adminId) {
+    public boolean checkAdminByName(String admin_name,Long adminId) {
         int totalCount = adminDao.checkAdminByName(admin_name, adminId);
         return totalCount > 0 ? true : false;
     }

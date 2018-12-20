@@ -29,24 +29,24 @@ public interface GroupDao {
     // /////       修改       ////////
     // ///////////////////////////////
     //按id修改组名
-    public int updateGroup(@Param("name") String name, @Param("id") int id);
+    public int updateGroup(@Param("name") String name, @Param("id") Long id);
 
     //权限组id和权限id关联
-    public int addGroupPermission(@Param("groupId") int groupId, @Param("permissionId") int permissionId);
+    public int addGroupPermission(@Param("groupId") Long groupId, @Param("permissionId") Long permissionId);
     // ///////////////////////////////
     // /////        删除      ////////
     // ///////////////////////////////
     //按id删除角色信息
-    public int deleteGroup(@Param("id") int id);
+    public int deleteGroup(@Param("id") Long id);
 
     //按id删除角色和权限关联信息
-    public int deleteGroupPermission(@Param("groupId") Integer groupId, @Param("permissionId") Integer permissionId);
+    public int deleteGroupPermission(@Param("groupId") Long groupId, @Param("permissionId") Long permissionId);
 
     // ///////////////////////////////
     // /////       查询       ////////
     // ///////////////////////////////
     //按ID查询权限组信息
-    public Group findGroupById(@Param("id") int id);
+    public Group findGroupById(@Param("id") Long id);
 
     //查询用户组名是否存在
     public int checkGroup(@Param("name") String name);
@@ -61,8 +61,8 @@ public interface GroupDao {
     public List<Group> getAllGroupList();
 
     //按管理员id查询所在会员组id
-    public Integer findUserAndGroupById(@Param("adminId") int adminId);
+    public Integer findUserAndGroupById(@Param("adminId") Long adminId);
 
     //按管理员id查询所在会员组信息
-    public Group findUserByGroup(@Param("adminId") int adminId);
+    public Group findUserByGroup(@Param("adminId") Long adminId);
 }

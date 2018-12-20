@@ -40,7 +40,7 @@ public class OrderService {
     // ///////////////////////////////
     //添加分享订单信息
     @Transactional
-    public DataVo addSharOrdere(Integer shareId, Integer userId){
+    public DataVo addSharOrdere(Long shareId, Long userId){
         DataVo data = DataVo.failure("操作失败");
         Share share=shareService.findShareById(shareId,2);
         if(share == null){

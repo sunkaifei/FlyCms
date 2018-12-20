@@ -13,6 +13,7 @@
 		insert into fly_links
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
 			<if test="type != null and type!='' or type==0">type,</if>
 			<if test="linkName != null and linkName!=''">link_name,</if>
 			<if test="linkUrl != null and linkUrl!=''">link_url,</if>
@@ -23,6 +24,7 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
 			<if test="type != null and type!='' or type==0">#{type},</if>
 			<if test="linkName != null and linkName!=''">#{linkName},</if>
 			<if test="linkUrl != null and linkUrl!=''">#{linkUrl},</if>

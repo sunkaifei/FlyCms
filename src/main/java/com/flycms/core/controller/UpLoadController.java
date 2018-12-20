@@ -61,7 +61,7 @@ public class UpLoadController extends BaseController {
 	private static final String UPLOAD_PATH = "/upload/usertmp/";
 
 	/*
-	 * 上传图片
+	 * wangEditor上传图片
 	 */
     @ResponseBody
     @RequestMapping("/ucenter/upload")
@@ -116,9 +116,66 @@ public class UpLoadController extends BaseController {
         }
         return map;
 	}
+
+    /*
+     * KindEditor编辑器上传图片接口
+     */
+    @ResponseBody
+    @RequestMapping("/ucenter/kindEditorUpload")
+    public Map<String, Object> kindEditorFileUpload(@RequestParam("imgFile") MultipartFile file)throws Exception, IOException{
+        Map<String, Object> map = new HashMap<>();
+        if (!file.isEmpty()) {
+            String proName = Const.UPLOAD_PATH;
+            String path = proName + "/upload/usertmp/"+getUser().getUserId()+"/";
+            String fileName = file.getOriginalFilename();
+            String uploadContentType = file.getContentType();
+            String expandedName = "";
+            if ("image/jpeg".equals(uploadContentType)
+                    || uploadContentType.equals("image/jpeg")) {
+                // IE6上传jpg图片的headimageContentType是image/pjpeg，而IE9以及火狐上传的jpg图片是image/jpeg
+                expandedName = ".jpg";
+            } else if ("image/png".equals(uploadContentType) || "image/x-png".equals(uploadContentType)) {
+                // IE6上传的png图片的headimageContentType是"image/x-png"
+                expandedName = ".png";
+            } else if ("image/gif".equals(uploadContentType)) {
+                expandedName = ".gif";
+            } else if ("image/bmp".equals(uploadContentType)) {
+                expandedName = ".bmp";
+            } else {
+                map.put("errno", 1);
+                map.put("message", "文件格式不正确（必须为.jpg/.gif/.bmp/.png文件）");
+                return map;
+            }
+            if (file.getSize() > 1024 * 1024 * 2) {
+                map.put("errno", 1);
+                map.put("message", "文件大小不得大于2M");
+                return map;
+            }
+
+            DateFormat df = new SimpleDateFormat(DEFAULT_SUB_FOLDER_FORMAT_AUTO);
+            fileName = df.format(new Date()) + expandedName;
+            File dirFile = new File(path + fileName);
+            //判断文件父目录是否存在
+            if(!dirFile.getParentFile().exists()){
+                dirFile.getParentFile().mkdir();
+            }
+            imagesService.uploadFile(file.getBytes(), path, fileName);
+            int port=request.getServerPort();
+            String portstr="";
+            if(port>0){
+                portstr+=":"+port;
+            }
+            map.put("error", 0);
+            map.put("url", "http://"+ request.getServerName()+portstr+"/upload/usertmp/"+getUser().getUserId() + "/" + fileName);
+        } else {
+            map.put("error", 1);
+            map.put("message", "请选择图片");
+        }
+        return map;
+    }
 	
 	@ResponseBody
-	@PutMapping(value = "/admin/upload")
+	@PutMapping(value = "/system/upload")
     public DataVo uploadFile(HttpServletRequest request, ModelMap modelMap){
 		DataVo data = DataVo.failure("操作失败");
 		UpImgMsg msg=new UpImgMsg();

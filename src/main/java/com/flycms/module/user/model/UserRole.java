@@ -21,9 +21,9 @@ import java.util.Date;
 public class UserRole implements Serializable {
     private static final long serialVersionUID = 1L;
     //用户id
-    private Integer userId;
+    private Long userId;
     //用户组id
-    private Integer groupId;
+    private Long groupId;
     //服务开始时间
     private Date serveStartTime;
     //服务结束时间

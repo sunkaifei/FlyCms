@@ -37,16 +37,16 @@ public class Useractivation extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		try {
 			// 获取页面的参数
-			Integer userId=0;
+			Long userId=null;
 			// 获取文件的分页
 			//审核设置，默认0
-			Integer groupId = Integer.parseInt(configService.getStringByKey("user_activation_role"));
+			Long groupId = Long.parseLong(configService.getStringByKey("user_activation_role"));
 			//处理标签变量
 			@SuppressWarnings("unchecked")
 			Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 			for(String str:paramWrap.keySet()){ 
 				if("userId".equals(str)){
-					userId = Integer.parseInt(paramWrap.get(str).toString());
+					userId = Long.parseLong(paramWrap.get(str).toString());
 				}
 			}
 			boolean status = userService.checkUserByActivation(userId,groupId);

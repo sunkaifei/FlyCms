@@ -36,9 +36,9 @@ public class Userfanspage extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
 		//用户名
-		Integer userFollow = null;
+		Long userFollow = null;
 		//昵称
-		Integer userFans = null;
+		Long userFans = null;
 		//手机号码
 		String time = null;
 
@@ -53,10 +53,10 @@ public class Userfanspage extends AbstractTagPlugin {
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){
 			if("userFollow".equals(str)){
-				userFollow = Integer.parseInt(paramWrap.get(str).toString());
+				userFollow = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("userFans".equals(str)){
-				userFans = Integer.parseInt(paramWrap.get(str).toString());
+				userFans = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("time".equals(str)){
 				time = paramWrap.get(str).toString();

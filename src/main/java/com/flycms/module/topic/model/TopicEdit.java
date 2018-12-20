@@ -24,12 +24,12 @@ import java.util.Date;
 @Getter
 public class TopicEdit implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
+    private Long id;
     //用户id
-    private Integer userId;
+    private Long userId;
     //话题id
     @NotNull(message="话题id不能为空！")
-    private Integer topicId;
+    private Long topicId;
     //话题编辑内容
     @NotEmpty(message="话题说明内容不能为空！")
     private String content;

@@ -3,14 +3,14 @@ Navicat MySQL Data Transfer
 
 Source Server         : 开源之家
 Source Server Version : 50723
-Source Host           : 127.0.0.1:3306
+Source Host           : 118.190.151.102:3306
 Source Database       : flycms
 
 Target Server Type    : MYSQL
 Target Server Version : 50723
 File Encoding         : 65001
 
-Date: 2018-12-14 13:30:19
+Date: 2018-12-20 16:02:12
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -20,7 +20,7 @@ SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_admin`;
 CREATE TABLE `fly_admin` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
   `nick_name` varchar(50) DEFAULT NULL,
   `admin_name` varchar(150) NOT NULL,
   `password` varchar(150) NOT NULL,
@@ -35,396 +35,397 @@ CREATE TABLE `fly_admin` (
   `attempts` int(11) DEFAULT '0' COMMENT '尝试登陆此时',
   `attempts_time` datetime DEFAULT NULL COMMENT '最后尝试登陆时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_admin
 -- ----------------------------
-INSERT INTO `fly_admin` VALUES ('1', 'flycms', 'flycms', '$2a$10$HGv0RBwVXs9BGHI6EMmtcuG64t9Slv9LRL../wPNb3Gi.rrfuzAsi', '', '79678111@qq.com', '1', '2018-04-18 09:00:19', '175.12.244.105', '0/1.jpg', '2018-12-14 12:03:09', '192.168.1.4', '0', '2018-12-13 17:13:15');
+INSERT INTO `fly_admin` VALUES ('1', 'flycms', 'flycms', '$2a$10$HGv0RBwVXs9BGHI6EMmtcuG64t9Slv9LRL../wPNb3Gi.rrfuzAsi', '', '79678111@qq.com', '1', '2018-04-18 09:00:19', '175.12.244.105', '0/1.jpg', '2018-12-20 11:31:17', '223.72.68.55', '0', '2018-12-18 19:39:45');
 
 -- ----------------------------
 -- Table structure for `fly_admin_group`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_admin_group`;
 CREATE TABLE `fly_admin_group` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
   `name` varchar(128) NOT NULL DEFAULT '',
   `createAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of fly_admin_group
 -- ----------------------------
-INSERT INTO `fly_admin_group` VALUES ('1', '超级管理员', '2018-03-19 09:58:19');
-INSERT INTO `fly_admin_group` VALUES ('2', 'CEO', '2018-04-27 22:37:18');
-INSERT INTO `fly_admin_group` VALUES ('3', 'CTO', '2018-04-27 22:37:25');
-INSERT INTO `fly_admin_group` VALUES ('4', '项目经理', '2018-04-27 22:37:44');
-INSERT INTO `fly_admin_group` VALUES ('5', '小编', '2018-04-27 22:37:59');
+INSERT INTO `fly_admin_group` VALUES ('272835742965968896', '超级管理员', '2018-03-19 09:58:19');
+INSERT INTO `fly_admin_group` VALUES ('272836180612231168', 'CEO', '2018-04-27 22:37:18');
+INSERT INTO `fly_admin_group` VALUES ('272836256080343040', 'CTO', '2018-04-27 22:37:25');
+INSERT INTO `fly_admin_group` VALUES ('272836335608541184', '小编', '2018-04-27 22:37:59');
 
 -- ----------------------------
 -- Table structure for `fly_admin_group_merge`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_admin_group_merge`;
 CREATE TABLE `fly_admin_group_merge` (
-  `admin_id` int(11) NOT NULL,
-  `group_id` int(11) NOT NULL,
+  `admin_id` bigint(20) NOT NULL,
+  `group_id` bigint(20) NOT NULL,
   PRIMARY KEY (`admin_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of fly_admin_group_merge
 -- ----------------------------
-INSERT INTO `fly_admin_group_merge` VALUES ('1', '1');
+INSERT INTO `fly_admin_group_merge` VALUES ('272843906771857408', '272835742965968896');
 
 -- ----------------------------
 -- Table structure for `fly_admin_group_permission_merge`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_admin_group_permission_merge`;
 CREATE TABLE `fly_admin_group_permission_merge` (
-  `group_id` int(11) NOT NULL,
-  `permission_id` int(11) NOT NULL,
+  `group_id` bigint(20) NOT NULL,
+  `permission_id` bigint(20) NOT NULL,
   PRIMARY KEY (`group_id`,`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of fly_admin_group_permission_merge
 -- ----------------------------
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '130');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '294');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '295');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '299');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '300');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '301');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '302');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '303');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '304');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '305');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '306');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '307');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '308');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '309');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '310');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '311');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '312');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '313');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '314');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '315');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '316');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '317');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '318');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '319');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '320');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '321');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '322');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '323');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '324');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '325');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '326');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '327');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '328');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '329');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '330');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '331');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '332');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '333');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '334');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '335');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '336');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '337');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '338');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '339');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '340');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '341');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '342');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '343');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '344');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '345');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '346');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '347');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '348');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '349');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '350');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '351');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '352');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '353');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '354');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '355');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '356');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '357');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '358');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '359');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '360');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '361');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '362');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '363');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '364');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '365');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '366');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '367');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '368');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '369');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '370');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '371');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '372');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '373');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '374');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '375');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '376');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '377');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '378');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '379');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '380');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '381');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '382');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '383');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '384');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '385');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '386');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '387');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '388');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '389');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '390');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '391');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '392');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '393');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '394');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '395');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '396');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '397');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '398');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '399');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '400');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '401');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '402');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '403');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '404');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '405');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '406');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '407');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '408');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '409');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '410');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '411');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '412');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '413');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '414');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '415');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '416');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '417');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '418');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '419');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '420');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '421');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '422');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '423');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '424');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '425');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '426');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '427');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '428');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '429');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '430');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '431');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '432');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '433');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '434');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '435');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '436');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '437');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '438');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '439');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '440');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '441');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '442');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '443');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '444');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '445');
-INSERT INTO `fly_admin_group_permission_merge` VALUES ('1', '446');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842089837113344');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842090688557056');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842091594526720');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842092127203328');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842092760543232');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842093293219840');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842093821702144');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842094341795840');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842094870278144');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842095398760448');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842095923048448');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842096443142144');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842096954847232');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842097495912448');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842098016006144');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842098536099840');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842099060387840');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842099584675840');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842100121546752');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842100645834752');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842101165928448');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842101686022144');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842102214504448');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842102742986752');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842103263080448');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842103774785536');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842104311656448');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842104840138752');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842105364426752');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842105888714752');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842106413002752');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842106937290752');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842107453190144');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842107981672448');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842108501766144');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842109021859840');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842109541953536');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842110062047232');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842110586335232');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842111106428928');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842111639105536');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842112159199232');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842112679292928');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842113199386624');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842113723674624');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842114243768320');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842114776444928');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842115300732928');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842115816632320');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842116340920320');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842116861014016');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842117385302016');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842117901201408');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842118421295104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842118941388800');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842119457288192');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842119973187584');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842120501669888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842121017569280');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842121537662976');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842122057756672');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842122586238976');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842123118915584');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842123634814976');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842124154908672');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842124687585280');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842125211873280');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842125731966976');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842126247866368');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842126772154368');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842127296442368');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842127837507584');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842128357601280');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842128902860800');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842129427148800');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842129972408320');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842130492502016');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842131008401408');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842131528495104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842132052783104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842132568682496');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842133088776192');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842133608869888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842134133157888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842134661640192');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842135181733888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842135710216192');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842136230309888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842136775569408');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842137295663104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842137819951104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842138340044800');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842138860138496');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842139392815104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842139917103104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842140441391104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842140961484800');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842141481578496');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842142001672192');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842142525960192');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842143046053888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842143570341888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842144094629888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842144627306496');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842145155788800');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842145675882496');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842146200170496');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842146716069888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842147265523712');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842147785617408');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842148309905408');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842148829999104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842149354287104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842149878575104');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842150407057408');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842150931345408');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842151447244800');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842151967338496');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842152495820800');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842153015914496');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842153536008192');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842154056101888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842154580389888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842155100483584');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842155620577280');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842156144865280');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842156698513408');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842157231190016');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842157755478016');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842158288154624');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842158816636928');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842159345119232');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842159861018624');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842160397889536');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842160917983232');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842161438076928');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842161983336448');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842162507624448');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842163036106752');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842163560394752');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842164072099840');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842164600582144');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842165145841664');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272842165665935360');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272843178229641216');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272843256180781056');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272843390931185664');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272843453766053888');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272843648604057600');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272843711870939136');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('272835742965968896', '272843775175569408');
+INSERT INTO `fly_admin_group_permission_merge` VALUES ('1272835742965968896', '272843576441057280');
 
 -- ----------------------------
 -- Table structure for `fly_admin_permission`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_admin_permission`;
 CREATE TABLE `fly_admin_permission` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
   `actionKey` varchar(512) NOT NULL DEFAULT '',
   `controller` varchar(512) NOT NULL DEFAULT '',
   `remark` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=447 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of fly_admin_permission
 -- ----------------------------
-INSERT INTO `fly_admin_permission` VALUES ('130', '/system/index', 'indexController', null);
-INSERT INTO `fly_admin_permission` VALUES ('294', '/system/admin/permission_sync', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('295', '/system/admin/permission_list', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('299', '/system/admin/group_assignPermissions/*', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('300', '/system/admin/permission_update_save', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('301', '/system/admin/permission_update/*', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('302', '/system/admin/delAdmin', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('303', '/system/admin/permission_del', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('304', '/system/admin/group_del', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('305', '/system/admin/update_group_save', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('306', '/system/admin/group_update/*', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('307', '/system/admin/group_markpermissions', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('308', '/system/admin/password_update', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('309', '/system/admin/admin_save', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('310', '/system/admin/admin_password', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('311', '/system/admin/admin_act', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('312', '/system/admin/admin_edit/*', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('313', '/system/admin/add_group', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('314', '/system/admin/add_group_save', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('315', '/system/admin/group_list', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('316', '/system/admin/admin_list', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('317', '/system/admin/admin_add', 'adminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('318', '/system/answer/answer-status', 'answerAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('319', '/system/answer/del', 'answerAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('320', '/system/answer/list_answer', 'answerAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('321', '/system/answer/findId', 'answerAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('322', '/system/article/categorytree', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('323', '/system/article/article-status', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('324', '/system/article/category_delete', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('325', '/system/article/category_drags', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('326', '/system/article/article_list', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('327', '/system/article/index_all_article', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('328', '/system/article/article_add', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('329', '/system/article/article_save', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('330', '/system/article/del', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('331', '/system/article/category_list', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('332', '/system/article/category_add', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('333', '/system/article/category_save', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('334', '/system/article/findId', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('335', '/system/article/category_child', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('336', '/system/article/category_edit', 'articleAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('337', '/system/brand/brand_category_save', 'brandAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('338', '/system/brand/category_list', 'brandAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('339', '/system/brand/category_add', 'brandAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('340', '/system/brand/category_edit/*', 'brandAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('341', '/system/brand/brand_add', 'brandAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('342', '/system/brand/brand_list', 'brandAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('343', '/system/brand/brand_edit/*', 'brandAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('344', '/system/site/web_config', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('345', '/system/site/update_filterKeyword', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('346', '/system/site/delete-filter-keyword', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('347', '/system/site/filterKeyword_list', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('348', '/system/site/userconfig_updagte', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('349', '/system/site/edit_filterKeyword/*', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('350', '/system/site/filterKeyword_save', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('351', '/system/site/smsapi_edit', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('352', '/system/site/smsapi_update', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('353', '/system/site/add_filterKeyword', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('354', '/system/site/user_config', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('355', '/system/site/area_list', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('356', '/system/site/config_footer_updagte', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('357', '/system/site/webconfig_updagte', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('358', '/system/site/conf_guide', 'configAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('359', '/system/email/edit_templets_email/*', 'emailAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('360', '/system/email/email_templets_update', 'emailAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('361', '/system/email/testemail', 'emailAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('362', '/system/email/email_conf_updagte', 'emailAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('363', '/system/email/list_email', 'emailAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('364', '/system/guide/guide_save', 'guideAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('365', '/system/guide/add_guide', 'guideAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('366', '/system/guide/list_guide', 'guideAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('367', '/system/index', 'indexAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('368', '/system/login', 'indexAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('369', '/system/login_act', 'indexAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('370', '/system/logout', 'indexAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('371', '/system/job/update_job', 'jobAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('372', '/system/job/delete', 'jobAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('373', '/system/job/insert', 'jobAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('374', '/system/job/update_status', 'jobAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('375', '/system/job/list_joblog', 'jobAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('376', '/system/job/edit_job/*', 'jobAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('377', '/system/job/list_job', 'jobAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('378', '/system/job/add_job', 'jobAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('379', '/system/links/add', 'linksAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('380', '/system/links/update_links', 'linksAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('381', '/system/links/update/*', 'linksAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('382', '/system/links/list', 'linksAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('383', '/system/links/add_link', 'linksAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('384', '/system/links/delete_link', 'linksAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('385', '/system/market/cost_point_list', 'marketAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('386', '/system/market/pro_speed_list', 'marketAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('387', '/system/market/ticket_list', 'marketAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('388', '/system/market/sale_list', 'marketAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('389', '/system/market/regiment_list', 'marketAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('390', '/system/market/pro_rule_list', 'marketAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('391', '/system/tools/db_bak', 'mySQLAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('392', '/system/order/order_list', 'orderAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('393', '/system/order/order_add', 'orderAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('394', '/system/question/question-status', 'questionAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('395', '/system/question/del', 'questionAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('396', '/system/question/findId', 'questionAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('397', '/system/question/list_question', 'questionAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('398', '/system/question/index_all_question', 'questionAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('399', '/system/question/edit_question/*', 'questionAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('400', '/system/score/list_scorerule', 'scoreAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('401', '/system/score/scorerule_save', 'scoreAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('402', '/system/score/add_scorerule', 'scoreAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('403', '/system/score/scorerule_update', 'scoreAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('404', '/system/score/update_scorerule/*', 'scoreAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('405', '/system/score/rule_status', 'scoreAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('406', '/system/score/del', 'scoreAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('407', '/system/share/categorytree', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('408', '/system/share/category_delete', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('409', '/system/share/share-status', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('410', '/system/share/category_drags', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('411', '/system/share/category_add', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('412', '/system/share/findId', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('413', '/system/share/category_save', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('414', '/system/share/index_all_share', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('415', '/system/share/category_list', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('416', '/system/share/category_child', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('417', '/system/share/category_edit', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('418', '/system/share/list_share', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('419', '/system/indexes/delete_all', 'solrAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('420', '/system/topic/list_topics', 'topicsAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('421', '/system/user/user_list', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('422', '/system/user/group_list', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('423', '/system/user/assignPermissions/*', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('424', '/system/user/permission_update/*', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('425', '/system/user/permission_update_save', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('426', '/system/user/group_update', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('427', '/system/user/permission_sync', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('428', '/system/user/permission_del', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('429', '/system/user/permissionlist', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('430', '/system/user/markpermissions', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('431', '/system/user/user_edit/*', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('432', '/system/user/group_edit/*', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('433', '/system/user/message_list', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('434', '/system/user/group_add', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('435', '/system/user/user_save', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('436', '/system/user/user_add', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('437', '/system/user/withdraw_list', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('438', '/system/user/group_save', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('439', '/system/user/groupsort_update', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('440', '/system/user/user_update', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('441', '/system/user/group_del', 'userAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('442', '/system/score/detail_list', 'scoreAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('443', '/system/share/ztree_category_edit', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('444', '/system/share/ztree_category_save', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('445', '/system/share/category_edit_save', 'shareAdminController', null);
-INSERT INTO `fly_admin_permission` VALUES ('446', '/system/share/allcategory', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842089837113344', '/system/upload', 'upLoadController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842090688557056', '/system/admin/permission_update_save', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842091594526720', '/system/admin/delAdmin', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842092127203328', '/system/admin/permission_del', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842092760543232', '/system/admin/password_update', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842093293219840', '/system/admin/admin_save', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842093821702144', '/system/admin/admin_password', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842094341795840', '/system/admin/add_group_save', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842094870278144', '/system/admin/admin_edit/*', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842095398760448', '/system/admin/group_list', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842095923048448', '/system/admin/admin_add', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842096443142144', '/system/admin/admin_list', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842096954847232', '/system/admin/admin_act', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842097495912448', '/system/admin/add_group', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842098016006144', '/system/answer/answer-status', 'answerAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842098536099840', '/system/answer/del', 'answerAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842099060387840', '/system/answer/findId', 'answerAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842099584675840', '/system/answer/list_answer', 'answerAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842100121546752', '/system/article/category_delete', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842100645834752', '/system/article/categorytree', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842101165928448', '/system/article/article-status', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842101686022144', '/system/article/category_drags', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842102214504448', '/system/article/article_list', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842102742986752', '/system/article/index_all_article', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842103263080448', '/system/article/article_add', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842103774785536', '/system/article/article_save', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842104311656448', '/system/article/category_list', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842104840138752', '/system/article/del', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842105364426752', '/system/article/findId', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842105888714752', '/system/article/category_save', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842106413002752', '/system/article/category_edit', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842106937290752', '/system/article/category_child', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842107453190144', '/system/article/category_add', 'articleAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842107981672448', '/system/brand/brand_category_save', 'brandAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842108501766144', '/system/brand/category_list', 'brandAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842109021859840', '/system/brand/category_add', 'brandAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842109541953536', '/system/brand/brand_add', 'brandAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842110062047232', '/system/brand/brand_edit/*', 'brandAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842110586335232', '/system/brand/category_edit/*', 'brandAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842111106428928', '/system/brand/brand_list', 'brandAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842111639105536', '/system/site/web_config', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842112159199232', '/system/site/update_filterKeyword', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842112679292928', '/system/site/delete-filter-keyword', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842113199386624', '/system/site/userconfig_updagte', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842113723674624', '/system/site/filterKeyword_list', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842114243768320', '/system/site/filterKeyword_save', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842114776444928', '/system/site/edit_filterKeyword/*', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842115300732928', '/system/site/smsapi_edit', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842115816632320', '/system/site/smsapi_update', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842116340920320', '/system/site/add_filterKeyword', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842116861014016', '/system/site/user_config', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842117385302016', '/system/site/area_list', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842117901201408', '/system/site/config_footer_updagte', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842118421295104', '/system/site/webconfig_updagte', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842118941388800', '/system/site/conf_guide', 'configAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842119457288192', '/system/email/edit_templets_email/*', 'emailAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842119973187584', '/system/email/email_templets_update', 'emailAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842120501669888', '/system/email/list_email', 'emailAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842121017569280', '/system/email/testemail', 'emailAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842121537662976', '/system/email/email_conf_updagte', 'emailAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842122057756672', '/system/guide/guide_save', 'guideAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842122586238976', '/system/guide/add_guide', 'guideAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842123118915584', '/system/guide/list_guide', 'guideAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842123634814976', '/system/index', 'indexAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842124154908672', '/system/login', 'indexAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842124687585280', '/system/login_act', 'indexAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842125211873280', '/system/logout', 'indexAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842125731966976', '/system/job/update_job', 'jobAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842126247866368', '/system/job/delete', 'jobAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842126772154368', '/system/job/insert', 'jobAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842127296442368', '/system/job/update_status', 'jobAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842127837507584', '/system/job/add_job', 'jobAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842128357601280', '/system/job/edit_job/*', 'jobAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842128902860800', '/system/job/list_joblog', 'jobAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842129427148800', '/system/job/list_job', 'jobAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842129972408320', '/system/links/add', 'linksAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842130492502016', '/system/links/delete_link', 'linksAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842131008401408', '/system/links/update_links', 'linksAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842131528495104', '/system/links/update/*', 'linksAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842132052783104', '/system/links/add_link', 'linksAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842132568682496', '/system/links/list', 'linksAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842133088776192', '/system/market/pro_speed_list', 'marketAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842133608869888', '/system/market/cost_point_list', 'marketAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842134133157888', '/system/market/regiment_list', 'marketAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842134661640192', '/system/market/sale_list', 'marketAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842135181733888', '/system/market/ticket_list', 'marketAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842135710216192', '/system/market/pro_rule_list', 'marketAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842136230309888', '/system/tools/db_bak', 'mySQLAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842136775569408', '/system/order/order_list', 'orderAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842137295663104', '/system/order/order_add', 'orderAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842137819951104', '/system/question/del', 'questionAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842138340044800', '/system/question/question-status', 'questionAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842138860138496', '/system/question/findId', 'questionAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842139392815104', '/system/question/index_all_question', 'questionAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842139917103104', '/system/question/edit_question/*', 'questionAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842140441391104', '/system/question/list_question', 'questionAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842140961484800', '/system/score/rule_status', 'scoreAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842141481578496', '/system/score/add_scorerule', 'scoreAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842142001672192', '/system/score/scorerule_save', 'scoreAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842142525960192', '/system/score/update_scorerule/*', 'scoreAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842143046053888', '/system/score/scorerule_update', 'scoreAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842143570341888', '/system/score/del', 'scoreAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842144094629888', '/system/score/list_scorerule', 'scoreAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842144627306496', '/system/score/detail_list', 'scoreAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842145155788800', '/system/share/category_delete', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842145675882496', '/system/share/allcategory', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842146200170496', '/system/share/share-status', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842146716069888', '/system/share/category_drags', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842147265523712', '/system/share/category_add', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842147785617408', '/system/share/index_all_share', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842148309905408', '/system/share/category_list', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842148829999104', '/system/share/ztree_category_edit', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842149354287104', '/system/share/category_edit', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842149878575104', '/system/share/category_edit_save', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842150407057408', '/system/share/category_child', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842150931345408', '/system/share/list_share', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842151447244800', '/system/share/ztree_category_save', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842151967338496', '/system/share/category_save', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842152495820800', '/system/share/findId', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842153015914496', '/system/share/categorytree', 'shareAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842153536008192', '/system/indexes/delete_all', 'solrAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842154056101888', '/system/indexes/content_index', 'solrAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842154580389888', '/system/topic/list_topics', 'topicsAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842155100483584', '/system/user/user_list', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842155620577280', '/system/user/group_list', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842156144865280', '/system/user/permission_sync', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842156698513408', '/system/user/assignPermissions/*', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842157231190016', '/system/user/permission_update/*', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842157755478016', '/system/user/group_update', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842158288154624', '/system/user/permission_update_save', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842158816636928', '/system/user/permission_del', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842159345119232', '/system/user/permissionlist', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842159861018624', '/system/user/groupsort_update', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842160397889536', '/system/user/user_update', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842160917983232', '/system/user/group_del', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842161438076928', '/system/user/group_edit/*', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842161983336448', '/system/user/group_save', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842162507624448', '/system/user/markpermissions', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842163036106752', '/system/user/user_save', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842163560394752', '/system/user/user_add', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842164072099840', '/system/user/user_edit/*', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842164600582144', '/system/user/group_add', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842165145841664', '/system/user/withdraw_list', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272842165665935360', '/system/user/message_list', 'userAdminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272843178229641216', '/system/admin/permission_sync', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272843256180781056', '/system/admin/permission_list', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272843390931185664', '/system/admin/group_assignPermissions/*', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272843453766053888', '/system/admin/permission_update/*', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272843576441057280', '/system/admin/group_del', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272843648604057600', '/system/admin/update_group_save', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272843711870939136', '/system/admin/group_update/*', 'adminController', null);
+INSERT INTO `fly_admin_permission` VALUES ('272843775175569408', '/system/admin/group_markpermissions', 'adminController', null);
 
 -- ----------------------------
 -- Table structure for `fly_answer`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_answer`;
 CREATE TABLE `fly_answer` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) DEFAULT '0' COMMENT '评论父级id，针对答案评论的内容',
-  `question_id` int(11) NOT NULL COMMENT '回答问题的ID',
-  `user_id` int(11) NOT NULL COMMENT '用户id',
+  `id` bigint(20) unsigned NOT NULL,
+  `parent_id` bigint(20) DEFAULT '0' COMMENT '评论父级id，针对答案评论的内容',
+  `question_id` bigint(20) NOT NULL COMMENT '回答问题的ID',
+  `user_id` bigint(20) NOT NULL COMMENT '用户id',
   `content` text NOT NULL COMMENT '评论内容',
   `create_time` datetime DEFAULT NULL,
   `status` int(2) DEFAULT '0',
   `weight` decimal(10,2) DEFAULT NULL,
   `last_time` datetime DEFAULT NULL COMMENT '最后评论时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_answer
@@ -435,7 +436,7 @@ CREATE TABLE `fly_answer` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_answer_count`;
 CREATE TABLE `fly_answer_count` (
-  `answer_id` int(11) NOT NULL COMMENT '答案id',
+  `answer_id` bigint(20) NOT NULL COMMENT '答案id',
   `count_digg` int(11) DEFAULT '0' COMMENT '赞同数量',
   `count_burys` int(11) DEFAULT '0' COMMENT '踩数量',
   `count_comment` int(11) DEFAULT '0' COMMENT '评论数量',
@@ -451,7 +452,7 @@ CREATE TABLE `fly_answer_count` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_answer_votes`;
 CREATE TABLE `fly_answer_votes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
   `user_id` int(11) NOT NULL,
   `answer_id` int(11) NOT NULL,
   `digg` int(11) DEFAULT '0' COMMENT '0未顶，1为顶',
@@ -47983,7 +47984,8 @@ INSERT INTO `fly_areas` VALUES ('659004402', '659004', '兵团一零三团', '65
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_article`;
 CREATE TABLE `fly_article` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
+  `short_url` varchar(10) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `title` varchar(250) DEFAULT NULL COMMENT '标题',
   `content` longtext COMMENT '内容',
@@ -47995,8 +47997,9 @@ CREATE TABLE `fly_article` (
   `create_time` datetime DEFAULT NULL COMMENT '发布时间',
   `update_time` datetime DEFAULT NULL COMMENT '最后更新时间',
   `status` tinyint(2) DEFAULT '0' COMMENT '0未审核 1正常状态 2审核未通过 3删除',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8 COMMENT='文章表';
+  PRIMARY KEY (`id`,`short_url`),
+  KEY `index_article` (`id`,`short_url`,`user_id`) USING HASH
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文章表';
 
 -- ----------------------------
 -- Records of fly_article
@@ -48007,8 +48010,8 @@ CREATE TABLE `fly_article` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_article_category`;
 CREATE TABLE `fly_article_category` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `father_id` int(10) DEFAULT '0' COMMENT '上级类目ID，顶级栏目为0',
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `father_id` bigint(20) DEFAULT '0' COMMENT '上级类目ID，顶级栏目为0',
   `name` varchar(50) DEFAULT NULL COMMENT '栏目名称',
   `keywords` varchar(255) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
@@ -48066,9 +48069,9 @@ INSERT INTO `fly_article_category` VALUES ('85', '4', 'c', null, null, '0', '1',
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_article_category_merge`;
 CREATE TABLE `fly_article_category_merge` (
-  `article_id` int(11) NOT NULL COMMENT '文章id',
+  `article_id` bigint(20) unsigned NOT NULL COMMENT '文章id',
   `category_id` varchar(255) NOT NULL COMMENT '包括父级、子级分类id',
-  `type_id` int(11) DEFAULT '0' COMMENT '最终分类',
+  `type_id` bigint(20) DEFAULT '0' COMMENT '最终分类',
   PRIMARY KEY (`article_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -48081,10 +48084,10 @@ CREATE TABLE `fly_article_category_merge` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_article_comment`;
 CREATE TABLE `fly_article_comment` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `article_id` int(11) DEFAULT NULL,
-  `parent_id` int(11) DEFAULT '0' COMMENT '评论归属id，默认为0，',
-  `user_id` int(11) DEFAULT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `article_id` bigint(20) DEFAULT NULL,
+  `parent_id` bigint(20) DEFAULT '0' COMMENT '评论归属id，默认为0，',
+  `user_id` bigint(20) DEFAULT NULL,
   `content` text,
   `create_time` datetime DEFAULT NULL,
   `status` tinyint(2) DEFAULT '0' COMMENT '0未审核 1正常状态 2审核未通过 3删除',
@@ -48103,7 +48106,7 @@ CREATE TABLE `fly_article_comment` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_article_count`;
 CREATE TABLE `fly_article_count` (
-  `article_id` int(11) NOT NULL COMMENT '答案id',
+  `article_id` bigint(20) unsigned NOT NULL COMMENT '答案id',
   `count_digg` int(11) DEFAULT '0' COMMENT '赞同数量',
   `count_burys` int(11) DEFAULT '0' COMMENT '踩数量',
   `count_comment` int(11) DEFAULT '0' COMMENT '评论数量',
@@ -48121,16 +48124,16 @@ CREATE TABLE `fly_article_count` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_article_votes`;
 CREATE TABLE `fly_article_votes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `info_type` tinyint(2) NOT NULL,
-  `info_id` int(11) NOT NULL DEFAULT '0' COMMENT '文章id',
-  `user_id` int(11) NOT NULL,
-  `comment_id` int(11) DEFAULT '0' COMMENT '评论id',
+  `info_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '文章id',
+  `user_id` bigint(20) NOT NULL,
+  `comment_id` bigint(20) DEFAULT '0' COMMENT '评论id',
   `digg` int(11) DEFAULT '0' COMMENT '0未顶，1为顶',
   `burys` int(11) DEFAULT '0' COMMENT '0未踩，1为踩',
   `create_time` datetime DEFAULT NULL COMMENT '添加时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 COMMENT='顶和踩记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COMMENT='顶和踩记录表';
 
 -- ----------------------------
 -- Records of fly_article_votes
@@ -48141,7 +48144,7 @@ CREATE TABLE `fly_article_votes` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_config_smsaip`;
 CREATE TABLE `fly_config_smsaip` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
   `access_key_id` varchar(255) DEFAULT NULL,
   `access_key_secret` varchar(255) DEFAULT NULL,
   `sign_name` varchar(100) DEFAULT NULL COMMENT '短信签名',
@@ -48149,19 +48152,19 @@ CREATE TABLE `fly_config_smsaip` (
   `safe_code` varchar(100) DEFAULT NULL COMMENT '安全手机设置验证码',
   `reset_code` varchar(100) DEFAULT NULL COMMENT '密码重置验证码',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_config_smsaip
 -- ----------------------------
-INSERT INTO `fly_config_smsaip` VALUES ('1', '你的KEYID', '你的secret', '开源之家', '你的模板编号', '你的模板编号', '你的模板编号');
+INSERT INTO `fly_config_smsaip` VALUES ('1', '您的key', '您的secret', '开源之家', 'SMS_143700102', 'SMS_144145857', 'SMS_144150858');
 
 -- ----------------------------
 -- Table structure for `fly_config_web`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_config_web`;
 CREATE TABLE `fly_config_web` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `typebase` int(11) DEFAULT '0' COMMENT '配置类型',
   `keycode` varchar(50) NOT NULL,
   `keyvalue` text,
@@ -48199,8 +48202,8 @@ INSERT INTO `fly_config_web` VALUES ('23', '0', 'user_notallow', '1', '禁止注
 INSERT INTO `fly_config_web` VALUES ('24', '1', 'fly_footer_code', '<footer id=\"footer\">\n<div class=\"container\">\n	<div class=\"text-center\">\n		<a href=\"https://www.28844.com\">开源之家站长社区</a><span class=\"span-line\">|</span> <a href=\"mailto:admin@28844.com\" target=\"_blank\">联系我们</a><span class=\"span-line\">|</span> <a href=\"http://www.miibeian.gov.cn\" target=\"_blank\">京ICP备18041021号-1</a> \n	</div>\n	<div class=\"copyright mt-10\">\n		Powered By <a href=\"http://www.28844.com\" target=\"_blank\">开源之家1.0</a> Release 20180704 ©2009-2018 28844.com\n	</div>\n</div>\n</footer>', '网站底部信息', '000');
 INSERT INTO `fly_config_web` VALUES ('25', '0', 'fly_smtp_server', 'smtp.qq.com', 'smtp服务器', '000');
 INSERT INTO `fly_config_web` VALUES ('26', '0', 'fly_smtp_port', '465', 'smtp服务器端口', '000');
-INSERT INTO `fly_config_web` VALUES ('27', '0', 'fly_smtp_usermail', 'tongzhi@28844.com', 'SMTP服务器的用户邮箱', '000');
-INSERT INTO `fly_config_web` VALUES ('28', '0', 'fly_smtp_password', '你的密码', 'SMTP服务器的用户密码', '000');
+INSERT INTO `fly_config_web` VALUES ('27', '0', 'fly_smtp_usermail', '邮箱有户名', 'SMTP服务器的用户邮箱', '000');
+INSERT INTO `fly_config_web` VALUES ('28', '0', 'fly_smtp_password', '邮件服务器密码', 'SMTP服务器的用户密码', '000');
 INSERT INTO `fly_config_web` VALUES ('29', '0', 'user_article_verify', '1', '文章审核', '000');
 INSERT INTO `fly_config_web` VALUES ('30', '0', 'user_activation_role', '5', '信息完善后权限', '000');
 INSERT INTO `fly_config_web` VALUES ('31', '0', 'user_session_id', 'FlyCmsId', '保持用户登陆状态sessionid', '000');
@@ -48210,12 +48213,12 @@ INSERT INTO `fly_config_web` VALUES ('31', '0', 'user_session_id', 'FlyCmsId', '
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_email_templet`;
 CREATE TABLE `fly_email_templet` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
   `tp_code` varchar(100) NOT NULL COMMENT '模板指定查询代码',
   `title` varchar(100) DEFAULT NULL COMMENT '邮件标题',
   `content` text COMMENT '邮件内容',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_email_templet
@@ -48230,13 +48233,13 @@ INSERT INTO `fly_email_templet` VALUES ('4', 'tese_email', '邮件测试标题',
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_favorite`;
 CREATE TABLE `fly_favorite` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
   `info_type` int(11) NOT NULL COMMENT '收藏类型：1为问题，2为分享，3为文章',
-  `info_id` int(11) NOT NULL COMMENT '被收藏的资源 id',
+  `info_id` bigint(20) NOT NULL COMMENT '被收藏的资源 id',
   `create_time` datetime NOT NULL COMMENT '收藏时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_favorite
@@ -48247,13 +48250,13 @@ CREATE TABLE `fly_favorite` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_feed`;
 CREATE TABLE `fly_feed` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
   `info_type` tinyint(5) NOT NULL COMMENT '信息类型，问答0，文章1，分享2，答案3',
-  `info_id` int(11) NOT NULL COMMENT '信息id',
+  `info_id` bigint(20) unsigned NOT NULL COMMENT '信息id',
   `status` int(2) NOT NULL DEFAULT '1' COMMENT '审核状态',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=149 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=154 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_feed
@@ -48264,10 +48267,10 @@ CREATE TABLE `fly_feed` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_filter_keyword`;
 CREATE TABLE `fly_filter_keyword` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '需要过滤的关键词',
+  `id` bigint(20) unsigned NOT NULL COMMENT '需要过滤的关键词',
   `keyword` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=507 DEFAULT CHARSET=utf8mb4 COMMENT='敏感词表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='敏感词表';
 
 -- ----------------------------
 -- Records of fly_filter_keyword
@@ -48781,7 +48784,7 @@ INSERT INTO `fly_filter_keyword` VALUES ('506', 'Feelmistone');
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_guide`;
 CREATE TABLE `fly_guide` (
-  `id` smallint(5) unsigned NOT NULL COMMENT '排序',
+  `id` bigint(20) unsigned NOT NULL COMMENT '排序',
   `name` varchar(255) NOT NULL COMMENT '导航名字',
   `link` varchar(255) NOT NULL COMMENT '链接地址',
   `sort` int(5) NOT NULL COMMENT '排序',
@@ -48801,14 +48804,11 @@ INSERT INTO `fly_guide` VALUES ('2', '商家管理', 'seller/index', '0', '1');
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_images`;
 CREATE TABLE `fly_images` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `channel_id` int(11) DEFAULT NULL,
-  `tid` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `imgurl` varchar(255) NOT NULL,
-  `imgname` varchar(255) DEFAULT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `img_url` varchar(255) NOT NULL,
+  `img_name` varchar(255) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
-  `filesize` int(11) DEFAULT NULL,
+  `file_size` int(11) DEFAULT NULL,
   `img_width` int(11) DEFAULT NULL,
   `img_height` int(11) DEFAULT NULL,
   `signature` varchar(255) DEFAULT NULL,
@@ -48824,11 +48824,30 @@ CREATE TABLE `fly_images` (
 -- ----------------------------
 
 -- ----------------------------
+-- Table structure for `fly_images_info_merge`
+-- ----------------------------
+DROP TABLE IF EXISTS `fly_images_info_merge`;
+CREATE TABLE `fly_images_info_merge` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `info_id` bigint(20) NOT NULL,
+  `img_id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
+  `pic_id` bigint(20) DEFAULT NULL,
+  `info_type` tinyint(5) DEFAULT NULL COMMENT '信息类型，0问题，1答案，2文章，3分享',
+  `info_count` int(11) DEFAULT '0' COMMENT '统计信息被使用次数',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of fly_images_info_merge
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for `fly_job`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_job`;
 CREATE TABLE `fly_job` (
-  `id` int(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
   `bean_name` varchar(255) DEFAULT NULL,
   `cron_expression` varchar(255) DEFAULT NULL,
   `method_name` varchar(255) DEFAULT NULL,
@@ -48837,7 +48856,7 @@ CREATE TABLE `fly_job` (
   `status` varchar(255) DEFAULT '1' COMMENT '任务状态，0是关闭，1是开启',
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 -- ----------------------------
 -- Records of fly_job
@@ -48850,7 +48869,7 @@ INSERT INTO `fly_job` VALUES ('8', 'myTaskTest', '0/10 * * * * ? *', 'test', '�
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_job_log`;
 CREATE TABLE `fly_job_log` (
-  `id` int(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
   `bean_name` varchar(255) DEFAULT NULL,
   `cron_expression` varchar(255) DEFAULT NULL,
   `error_msg` varchar(255) DEFAULT NULL,
@@ -48861,69 +48880,18 @@ CREATE TABLE `fly_job_log` (
   `times` bigint(20) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=546 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of fly_job_log
 -- ----------------------------
-INSERT INTO `fly_job_log` VALUES ('495', 'myTaskTest', '0/10 * * * * ? *', null, '8', 'test', '测试', '1', '5', '2018-11-07 19:29:50');
-INSERT INTO `fly_job_log` VALUES ('496', 'myTaskTest', '0/10 * * * * ? *', null, '8', 'test', '测试', '1', '1', '2018-11-07 19:30:00');
-INSERT INTO `fly_job_log` VALUES ('497', 'myTaskTest', '0/10 * * * * ? *', null, '8', 'test', '测试', '1', '1', '2018-11-07 19:30:10');
-INSERT INTO `fly_job_log` VALUES ('498', 'myTaskTest', '0/10 * * * * ? *', null, '8', 'test', '测试', '1', '1', '2018-11-07 19:30:20');
-INSERT INTO `fly_job_log` VALUES ('499', 'myTaskTest', '0/10 * * * * ? *', null, '8', 'test', '测试', '1', '1', '2018-11-07 19:30:30');
-INSERT INTO `fly_job_log` VALUES ('500', 'myTaskTest', '0/10 * * * * ? *', null, '8', 'test', '测试', '1', '3', '2018-11-08 01:05:50');
-INSERT INTO `fly_job_log` VALUES ('501', 'myTaskTest', '0/10 * * * * ? *', null, '8', 'test', '测试', '1', '1', '2018-11-08 01:06:00');
-INSERT INTO `fly_job_log` VALUES ('502', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '6142', '2018-11-09 10:41:06');
-INSERT INTO `fly_job_log` VALUES ('503', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '13385', '2018-11-09 10:41:13');
-INSERT INTO `fly_job_log` VALUES ('504', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '2552', '2018-11-10 10:41:03');
-INSERT INTO `fly_job_log` VALUES ('505', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '6592', '2018-11-10 10:41:07');
-INSERT INTO `fly_job_log` VALUES ('506', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '2240', '2018-11-11 10:41:02');
-INSERT INTO `fly_job_log` VALUES ('507', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '1969', '2018-11-12 10:41:02');
-INSERT INTO `fly_job_log` VALUES ('508', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '2549', '2018-11-13 10:41:03');
-INSERT INTO `fly_job_log` VALUES ('509', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '7153', '2018-11-13 10:41:07');
-INSERT INTO `fly_job_log` VALUES ('510', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '4960', '2018-11-14 10:41:05');
-INSERT INTO `fly_job_log` VALUES ('511', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '7418', '2018-11-14 10:41:08');
-INSERT INTO `fly_job_log` VALUES ('512', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '1812', '2018-11-15 10:41:02');
-INSERT INTO `fly_job_log` VALUES ('513', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '1373', '2018-11-16 10:41:01');
-INSERT INTO `fly_job_log` VALUES ('514', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '1476', '2018-11-17 10:41:01');
-INSERT INTO `fly_job_log` VALUES ('515', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '1113', '2018-11-18 10:41:01');
-INSERT INTO `fly_job_log` VALUES ('516', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '1425', '2018-11-19 10:41:01');
-INSERT INTO `fly_job_log` VALUES ('517', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '1676', '2018-11-20 10:41:02');
-INSERT INTO `fly_job_log` VALUES ('518', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '1224', '2018-11-21 10:41:01');
-INSERT INTO `fly_job_log` VALUES ('519', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '3799', '2018-11-22 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('520', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '10480', '2018-11-22 10:41:11');
-INSERT INTO `fly_job_log` VALUES ('521', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '1764', '2018-11-23 10:41:02');
-INSERT INTO `fly_job_log` VALUES ('522', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '4058', '2018-11-24 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('523', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '5866', '2018-11-25 10:41:06');
-INSERT INTO `fly_job_log` VALUES ('524', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '14208', '2018-11-25 10:41:14');
-INSERT INTO `fly_job_log` VALUES ('525', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '4184', '2018-11-26 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('526', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '4120', '2018-11-27 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('527', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '3867', '2018-11-28 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('528', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '3486', '2018-11-29 10:41:03');
-INSERT INTO `fly_job_log` VALUES ('529', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '3900', '2018-11-30 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('530', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '3874', '2018-12-01 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('531', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '3459', '2018-12-02 10:41:03');
-INSERT INTO `fly_job_log` VALUES ('532', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '3968', '2018-12-03 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('533', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '4825', '2018-12-04 10:41:05');
-INSERT INTO `fly_job_log` VALUES ('534', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '4090', '2018-12-05 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('535', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '4157', '2018-12-06 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('536', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '4511', '2018-12-07 10:41:05');
-INSERT INTO `fly_job_log` VALUES ('537', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '6320', '2018-12-08 10:41:06');
-INSERT INTO `fly_job_log` VALUES ('538', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '4303', '2018-12-09 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('539', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '4385', '2018-12-10 10:41:04');
-INSERT INTO `fly_job_log` VALUES ('540', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '13472', '2018-12-11 10:41:13');
-INSERT INTO `fly_job_log` VALUES ('541', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '23487', '2018-12-11 10:41:24');
-INSERT INTO `fly_job_log` VALUES ('542', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '5614', '2018-12-12 10:41:06');
-INSERT INTO `fly_job_log` VALUES ('543', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '7353', '2018-12-13 10:41:07');
-INSERT INTO `fly_job_log` VALUES ('544', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '35494', '2018-12-13 10:41:36');
-INSERT INTO `fly_job_log` VALUES ('545', 'myTaskTest', '0 41 10 * * ?', null, '2', 'test1', null, '1', '6134', '2018-12-14 10:41:06');
 
 -- ----------------------------
 -- Table structure for `fly_links`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_links`;
 CREATE TABLE `fly_links` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
   `type` int(5) DEFAULT '0' COMMENT '有钱链接类型：0文字链接，1logo链接',
   `link_name` varchar(100) DEFAULT NULL COMMENT '网站名称',
   `link_url` varchar(255) DEFAULT NULL COMMENT '网站地址',
@@ -48932,7 +48900,7 @@ CREATE TABLE `fly_links` (
   `sort` int(5) DEFAULT '0' COMMENT '排序',
   `create_time` datetime DEFAULT NULL COMMENT '添加时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='友情链接表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='友情链接表';
 
 -- ----------------------------
 -- Records of fly_links
@@ -48944,9 +48912,9 @@ INSERT INTO `fly_links` VALUES ('2', '0', '开源之家', 'http://www.28844.com'
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_message`;
 CREATE TABLE `fly_message` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `from_id` int(11) NOT NULL COMMENT '发件人id',
-  `to_id` int(11) NOT NULL COMMENT '收件人id',
+  `id` bigint(20) unsigned NOT NULL,
+  `from_id` bigint(20) NOT NULL COMMENT '发件人id',
+  `to_id` bigint(20) NOT NULL COMMENT '收件人id',
   `subject` varchar(255) DEFAULT NULL COMMENT '信息标题',
   `message` text COMMENT '信息内容',
   `send_time` datetime DEFAULT NULL COMMENT '发送时间',
@@ -48966,8 +48934,9 @@ CREATE TABLE `fly_message` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_question`;
 CREATE TABLE `fly_question` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
+  `id` bigint(20) unsigned NOT NULL,
+  `short_url` varchar(10) NOT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
   `title` varchar(100) NOT NULL,
   `content` text,
   `score` int(11) DEFAULT '0' COMMENT '最佳答案奖励金币数量',
@@ -48976,7 +48945,7 @@ CREATE TABLE `fly_question` (
   `update_time` datetime DEFAULT NULL COMMENT '最后更新时间',
   `status` tinyint(2) DEFAULT '0' COMMENT '0未审核 1正常状态 2审核未通过 3删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_question
@@ -48987,7 +48956,7 @@ CREATE TABLE `fly_question` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_question_count`;
 CREATE TABLE `fly_question_count` (
-  `question_id` int(11) NOT NULL,
+  `question_id` bigint(20) NOT NULL,
   `count_answer` int(11) DEFAULT '0' COMMENT '答案数量',
   `count_view` int(11) DEFAULT '0' COMMENT '该问题浏览数量',
   `count_digg` int(11) DEFAULT '0',
@@ -49006,8 +48975,8 @@ CREATE TABLE `fly_question_count` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_question_follow_merge`;
 CREATE TABLE `fly_question_follow_merge` (
-  `question_id` int(11) NOT NULL COMMENT '被关注的问题',
-  `user_id` int(11) NOT NULL COMMENT '关注者id',
+  `question_id` bigint(20) NOT NULL COMMENT '被关注的问题',
+  `user_id` bigint(20) NOT NULL COMMENT '关注者id',
   UNIQUE KEY `question_follow_index` (`question_id`,`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -49020,9 +48989,9 @@ CREATE TABLE `fly_question_follow_merge` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_score_detail`;
 CREATE TABLE `fly_score_detail` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL,
   `type` varchar(100) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
   `score` int(11) DEFAULT NULL,
   `balance` int(11) DEFAULT NULL,
   `remark` varchar(255) DEFAULT NULL,
@@ -49031,7 +49000,7 @@ CREATE TABLE `fly_score_detail` (
   `create_time` datetime DEFAULT NULL,
   `status` tinyint(2) DEFAULT '1' COMMENT '审核状态',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_score_detail
@@ -49042,7 +49011,7 @@ CREATE TABLE `fly_score_detail` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_score_rule`;
 CREATE TABLE `fly_score_rule` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) DEFAULT NULL COMMENT '规则名称',
   `score` int(11) DEFAULT NULL COMMENT '变化积分',
   `remark` varchar(255) DEFAULT NULL COMMENT '说明',
@@ -49064,10 +49033,11 @@ INSERT INTO `fly_score_rule` VALUES ('2', '邀请注册', '100', '通过邀请�
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_share`;
 CREATE TABLE `fly_share` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
+  `short_url` varchar(10) NOT NULL,
   `title` varchar(100) NOT NULL,
   `content` text COMMENT '下载内容介绍',
-  `user_id` int(11) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
   `needmoney` smallint(5) DEFAULT '0' COMMENT '需要的金币',
   `downloads` text COMMENT '下载地址',
   `hide` tinyint(2) DEFAULT '0' COMMENT '是否匿名，0否，1是',
@@ -49076,7 +49046,7 @@ CREATE TABLE `fly_share` (
   `update_time` datetime DEFAULT NULL COMMENT '最后更新时间',
   `status` tinyint(2) DEFAULT '0' COMMENT '0未审核 1正常状态 2审核未通过 3删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_share
@@ -49087,8 +49057,8 @@ CREATE TABLE `fly_share` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_share_category`;
 CREATE TABLE `fly_share_category` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `father_id` int(10) DEFAULT '0' COMMENT '上级类目ID，顶级栏目为0',
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `father_id` bigint(20) DEFAULT '0' COMMENT '上级类目ID，顶级栏目为0',
   `name` varchar(50) DEFAULT NULL COMMENT '栏目名称',
   `keywords` varchar(255) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
@@ -49103,15 +49073,31 @@ CREATE TABLE `fly_share_category` (
 -- ----------------------------
 -- Records of fly_share_category
 -- ----------------------------
+INSERT INTO `fly_share_category` VALUES ('1', '0', '移动开发', '移动开发', '移动开发', '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('2', '0', '课程资源', '课程资源', '课程资源', '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('85', '0', '考试认证', '考试认证', '考试认证', '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('86', '2', '编程教学', '编程教学', '编程教学', '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('87', '1', 'NewNode1', null, null, '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('88', '0', 'NewNode2', null, null, '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('89', '85', 'NewNode3', null, null, '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('90', '1', 'NewNode4', null, null, '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('91', '88', 'NewNode5', null, null, '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('92', '91', 'NewNode64', null, null, '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('93', '2', 'NewNode7', null, null, '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('94', '1', 'NewNode8', null, null, '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('95', '85', 'NewNode9', null, null, '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('96', '1', 'tyrtyrtyrty', null, null, '0', '1', '0', '1');
+INSERT INTO `fly_share_category` VALUES ('97', '2', 'rtetertertre', null, null, '0', '1', '0', '0');
+INSERT INTO `fly_share_category` VALUES ('98', '1', 'sfdssd333', null, null, '0', '1', '0', '0');
 
 -- ----------------------------
 -- Table structure for `fly_share_category_merge`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_share_category_merge`;
 CREATE TABLE `fly_share_category_merge` (
-  `article_id` int(11) NOT NULL COMMENT '文章id',
+  `article_id` bigint(20) NOT NULL COMMENT '文章id',
   `category_id` varchar(255) NOT NULL COMMENT '包括父级、子级分类id',
-  `type_id` int(11) DEFAULT '0' COMMENT '最终分类',
+  `type_id` bigint(20) DEFAULT '0' COMMENT '最终分类',
   PRIMARY KEY (`article_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -49124,10 +49110,10 @@ CREATE TABLE `fly_share_category_merge` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_share_comment`;
 CREATE TABLE `fly_share_comment` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `article_id` int(11) DEFAULT NULL,
-  `parent_id` int(11) DEFAULT '0' COMMENT '评论归属id，默认为0，',
-  `user_id` int(11) DEFAULT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `share_id` bigint(20) DEFAULT NULL,
+  `parent_id` bigint(20) DEFAULT '0' COMMENT '评论归属id，默认为0，',
+  `user_id` bigint(20) DEFAULT NULL,
   `content` text,
   `create_time` datetime DEFAULT NULL,
   `status` tinyint(1) DEFAULT '0' COMMENT '0未审核 1正常状态 2审核未通过 3删除',
@@ -49143,7 +49129,7 @@ CREATE TABLE `fly_share_comment` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_share_count`;
 CREATE TABLE `fly_share_count` (
-  `share_id` int(11) NOT NULL,
+  `share_id` bigint(20) NOT NULL,
   `count_view` int(11) DEFAULT '0' COMMENT '浏览次数',
   `count_downloads` int(11) DEFAULT '0' COMMENT '下载次数',
   `count_comment` int(11) DEFAULT '0' COMMENT '评论次数',
@@ -49163,9 +49149,9 @@ CREATE TABLE `fly_share_count` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_share_order`;
 CREATE TABLE `fly_share_order` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `share_id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL COMMENT '用户id',
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `share_id` bigint(20) NOT NULL,
+  `user_id` bigint(20) DEFAULT NULL COMMENT '用户id',
   `status` tinyint(2) DEFAULT '0' COMMENT '订单支付状态，0未支付，1为支付',
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -49180,9 +49166,9 @@ CREATE TABLE `fly_share_order` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_share_votes`;
 CREATE TABLE `fly_share_votes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `share_id` int(11) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
+  `share_id` bigint(20) NOT NULL,
   `digg` int(11) DEFAULT '0' COMMENT '0未顶，1为顶',
   `burys` int(11) DEFAULT '0' COMMENT '0未踩，1为踩',
   `create_time` datetime DEFAULT NULL COMMENT '添加时间',
@@ -49198,8 +49184,8 @@ CREATE TABLE `fly_share_votes` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_templet`;
 CREATE TABLE `fly_templet` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `userId` int(11) NOT NULL COMMENT '用户id',
+  `id` bigint(11) unsigned NOT NULL,
+  `user_id` bigint(11) NOT NULL COMMENT '用户id',
   `name` varchar(100) DEFAULT NULL COMMENT '模板名称',
   `author` varchar(50) DEFAULT NULL COMMENT '作者',
   `version` varchar(20) DEFAULT NULL COMMENT '模板版本号',
@@ -49208,7 +49194,7 @@ CREATE TABLE `fly_templet` (
   `mold` int(11) DEFAULT NULL COMMENT '模板类型，1pc，2移动端',
   `addtimt` datetime DEFAULT NULL COMMENT '添加时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_templet
@@ -49220,9 +49206,9 @@ INSERT INTO `fly_templet` VALUES ('1', '1', '而特特让他你', null, null, nu
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_topic`;
 CREATE TABLE `fly_topic` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL,
   `topic` varchar(100) NOT NULL,
-  `url` varchar(255) DEFAULT NULL,
+  `short_url` varchar(10) NOT NULL,
   `topic_image` varchar(255) DEFAULT NULL,
   `content` text,
   `count_view` int(11) DEFAULT '0' COMMENT '浏览次数',
@@ -49232,169 +49218,19 @@ CREATE TABLE `fly_topic` (
   `status` int(2) DEFAULT '0' COMMENT '审核设置',
   `create_time` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=154 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_topic
 -- ----------------------------
-INSERT INTO `fly_topic` VALUES ('3', 'dgddf', null, null, '', '0', '1', '0', '0', '0', '2018-08-19 23:41:31');
-INSERT INTO `fly_topic` VALUES ('4', 'gfhfgh', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 08:44:16');
-INSERT INTO `fly_topic` VALUES ('5', 'dfgdfg', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 08:48:46');
-INSERT INTO `fly_topic` VALUES ('6', 'tyrtyrtyrt', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 08:55:51');
-INSERT INTO `fly_topic` VALUES ('7', 'fdgdfg', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 08:59:06');
-INSERT INTO `fly_topic` VALUES ('8', 'gfhfghfg', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 09:01:01');
-INSERT INTO `fly_topic` VALUES ('9', 'fdgdfgfd', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 09:06:21');
-INSERT INTO `fly_topic` VALUES ('10', 'aseasdasda', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 09:32:08');
-INSERT INTO `fly_topic` VALUES ('11', 'gfhfghgh', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 09:38:09');
-INSERT INTO `fly_topic` VALUES ('12', 'fdffdg', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 09:51:32');
-INSERT INTO `fly_topic` VALUES ('13', 'fgfgf', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 10:11:40');
-INSERT INTO `fly_topic` VALUES ('14', 'gghj', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 10:23:11');
-INSERT INTO `fly_topic` VALUES ('15', 'dfsdfssddf', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 10:39:46');
-INSERT INTO `fly_topic` VALUES ('16', 'wqeqwe', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 11:13:52');
-INSERT INTO `fly_topic` VALUES ('17', 'gfdhhfghfg', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 11:28:15');
-INSERT INTO `fly_topic` VALUES ('18', 'fgfgdfgdfg', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 11:46:28');
-INSERT INTO `fly_topic` VALUES ('19', 'sdfsdf', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 14:22:37');
-INSERT INTO `fly_topic` VALUES ('20', 'gggg', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 15:44:22');
-INSERT INTO `fly_topic` VALUES ('21', 'hgfhfgfg', null, null, '', '0', '1', '0', '0', '0', '2018-08-20 16:31:01');
-INSERT INTO `fly_topic` VALUES ('22', 'fgdfg', null, null, '', '0', '1', '0', '0', '0', '2018-08-28 15:13:55');
-INSERT INTO `fly_topic` VALUES ('23', 'gdfgfdg', null, null, '', '0', '1', '0', '0', '0', '2018-08-28 15:13:55');
-INSERT INTO `fly_topic` VALUES ('24', 'hgghg', null, null, '', '0', '1', '0', '0', '0', '2018-08-28 15:30:11');
-INSERT INTO `fly_topic` VALUES ('25', 'ghffghfgh', null, null, '', '0', '1', '0', '0', '0', '2018-08-28 15:32:22');
-INSERT INTO `fly_topic` VALUES ('26', 'mysql', null, null, '', '0', '12', '0', '0', '1', '2018-08-29 19:55:00');
-INSERT INTO `fly_topic` VALUES ('27', 'BootStrap', null, null, '', '0', '1', '0', '1', '1', '2018-09-03 17:08:27');
-INSERT INTO `fly_topic` VALUES ('28', 'maven', null, null, '', '0', '2', '0', '0', '1', '2018-09-06 15:20:29');
-INSERT INTO `fly_topic` VALUES ('29', 'maven打包', null, null, '', '0', '1', '0', '0', '1', '2018-09-06 15:20:29');
-INSERT INTO `fly_topic` VALUES ('30', 'freemarker', null, null, '', '0', '5', '0', '1', '1', '2018-09-06 15:58:05');
-INSERT INTO `fly_topic` VALUES ('31', 'java', null, null, '', '0', '12', '0', '0', '1', '2018-09-09 16:13:09');
-INSERT INTO `fly_topic` VALUES ('32', '占位符', null, null, '', '0', '1', '0', '0', '1', '2018-09-09 16:13:10');
-INSERT INTO `fly_topic` VALUES ('33', 'dfsfsd', null, null, '', '0', '1', '0', '0', '0', '2018-09-09 16:21:22');
-INSERT INTO `fly_topic` VALUES ('34', 'CKEditor', null, null, 'CKEditor即大名鼎鼎的FCKeditor，它终于在最近发布新版本了，与增加版本号不同，这次完全把它改名了，更名为CKeditor。这应该是和它的开发公司CKSource(波兰华沙的公司)的名字有关吧，该公司的另一个产品为CKFinder（一个Ajax文件管理器），这次可能为了保持一致，将FCK更改为CK，但是版本号继承了下来，为CKeditor5.0版。', '0', '3', '0', '1', '1', '2018-09-09 16:23:07');
-INSERT INTO `fly_topic` VALUES ('35', 'kill命令', null, null, '', '0', '1', '0', '0', '1', '2018-09-09 18:58:34');
-INSERT INTO `fly_topic` VALUES ('36', '过滤器', null, null, '', '0', '1', '0', '0', '1', '2018-09-12 11:46:16');
-INSERT INTO `fly_topic` VALUES ('37', 'spring', null, null, '', '0', '1', '2', '1', '1', '2018-09-12 11:46:16');
-INSERT INTO `fly_topic` VALUES ('38', 'Solr', null, null, '', '0', '1', '0', '0', '1', '2018-09-27 12:20:08');
-INSERT INTO `fly_topic` VALUES ('39', '测试', null, null, '', '0', '0', '0', '0', '1', '2018-09-27 22:33:06');
-INSERT INTO `fly_topic` VALUES ('40', 'CentOS', null, null, '', '0', '2', '0', '0', '1', '2018-09-28 21:25:17');
-INSERT INTO `fly_topic` VALUES ('41', 'Tomcat', null, null, '', '0', '1', '0', '0', '1', '2018-09-28 21:25:17');
-INSERT INTO `fly_topic` VALUES ('42', 'html', null, null, '', '0', '0', '0', '0', '1', '2018-09-29 09:19:47');
-INSERT INTO `fly_topic` VALUES ('43', 'select', null, null, '', '0', '0', '0', '0', '1', '2018-09-29 09:19:47');
-INSERT INTO `fly_topic` VALUES ('44', '下拉框', null, null, '', '0', '0', '0', '0', '1', '2018-09-29 09:19:47');
-INSERT INTO `fly_topic` VALUES ('45', 'commons-lang3', null, null, '', '0', '1', '0', '0', '1', '2018-09-29 12:03:32');
-INSERT INTO `fly_topic` VALUES ('46', 'StringEscapeUtils', null, null, '', '0', '1', '0', '0', '1', '2018-09-29 12:03:32');
-INSERT INTO `fly_topic` VALUES ('47', 'unescapeHtml', null, null, '', '0', '1', '0', '0', '1', '2018-09-29 13:08:12');
-INSERT INTO `fly_topic` VALUES ('48', 'Spring Boot', null, null, '', '0', '1', '0', '0', '1', '2018-09-30 14:10:42');
-INSERT INTO `fly_topic` VALUES ('49', 'HTTP400错误', null, null, '', '0', '1', '0', '0', '1', '2018-09-30 14:10:42');
-INSERT INTO `fly_topic` VALUES ('50', 'mybatis', null, null, '', '0', '0', '0', '0', '1', '2018-10-01 13:11:22');
-INSERT INTO `fly_topic` VALUES ('51', 'assembly', null, null, '', '0', '1', '0', '0', '1', '2018-10-07 12:09:11');
-INSERT INTO `fly_topic` VALUES ('52', 'Springboot', null, null, '', '0', '9', '0', '0', '1', '2018-10-07 12:09:11');
-INSERT INTO `fly_topic` VALUES ('53', 'Linux', null, null, '', '0', '6', '0', '0', '1', '2018-10-15 09:06:00');
-INSERT INTO `fly_topic` VALUES ('54', 'nohup', null, null, '', '0', '1', '0', '0', '1', '2018-10-15 09:06:00');
-INSERT INTO `fly_topic` VALUES ('55', 'FlyCms', null, null, '', '0', '1', '0', '0', '1', '2018-10-15 09:06:00');
-INSERT INTO `fly_topic` VALUES ('56', 'Modal', null, null, '', '0', '1', '0', '0', '1', '2018-10-16 13:09:49');
-INSERT INTO `fly_topic` VALUES ('57', 'idea', null, null, '', '0', '1', '0', '0', '1', '2018-10-16 13:20:53');
-INSERT INTO `fly_topic` VALUES ('58', 'jquery', null, null, '', '0', '3', '0', '0', '1', '2018-10-17 10:39:23');
-INSERT INTO `fly_topic` VALUES ('59', 'ajax', null, null, '', '0', '1', '0', '0', '1', '2018-10-17 10:39:23');
-INSERT INTO `fly_topic` VALUES ('60', 'ehcache', null, null, '', '0', '3', '0', '0', '1', '2018-10-20 18:02:45');
-INSERT INTO `fly_topic` VALUES ('61', 'css', null, null, '', '0', '1', '0', '0', '1', '2018-10-20 18:09:33');
-INSERT INTO `fly_topic` VALUES ('62', '缓存配置', null, null, '', '0', '1', '0', '0', '1', '2018-10-22 09:51:04');
-INSERT INTO `fly_topic` VALUES ('63', 'Integer', null, null, '', '0', '1', '0', '0', '1', '2018-10-22 12:45:44');
-INSERT INTO `fly_topic` VALUES ('64', '.equals()', null, null, '', '0', '1', '0', '0', '1', '2018-10-22 12:45:44');
-INSERT INTO `fly_topic` VALUES ('65', '阿里', null, null, '', '0', '1', '0', '0', '1', '2018-10-22 21:58:30');
-INSERT INTO `fly_topic` VALUES ('66', '面试题', null, null, '', '0', '1', '0', '0', '1', '2018-10-22 21:58:30');
-INSERT INTO `fly_topic` VALUES ('67', 'StringUtils', null, null, '', '0', '1', '1', '0', '1', '2018-10-24 13:02:04');
-INSERT INTO `fly_topic` VALUES ('68', '话题', null, null, '', '0', '1', '0', '0', '1', '2018-10-24 15:54:16');
-INSERT INTO `fly_topic` VALUES ('70', 'security', null, null, '', '0', '1', '0', '0', '1', '2018-10-25 09:17:52');
-INSERT INTO `fly_topic` VALUES ('71', '二进制', null, null, '', '0', '1', '0', '0', '1', '2018-10-25 10:33:49');
-INSERT INTO `fly_topic` VALUES ('72', '十进制', null, null, '', '0', '1', '0', '0', '1', '2018-10-25 10:33:50');
-INSERT INTO `fly_topic` VALUES ('73', '并发编程', null, null, '', '0', '0', '0', '0', '1', '2018-10-31 20:20:29');
-INSERT INTO `fly_topic` VALUES ('74', 'Lock', null, null, '', '0', '0', '0', '0', '1', '2018-10-31 20:20:29');
-INSERT INTO `fly_topic` VALUES ('75', '瀑布流', null, null, '', '0', '0', '0', '0', '1', '2018-11-01 11:39:21');
-INSERT INTO `fly_topic` VALUES ('76', '插件', null, null, '', '0', '0', '0', '0', '1', '2018-11-01 11:39:21');
-INSERT INTO `fly_topic` VALUES ('77', 'Masonry', null, null, '', '0', '0', '0', '0', '1', '2018-11-01 11:39:21');
-INSERT INTO `fly_topic` VALUES ('78', '数组', null, null, '', '0', '1', '0', '0', '1', '2018-11-04 19:34:05');
-INSERT INTO `fly_topic` VALUES ('79', 'List', null, null, '', '0', '1', '0', '0', '1', '2018-11-04 19:34:05');
-INSERT INTO `fly_topic` VALUES ('80', 'Set', null, null, '', '0', '1', '0', '0', '1', '2018-11-04 19:34:05');
-INSERT INTO `fly_topic` VALUES ('81', '相互转化', null, null, '', '0', '1', '0', '0', '1', '2018-11-04 19:34:05');
-INSERT INTO `fly_topic` VALUES ('82', 'javascript', null, null, '', '0', '1', '0', '0', '1', '2018-11-05 09:37:28');
-INSERT INTO `fly_topic` VALUES ('83', 'windows', null, null, '', '0', '1', '0', '0', '1', '2018-11-05 09:37:28');
-INSERT INTO `fly_topic` VALUES ('84', 'Java8', null, null, '', '0', '3', '0', '0', '1', '2018-11-06 08:55:00');
-INSERT INTO `fly_topic` VALUES ('85', '拉姆达表达式', null, null, '', '0', '0', '0', '0', '1', '2018-11-06 08:55:00');
-INSERT INTO `fly_topic` VALUES ('86', 'forEach', null, null, '', '0', '0', '0', '0', '1', '2018-11-06 08:55:00');
-INSERT INTO `fly_topic` VALUES ('87', '遍历', null, null, '', '0', '0', '0', '0', '1', '2018-11-06 08:55:00');
-INSERT INTO `fly_topic` VALUES ('88', 'Oracle', null, null, '', '0', '0', '0', '0', '1', '2018-11-14 10:05:39');
-INSERT INTO `fly_topic` VALUES ('89', 'update', null, null, '', '0', '0', '0', '0', '1', '2018-11-14 10:05:39');
-INSERT INTO `fly_topic` VALUES ('90', '功能未完善', null, null, '', '0', '1', '0', '0', '1', '2018-11-14 14:05:46');
-INSERT INTO `fly_topic` VALUES ('91', '日期格式', null, null, '', '0', '1', '0', '0', '1', '2018-11-22 11:34:40');
-INSERT INTO `fly_topic` VALUES ('92', '日期判断', null, null, '', '0', '1', '0', '0', '1', '2018-11-22 11:34:40');
-INSERT INTO `fly_topic` VALUES ('93', 'cookie', null, null, '', '0', '2', '0', '0', '1', '2018-11-22 15:51:06');
-INSERT INTO `fly_topic` VALUES ('94', 'List集合', null, null, '', '0', '0', '0', '0', '1', '2018-11-22 15:57:39');
-INSERT INTO `fly_topic` VALUES ('95', '常用操作', null, null, '', '0', '0', '0', '0', '1', '2018-11-22 15:57:39');
-INSERT INTO `fly_topic` VALUES ('96', 'module', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 17:47:41');
-INSERT INTO `fly_topic` VALUES ('97', 'Postman', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 18:48:09');
-INSERT INTO `fly_topic` VALUES ('98', 'PathVariable', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 18:48:09');
-INSERT INTO `fly_topic` VALUES ('99', 'RequestParam', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 18:48:09');
-INSERT INTO `fly_topic` VALUES ('100', 'OPtional', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 18:58:14');
-INSERT INTO `fly_topic` VALUES ('101', 'orElse()', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 18:58:14');
-INSERT INTO `fly_topic` VALUES ('102', 'Optional类', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 19:04:13');
-INSERT INTO `fly_topic` VALUES ('103', '深度解析', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 19:04:13');
-INSERT INTO `fly_topic` VALUES ('104', 'nginx', null, null, '', '0', '6', '0', '0', '1', '2018-11-23 20:21:28');
-INSERT INTO `fly_topic` VALUES ('105', '反向代理', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 20:21:28');
-INSERT INTO `fly_topic` VALUES ('106', '静态资源', null, null, '', '0', '2', '0', '0', '1', '2018-11-23 20:21:28');
-INSERT INTO `fly_topic` VALUES ('107', '404问题', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 20:21:28');
-INSERT INTO `fly_topic` VALUES ('108', '新特性', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 20:31:01');
-INSERT INTO `fly_topic` VALUES ('109', '关键字', null, null, '', '0', '3', '0', '0', '1', '2018-11-23 20:35:20');
-INSERT INTO `fly_topic` VALUES ('110', 'return', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 20:43:04');
-INSERT INTO `fly_topic` VALUES ('111', 'break', null, null, '', '0', '0', '0', '0', '1', '2018-11-23 20:45:28');
-INSERT INTO `fly_topic` VALUES ('112', 'continue', null, null, '', '0', '0', '0', '0', '1', '2018-11-23 20:45:28');
-INSERT INTO `fly_topic` VALUES ('113', 'getInstance()', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 20:50:44');
-INSERT INTO `fly_topic` VALUES ('114', '上传配置', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 21:00:45');
-INSERT INTO `fly_topic` VALUES ('115', 'static', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 22:26:57');
-INSERT INTO `fly_topic` VALUES ('116', '单例模式', null, null, '', '0', '3', '0', '0', '1', '2018-11-23 22:26:57');
-INSERT INTO `fly_topic` VALUES ('117', '饿汉模式', null, null, '', '0', '0', '0', '0', '1', '2018-11-23 22:29:58');
-INSERT INTO `fly_topic` VALUES ('118', '懒汉模式', null, null, '', '0', '0', '0', '0', '1', '2018-11-23 22:29:58');
-INSERT INTO `fly_topic` VALUES ('119', '多例模式', null, null, '', '0', '0', '0', '0', '1', '2018-11-23 22:29:58');
-INSERT INTO `fly_topic` VALUES ('120', '懒汉式', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 22:34:17');
-INSERT INTO `fly_topic` VALUES ('121', '线程', null, null, '', '0', '1', '0', '0', '1', '2018-11-23 22:34:17');
-INSERT INTO `fly_topic` VALUES ('122', '饿汉式', null, null, '', '0', '0', '0', '0', '1', '2018-11-23 22:36:31');
-INSERT INTO `fly_topic` VALUES ('123', 'springmvc', null, null, '', '0', '1', '0', '0', '1', '2018-11-24 11:17:41');
-INSERT INTO `fly_topic` VALUES ('124', '静态文件', null, null, '', '0', '0', '0', '0', '1', '2018-11-24 11:17:41');
-INSERT INTO `fly_topic` VALUES ('125', '无法访问', null, null, '', '0', '0', '0', '0', '1', '2018-11-24 11:17:41');
-INSERT INTO `fly_topic` VALUES ('126', 'redis', null, null, '', '0', '0', '0', '0', '1', '2018-11-24 11:46:26');
-INSERT INTO `fly_topic` VALUES ('127', '分布式锁', null, null, '', '0', '0', '0', '0', '1', '2018-11-24 11:46:26');
-INSERT INTO `fly_topic` VALUES ('128', 'Blob字段', null, null, '', '0', '1', '0', '0', '1', '2018-11-24 11:53:29');
-INSERT INTO `fly_topic` VALUES ('129', 'jdbc', null, null, '', '0', '1', '0', '0', '1', '2018-11-24 12:02:45');
-INSERT INTO `fly_topic` VALUES ('130', 'BLOB', null, null, '', '0', '0', '0', '0', '1', '2018-11-24 12:13:14');
-INSERT INTO `fly_topic` VALUES ('131', 'text', null, null, '', '0', '1', '0', '0', '1', '2018-11-24 12:24:41');
-INSERT INTO `fly_topic` VALUES ('132', '编辑器', null, null, '', '0', '1', '0', '0', '1', '2018-11-24 16:17:23');
-INSERT INTO `fly_topic` VALUES ('133', 'make', null, null, '', '0', '1', '0', '0', '1', '2018-11-25 14:30:45');
-INSERT INTO `fly_topic` VALUES ('134', 'IPv6', null, null, '', '0', '1', '0', '0', '1', '2018-12-03 09:25:26');
-INSERT INTO `fly_topic` VALUES ('135', 'domain', null, null, '', '0', '1', '0', '0', '1', '2018-12-03 13:50:05');
-INSERT INTO `fly_topic` VALUES ('136', 'sql', null, null, '', '0', '1', '0', '0', '1', '2018-12-03 14:50:39');
-INSERT INTO `fly_topic` VALUES ('137', '并发', null, null, '', '0', '1', '0', '0', '1', '2018-12-06 10:27:36');
-INSERT INTO `fly_topic` VALUES ('138', '蚂蚁金服', null, null, '', '0', '1', '0', '0', '1', '2018-12-06 12:01:59');
-INSERT INTO `fly_topic` VALUES ('139', 'memcached', null, null, '', '0', '1', '0', '0', '1', '2018-12-06 12:06:37');
-INSERT INTO `fly_topic` VALUES ('140', '面试', null, null, '', '0', '1', '0', '0', '1', '2018-12-06 12:06:37');
-INSERT INTO `fly_topic` VALUES ('141', 'shiro', null, null, '', '0', '0', '0', '0', '1', '2018-12-07 11:34:18');
-INSERT INTO `fly_topic` VALUES ('142', 'jsp', null, null, '', '0', '1', '0', '0', '1', '2018-12-07 11:34:18');
-INSERT INTO `fly_topic` VALUES ('143', 'Freemark', null, null, '', '0', '0', '0', '0', '1', '2018-12-07 11:34:18');
-INSERT INTO `fly_topic` VALUES ('144', 'SSL证书', null, null, '', '0', '1', '0', '0', '1', '2018-12-10 15:30:16');
-INSERT INTO `fly_topic` VALUES ('145', 'https', null, null, '', '0', '1', '0', '0', '1', '2018-12-10 15:30:16');
-INSERT INTO `fly_topic` VALUES ('146', '代理', null, null, '', '0', '1', '0', '0', '1', '2018-12-11 09:30:38');
-INSERT INTO `fly_topic` VALUES ('147', 'response', null, null, '', '0', '1', '0', '0', '1', '2018-12-11 12:45:55');
-INSERT INTO `fly_topic` VALUES ('148', '禁用缓存', null, null, '', '0', '1', '0', '0', '1', '2018-12-11 12:45:55');
-INSERT INTO `fly_topic` VALUES ('149', '乱码', null, null, '', '0', '0', '0', '0', '1', '2018-12-11 12:53:57');
-INSERT INTO `fly_topic` VALUES ('150', '字体', null, null, '', '0', '1', '0', '0', '1', '2018-12-11 12:57:08');
-INSERT INTO `fly_topic` VALUES ('151', '字体安装', null, null, '', '0', '0', '0', '0', '1', '2018-12-11 12:58:42');
-INSERT INTO `fly_topic` VALUES ('152', 'yum', null, null, '', '0', '1', '0', '0', '1', '2018-12-11 13:04:08');
-INSERT INTO `fly_topic` VALUES ('153', 'Android', null, null, '', '0', '0', '0', '0', '1', '2018-12-11 13:29:39');
 
 -- ----------------------------
 -- Table structure for `fly_topic_category`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_topic_category`;
 CREATE TABLE `fly_topic_category` (
-  `id` int(11) NOT NULL,
-  `father_id` int(11) DEFAULT '0' COMMENT '父级id',
+  `id` bigint(20) unsigned NOT NULL,
+  `father_id` bigint(20) DEFAULT '0' COMMENT '父级id',
   `name` varchar(100) NOT NULL COMMENT '栏目名称',
   `custom_url` varchar(255) DEFAULT NULL COMMENT '自定义URL，如果为空直接调用ID',
   `keywords` varchar(255) DEFAULT NULL COMMENT '分类关键词，SEO',
@@ -49414,8 +49250,8 @@ CREATE TABLE `fly_topic_category` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_topic_category_merge`;
 CREATE TABLE `fly_topic_category_merge` (
-  `topic_id` int(11) NOT NULL,
-  `type_id` int(11) NOT NULL
+  `topic_id` bigint(20) NOT NULL,
+  `type_id` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -49427,50 +49263,46 @@ CREATE TABLE `fly_topic_category_merge` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_topic_edlt`;
 CREATE TABLE `fly_topic_edlt` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `topic_id` int(11) NOT NULL COMMENT '话题id',
+  `id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) NOT NULL,
+  `topic_id` bigint(20) NOT NULL COMMENT '话题id',
   `content` text COMMENT '话题内容',
   `create_time` datetime DEFAULT NULL COMMENT '话题编辑时间',
   `status` int(2) DEFAULT '0' COMMENT '话题审核状态',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_topic_edlt
 -- ----------------------------
-INSERT INTO `fly_topic_edlt` VALUES ('1', '5', '39', '<p>免费开源问答源码免费开源问答源码免费开源问答源码免费开源问答源码免费开源问答源码免费开源问答源码免费开源问答源码免费开源问答源码</p>\n', '2018-09-28 13:08:15', '0');
 
 -- ----------------------------
 -- Table structure for `fly_topic_follow`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_topic_follow`;
 CREATE TABLE `fly_topic_follow` (
-  `topic_id` int(11) NOT NULL COMMENT '用户关注标签id',
-  `user_id` int(11) NOT NULL COMMENT '用户id',
+  `topic_id` bigint(20) NOT NULL COMMENT '用户关注标签id',
+  `user_id` bigint(20) NOT NULL COMMENT '用户id',
   `create_time` datetime DEFAULT NULL COMMENT '添加时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_topic_follow
 -- ----------------------------
-INSERT INTO `fly_topic_follow` VALUES ('37', '5', '2018-09-14 23:11:08');
-INSERT INTO `fly_topic_follow` VALUES ('37', '25', '2018-10-15 11:56:32');
-INSERT INTO `fly_topic_follow` VALUES ('67', '5', '2018-11-14 19:03:54');
 
 -- ----------------------------
 -- Table structure for `fly_topic_info_merge`
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_topic_info_merge`;
 CREATE TABLE `fly_topic_info_merge` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `info_id` int(11) NOT NULL,
-  `topic_id` int(11) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `info_id` bigint(20) NOT NULL,
+  `topic_id` bigint(20) NOT NULL,
   `info_type` smallint(2) NOT NULL DEFAULT '0' COMMENT '信息类型，0问题，1文章，2分享',
   `status` tinyint(1) DEFAULT '1' COMMENT '信息显示状态，默认为显示，0不显示，1显示',
   PRIMARY KEY (`id`),
   UNIQUE KEY `topic_index` (`info_id`,`topic_id`,`info_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=310 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=317 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_topic_info_merge
@@ -49481,7 +49313,8 @@ CREATE TABLE `fly_topic_info_merge` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_user`;
 CREATE TABLE `fly_user` (
-  `user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `user_id` bigint(20) unsigned NOT NULL COMMENT '用户ID',
+  `short_url` varchar(100) DEFAULT NULL,
   `user_name` varchar(50) DEFAULT NULL COMMENT '用户名',
   `user_mobile` varchar(20) DEFAULT NULL COMMENT '手机',
   `user_email` varchar(255) DEFAULT NULL COMMENT 'Email',
@@ -49509,7 +49342,7 @@ CREATE TABLE `fly_user` (
   `create_time` datetime DEFAULT NULL COMMENT '注册日期时间',
   `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '用户状态 1正常状态 2 删除至回收站 3锁定',
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8 COMMENT='用户信息表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户信息表';
 
 -- ----------------------------
 -- Records of fly_user
@@ -49520,7 +49353,7 @@ CREATE TABLE `fly_user` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_user_account`;
 CREATE TABLE `fly_user_account` (
-  `user_id` int(11) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
   `balance` decimal(10,2) DEFAULT '0.00' COMMENT '用户余额',
   `score` int(11) DEFAULT '0' COMMENT '剩余积分',
   `exp` int(11) DEFAULT '0' COMMENT '经验值',
@@ -49536,14 +49369,14 @@ CREATE TABLE `fly_user_account` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_user_activation`;
 CREATE TABLE `fly_user_activation` (
-  `act_id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL,
   `user_name` varchar(255) DEFAULT NULL,
   `code` varchar(255) DEFAULT NULL,
   `code_type` tinyint(2) DEFAULT '1' COMMENT '注册码类型：1手机注册验证码,2安全手机设置验证码,3密码重置验证码',
   `refer_time` datetime DEFAULT NULL,
   `refer_status` int(2) DEFAULT '0',
-  PRIMARY KEY (`act_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_user_activation
@@ -49554,7 +49387,7 @@ CREATE TABLE `fly_user_activation` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_user_count`;
 CREATE TABLE `fly_user_count` (
-  `user_id` int(11) NOT NULL COMMENT '用户id',
+  `user_id` bigint(20) NOT NULL COMMENT '用户id',
   `count_question` int(11) DEFAULT '0' COMMENT '发布问题数量',
   `count_question_follw` int(11) DEFAULT '0' COMMENT '关注的问题数量',
   `count_topic` int(11) DEFAULT '0' COMMENT '关注话题数量',
@@ -49575,13 +49408,13 @@ CREATE TABLE `fly_user_count` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_user_fans`;
 CREATE TABLE `fly_user_fans` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_follow` int(11) DEFAULT '0' COMMENT '被关注者用户id',
-  `user_fans` int(11) DEFAULT '0' COMMENT '粉丝id，关注者的id',
+  `id` bigint(20) unsigned NOT NULL,
+  `user_follow` bigint(20) DEFAULT '0' COMMENT '被关注者用户id',
+  `user_fans` bigint(20) DEFAULT '0' COMMENT '粉丝id，关注者的id',
   `create_time` datetime DEFAULT NULL COMMENT '关注时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_follow_who_who_follow` (`user_follow`,`user_fans`)
-) ENGINE=InnoDB AUTO_INCREMENT=156 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_user_fans
@@ -49592,7 +49425,7 @@ CREATE TABLE `fly_user_fans` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_user_group`;
 CREATE TABLE `fly_user_group` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '用户组ID',
+  `id` bigint(20) unsigned NOT NULL COMMENT '用户组ID',
   `group_name` varchar(20) NOT NULL COMMENT '组名',
   `discount` decimal(15,2) NOT NULL DEFAULT '100.00' COMMENT '折扣率',
   `minexp` int(11) DEFAULT NULL COMMENT '最小经验',
@@ -49600,7 +49433,7 @@ CREATE TABLE `fly_user_group` (
   `message_ids` varchar(255) DEFAULT NULL COMMENT '消息ID',
   `sort` int(5) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='用户组';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户组';
 
 -- ----------------------------
 -- Records of fly_user_group
@@ -49616,8 +49449,8 @@ INSERT INTO `fly_user_group` VALUES ('5', '未激活用户', '0.00', '0', '1000'
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_user_group_merge`;
 CREATE TABLE `fly_user_group_merge` (
-  `user_id` int(11) NOT NULL COMMENT '用户id',
-  `group_id` int(11) NOT NULL COMMENT '用户组id',
+  `user_id` bigint(20) NOT NULL COMMENT '用户id',
+  `group_id` bigint(20) NOT NULL COMMENT '用户组id',
   `serve_start_time` datetime DEFAULT NULL COMMENT '服务开始时间',
   `serve_end_time` datetime DEFAULT NULL COMMENT '服务结束时间',
   PRIMARY KEY (`user_id`),
@@ -49633,8 +49466,8 @@ CREATE TABLE `fly_user_group_merge` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_user_group_permission_merge`;
 CREATE TABLE `fly_user_group_permission_merge` (
-  `group_id` int(11) NOT NULL,
-  `permission_id` int(11) NOT NULL,
+  `group_id` bigint(20) NOT NULL,
+  `permission_id` bigint(20) NOT NULL,
   PRIMARY KEY (`group_id`,`permission_id`),
   UNIQUE KEY `group_index` (`group_id`,`permission_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -49718,6 +49551,17 @@ INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '261');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '262');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '263');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '264');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '265');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '266');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '267');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '268');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '269');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '275');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '276');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '278');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '286');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '287');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('1', '288');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '166');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '167');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '168');
@@ -49802,6 +49646,12 @@ INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '266');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '267');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '268');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '269');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '275');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '276');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '278');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '286');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '287');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('2', '288');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '166');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '167');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '168');
@@ -49888,6 +49738,18 @@ INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '266');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '267');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '268');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '269');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '270');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '271');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '272');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '273');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '275');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '276');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '278');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '282');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '283');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '286');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '287');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('3', '288');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '166');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '167');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '168');
@@ -49978,6 +49840,16 @@ INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '266');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '267');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '268');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '269');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '270');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '271');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '272');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '273');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '275');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '276');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '278');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '286');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '287');
+INSERT INTO `fly_user_group_permission_merge` VALUES ('4', '288');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('5', '166');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('5', '172');
 INSERT INTO `fly_user_group_permission_merge` VALUES ('5', '173');
@@ -50031,9 +49903,9 @@ INSERT INTO `fly_user_group_permission_merge` VALUES ('5', '249');
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_user_invite`;
 CREATE TABLE `fly_user_invite` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `to_user_id` int(11) NOT NULL COMMENT '被邀请人id',
-  `form_user_id` int(11) NOT NULL COMMENT '邀请人ID',
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `to_user_id` bigint(20) NOT NULL COMMENT '被邀请人id',
+  `form_user_id` bigint(20) NOT NULL COMMENT '邀请人ID',
   `status` int(2) DEFAULT '0' COMMENT '状态',
   `create_time` datetime DEFAULT NULL COMMENT '邀请时间',
   PRIMARY KEY (`id`)
@@ -50048,12 +49920,12 @@ CREATE TABLE `fly_user_invite` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_user_permission`;
 CREATE TABLE `fly_user_permission` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL,
   `actionKey` varchar(512) NOT NULL DEFAULT '',
   `controller` varchar(512) NOT NULL DEFAULT '',
   `remark` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=285 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of fly_user_permission
@@ -50158,7 +50030,10 @@ INSERT INTO `fly_user_permission` VALUES ('277', '/findShareById/*', 'shareContr
 INSERT INTO `fly_user_permission` VALUES ('278', '/share/viewcount', 'shareController', null);
 INSERT INTO `fly_user_permission` VALUES ('282', '/index-*', 'indexController', null);
 INSERT INTO `fly_user_permission` VALUES ('283', '/.well-known/pki-validation/fileauth.txt', 'indexController', null);
-INSERT INTO `fly_user_permission` VALUES ('284', '/ucenter/answer/edit', 'questionController', null);
+INSERT INTO `fly_user_permission` VALUES ('285', '/admin/upload', 'upLoadController', null);
+INSERT INTO `fly_user_permission` VALUES ('286', '/ucenter/answer/edit-*', 'questionController', null);
+INSERT INTO `fly_user_permission` VALUES ('287', '/ucenter/answer/edit_save', 'questionController', null);
+INSERT INTO `fly_user_permission` VALUES ('288', '/ucenter/kindEditorUpload', 'upLoadController', null);
 
 -- ----------------------------
 -- Table structure for `fly_user_session`
@@ -50166,7 +50041,7 @@ INSERT INTO `fly_user_permission` VALUES ('284', '/ucenter/answer/edit', 'questi
 DROP TABLE IF EXISTS `fly_user_session`;
 CREATE TABLE `fly_user_session` (
   `session_key` varchar(32) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
   `expire_time` bigint(20) NOT NULL,
   `update_time` datetime DEFAULT NULL COMMENT '用户最后更新session时间',
   PRIMARY KEY (`session_key`)

@@ -14,6 +14,8 @@
 		insert into fly_question
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="shortUrl != null">short_url,</if>
 			<if test="userId != null">user_id,</if>
 			<if test="title != null">title,</if>
 			<if test="content != null">content,</if>
@@ -22,6 +24,8 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="shortUrl != null">#{shortUrl},</if>
 			<if test="userId != null">#{userId},</if>
 			<if test="title != null">#{title},</if>
 			<if test="content != null">#{content},</if>
@@ -45,7 +49,7 @@
 
 	<!-- 添加关注问题关联-->
 	<insert id="addQuestionFollow" useGeneratedKeys="true" keyProperty="id">
-		insert into fly_question_follow
+		insert into fly_question_follow_merge
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="questionId != null and questionId!=''">question_id,</if>
@@ -73,7 +77,7 @@
 
 	<!-- 按问题id和用户id删除关注关联信息 -->
 	<delete id="deleteQuestionFollow" parameterType="Integer">
-		delete from fly_question_follow
+		delete from fly_question_follow_merge
 		<where>
 			<if test="questionId != null and questionId !=''">and question_id=#{questionId}</if>
 			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
@@ -111,7 +115,7 @@
 
 	<!-- 按id更新问题关注数量统计 -->
 	<update id="updateQuestionByFollowCount">
-		update fly_question_count set count_follow=(select count(*) from fly_question_follow where question_id=#{questionId}) where question_id=#{questionId}
+		update fly_question_count set count_follow=(select count(*) from fly_question_follow_merge where question_id=#{questionId}) where question_id=#{questionId}
 	</update>
 
 	<!-- 按id更新问题浏览数量统计 -->
@@ -121,6 +125,11 @@
 	<!-- ############################## -->
 	<!-- ###### 查询 ###### -->
 	<!-- ############################## -->
+	<!-- 按shortUrl查询文章信息 -->
+	<select id="findQuestionByShorturl" resultType="com.flycms.module.question.model.Question">
+        select * from fly_question where short_url=#{shortUrl} and status = 1
+    </select>
+
 	<!-- 按id查询问答信息 -->
 	<select id="findQuestionById" resultType="com.flycms.module.question.model.Question">
 		select * from fly_question
@@ -139,6 +148,11 @@
 		select * from fly_question_count where question_id=#{questionId}
 	</select>
 
+	<!-- 查询问答短域名是否被占用 -->
+	<select id="checkQuestionByShorturl" resultType="Integer">
+		select count(1) from fly_question where short_url=#{shortUrl}
+	</select>
+
 	<!-- 查询该用户同样标题内容是否已存在！ -->
 	<select id="checkQuestionByTitle" resultType="Integer">
 		select count(*) from fly_question where user_id = #{userId} and title=#{title}
@@ -146,7 +160,7 @@
 
 	<!-- 查询是否已关注该问题 -->
 	<select id="checkQuestionFollow" resultType="Integer">
-		select count(*) from fly_question_follow where question_id = #{questionId} and user_id = #{userId}
+		select count(*) from fly_question_follow_merge where question_id = #{questionId} and user_id = #{userId}
 	</select>
 
 	<!-- 问题总数 -->
@@ -186,7 +200,7 @@
 
 	<!-- 问题与用户关联列表 -->
 	<select id="getQuestionFollowList" resultType="com.flycms.module.question.model.QuestionFollow">
-		select * from fly_question_follow
+		select * from fly_question_follow_merge
 		<where>
 			<if test="questionId != null and questionId !=''">and question_id = #{questionId}</if>
 			<if test="userId != null and userId !=''">and user_id=#{userId}</if>

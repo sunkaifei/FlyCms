@@ -1,6 +1,7 @@
 package com.flycms.module.search.service;
 
 
+import com.flycms.constant.SolrConst;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.DateUtils;
 import com.flycms.core.utils.Md5Utils;
@@ -41,20 +42,22 @@ public class SolrService {
     @Autowired
     private QuestionService questionService;
 
+    @Autowired
+    private SolrConst solrConst;
+
     private static HttpSolrClient server = null;
-    private static String url = "http://127.0.0.1:8983/solr/info";//其中db为自定义的core名称
+    //private static String url = solrConst;//其中db为自定义的core名称
 
     @SuppressWarnings("deprecation")
-    public static HttpSolrClient getServer() {
+    public HttpSolrClient getServer() {
         if (server == null) {
-            server = new HttpSolrClient(url);
+            server = new HttpSolrClient(solrConst.getServerUrl());
             server.setDefaultMaxConnectionsPerHost(1000);
             server.setMaxTotalConnections(10000);// 最大连接数
             server.setConnectionTimeout(60000);// 设置连接超时时间（单位毫秒） 1000
             server.setSoTimeout(60000);//// 设置读数据超时时间(单位毫秒) 1000
             server.setFollowRedirects(false);// 遵循从定向
             server.setAllowCompression(true);// 允许压缩
-
         }
         return server;
     }
@@ -66,12 +69,13 @@ public class SolrService {
      * @return
      * @throws ParseException
      */
-    public boolean indexQuestionId(Integer id) throws ParseException {
+    public boolean indexQuestionId(long id) throws ParseException {
         try {
             Question question=questionService.findQuestionById(id,2);
             if(question!=null) {
                 SolrInputDocument doc = new SolrInputDocument();
                 doc.addField("id", Md5Utils.getMD5("0-"+question.getId()));
+                doc.addField("shortUrl", question.getShortUrl());
                 doc.addField("title", question.getTitle());
                 doc.addField("infoId", question.getId());
                 doc.addField("infoType", 0);
@@ -111,6 +115,7 @@ public class SolrService {
                     Question question=questionService.findQuestionById(info.getId(),2);
                     SolrInputDocument doc = new SolrInputDocument();
                     doc.addField("id", Md5Utils.getMD5("0-"+question.getId()));
+                    doc.addField("shortUrl", question.getShortUrl());
                     doc.addField("title", question.getTitle());
                     doc.addField("infoId", question.getId());
                     doc.addField("infoType", 0);
@@ -153,6 +158,7 @@ public class SolrService {
                     Article article=articleService.findArticleById(info.getId(),2);
                     SolrInputDocument doc = new SolrInputDocument();
                     doc.addField("id", Md5Utils.getMD5("1-"+article.getId()));
+                    doc.addField("shortUrl", article.getShortUrl());
                     doc.addField("title", article.getTitle());
                     doc.addField("infoId", article.getId());
                     doc.addField("infoType", 1);
@@ -183,12 +189,13 @@ public class SolrService {
      * @return
      * @throws ParseException 
      */
-    public boolean indexArticleId(Integer id) throws ParseException {
+    public boolean indexArticleId(long id) throws ParseException {
         try {
             Article article=articleService.findArticleById(id,2);
         	if(article!=null) {
             	SolrInputDocument doc = new SolrInputDocument();
                 doc.addField("id", Md5Utils.getMD5("1-"+article.getId()));
+                doc.addField("shortUrl", article.getShortUrl());
                 doc.addField("title", article.getTitle());
                 doc.addField("infoId", article.getId());
                 doc.addField("infoType", 1);
@@ -228,6 +235,7 @@ public class SolrService {
                     Share share=shareService.findShareById(info.getId(),2);
                     SolrInputDocument doc = new SolrInputDocument();
                     doc.addField("id", Md5Utils.getMD5("2-"+share.getId()));
+                    doc.addField("shortUrl", share.getShortUrl());
                     doc.addField("title", share.getTitle());
                     doc.addField("infoId", share.getId());
                     doc.addField("infoType", 2);
@@ -258,12 +266,13 @@ public class SolrService {
      * @return
      * @throws ParseException
      */
-    public boolean indexShareId(Integer id) throws ParseException {
+    public boolean indexShareId(Long id) throws ParseException {
         try {
             Share share=shareService.findShareById(id,2);
             if(share!=null) {
                 SolrInputDocument doc = new SolrInputDocument();
                 doc.addField("id", Md5Utils.getMD5("2-"+share.getId()));
+                doc.addField("shortUrl", share.getShortUrl());
                 doc.addField("title", share.getTitle());
                 doc.addField("infoId", share.getId());
                 doc.addField("infoType", 2);
@@ -292,7 +301,7 @@ public class SolrService {
      *
      * @param infoId
      */
-    public void indexDeleteInfo(Integer infoType,Integer infoId) {
+    public void indexDeleteInfo(Integer infoType,long infoId) {
         try {
             getServer().deleteById(Md5Utils.getMD5(infoType+"-"+infoId));
             getServer().commit();
@@ -419,9 +428,10 @@ public class SolrService {
         for (SolrDocument solrDocument : dlist) {
             bean = new Info();
             bean.setId(solrDocument.getFieldValue("id").toString());
+            bean.setShortUrl(solrDocument.getFieldValue("shortUrl").toString());
             bean.setUserId(Integer.parseInt(solrDocument.getFieldValue("userId").toString()));
             bean.setTitle(solrDocument.getFieldValue("title").toString());
-            bean.setInfoId(Integer.parseInt(solrDocument.getFieldValue("infoId").toString()));
+            bean.setInfoId(Long.parseLong(solrDocument.getFieldValue("infoId").toString()));
             bean.setInfoType(Integer.parseInt(solrDocument.getFieldValue("infoType").toString()));
             bean.setContent(solrDocument.getFieldValue("content").toString());
             String dt=solrDocument.getFieldValue("createTime").toString();

@@ -33,16 +33,16 @@ public class ScoreDetail implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-    private Integer id;
+    private Long id;
     private String type;
-    private Integer userId;
+    private Long userId;
     private User user;
     private Integer score;
     /** 变更后剩余积分 **/
     private Integer balance;
     private String remark;
-    private Integer foreignId;
-    private Integer scoreRuleId;
+    private Long foreignId;
+    private Long scoreRuleId;
     private Date createTime;
     private Integer status;
 

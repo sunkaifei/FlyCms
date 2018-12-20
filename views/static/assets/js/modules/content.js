@@ -381,4 +381,35 @@ define(function(require, exports, module) {
         });
         return false;
     });
+
+    $(document).on('click', '.clean-index', function (){
+        var display =$(this).parent().next().css('display');
+        if(display != 'none'){
+            $(this).parent().next().find(".overlay").show();
+        }
+        var _this=this;
+        $.ajax({
+            url: "/system/indexes/delete_all?"+Math.random(),
+            data: {},
+            dataType: "json",
+            type :  "POST",
+            cache : false,
+            async: false,
+            error : function(i, g, h) {
+                layer.msg('发送错误', {icon: 2});
+            },
+            success: function(ret){
+                if (ret.code >= 0) {
+                    //弹出提示2秒后刷新页面
+                    layer.msg(ret.message,{icon: 1, time: 2000},function(){
+                        $(_this).parent().next().find(".overlay").hide();
+                    });
+                } else {
+                    layer.msg(ret.message, {icon: 5});
+                    return false;
+                }
+            }
+        });
+        return false;
+    });
 });

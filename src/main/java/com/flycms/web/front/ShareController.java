@@ -6,6 +6,7 @@ import com.flycms.module.order.service.OrderService;
 import com.flycms.module.share.model.Share;
 import com.flycms.module.share.service.ShareService;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -41,7 +42,7 @@ public class ShareController extends BaseController {
      *
      * @return
      */
-    @GetMapping(value = {"/share/" , "/share/index"})
+    @GetMapping(value = {"/sc/" , "/sc/index"})
     public String indexShare(@RequestParam(value = "p", defaultValue = "1") int p,ModelMap modelMap){
         //String welcome = messageSourceUtil.getMessage("welcome");
         modelMap.addAttribute("p", p);
@@ -50,12 +51,12 @@ public class ShareController extends BaseController {
     }
 
     //分享内容详细页面
-    @GetMapping(value = "/share/{id}")
-    public String shareShow(@PathVariable(value = "id", required = false) String id, ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/s/{shortUrl}")
+    public String shareShow(@PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
         }
-        Share share=shareService.findShareById(Integer.valueOf(id),2);
+        Share share=shareService.findShareByShorturl(shortUrl);
         if(share==null){
             return theme.getPcTemplate("404");
         }
@@ -74,7 +75,7 @@ public class ShareController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return data = DataVo.failure("id参数错误");
         }
-        Share share=shareService.findShareById(Integer.valueOf(id),2);
+        Share share=shareService.findShareById(Long.parseLong(id),2);
         if(share==null){
             return data = DataVo.failure("该内容不存在或者未审核！");
         }
@@ -118,7 +119,7 @@ public class ShareController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return theme.getPcTemplate("404");
         }
-        Share share=shareService.findShareById(Integer.valueOf(id),0);
+        Share share=shareService.findShareById(Long.parseLong(id),0);
         if(share==null){
             return theme.getPcTemplate("404");
         }
@@ -170,7 +171,7 @@ public class ShareController extends BaseController {
             if(getUser()==null){
                 return data=DataVo.failure("请登陆后关注");
             }
-            data=orderService.addSharOrdere(Integer.valueOf(id),getUser().getUserId());
+            data=orderService.addSharOrdere(Long.parseLong(id),getUser().getUserId());
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -186,7 +187,7 @@ public class ShareController extends BaseController {
             if (!NumberUtils.isNumber(id)) {
                 return data=DataVo.failure("分享参数错误");
             }
-            shareService.updateShareViewCount(Integer.valueOf(id));
+            shareService.updateShareViewCount(Long.parseLong(id));
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }

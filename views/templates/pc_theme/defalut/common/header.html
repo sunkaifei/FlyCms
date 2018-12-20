@@ -15,9 +15,9 @@
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="/">首页 <span class="sr-only">(current)</span> </a></li>
-					<li><a href="/question/">问答 </a></li>
-					<li><a href="/article/">文章 </a></li>
-					<li><a href="/share/">分享 </a></li>
+					<li><a href="/qc/">问答 </a></li>
+					<li><a href="/ac/">文章 </a></li>
+					<li><a href="/sc/">分享 </a></li>
 					<li><a href="/explore/">发现 </a></li>
 					<li><a href="/topics/">话题 </a></li>
 				</ul>
@@ -34,13 +34,13 @@
 					<li><a href="/" class="active" id="unread_notifications"><span class="fa fa-bell-o fa-lg"></span></a></li>
 					<li><a href="/ucenter/message" class="active" id="unread_messages"><i class="fa fa-envelope-o fa-lg"></i></a></li>
 					<li class="dropdown user-avatar">
-						<a href="/people/${user.userId!}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+						<a href="/people/${user.shortUrl!}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
 							<img class="avatar-32 mr-5" alt="${user.nickName!}" src="<#if user.avatar??><@fly_avatar avatarurl=user.avatar avatar="avatar1"/><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>?${.now?string("hhmmSSsss")}" >
 						<span>${user.nickName!}</span>
 						</a>
 						<ul class="dropdown-menu" role="menu">
 							<li class="divider"></li>
-							<li><a href="/people/${user.userId!}">我的主页</a></li>
+							<li><a href="/people/${user.shortUrl!}">我的主页</a></li>
 							<li><a href="/ucenter/account_log">金币管理</a></li>
 							<li><a href="/ucenter/message">我的私信</a></li>
 							<li><a href="/ucenter/account">设置</a></li>

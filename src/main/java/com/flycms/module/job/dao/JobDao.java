@@ -37,7 +37,7 @@ public interface JobDao {
     // /////        刪除      ////////
     // ///////////////////////////////
     //按id删除定时任务配置
-    public int deleteJobById(@Param("id") Integer id);
+    public int deleteJobById(@Param("id") Long id);
 
     // ///////////////////////////////
     // /////        修改      ////////
@@ -60,13 +60,13 @@ public interface JobDao {
      *         任务id
      * @return
      */
-    public int updateStatus(@Param("status") String status, @Param("id") Integer id);
+    public int updateStatus(@Param("status") String status, @Param("id") Long id);
 
     // ///////////////////////////////
     // /////        查詢      ////////
     // ///////////////////////////////
     //按id查询定时任务配置信息
-    public Job findJobById(@Param("id") Integer id);
+    public Job findJobById(@Param("id") Long id);
 
     /**
      * 查询定时任务配置是否存在
@@ -99,7 +99,7 @@ public interface JobDao {
      *         需要排除的当前id
      * @return
      */
-    public int checkJobByMethodNameNotId(@Param("beanName") String beanName,@Param("methodName") String methodName, @Param("id") Integer id);
+    public int checkJobByMethodNameNotId(@Param("beanName") String beanName,@Param("methodName") String methodName, @Param("id") Long id);
 
     /**
      *  所有定时任务配置列表

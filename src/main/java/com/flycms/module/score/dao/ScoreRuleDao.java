@@ -68,7 +68,7 @@ public interface ScoreRuleDao {
 	 * @param id
 	 * @return
 	 */
-	public int updateScoreRuleEnabled(@Param("id") Integer id);
+	public int updateScoreRuleEnabled(@Param("id") Long id);
 
 
 	// ///////////////////////////////
@@ -88,7 +88,7 @@ public interface ScoreRuleDao {
 	 * @param id
 	 * @return
 	 */
-	public ScoreRule findScoreRuleById(@Param("id") Integer id,@Param("status") Integer status);
+	public ScoreRule findScoreRuleById(@Param("id") Long id,@Param("status") Integer status);
 	
 	
 	/**

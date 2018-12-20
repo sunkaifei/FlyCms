@@ -52,15 +52,15 @@ public interface FavoriteDao {
      *         收藏信息id
      * @return
      */
-    public int checkFavoriteByUser(@Param("userId") Integer userId,@Param("infoType") Integer infoType,@Param("infoId") Integer infoId);
+    public int checkFavoriteByUser(@Param("userId") Long userId,@Param("infoType") Integer infoType,@Param("infoId") Long infoId);
 
     //查询收藏总数
-    public int getFavoriteCount(@Param("userId") Integer userId,
+    public int getFavoriteCount(@Param("userId") Long userId,
                             @Param("infoType") Integer infoType,
                             @Param("createTime") String createTime);
 
     //收藏列表
-    public List<Favorite> getFavoriteList(@Param("userId") Integer userId,
+    public List<Favorite> getFavoriteList(@Param("userId") Long userId,
                                       @Param("infoType") Integer infoType,
                                       @Param("createTime") String createTime,
                                       @Param("orderby") String orderby,

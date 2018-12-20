@@ -39,13 +39,13 @@ public interface ShareCategoryDao {
     // /////        查詢      ////////
     // ///////////////////////////////
     //查询资源分享分类名称是否存在
-    public int checkShareCategoryByName(@Param("name") String name, @Param("id") Integer id);
+    public int checkShareCategoryByName(@Param("name") String name, @Param("id") Long id);
 
     //按id查询资源分享分类信息
-    public ShareCategory findCategoryById(@Param("id") Integer id, @Param("status") Integer status);
+    public ShareCategory findCategoryById(@Param("id") Long id, @Param("status") Integer status);
 
     //根据资源分享分类id查询所属的所有子类
-    public List<ShareCategory> getCategoryListByFatherId(@Param("fatherId") Integer fatherId);
+    public List<ShareCategory> getCategoryListByFatherId(@Param("fatherId") Long fatherId);
 
     //查询所有资源分享分类
     public List<ShareCategory> getCategoryAllList();

@@ -22,13 +22,15 @@ import java.util.Date;
 public class Answer implements Serializable {
     private static final long serialVersionUID = 1L;
     //评论id
-    private Integer id;
+    private Long id;
     //问题id
-    private Integer questionId;
+    private Long questionId;
     //评论用户id
-    private Integer userId;
+    private Long userId;
     //添加时间
     private Date createTime;
+    //添加时间
+    private Date lastTime;
     //审核状态
     private Integer status;
     //权重计算值

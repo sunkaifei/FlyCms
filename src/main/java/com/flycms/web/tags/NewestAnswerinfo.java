@@ -33,13 +33,13 @@ public class NewestAnswerinfo extends AbstractTagPlugin {
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
-		Integer questionId = 0;
+		Long questionId = null;
 		
 		@SuppressWarnings("unchecked")
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){ 
 			if("questionId".equals(str)){
-				questionId = Integer.parseInt(paramWrap.get(str).toString());
+				questionId = Long.parseLong(paramWrap.get(str).toString());
 			}
 		}
 		// 获取文件的分页

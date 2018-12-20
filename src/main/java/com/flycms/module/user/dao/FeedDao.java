@@ -28,25 +28,25 @@ public interface FeedDao {
     // /////        刪除      ////////
     // ///////////////////////////////
     //按用户feed信息
-    public int deleteUserFeed(@Param("userId") Integer userId,@Param("infoType") Integer infoType,@Param("infoId") Integer infoId);
+    public Long deleteUserFeed(@Param("userId") long userId,@Param("infoType") Integer infoType,@Param("infoId") long infoId);
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////
     //修改该用户feed信息的审核状态
-    public int updateuUserFeedById(@Param("infoType") Integer infoType,@Param("infoId") Integer infoId,@Param("status") Integer status);
+    public Long updateuUserFeedById(@Param("infoType") Integer infoType,@Param("infoId") long infoId,@Param("status") Integer status);
 
 
     // ///////////////////////////////
     // /////        查詢      ////////
     // ///////////////////////////////
     //查询该用户feed是否存在
-    public int checkUserFeed(@Param("userId") Integer userId,@Param("infoType") Integer infoType,@Param("infoId") Integer infoId);
+    public int checkUserFeed(@Param("userId") long userId,@Param("infoType") Integer infoType,@Param("infoId") long infoId);
 
     //查询用户信息流总数
-    public int getUserFeedCount(@Param("userId") Integer userId,@Param("status") Integer status);
+    public int getUserFeedCount(@Param("userId") long userId,@Param("status") Integer status);
 
     //查询用户信息流列表
-    public List<Feed> getUserFeedList(@Param("userId") Integer userId,
+    public List<Feed> getUserFeedList(@Param("userId") long userId,
                                       @Param("status") Integer status,
                                       @Param("offset") int offset,
                                       @Param("rows") int rows);

@@ -123,7 +123,8 @@ define(function(require, exports, module) {
     require('layer');
     require('jqueryform');
     require('prettify');
-    require('ckeditor');
+    require('kindeditor');
+    //require('kindeditorCN');
     layer.config({
         path: '/assets/js/vendors/layer/' //layer.js所在的目录，可以是绝对目录，也可以是相对目录
     });
@@ -132,18 +133,21 @@ define(function(require, exports, module) {
     $("#category").CascadingSelect({data:categoryId});
 
     if($("#txt_content").length > 0) {
-        CKEDITOR.replace('txt_content');
-    }
-    $(document).ready(function() {
-        $("pre").addClass("prettyprint linenums");
-        prettyPrint();
-    });
+        // 关闭过滤模式，保留所有标签
+        KindEditor.options.filterMode = false;
+        KindEditor.ready(function(K) {
+            K.create('#txt_content', {
+                uploadJson : '/ucenter/kindEditorUpload',
+                cssPath :[ '/assets/js/vendors/prettify/prettify-default.css'],
+                resizeType:0,
+                filterMode : false,
+                allowFileManager : true,
+                afterBlur: function(){this.sync();}
+            });
+            prettyPrint();
+        });
 
-    $(".submit-btn").bind("click",function(){
-        for (instance in CKEDITOR.instances){
-            CKEDITOR.instances[instance].updateElement();
-        }
-    })
+    }
 
     $('#tags').tagit({
         singleField: true,
@@ -170,4 +174,5 @@ define(function(require, exports, module) {
             }
         }
     });
+
 });

@@ -136,6 +136,7 @@ define(function(require, exports, module) {
         window.location.href = "/question/add";
     });
 
+
     $('#update_form').ajaxForm({
         dataType : 'json',
         success : function(data) {

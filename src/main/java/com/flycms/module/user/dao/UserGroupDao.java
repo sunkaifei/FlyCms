@@ -26,15 +26,15 @@ public interface UserGroupDao {
     public int addUserGroup(UserGroup group);
 
     //权限组id和权限id关联
-    public int addUserGroupPermission(@Param("groupId") int groupId, @Param("permissionId") int permissionId);
+    public int addUserGroupPermission(@Param("groupId") Long groupId, @Param("permissionId") Long permissionId);
     // ///////////////////////////////
     // /////        刪除      ////////
     // ///////////////////////////////
     //按id删除角色信息
-    public int deleteUserGroup(@Param("id") int id);
+    public int deleteUserGroup(@Param("id") Long id);
 
     //按id删除角色和权限关联信息
-    public int deleteUserGroupPermission(@Param("groupId") Integer groupId, @Param("permissionId") Integer permissionId);
+    public int deleteUserGroupPermission(@Param("groupId") Long groupId, @Param("permissionId") Long permissionId);
 
     // ///////////////////////////////
     // /////        修改      ////////
@@ -43,20 +43,20 @@ public interface UserGroupDao {
     public int updateUserGroup(UserGroup group);
 
     //更新用户组排序
-    public int updateGroupSort(@Param("id") Integer id,@Param("sort") Integer sort);
+    public int updateGroupSort(@Param("id") Long id,@Param("sort") Integer sort);
 
 
     // ///////////////////////////////
     // ///// 查詢 ////////
     // ///////////////////////////////
     //按id查询用户组信息
-    public UserGroup findUserGroupByid(@Param("id") Integer id);
+    public UserGroup findUserGroupByid(@Param("id") Long id);
 
     //按用户userId查询所在的用户组信息
-    public UserGroup findUuserGroupByUserId(@Param("userId") Integer userId);
+    public UserGroup findUuserGroupByUserId(@Param("userId") Long userId);
 
     //查询用户组名是否存在,如果id不为空或者null，排除当前id意外检查是否已存在！
-    public int checkUuserGroupByName(@Param("groupName") String groupName,@Param("id") Integer id);
+    public int checkUuserGroupByName(@Param("groupName") String groupName,@Param("id") Long id);
 
     //查询用户组总数
     public int getUserGroupCount();

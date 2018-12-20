@@ -81,7 +81,7 @@ public class ShareAdminController extends BaseController {
             if (!NumberUtils.isNumber(id)) {
                 return data = DataVo.failure("id参数错误");
             }
-            Share question=shareService.findShareById(Integer.valueOf(id),0);
+            Share question=shareService.findShareById(Long.parseLong(id),0);
             if(question==null) {
                 return DataVo.failure("id错误或不存在！");
             }else {
@@ -111,14 +111,14 @@ public class ShareAdminController extends BaseController {
                 return data = DataVo.failure("推荐参数错误");
             }
         }
-        data = shareService.updateShareStatusById(Integer.valueOf(id),Integer.valueOf(status),Integer.valueOf(recommend));
+        data = shareService.updateShareStatusById(Long.parseLong(id),Integer.valueOf(status),Integer.valueOf(recommend));
         return data;
     }
 
     //按父级id查询id下所有地区列表
     @ResponseBody
     @RequestMapping(value = "/category_child")
-    public List<ShareCategory> getCategoryChild(@RequestParam(value = "parentId", defaultValue = "0") int parentId){
+    public List<ShareCategory> getCategoryChild(@RequestParam(value = "parentId", defaultValue = "0") Long parentId){
         List<ShareCategory> list=shareCategoryService.getCategoryListByFatherId(parentId);
         return list;
     }
@@ -191,7 +191,7 @@ public class ShareAdminController extends BaseController {
             if (StringUtils.isBlank(name)) {
                 return DataVo.failure("分类名称不能为空");
             }
-            data = shareCategoryService.addShareCategory(Integer.valueOf(pid),name);
+            data = shareCategoryService.addShareCategory(Long.parseLong(pid),name);
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -209,7 +209,7 @@ public class ShareAdminController extends BaseController {
             modelMap.addAttribute("message", "id参数错误");
             return theme.getAdminTemplate("common/message_tip");
         }
-        ShareCategory category = shareCategoryService.findCategoryById(Integer.valueOf(id),0);
+        ShareCategory category = shareCategoryService.findCategoryById(Long.parseLong(id),0);
         if (category == null) {
             modelMap.addAttribute("message", "分类不存在");
             return theme.getAdminTemplate("common/message_tip");
@@ -236,7 +236,7 @@ public class ShareAdminController extends BaseController {
             if (StringUtils.isBlank(name)) {
                 return DataVo.failure("分类名称不能为空");
             }
-            data = shareCategoryService.editShareCategoryById(Integer.valueOf(id),name);
+            data = shareCategoryService.editShareCategoryById(Long.parseLong(id),name);
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -281,7 +281,7 @@ public class ShareAdminController extends BaseController {
             if (!NumberUtils.isNumber(pId)) {
                 data = DataVo.failure("父级id错误！");
             }
-            data = shareCategoryService.editCategoryDragsById(Integer.valueOf(id),Integer.valueOf(pId));
+            data = shareCategoryService.editCategoryDragsById(Long.parseLong(id),Long.parseLong(pId));
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }

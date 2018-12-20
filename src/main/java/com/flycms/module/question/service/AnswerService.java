@@ -2,10 +2,12 @@ package com.flycms.module.question.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.config.service.ConfigService;
 import com.flycms.module.question.dao.AnswerDao;
 import com.flycms.module.question.dao.QuestionDao;
 import com.flycms.module.question.model.Answer;
+import com.flycms.module.question.model.Question;
 import com.flycms.module.user.service.FeedService;
 import com.flycms.module.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ import java.util.List;
 @Service
 public class AnswerService {
     @Autowired
+    private QuestionService questionService;
+    @Autowired
     private AnswerDao answerDao;
     @Autowired
     protected UserService userService;
@@ -50,13 +54,15 @@ public class AnswerService {
 
     //添加用户答案
     @Transactional
-    public DataVo addAnswer(Integer questionId,Integer userId,String content) throws Exception {
+    public DataVo addAnswer(Long questionId,Long userId,String content) throws Exception {
         DataVo data = DataVo.failure("操作失败");
         if(checkAnswerByContent(userId,content)){
             return data= DataVo.failure("请勿重复发表相同内容");
         }
         content=imagesService.replaceContent(content,userId);
         Answer answer=new Answer();
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        answer.setId(snowFlake.nextId());
         answer.setQuestionId(questionId);
         answer.setUserId(userId);
         answer.setContent(content);
@@ -87,7 +93,7 @@ public class AnswerService {
     // ///////////////////////////////
     //按答案id删除答案信息
     @Transactional
-    public DataVo deleteAnswerById(Integer id){
+    public DataVo deleteAnswerById(Long id){
         DataVo data = DataVo.failure("操作失败");
         Answer answer=answerDao.findAnswerById(id,0);
         if(answer!=null){
@@ -110,7 +116,7 @@ public class AnswerService {
 
     //执行删除问题时同时删除关联的答案内容
     @Transactional
-    public boolean deleteQuestionAndAnswerById(Integer id){
+    public boolean deleteQuestionAndAnswerById(Long id){
         Answer answer=answerDao.findAnswerById(id,0);
         if(answer!=null){
             //答案内内容里的图片未做删除处理，这里备忘！
@@ -136,7 +142,7 @@ public class AnswerService {
      * @return
      */
     @Transactional
-    public DataVo updateAnswerStatusById(Integer id, Integer status) throws Exception {
+    public DataVo updateAnswerStatusById(Long id, Integer status) throws Exception {
         DataVo data = DataVo.failure("该信息不存在或已删除");
         Answer answer=answerDao.findAnswerById(id,0);
         if(answer==null){
@@ -165,12 +171,34 @@ public class AnswerService {
         return data;
     }
 
+    @Transactional
+    public DataVo updateAnswerById(Long id,Long userId, String content) throws Exception {
+        DataVo data = DataVo.failure("该信息不存在或已删除");
+        Answer answer=this.findAnswerByIdAndUserId(id,userId);
+        if(answer==null){
+            return data = DataVo.failure("该答案不存在或已删除");
+        }
+        answer.setContent(imagesService.replaceContent(content,answer.getUserId()));
+        answer.setLastTime(new Date());
+        Question question=questionService.findQuestionById(answer.getQuestionId(),0);
+        if(question.getStatus()!=1){
+            answer.setStatus(0);
+        }else{
+            answer.setStatus(Integer.parseInt(configService.getStringByKey("user_answer_verify")));
+        }
+        answerDao.updateAnswerById(answer);
+        userService.updateAnswerCount(answer.getUserId());
+        //更新回答数量统计
+        questionDao.updateQuestionByAnswerCount(answer.getQuestionId());
+        data=DataVo.jump("答案修改成功！","/question/"+question.getId());
+        return data;
+    }
 
     // ///////////////////////////////
     // /////        查询      ////////
     // ///////////////////////////////
     //按id查询答案信息
-    public Answer findAnswerById(Integer id,Integer status){
+    public Answer findAnswerById(Long id,Integer status){
         return answerDao.findAnswerById(id,status);
     }
 
@@ -183,7 +211,7 @@ public class AnswerService {
      *         用户id
      * @return
      */
-    public Answer findAnswerByIdAndUserId(Integer id,Integer userId){
+    public Answer findAnswerByIdAndUserId(Long id,Long userId){
         return answerDao.findAnswerByIdAndUserId(id,userId);
     }
 
@@ -196,7 +224,7 @@ public class AnswerService {
      *         答案内容
      * @return
      */
-    public boolean checkAnswerByContent(Integer userId,String content) {
+    public boolean checkAnswerByContent(Long userId,String content) {
         int totalCount = answerDao.checkAnswerByContent(userId,content);
         return totalCount > 0 ? true : false;
     }
@@ -209,7 +237,7 @@ public class AnswerService {
      * @return
      * @throws Exception
      */
-    public PageVo<Answer> getAnswerListPage(Integer questionId, Integer userId, String addTime, Integer status,String orderby,String order, int pageNum, int rows) {
+    public PageVo<Answer> getAnswerListPage(Long questionId, Long userId, String addTime, Integer status,String orderby,String order, int pageNum, int rows) {
         PageVo<Answer> pageVo = new PageVo<Answer>(pageNum);
         pageVo.setRows(rows);
         List<Answer> list = new ArrayList<Answer>();
@@ -225,12 +253,12 @@ public class AnswerService {
     }
 
     //按问题id或者用户id查询答案列表
-    public List<Answer> gettAnswerByQuestionIdList(Integer questionId, Integer userId){
+    public List<Answer> gettAnswerByQuestionIdList(Long questionId, Long userId){
         return answerDao.gettAnswerByQuestionIdList(questionId,userId);
     }
 
     //按问题id查询最新的第一条评论内容
-    public Answer findNewestAnswerById(Integer questionId){
+    public Answer findNewestAnswerById(Long questionId){
         return answerDao.findNewestAnswerById(questionId);
     }
 }

@@ -1,5 +1,6 @@
 package com.flycms.module.score.service;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.score.dao.ScoreDetailDao;
 import com.flycms.module.score.model.ScoreDetail;
 import com.flycms.module.user.dao.UserDao;
@@ -52,6 +53,8 @@ public class ScoreDetailService{
     public int saveScoreDetail(ScoreDetail scoreDetail,String calculate) {
         //更新用户积分
         userDao.updateUserAccountScore(calculate,scoreDetail.getScore(), scoreDetail.getUserId());
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        scoreDetail.setId(snowFlake.nextId());
         scoreDetail.setCreateTime(new Date());
         return scoreDetailDao.saveScoreDetail(scoreDetail);
     }
@@ -65,7 +68,7 @@ public class ScoreDetailService{
      * @param id
      *
      */
-    public void scoreDetailByCancel(Integer id) {
+    public void scoreDetailByCancel(Long id) {
         scoreDetailDao.scoreDetailByCancel(id);
     }
 
@@ -80,7 +83,7 @@ public class ScoreDetailService{
      * @param type
      * @return
      */
-    public boolean scoreDetailCanBonus(Integer userId, Integer scoreRuleId, String type) {
+    public boolean scoreDetailCanBonus(Long userId, Long scoreRuleId, String type) {
         List<ScoreDetail> list = scoreDetailDao.scoreDetailCanBonus(userId,scoreRuleId,type);
         return list.size() == 0;
     }
@@ -92,7 +95,7 @@ public class ScoreDetailService{
      * @param forgignId
      * @return
      */
-    public ScoreDetail findByForeignAndRule(Integer userId, Integer scoreRuleId, Integer forgignId) {
+    public ScoreDetail findByForeignAndRule(Long userId, Long scoreRuleId, Long forgignId) {
         return scoreDetailDao.findByForeignAndRule(userId,scoreRuleId,forgignId);
     }
     
@@ -105,7 +108,7 @@ public class ScoreDetailService{
 	 * @return
 	 * @throws Exception
 	 */
-	public PageVo<ScoreDetail> scoreDetaillistPage(Integer userId,Integer status, String orderby, String order, int pageNum, int rows) {
+	public PageVo<ScoreDetail> scoreDetaillistPage(Long userId,Integer status, String orderby, String order, int pageNum, int rows) {
 		PageVo<ScoreDetail> pageVo = new PageVo<ScoreDetail>(pageNum);
 		pageVo.setRows(rows);
         pageVo.setRows(rows);

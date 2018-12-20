@@ -23,7 +23,7 @@ public class UserSession implements Serializable {
     //用户sessionKey
     private String sessionKey;
     //用户组id
-    private Integer userId;
+    private Long userId;
     //服务开始时间
     private long expireTime;
     //最后更新时间

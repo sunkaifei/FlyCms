@@ -36,9 +36,9 @@ public class Fanspage extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
 		//被关注者用户id
-		Integer userFollow = null;
+		Long userFollow = null;
 		//粉丝id，关注者的id
-		Integer userFans = null;
+		Long userFans = null;
 
 		String createTime=null;
 
@@ -54,10 +54,10 @@ public class Fanspage extends AbstractTagPlugin {
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){ 
 			if("userFollow".equals(str)){
-				userFollow = Integer.parseInt(paramWrap.get(str).toString());
+				userFollow = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("userFans".equals(str)){
-				userFans = Integer.parseInt(paramWrap.get(str).toString());
+				userFans = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("createTime".equals(str)){
 				createTime = paramWrap.get(str).toString();

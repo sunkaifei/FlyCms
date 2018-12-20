@@ -45,7 +45,7 @@ public class FavoriteService {
     // ///////////////////////////////
     //用户添加信息收藏
     @Transactional
-    public DataVo addFavorite(Integer userId,Integer infoType,Integer infoId){
+    public DataVo addFavorite(Long userId,Integer infoType,Long infoId){
         DataVo data = DataVo.failure("操作失败");
         if(infoType==0){
             Question question=questionService.findQuestionById(infoId,2);
@@ -102,7 +102,7 @@ public class FavoriteService {
      *         收藏信息id
      * @return
      */
-    public boolean checkFavoriteByUser(Integer userId,Integer infoType,Integer infoId) {
+    public boolean checkFavoriteByUser(Long userId,Integer infoType,Long infoId) {
         int totalCount = favoriteDao.checkFavoriteByUser(userId,infoType,infoId);
         return totalCount > 0 ? true : false;
     }
@@ -115,7 +115,7 @@ public class FavoriteService {
      * @return
      * @throws Exception
      */
-    public PageVo<Favorite> getFavoriteListPage(Integer userId,Integer infoType, String createTime, String orderby, String order, int pageNum, int rows) {
+    public PageVo<Favorite> getFavoriteListPage(Long userId,Integer infoType, String createTime, String orderby, String order, int pageNum, int rows) {
         PageVo<Favorite> pageVo = new PageVo<Favorite>(pageNum);
         pageVo.setRows(rows);
         List<Favorite> list = new ArrayList<Favorite>();

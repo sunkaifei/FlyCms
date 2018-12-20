@@ -37,11 +37,11 @@
                 <div class="flycms-classify">
                     <ul class="tab-head tab clearfix">
                         <li<#if !category??> class="act"</#if>>
-                            <a href="/article/">全部</a>
+                            <a href="/ac/">全部</a>
                         </li>
                         <#list typelist as list>
                         <li<#if category??><#if (category.fatherId  == 0)?string(category.id,category.fatherId) == "${list.id}"> class="act"</#if></#if>>
-                            <a href="/a/${list.id!}">${list.name!}</a>
+                            <a href="/ac/${list.id!}">${list.name!}</a>
                         </li>
                         </#list>
                     </ul>
@@ -50,9 +50,9 @@
                     <@fly_articletypelist fatherId="${fatherId!}">
                     <div class="category">
                         <ul class="tab-body tab clearfix">
-                            <li<#if category.fatherId==0> class="active"</#if>><a href="/a/${fatherId!}">全部分类</a></li>
+                            <li<#if category.fatherId==0> class="active"</#if>><a href="/ac/${fatherId!}">全部分类</a></li>
                             <#list typelist as list>
-                            <li<#if id=="${list.id}"> class="active"</#if>><a href="/a/${list.id!}"> ${list.name!}</a></li>
+                            <li<#if id=="${list.id}"> class="active"</#if>><a href="/ac/${list.id!}"> ${list.name!}</a></li>
                         </#list>
                         </ul>
                     </div>
@@ -90,7 +90,7 @@
                     <ul class="taglist-inline multi">
                         <@fly_topicpage rows="25">
                         <#list topic_page.list as list>
-                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.id!}">${list.topic!}</a></li>
+                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
                     </#list>
                     </@fly_topicpage>
                     </ul>

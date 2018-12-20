@@ -117,6 +117,10 @@ public class UserService {
         }else{
             return data;
         }
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        user.setUserId(snowFlake.nextId());
+        String urlCode=this.shortUrl();
+        user.setShortUrl(urlCode);
         user.setPassword(BCryptUtils.hashpw(password, BCryptUtils.gensalt()));
         user.setCreateTime(new Date());
         user.setLastLogin(new Date());
@@ -125,16 +129,16 @@ public class UserService {
         //添加用户账号和密码
         userDao.addUser(user);
         //添加用户组权限
-        userDao.addUserAndGroup(Integer.parseInt(configService.getStringByKey("user_activation_role")),user.getUserId());
+        userDao.addUserAndGroup(Long.parseLong(configService.getStringByKey("user_activation_role")),user.getUserId());
         if(invite==null){
             invite=CookieUtils.getCookie(request,"invite");
         }
         //添加邀请和被邀请用户关联信息
         if (NumberUtils.isNumber(invite)) {
-            if(this.checkUserById(Integer.valueOf(invite))){
-                userInviteService.addUserInvite(user.getUserId(),Integer.valueOf(invite));
+            if(this.checkUserById(Long.parseLong(invite))){
+                userInviteService.addUserInvite(user.getUserId(),Long.parseLong(invite));
                 // 邀请奖励
-                scoreRuleService.scoreRuleBonus(Integer.valueOf(invite), 2,user.getUserId());
+                scoreRuleService.scoreRuleBonus(Long.parseLong(invite), 2L,user.getUserId());
             }
         }
         //添加用户统计表
@@ -219,7 +223,7 @@ public class UserService {
 
     @Transactional
     @CacheEvict(value="user", allEntries=true)
-    public DataVo addUserFans(Integer userFollow,Integer userFans){
+    public DataVo addUserFans(Long userFollow,Long userFans){
         DataVo data = DataVo.failure("操作失败");
         User user=userDao.findUserById(userFollow,2);
         if(user==null){
@@ -252,7 +256,7 @@ public class UserService {
     //按id删除用户信息
     @CacheEvict(value = "user", allEntries = true)
     @Transactional
-    public DataVo deleteUserById(int userId){
+    public DataVo deleteUserById(Long userId){
         DataVo data = DataVo.failure("操作失败");
         int totalCount = userDao.deleteUserById(userId);
         if(totalCount > 0){
@@ -322,7 +326,7 @@ public class UserService {
                 //用户信息写入session
                 userSessionUtils.setLoginMember(request,response,keepLogin,user);
                 //登录奖励
-                scoreRuleService.scoreRuleBonus(user.getUserId(), 1,user.getUserId());
+                scoreRuleService.scoreRuleBonus(user.getUserId(), 1L,user.getUserId());
             }else{
                 login.setUserId(user.getUserId());
                 login.setAttempts(user.getAttempts()+1);
@@ -403,7 +407,7 @@ public class UserService {
      * @return
      */
     @CacheEvict(value = "user", allEntries = true)
-    public int updateQuestionCount(Integer userId) {
+    public int updateQuestionCount(Long userId) {
         return userDao.updateQuestionCount(userId);
     }
 
@@ -415,7 +419,7 @@ public class UserService {
      * @return
      */
     @CacheEvict(value = "user", allEntries = true)
-    public int updateQuestionFollowCount(Integer userId) {
+    public int updateQuestionFollowCount(Long userId) {
         return userDao.updateQuestionFollowCount(userId);
     }
 
@@ -427,7 +431,7 @@ public class UserService {
      * @return
      */
     @CacheEvict(value = "user", allEntries = true)
-    public int updateArticleCount(int userId) {
+    public int updateArticleCount(Long userId) {
         return userDao.updateArticleCount(userId);
     }
 
@@ -439,7 +443,7 @@ public class UserService {
      * @return
      */
     @CacheEvict(value = "user", allEntries = true)
-    public int updateShareCount(int userId) {
+    public int updateShareCount(Long userId) {
         return userDao.updateShareCount(userId);
     }
 
@@ -451,7 +455,7 @@ public class UserService {
      * @return
      */
     @CacheEvict(value = "user", allEntries = true)
-    public int updateTopicCount(int userId) {
+    public int updateTopicCount(Long userId) {
         return userDao.updateTopicCount(userId);
     }
 
@@ -463,7 +467,7 @@ public class UserService {
      * @return
      */
     @CacheEvict(value = "user", allEntries = true)
-    public int updateAnswerCount(Integer userId) {
+    public int updateAnswerCount(Long userId) {
         return userDao.updateAnswerCount(userId);
     }
 
@@ -480,7 +484,7 @@ public class UserService {
      */
     @CacheEvict(value = "user", allEntries = true)
     @Transactional
-    public DataVo updatePassword(Integer userId, String oldPassword, String password) throws Exception {
+    public DataVo updatePassword(Long userId, String oldPassword, String password) throws Exception {
         DataVo data = DataVo.failure("操作失败");
         User user = userDao.findUserById(userId,0);
         if (user == null) {
@@ -506,11 +510,11 @@ public class UserService {
 
         int totalCount = userDao.updateUser(user);
         if(totalCount > 0){
-            if (this.checkUserByActivation(user.getUserId(),Integer.parseInt(configService.getStringByKey("user_activation_role")))){
+            if (this.checkUserByActivation(user.getUserId(),Long.parseLong(configService.getStringByKey("user_activation_role")))){
                 //用户信息完善后修改权限组为正常用户
                 UserRole userRole=new UserRole();
                 userRole.setUserId(user.getUserId());
-                userRole.setGroupId(Integer.parseInt(configService.getStringByKey("user_role")));
+                userRole.setGroupId(Long.parseLong(configService.getStringByKey("user_role")));
                 userDao.updateUserAndGroup(userRole);
             }
             data = DataVo.success("账户基本信息修改成功");
@@ -531,7 +535,7 @@ public class UserService {
      *        用户id
      * @return
      */
-    public int updateUserAccountScore(String calculate, Integer score, Integer userId){
+    public int updateUserAccountScore(String calculate, Integer score, Long userId){
         return userDao.updateUserAccountScore(calculate,score,userId);
     }
 
@@ -544,7 +548,7 @@ public class UserService {
      * @throws Exception
      */
     @Transactional
-    public DataVo safeMobileCode(Integer userId,String phoneNumber) throws Exception {
+    public DataVo safeMobileCode(Long userId,String phoneNumber) throws Exception {
         if(this.checkUserByMobile(phoneNumber,userId)) {
             return DataVo.failure("该手机号码以注册或被占用！");
         }
@@ -570,7 +574,7 @@ public class UserService {
      */
     @CacheEvict(value = "user", allEntries = true)
     @Transactional
-    public DataVo updateSafeMobile(Integer userId, String password, String mobile, String code) throws Exception {
+    public DataVo updateSafeMobile(Long userId, String password, String mobile, String code) throws Exception {
         DataVo data = DataVo.failure("操作失败");
         User user = userDao.findUserById(userId,0);
         if (user == null) {
@@ -608,7 +612,7 @@ public class UserService {
      */
     @CacheEvict(value = "user", allEntries = true)
     @Transactional
-    public DataVo updateSafeEmail(Integer userId, String password, String userEmail, String code) throws Exception {
+    public DataVo updateSafeEmail(Long userId, String password, String userEmail, String code) throws Exception {
         DataVo data = DataVo.failure("操作失败");
         User user = userDao.findUserById(userId,0);
         if (user == null) {
@@ -642,7 +646,7 @@ public class UserService {
      * @throws Exception
      */
     @Transactional
-    public DataVo safeEmailVerify(String userEmail,Integer userId) throws Exception {
+    public DataVo safeEmailVerify(String userEmail,Long userId) throws Exception {
         if (this.checkUserByEmail(userEmail,userId)) {
             return DataVo.failure("该用户已存在，请换其他账户！");
         }
@@ -727,6 +731,11 @@ public class UserService {
     // ///////////////////////////////
     // /////        查询      ////////
     // ///////////////////////////////
+    @Cacheable(value = "user",key="#shortUrl")
+    public User findUserByShorturl(String shortUrl){
+        return userDao.findUserByShorturl(shortUrl);
+    }
+
     /**
      * 通过userId查询用户信息
      * 用户状态0是所有 1未审核 2正常状态 3 删除至回收站 4锁定
@@ -738,7 +747,7 @@ public class UserService {
      * @return User
      */
     @Cacheable(value = "user")
-    public User findUserById(Integer userId,Integer status) {
+    public User findUserById(Long userId,Integer status) {
         return userDao.findUserById(userId,status);
     }
 
@@ -750,7 +759,7 @@ public class UserService {
      * @return UserAccount
      */
     @Cacheable(value = "user")
-    public UserCount findUserCountById(Integer userId) {
+    public UserCount findUserCountById(Long userId) {
         return userDao.findUserCountById(userId);
     }
 
@@ -762,15 +771,40 @@ public class UserService {
      * @return UserAccount
      */
     @Cacheable(value = "user")
-    public UserAccount findUserAccountById(Integer userId) {
+    public UserAccount findUserAccountById(Long userId) {
         return userDao.findUserAccountById(userId);
     }
 
     //按id查询用户是否存在
-    public boolean checkUserById(Integer userId){
+    public boolean checkUserById(Long userId){
         int totalCount = userDao.checkUserById(userId);
         return totalCount > 0 ? true : false;
     }
+
+    /**
+     * 查询话题短域名是否被占用
+     *
+     * @param shortUrl
+     * @return
+     */
+    public boolean checkUserByShorturl(String shortUrl) {
+        int totalCount = userDao.checkUserByShorturl(shortUrl);
+        return totalCount > 0 ? true : false;
+    }
+
+    public String shortUrl(){
+        String[] aResult = ShortUrlUtils.shortUrl (null);
+        String code=null;
+        for ( int i = 0; i < aResult. length ; i++) {
+            code=aResult[i];
+            //查询文章短域名是否被占用
+            if(!this.checkUserByShorturl(code)){
+                break;
+            }
+        }
+        return code;
+    }
+
     /**
      * 通过username查询用户信息
      *
@@ -813,7 +847,7 @@ public class UserService {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public boolean checkUserByUserName(String userName,Integer userId) {
+    public boolean checkUserByUserName(String userName,Long userId) {
         int totalCount = userDao.checkUserByUserName(userName,userId);
         return totalCount > 0 ? true : false;
     }
@@ -827,7 +861,7 @@ public class UserService {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public boolean checkUserByMobile(String userMobile,Integer userId) {
+    public boolean checkUserByMobile(String userMobile,Long userId) {
         int totalCount = userDao.checkUserByMobile(userMobile,userId);
         return totalCount > 0 ? true : false;
     }
@@ -841,7 +875,7 @@ public class UserService {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public boolean checkUserByEmail(String userEmail,Integer userId) {
+    public boolean checkUserByEmail(String userEmail,Long userId) {
         int totalCount = userDao.checkUserByEmail(userEmail,userId);
         return totalCount > 0 ? true : false;
     }
@@ -855,7 +889,7 @@ public class UserService {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public boolean checkUserByNickName(String nickName,Integer userId) {
+    public boolean checkUserByNickName(String nickName,Long userId) {
         int totalCount = userDao.checkUserByNickName(nickName,userId);
         return totalCount > 0 ? true : false;
     }
@@ -867,7 +901,7 @@ public class UserService {
      *         用户id
      * @return
      */
-    public boolean checkUserByRole(Integer userId) {
+    public boolean checkUserByRole(Long userId) {
         int totalCount = userDao.checkUserByRole(userId);
         return totalCount > 0 ? true : false;
     }
@@ -881,7 +915,7 @@ public class UserService {
      *         未激活权限组id
      * @return
      */
-    public boolean checkUserByActivation(Integer userId,Integer groupId) {
+    public boolean checkUserByActivation(Long userId,Long groupId) {
         int totalCount = userDao.checkUserByActivation(userId,groupId);
         return totalCount > 0 ? true : false;
     }
@@ -918,7 +952,7 @@ public class UserService {
      * @return
      */
     @Cacheable(value = "user")
-    public boolean checkUserFans(Integer userFollow,Integer userFans){
+    public boolean checkUserFans(Long userFollow,Long userFans){
         int totalCount = userDao.checkUserFans(userFollow,userFans);
         return totalCount > 0 ? true : false;
     }
@@ -934,7 +968,7 @@ public class UserService {
      * @return
      */
     @Cacheable(value = "user")
-    public boolean checkUserMutualFans(Integer userFollow,Integer userFans){
+    public boolean checkUserMutualFans(Long userFollow,Long userFans){
         int totalCount = userDao.checkUserMutualFans(userFollow,userFans);
         return totalCount == 2 ? true : false;
     }
@@ -1002,7 +1036,7 @@ public class UserService {
      *         每页数量
      * @return
      */
-    public PageVo<UserFans> getUserFansListPage(Integer userFollow,Integer userFans,String createTime,String orderby,String order,int pageNum, int rows) {
+    public PageVo<UserFans> getUserFansListPage(Long userFollow,Long userFans,String createTime,String orderby,String order,int pageNum, int rows) {
         PageVo<UserFans> pageVo = new PageVo<UserFans>(pageNum);
         pageVo.setRows(rows);
         List<UserFans> list = new ArrayList<UserFans>();
@@ -1066,7 +1100,7 @@ public class UserService {
      *         当前用户id
      * @return
      */
-    public boolean checkUserSessionByUserId(Integer userId) {
+    public boolean checkUserSessionByUserId(Long userId) {
         int totalCount = userDao.checkUserSessionByUserId(userId);
         return totalCount > 0 ? true : false;
     }

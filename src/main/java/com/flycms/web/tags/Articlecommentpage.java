@@ -35,9 +35,9 @@ public class Articlecommentpage extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
 		//文章id
-		Integer articleId = null;
+		long articleId = 0;
 		//用户id
-		Integer userId = null;
+		long userId = 0;
 		//添加时间
 		String createTime = null;
 		//审核状态
@@ -54,10 +54,10 @@ public class Articlecommentpage extends AbstractTagPlugin {
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){ 
 			if("articleId".equals(str)){
-				articleId = Integer.parseInt(paramWrap.get(str).toString());
+				articleId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("userId".equals(str)){
-				userId = Integer.parseInt(paramWrap.get(str).toString());
+				userId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("createTime".equals(str)){
 				createTime = paramWrap.get(str).toString();

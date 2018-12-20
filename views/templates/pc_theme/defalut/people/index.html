@@ -37,11 +37,11 @@
                 <div class="index-list">
                     <div class="profile-main">
                         <ul>
-                            <li class="activ"><a href="/people/${people.userId!}/">动态</a></li>
-                            <li><a href="/people/${people.userId!}/answers">回答<span class="Tabs-meta">${count.countAnswer}</span></a></li>
-                            <li><a href="/people/${people.userId!}/question">提问<span class="Tabs-meta">${count.countQuestion}</span></a></li>
-                            <li><a href="/people/${people.userId!}/article">文章<span class="Tabs-meta">${count.countArticle}</span></a></li>
-                            <li><a href="/people/${people.userId!}/share">分享<span class="Tabs-meta">${count.countShare}</span></a></li>
+                            <li class="activ"><a href="/people/${people.shortUrl!}/">动态</a></li>
+                            <li><a href="/people/${people.shortUrl!}/answers">回答<span class="Tabs-meta">${count.countAnswer}</span></a></li>
+                            <li><a href="/people/${people.shortUrl!}/question">提问<span class="Tabs-meta">${count.countQuestion}</span></a></li>
+                            <li><a href="/people/${people.shortUrl!}/article">文章<span class="Tabs-meta">${count.countArticle}</span></a></li>
+                            <li><a href="/people/${people.shortUrl!}/share">分享<span class="Tabs-meta">${count.countShare}</span></a></li>
                         </ul>
                     </div>
                     <#list feed_page.list as list>
@@ -89,7 +89,7 @@
                     <ul class="taglist-inline multi">
                         <@fly_topicpage orderby="rand" rows="25">
                         <#list topic_page.list as list>
-                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.id!}">${list.topic!}</a></li>
+                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
                         </#list>
                         </@fly_topicpage>
                     </ul>

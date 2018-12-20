@@ -13,9 +13,7 @@
 		insert into fly_images
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			<if test="channelId != null">channel_id,</if>
-			<if test="userId != null">user_id,</if>
-			<if test="tid != null">tid,</if>
+			<if test="id != null">id,</if>
 			<if test="imgurl != null">imgurl,</if>
 			<if test="imgname != null">imgname,</if>
 			<if test="description != null">description,</if>
@@ -28,9 +26,7 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
-			<if test="channelId != null">#{channelId},</if>
-			<if test="userId != null">#{userId},</if>
-			<if test="tid != null">#{tid},</if>
+			<if test="id != null">#{id},</if>
 			<if test="imgurl != null">#{imgurl},</if>
 			<if test="imgname != null">#{imgname},</if>
 			<if test="description != null">#{description},</if>
@@ -78,8 +74,8 @@
 	<!-- ###### 查询 ###### -->
 	<!-- ############################## -->
 	<!-- 按id查询图片信息 -->
-	<select id="getImagesById" resultType="com.flycms.module.question.model.Images">
-		select * from fly_images where id=#{id}
+	<select id="findImagesByImgurl" resultType="com.flycms.module.question.model.Images">
+		select * from fly_images where img_url=#{imgUrl} limit 1
 	</select>
 
 	<!-- 按信息类别和信息ID查询所有相关图片信息 -->
@@ -94,12 +90,12 @@
 
 	<!-- 用信息id和图片地址查询该图片是否存在 -->
 	<select id="checkImagesByTidAndImgurl" resultType="Integer">
-		select count(*) from fly_images where tid=#{tid} and imgurl=#{imgurl} limit 1
+		select count(*) from fly_images where tid=#{tid} and img_url=#{imgUrl} limit 1
 	</select>
 
-	<!-- 查询除该条信息id以外是否有其他该图片路径 -->
-	<select id="checkImagesNotTidAndImgurl" resultType="Integer">
-		select count(*) from fly_images where tid != #{tid} and imgurl=#{imgurl}
+	<!-- 查询图片路径是否存在 -->
+	<select id="checkImagesByImgurl" resultType="Integer">
+		select count(1) from fly_images where img_url=#{imgUrl}
 	</select>
 
 

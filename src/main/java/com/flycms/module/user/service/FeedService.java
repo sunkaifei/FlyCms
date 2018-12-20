@@ -2,6 +2,7 @@ package com.flycms.module.user.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.user.dao.FeedDao;
 import com.flycms.module.user.model.Feed;
 import com.flycms.module.user.model.User;
@@ -39,12 +40,14 @@ public class FeedService {
      * @return
      */
     @Transactional
-    public DataVo addUserFeed(Integer userId,Integer infoType,Integer infoId) {
+    public DataVo addUserFeed(long userId,Integer infoType,long infoId) {
         DataVo data = DataVo.failure("操作失败");
         if(this.checkUserFeed(userId,infoType,infoId)) {
             return DataVo.failure("该feed已存在");
         }
         Feed feed=new Feed();
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        feed.setId(snowFlake.nextId());
         feed.setUserId(userId);
         feed.setInfoType(infoType);
         feed.setInfoId(infoId);
@@ -57,14 +60,14 @@ public class FeedService {
     // ///////////////////////////////
     // /////        刪除      ////////
     // ///////////////////////////////
-    public int deleteUserFeed(Integer userId,Integer infoType,Integer infoId){
+    public Long deleteUserFeed(long userId,Integer infoType,long infoId){
         return feedDao.deleteUserFeed(userId,infoType,infoId);
     }
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////
     //修改该用户feed信息的审核状态
-    public int updateuUserFeedById(Integer infoType,Integer infoId,Integer status){
+    public Long updateuUserFeedById(Integer infoType,long infoId,Integer status){
         return feedDao.updateuUserFeedById(infoType,infoId,status);
     }
 
@@ -72,7 +75,7 @@ public class FeedService {
     // /////        查詢      ////////
     // ///////////////////////////////
     //按id查询用户是否存在
-    public boolean checkUserFeed(Integer userId,Integer infoType,Integer infoId){
+    public boolean checkUserFeed(long userId,Integer infoType,long infoId){
         int totalCount = feedDao.checkUserFeed(userId,infoType,infoId);
         return totalCount > 0 ? true : false;
     }

@@ -99,6 +99,18 @@
                     <li<#if page_nav="sharelist"> class="active"</#if>><a href="/system/share/list_share"><i class="fa fa-circle-o"></i>分享列表</a></li>
                 </ul>
             </li>
+            <li class="treeview<#if page_tab="indexes"> active menu-open</#if>">
+                <a href="#">
+                    <i class="fa" name="ico" menu="分享管理"></i>
+                    <span>索引管理</span>
+                    <span class="pull-right-container">
+                                                <i class="fa fa-angle-left pull-right"></i>
+                                            </span>
+                </a>
+                <ul class="treeview-menu" name="leftMenu">
+                    <li<#if page_nav="contentIndex"> class="active"</#if>><a href="/system/indexes/content_index"><i class="fa fa-circle-o"></i>索引管理</a></li>
+                </ul>
+            </li>
             <li class="header">快速导航</li>
             <li><a href="fdfdsf"><i class="fa fa-star-o"></i> <span>aaa</span></a></li>
         </ul>

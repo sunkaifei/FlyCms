@@ -92,12 +92,18 @@ FlyCms比论坛更开放，比资讯网站更了解用户，以用户为中心�
 #### solr原来的目录里上传的时候jar文件无法上传，压缩后提示上传文件不能大于10MB
 
 ## 如果需要的话进群空间下载，QQ群：`211378508`
-
+## Windows下solr启动  
 - 比如solr放E:/盘下面，首先打开CMD窗口
 - `e: `回车
 - `cd e:/solr/bin` 回车
 - `solr start -p 8983` 回车，等待启动成功
 - `solr stop -p 8983` 这个是停止solr命令
+
+## Linux下启动
+- `cd /root/webapp/solr`
+- `./bin/solr start -p 8983 -force` 回车，等待启动成功
+- `./bin/solr stop -p 8983 -force` 这个是停止solr命令
+
 
 - 创建数据库pybbs, 字符集utf8，如果想支持emoji，就要选择utf8mb4字符集（仅限使用MySQL数据库）  
 - `git clone https://gitee.com/could/FlyCms` 

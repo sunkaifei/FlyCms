@@ -11,6 +11,8 @@ import java.util.List;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.ShortUrlUtils;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.topic.dao.TopicDao;
 import com.flycms.module.topic.model.Topic;
 import com.flycms.module.topic.model.TopicEdit;
@@ -61,6 +63,10 @@ public class TopicService {
 	@Transactional
 	public Topic addTopic(String topics, String content, Integer countView, Integer countNum, Integer isgood, Integer status) {
 		Topic topic = new Topic();
+		SnowFlake snowFlake = new SnowFlake(2, 3);
+		topic.setId(snowFlake.nextId());
+		String code=this.shortUrl();
+		topic.setShortUrl(code);
 		topic.setTopic(topics);
 		topic.setContent(content);
 		topic.setCountView(countView);
@@ -86,7 +92,7 @@ public class TopicService {
      * @return
      */
 	@Transactional
-	public int addTopicAndInfo(Integer infoId,Integer topicId,Integer infoType,Integer status){
+	public int addTopicAndInfo(Long infoId,Long topicId,Integer infoType,Integer status){
 		return topicDao.addTopicAndInfo(infoId,topicId,infoType,status);
 	}
 	
@@ -99,7 +105,7 @@ public class TopicService {
 	 *        话题id
 	 */
     @Transactional
-	public DataVo addTopicAndUser(Integer userId, Integer topicId) {
+	public DataVo addTopicAndUser(Long userId, Long topicId) {
         DataVo data = DataVo.failure("请勿非法传递参数");
 		Topic topic = topicDao.findTopicById(topicId,2);
 		if(topic==null){
@@ -152,7 +158,7 @@ public class TopicService {
      *         信息id
 	 * @return
 	 */
-	public void deleteTopicAndInfoUpCount(Integer infoType,Integer infoId){
+	public void deleteTopicAndInfoUpCount(Integer infoType,Long infoId){
 		List<Topic> taglist=this.getInfoByTopicList(infoType,infoId);
 		if(taglist.size()>0){
 			for (Topic list : taglist) {
@@ -176,7 +182,7 @@ public class TopicService {
 	 * @param id
 	 * @return
 	 */
-	public Topic updateTopicById(String topics,String content,Integer countView,Integer isgood,Integer status,Integer id) {
+	public Topic updateTopicById(String topics,String content,Integer countView,Integer isgood,Integer status,Long id) {
 		Topic topic = new Topic();
 		topic.setTopic(topics);
 		topic.setContent(content);
@@ -194,7 +200,7 @@ public class TopicService {
 	 * @param id
 	 * @return
 	 */
-	public int updateTopicByCount(Integer id){
+	public int updateTopicByCount(Long id){
 		return topicDao.updateTopicByCount(id);
 	}
 	
@@ -205,13 +211,16 @@ public class TopicService {
 	 * @param id
 	 * @return
 	 */
-	public int updateTagStatus(Integer status,Integer id) {
+	public int updateTagStatus(Integer status,Long id) {
 		return topicDao.updateTagStatus(status,id);
 	}
 	
 	// ///////////////////////////////
 	// ///// 查询 ////////
-	// ///////////////////////////////	
+	// ///////////////////////////////
+	public Topic findTopicByShorturl(String shortUrl){
+		return topicDao.findTopicByShorturl(shortUrl);
+	}
 	/**
 	 * 按id查询标签信息
 	 * 
@@ -223,7 +232,7 @@ public class TopicService {
 	 *        审核状态：0所有状态，1未审核，2审核
 	 * @return
 	 */
-	public Topic findTopicById(Integer id,Integer status){
+	public Topic findTopicById(Long id,Integer status){
 		return topicDao.findTopicById(id,status);
 	}
 
@@ -238,6 +247,30 @@ public class TopicService {
 		return topicDao.findTopicByTopic(topic);
 	}
 
+	/**
+	 * 查询话题短域名是否被占用
+	 *
+	 * @param shortUrl
+	 * @return
+	 */
+	public boolean checkTopicByShorturl(String shortUrl) {
+		int totalCount = topicDao.checkTopicByShorturl(shortUrl);
+		return totalCount > 0 ? true : false;
+	}
+
+	public String shortUrl(){
+		String[] aResult = ShortUrlUtils.shortUrl (null);
+		String code=null;
+		for ( int i = 0; i < aResult. length ; i++) {
+			code=aResult[i];
+			//查询文章短域名是否被占用
+			if(!this.checkTopicByShorturl(code)){
+				break;
+			}
+		}
+		return code;
+	}
+
 	//查询话题是否存在
 	public boolean checkTopicByTopic(String topic) {
 		int totalCount = topicDao.checkTopicByTopic(topic);
@@ -245,7 +278,7 @@ public class TopicService {
 	}
 
 	//查询用户下是否该关注标签
-    public boolean checkTopicByUserId(Integer userId,Integer topicId) {
+    public boolean checkTopicByUserId(Long userId,Long topicId) {
         int totalCount = topicDao.checkTopicByUserId(userId,topicId);
         return totalCount > 0 ? true : false;
     }
@@ -310,7 +343,7 @@ public class TopicService {
 	}
 
 	//话题id查询关联的内容
-    public PageVo<TopicInfo> getTopicAndInfoListPage(Integer infoType,Integer topicId,Integer status,String orderBy, String order,Integer pageNum, Integer rows){
+    public PageVo<TopicInfo> getTopicAndInfoListPage(Integer infoType,Long topicId,Integer status,String orderBy, String order,Integer pageNum, Integer rows){
         PageVo<TopicInfo> pageVo = new PageVo<TopicInfo>(pageNum);
         pageVo.setRows(rows);
         if(orderBy==null){
@@ -333,7 +366,7 @@ public class TopicService {
 	 *        文章id
 	 * @return
 	 */
-	public List<Topic> getInfoByTopicList(Integer infoType,Integer infoId){
+	public List<Topic> getInfoByTopicList(Integer infoType,long infoId){
 		return topicDao.getInfoByTopicList(infoType,infoId);
 	}
 

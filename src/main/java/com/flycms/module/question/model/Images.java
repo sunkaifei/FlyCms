@@ -20,26 +20,26 @@ import java.io.Serializable;
 public class Images implements Serializable {
     private static final long serialVersionUID = 1L;
     /** 图片编号 */
-    public Integer id;
+    public Long id;
     /**
      * 类型id
-     * 0.话题和评论话题，1.评论，2.相册
+     * 0.话题，1.评论，2.相册
      */
     public Integer channelId;
     /**  图片的对应内容id */
-    public Integer tid;
+    public Long infoId;
     /** 用户id */
-    public Integer userId;
+    public Long userId;
     /** 相册id */
-    public Integer picid;
+    public Long picId;
     /** 图片地址 */
-    public String imgurl;
+    public String imgUrl;
     /** 图片名称 */
-    public String imgname;
+    public String imgName;
     /** 图片说明 */
     public String description;
     /** 图片体积大小 */
-    public String filesize;
+    public String fileSize;
     /**  图片宽度 */
     public String imgWidth;
     /**  图片高度 */

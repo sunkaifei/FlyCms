@@ -13,12 +13,14 @@
 		insert into fly_admin_permission
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
 			<if test="actionKey != null">actionKey,</if>
 			<if test="controller != null">controller,</if>
 			<if test="remark != null">remark,</if>
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
 			<if test="actionKey != null">#{actionKey},</if>
 			<if test="controller != null">#{controller},</if>
 			<if test="remark != null">#{remark},</if>
@@ -29,12 +31,12 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按id删除权限 -->
-	<delete id="deletePermission" parameterType="Integer">
+	<delete id="deletePermission">
 		delete from fly_admin_permission where id=#{id}
 	</delete>
 
 	<!-- 按id删除权限 -->
-	<delete id="deleteRolePermission" parameterType="Integer">
+	<delete id="deleteRolePermission">
 		delete from fly_admin_group_permission_merge where permission_id=#{permissionId}
 	</delete>
 	<!-- ############################## -->

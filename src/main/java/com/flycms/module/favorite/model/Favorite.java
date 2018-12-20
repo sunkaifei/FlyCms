@@ -20,9 +20,9 @@ import java.util.Date;
 @Getter
 public class Favorite implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
-    private Integer userId;
+    private Long id;
+    private Long userId;
     private Integer infoType;
-    private Integer infoId;
+    private Long infoId;
     private Date createTime;
 }

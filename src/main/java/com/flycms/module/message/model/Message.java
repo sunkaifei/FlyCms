@@ -26,17 +26,17 @@ import java.util.Date;
 public class Message implements Serializable {
 	private static final long serialVersionUID = 1L;
 	/** 信息id */
-	private Integer id;
+	private Long id;
 	/** 发件人id */
     @Pattern(regexp="\\d+", message="发件人id错误")
-	private Integer fromId;
+	private Long fromId;
 	/** 发件人昵称 */
 	private String fromNickname;
 	/** 发件人头像 */
 	private String fromFace;
 	/** 收件人id */
     @Pattern(regexp="\\d+", message="收件人id错误")
-	private Integer toId;
+	private Long toId;
 	/** 收件人昵称 */
 	private String toNickname;
 	/** 收件人头像 */

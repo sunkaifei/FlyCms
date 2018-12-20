@@ -92,10 +92,11 @@ public class AdminController extends BaseController {
 
     //编辑用户
     @GetMapping(value = "/admin_edit/{adminId}")
-    public String adminEdit(@PathVariable(value = "adminId", required = false) int adminId,ModelMap modelMap){
+    public String adminEdit(@PathVariable(value = "adminId", required = false) Long adminId,ModelMap modelMap){
         Admin user=adminService.findAdminById(adminId,0);
         if(user==null){
-            return theme.getAdminTemplate("404");
+            modelMap.addAttribute("message", "用户不存在！");
+            return theme.getAdminTemplate("common/message_tip");
         }
         int roleId=groupService.findUserAndGroupById(adminId);
         List<Group> role=groupService.getAllGroupList();
@@ -129,7 +130,7 @@ public class AdminController extends BaseController {
     //删除管理员
     @PostMapping("/delAdmin")
     @ResponseBody
-    public DataVo deleteAdminById(@RequestParam(value = "id") int id){
+    public DataVo deleteAdminById(@RequestParam(value = "id") Long id){
         DataVo data = DataVo.failure("操作失败");
         if(id==1){
             return data = DataVo.failure("超级管理员组不能删除");
@@ -196,7 +197,7 @@ public class AdminController extends BaseController {
     //删除权限节点
     @PostMapping("/permission_del")
     @ResponseBody
-    public DataVo deletePermission(@RequestParam(value = "id") int id){
+    public DataVo deletePermission(@RequestParam(value = "id") Long id){
         DataVo data = DataVo.failure("操作失败");
         if(permissionService.deletePermission(id)){
             data = DataVo.success("该权限已删除");
@@ -207,8 +208,12 @@ public class AdminController extends BaseController {
     }
 
     @GetMapping(value = "/permission_update/{id}")
-    public String updatePermissions(@PathVariable int id, ModelMap modelMap){
+    public String updatePermissions(@PathVariable Long id, ModelMap modelMap){
         Permission permission = permissionService.findPermissionById(id);
+        if(permission==null){
+            modelMap.addAttribute("message", "该权限不存在");
+            return theme.getAdminTemplate("common/message_tip");
+        }
         modelMap.put("permission", permission);
         modelMap.addAttribute("admin", getAdminUser());
         return theme.getAdminTemplate("admin/admin_permission_update");
@@ -255,7 +260,7 @@ public class AdminController extends BaseController {
     //删除权限组
     @PostMapping("/group_del")
     @ResponseBody
-    public DataVo deleteGroup(@RequestParam(value = "id") int id){
+    public DataVo deleteGroup(@RequestParam(value = "id") Long id){
         DataVo data = DataVo.failure("操作失败");
         if(id==1){
             return data = DataVo.failure("超级管理员组不能删除");
@@ -269,8 +274,12 @@ public class AdminController extends BaseController {
     }
 
     @GetMapping(value = "/group_update/{id}")
-    public String updateGroup(@PathVariable int id, ModelMap modelMap){
+    public String updateGroup(@PathVariable Long id, ModelMap modelMap){
         Group group = groupService.findGroupById(id);
+        if(group==null){
+            modelMap.addAttribute("message", "该管理组不存在");
+            return theme.getAdminTemplate("common/message_tip");
+        }
         modelMap.put("group", group);
         modelMap.addAttribute("admin", getAdminUser());
         return theme.getAdminTemplate("admin/group_update");
@@ -286,7 +295,7 @@ public class AdminController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return DataVo.failure("参数传递错误");
         }
-        return groupService.updateGroup(name,Integer.valueOf(id));
+        return groupService.updateGroup(name,Long.parseLong(id));
     }
 
     @GetMapping(value = "/group_list")
@@ -299,8 +308,12 @@ public class AdminController extends BaseController {
 
 
     @GetMapping(value = "/group_assignPermissions/{id}")
-    public String assignPermissions(@PathVariable int id, ModelMap modelMap){
+    public String assignPermissions(@PathVariable Long id, ModelMap modelMap){
         Group group = groupService.findGroupById(id);
+        if(group==null){
+            modelMap.addAttribute("message", "该管理组不存在");
+            return theme.getAdminTemplate("common/message_tip");
+        }
         List<Permission> permissionList = permissionService.getAllPermissions();
         LinkedHashMap<String, List<Permission>> permissionMap = permissionService.groupByController(permissionList);
         modelMap.put("group", group);
@@ -311,7 +324,7 @@ public class AdminController extends BaseController {
 
     @ResponseBody
     @PostMapping(value = "/group_markpermissions")
-    public DataVo addGroup(@RequestParam(value = "groupId", defaultValue = "0") Integer groupId,@RequestParam(value = "permissionId", defaultValue = "0") Integer permissionId) {
+    public DataVo addGroup(@RequestParam(value = "groupId", defaultValue = "0") Long groupId,@RequestParam(value = "permissionId", defaultValue = "0") Long permissionId) {
         DataVo data = DataVo.failure("操作失败");
         if(groupId==1){
             return data = DataVo.failure("超级管理员组权限不能修改");

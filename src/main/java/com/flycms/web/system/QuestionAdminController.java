@@ -75,7 +75,7 @@ public class QuestionAdminController extends BaseController {
                 return data = DataVo.failure("推荐参数错误");
             }
         }
-        data = questionService.updateQuestionStatusById(Integer.valueOf(id),Integer.valueOf(status),Integer.valueOf(recommend));
+        data = questionService.updateQuestionStatusById(Long.parseLong(id),Integer.valueOf(status),Integer.valueOf(recommend));
         return data;
     }
 
@@ -96,7 +96,7 @@ public class QuestionAdminController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return data = DataVo.failure("id参数错误");
         }
-        data = questionService.deleteQuestionById(Integer.valueOf(id));
+        data = questionService.deleteQuestionById(Long.parseLong(id));
         return data;
     }
 

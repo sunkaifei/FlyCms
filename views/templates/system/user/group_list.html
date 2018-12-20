@@ -2,8 +2,8 @@
 
 <body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
 <div class="wrapper" style="height: auto; min-height: 100%;">
-    <#assign page_tab="index">
-    <#assign page_nav="basic">
+    <#assign page_tab="usermenu">
+    <#assign page_nav="usergrouplist">
     <#include "../common/system_menu.html">
 
     <!--右侧内容 开始-->
@@ -12,10 +12,10 @@
             <ul class="breadcrumb">
                 <li>
                     <i class="home-icon fa fa-home"></i>
-                    <a href="#">会员</a>
+                    <a href="/system/index">系统</a>
                 </li>
                 <li>
-                    <a href="#">用户组管理</a>
+                    <a href="/system/user/group_list">用户组管理</a>
                 </li>
                 <li class="active">会员组列表</li>
             </ul>
@@ -65,9 +65,9 @@
                         <td>${list.maxexp!}</td>
                         <td><input type="text" name="sort" value="${list.sort!}" data-group-id="${list.id!}" aria-required="true" class="form-control w-auto valid-text update-sort mr-10"></td>
                         <td>
-                            <a href="/admin/user/group_edit/${list.id}"><i class='operator fa fa-edit'></i></a>
+                            <a href="/system/user/group_edit/${list.id}"><i class='operator fa fa-edit'></i></a>
                             <a  data-title="${list.groupName!}" data-id="${list.id}" class="group-delete"><i class='operator fa fa-close'></i></a>
-                            <a href="/admin/user/assignPermissions/${list.id}"><i class='operator fa fa-toggle-on'></i></a>
+                            <a href="/system/user/assignPermissions/${list.id}"><i class='operator fa fa-toggle-on'></i></a>
                         </td>
                     </tr>
                     </#list>

@@ -14,6 +14,7 @@
 		insert into fly_admin
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
 			<if test="nickName != null">nick_name,</if>
 			<if test="adminName != null">admin_name,</if>
 			<if test="password != null">password,</if>
@@ -23,6 +24,7 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
 			<if test="nickName != null">#{nickName},</if>
 			<if test="adminName != null">#{adminName},</if>
 			<if test="password != null">#{password},</if>

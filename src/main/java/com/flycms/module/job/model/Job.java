@@ -54,7 +54,7 @@ public class Job implements Serializable {
         }
     }
 
-    private Integer id;
+    private Long id;
 
     /**
      * Bean名称

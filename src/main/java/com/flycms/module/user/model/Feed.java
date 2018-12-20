@@ -20,12 +20,12 @@ import java.io.Serializable;
 public class Feed implements Serializable {
     private static final long serialVersionUID = 1L;
     //id
-    private Integer id;
+    private Long id;
     //用户id
-    private Integer userId;
+    private Long userId;
     //信息类型，0问题，1文章，2分享
     private Integer infoType;
     //信息id
-    private Integer infoId;
+    private Long infoId;
 
 }

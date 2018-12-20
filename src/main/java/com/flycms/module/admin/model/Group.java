@@ -20,7 +20,7 @@ import java.util.Date;
 @Getter
 public class Group implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
+    private Long id;
     @NotEmpty(message="权限组名不能为空")
     private String name;
     private Date createAt;

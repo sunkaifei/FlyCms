@@ -41,7 +41,7 @@ public interface TopicDao {
      *         信息显示状态，默认为显示，0不显示，1显示
      * @return
      */
-    public int addTopicAndInfo(@Param("infoId") Integer infoId,@Param("topicId") Integer topicId,@Param("infoType") Integer infoType,@Param("status") Integer status);
+    public int addTopicAndInfo(@Param("infoId") Long infoId,@Param("topicId") Long topicId,@Param("infoType") Integer infoType,@Param("status") Integer status);
 
     /**
      * 添加用户关注的关注的标签id
@@ -54,7 +54,7 @@ public interface TopicDao {
      *        添加时间
      * @return
      */
-    public int addTopicAndUser(@Param("userId") Integer userId,@Param("topicId") Integer topicId,@Param("createTime") Date createTime);
+    public int addTopicAndUser(@Param("userId") Long userId,@Param("topicId") Long topicId,@Param("createTime") Date createTime);
 
     //添加话题分类信息
     public int addTopicCategory(TopicCategory topicCategory);
@@ -81,7 +81,7 @@ public interface TopicDao {
      *        话题id
      * @return
      */
-    public int deleteTopicbyUserId(@Param("userId") Integer userId,@Param("topicId") Integer topicId);
+    public int deleteTopicbyUserId(@Param("userId") Long userId,@Param("topicId") Long topicId);
 
 
     /**
@@ -95,7 +95,7 @@ public interface TopicDao {
      *        信息类型
      * @return
      */
-    public int deleteTopicAndInfo(@Param("infoId") Integer infoId,@Param("topicId") Integer topicId,@Param("infoType") Integer infoType);
+    public int deleteTopicAndInfo(@Param("infoId") Long infoId,@Param("topicId") Long topicId,@Param("infoType") Integer infoType);
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////
@@ -113,7 +113,7 @@ public interface TopicDao {
      * @param id
      * @return
      */
-    public int updateTopicByCount(@Param("id") Integer id);
+    public int updateTopicByCount(@Param("id") long id);
 
     /**
      * 按id更新审核状态
@@ -122,7 +122,7 @@ public interface TopicDao {
      * @param id
      * @return
      */
-    public int updateTagStatus(@Param("status") Integer status,@Param("id") Integer id);
+    public int updateTagStatus(@Param("status") Integer status,@Param("id") long id);
 
     /**
      * 该话题被关注数量
@@ -130,20 +130,23 @@ public interface TopicDao {
      * @param id
      * @return
      */
-    public int updateTopicFollowByCount(@Param("id") Integer id);
+    public int updateTopicFollowByCount(@Param("id") long id);
     // ///////////////////////////////
     // ///// 查詢 ////////
     // ///////////////////////////////
+    //按id查询话题信息
+    public Topic findTopicByShorturl(@Param("shortUrl") String shortUrl);
+
     /**
-     * 按id查询标签
+     * 按id查询话题
      *
      * @param id
-     *        标签id
+     *        话题id
      * @param status
      *        审核状态：0所有状态，1未审核，2审核
      * @return
      */
-    public Topic findTopicById(@Param("id") Integer id,@Param("status") Integer status);
+    public Topic findTopicById(@Param("id") Long id,@Param("status") Integer status);
 
     /**
      * 按话题查询该话题信息
@@ -154,6 +157,13 @@ public interface TopicDao {
      */
     public Topic findTopicByTopic(@Param("topic") String topic);
 
+    /**
+     * 查询文章短域名是否存在
+     *
+     * @param shortUrl
+     * @return
+     */
+    public int checkTopicByShorturl(@Param("shortUrl") String shortUrl);
 
     /**
      * 按话题查询是否存在
@@ -173,7 +183,7 @@ public interface TopicDao {
      *         话题id
      * @return
      */
-    public int checkTopicByUserId(@Param("userId") Integer userId,@Param("topicId") Integer topicId);
+    public int checkTopicByUserId(@Param("userId") Long userId,@Param("topicId") Long topicId);
 
     /**
      * 查询标签所有数量
@@ -242,7 +252,7 @@ public interface TopicDao {
      */
     public int getTopicAndInfoCount(
             @Param("infoType") Integer infoType,
-            @Param("topicId") Integer topicId,
+            @Param("topicId") Long topicId,
             @Param("status") Integer status);
 
     /**
@@ -263,7 +273,7 @@ public interface TopicDao {
      */
     public List<TopicInfo> getTopicAndInfoList(
             @Param("infoType") Integer infoType,
-            @Param("topicId") Integer topicId,
+            @Param("topicId") Long topicId,
             @Param("status") Integer status,
             @Param("orderBy") String orderBy,
             @Param("order") String order,
@@ -280,23 +290,23 @@ public interface TopicDao {
      *        文章id
      * @return
      */
-    public List<Topic> getInfoByTopicList(@Param("infoType") Integer infoType,@Param("infoId") Integer infoId);
+    public List<Topic> getInfoByTopicList(@Param("infoType") Integer infoType,@Param("infoId") long infoId);
 
     /**
      * 按用户id查询所有关注标签数量
      *
-     * @param user_id
+     * @param userId
      * @return
      */
-    public int getUserTagsCount(@Param("user_id") Integer user_id);
+    public int getUserTagsCount(@Param("user_id") long userId);
 
     /**
      * 按用户id查询所有关注标签列表
      *
-     * @param user_id
+     * @param userId
      * @return
      */
-    public List<Topic> getUserTagsList(@Param("user_id") Integer user_id,
+    public List<Topic> getUserTagsList(@Param("user_id") long userId,
                                        @Param("offset") Integer offset,
                                        @Param("rows") Integer rows);
 }

@@ -14,12 +14,14 @@
 		insert into fly_feed
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
 			<if test="userId != null">user_id,</if>
 			<if test="infoType != null">info_type,</if>
 			<if test="infoId != null">info_id,</if>
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
 			<if test="userId != null">#{userId},</if>
 			<if test="infoType != null">#{infoType},</if>
 			<if test="infoId != null">#{infoId},</if>
@@ -30,7 +32,7 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按用户feed信息 -->
-	<delete id="deleteUserFeed" parameterType="Integer">
+	<delete id="deleteUserFeed">
 		delete from fly_feed where user_id=#{userId} and info_type=#{infoType} and info_id=#{infoId}
 	</delete>
 
@@ -38,7 +40,7 @@
 	<!-- ###### 修改 ###### -->
 	<!-- ############################## -->
 	<!-- 修改该用户feed信息的审核状态 -->
-	<update id="updateuUserFeedById">
+	<update id="updateuUserFeedById" parameterType="java.lang.Long">
 		update fly_feed set status = #{status} where info_type=#{infoType} and info_id=#{infoId}
 	</update>
 

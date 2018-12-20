@@ -24,15 +24,15 @@ public interface AdminDao {
     public int addAdmin(Admin admin);
 
     //添加用户权限组
-    public void addAdminAndRole(@Param("adminId") int adminId, @Param("roleId") int roleId);
+    public void addAdminAndRole(@Param("adminId") Long adminId, @Param("roleId") Long roleId);
     // ///////////////////////////////
     // /////        删除      ////////
     // ///////////////////////////////
     //按id删除管理员信息
-    public int deleteAdminById(@Param("adminId") int adminId);
+    public int deleteAdminById(@Param("adminId") Long adminId);
 
     //按管理员id删除权限管理员关联权限
-    public int deleteAdminAndRole(@Param("adminId") int adminId);
+    public int deleteAdminAndRole(@Param("adminId") Long adminId);
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////
@@ -47,7 +47,7 @@ public interface AdminDao {
      * @param password
      * @return Integer
      */
-    public int updateAdminPassword(@Param("adminId") Integer adminId, @Param("password") String password);
+    public int updateAdminPassword(@Param("adminId") Long adminId, @Param("password") String password);
 
     // ///////////////////////////////
     // ///// 查询 ////////
@@ -61,7 +61,7 @@ public interface AdminDao {
      *         审核状态
      * @return User
      */
-    public Admin findAdminById(@Param("adminId") int adminId, @Param("status") int status);
+    public Admin findAdminById(@Param("adminId") Long adminId, @Param("status") int status);
 
     /**
      * 通过username查询用户信息
@@ -71,7 +71,7 @@ public interface AdminDao {
      */
     public Admin findByUsername(@Param("admin_name") String admin_name);
 
-    public int checkAdminByName(@Param("admin_name") String admin_name, @Param("adminId") Integer adminId);
+    public int checkAdminByName(@Param("admin_name") String admin_name, @Param("adminId") Long adminId);
 
     //查询管理员总数
     public int getAdminCount(@Param("adminName") String adminName,

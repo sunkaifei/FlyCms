@@ -2,6 +2,8 @@ package com.flycms.module.question.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.ShortUrlUtils;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.config.service.ConfigService;
 import com.flycms.module.question.dao.QuestionDao;
 import com.flycms.module.question.model.Answer;
@@ -47,7 +49,7 @@ public class QuestionService {
     // /////       增加       ////////
     // ///////////////////////////////
     @Transactional
-    public DataVo addQuestion(String title,String content,String tags,Integer userId) throws Exception {
+    public DataVo addQuestion(String title,String content,String tags,Long userId) throws Exception {
         DataVo data = DataVo.failure("操作失败");
         String[] ss = tags.split(","); //转换为数组
         if (ss.length>5) {
@@ -58,6 +60,10 @@ public class QuestionService {
             content=imagesService.replaceContent(content,userId);
         }
         Question question=new Question();
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        question.setId(snowFlake.nextId());
+        String code=this.shortUrl();
+        question.setShortUrl(code);
         question.setUserId(userId);
         question.setTitle(StringEscapeUtils.escapeHtml4(title));
         question.setCreateTime(new Date());
@@ -102,7 +108,7 @@ public class QuestionService {
     //按问题id关注或取消
     @Transactional
     @CacheEvict(value="question", allEntries=true)
-    public DataVo QuestionFollow(Integer questionId,Integer userId) throws Exception {
+    public DataVo QuestionFollow(Long questionId,Long userId) throws Exception {
         DataVo data = DataVo.failure("该信息不存在或已删除");
 
         if(!this.checkQuestion(questionId,2)){
@@ -124,7 +130,7 @@ public class QuestionService {
     // ///////////////////////////////
     //按id删除该问题所信息
     @Transactional
-    public DataVo deleteQuestionById(Integer id){
+    public DataVo deleteQuestionById(Long id){
         DataVo data = DataVo.failure("该信息不存在或已删除");
         Question question=questionDao.findQuestionById(id,0);
         if(question!=null){
@@ -161,7 +167,7 @@ public class QuestionService {
      *         问题id
      * @return
      */
-    public int updateQuestionByViewCount(Integer id){
+    public int updateQuestionByViewCount(Long id){
         return questionDao.updateQuestionByViewCount(id);
     }
 
@@ -178,7 +184,7 @@ public class QuestionService {
      */
     @CacheEvict(value = "question", allEntries = true)
     @Transactional
-    public DataVo updateQuestionStatusById(Integer id, Integer status, Integer recommend) throws Exception {
+    public DataVo updateQuestionStatusById(Long id, Integer status, Integer recommend) throws Exception {
         DataVo data = DataVo.failure("该信息不存在或已删除");
         Question question=this.findQuestionById(id,0);
         if(question==null){
@@ -209,6 +215,11 @@ public class QuestionService {
     // ///////////////////////////////
     // /////        查询      ////////
     // ///////////////////////////////
+    @Cacheable(value = "question",key="#shortUrl")
+    public Question findQuestionByShorturl(String shortUrl){
+        return questionDao.findQuestionByShorturl(shortUrl);
+    }
+
     /**
      * 按id查询问题信息
      *
@@ -219,7 +230,7 @@ public class QuestionService {
      * @return
      */
     @Cacheable(value = "question",key="#id")
-    public Question findQuestionById(Integer id, Integer status){
+    public Question findQuestionById(long id, Integer status){
         return questionDao.findQuestionById(id,status);
     }
 
@@ -230,8 +241,32 @@ public class QuestionService {
      *         questionId
      * @return
      */
-    public QuestionCount findQuestionCountById(Integer questionId){
+    public QuestionCount findQuestionCountById(Long questionId){
         return questionDao.findQuestionCountById(questionId);
+    }
+
+    /**
+     * 查询文章短域名是否存在
+     *
+     * @param shortUrl
+     * @return
+     */
+    public boolean checkQuestionByShorturl(String shortUrl) {
+        int totalCount = questionDao.checkQuestionByShorturl(shortUrl);
+        return totalCount > 0 ? true : false;
+    }
+
+    public String shortUrl(){
+        String[] aResult = ShortUrlUtils.shortUrl (null);
+        String code=null;
+        for ( int i = 0; i < aResult. length ; i++) {
+            code=aResult[i];
+            //查询问答短域名是否被占用
+            if(!this.checkQuestionByShorturl(code)){
+                break;
+            }
+        }
+        return code;
     }
 
     /**
@@ -243,12 +278,12 @@ public class QuestionService {
      *         0所有，1未审核 2正常状态 3审核未通过 4删除
      * @return
      */
-    public boolean checkQuestion(Integer id,Integer status){
+    public boolean checkQuestion(Long id,Integer status){
         return questionDao.findQuestionById(id, status) != null;
     }
 
     //按id删除角色和权限关联信息
-    public boolean checkQuestionFollow(Integer questionId,Integer userId){
+    public boolean checkQuestionFollow(Long questionId,Long userId){
         int totalCount = questionDao.checkQuestionFollow(questionId,userId);
         return totalCount > 0 ? true : false;
     }
@@ -262,7 +297,7 @@ public class QuestionService {
      *         用户id
      * @return
      */
-    public boolean checkQuestionByTitle(String title,Integer userId) {
+    public boolean checkQuestionByTitle(String title,Long userId) {
         int totalCount = questionDao.checkQuestionByTitle(title,userId);
         return totalCount > 0 ? true : false;
     }
@@ -280,7 +315,7 @@ public class QuestionService {
      *         审核状态
      * @return
      */
-    public int getQuestionCount(String title,Integer userId,String createTime,Integer status){
+    public int getQuestionCount(String title,Long userId,String createTime,Integer status){
         return questionDao.getQuestionCount(title,userId,createTime,status);
     }
 
@@ -292,7 +327,7 @@ public class QuestionService {
      * @return
      * @throws Exception
      */
-    public PageVo<Question> getQuestionListPage(String title,Integer userId,String createTime,Integer status,String orderby,String order, int pageNum, int rows) {
+    public PageVo<Question> getQuestionListPage(String title,Long userId,String createTime,Integer status,String orderby,String order, int pageNum, int rows) {
         PageVo<Question> pageVo = new PageVo<Question>(pageNum);
         pageVo.setRows(rows);
         List<Question> list = new ArrayList<Question>();

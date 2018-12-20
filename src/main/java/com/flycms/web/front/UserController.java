@@ -580,7 +580,7 @@ public class UserController extends BaseController {
             if(Integer.valueOf(id).equals(getUser().getUserId())){
                 return data=DataVo.failure("无法关注自己！");
             }
-            data=userService.addUserFans(Integer.valueOf(id),getUser().getUserId());
+            data=userService.addUserFans(Long.parseLong(id),getUser().getUserId());
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -634,7 +634,7 @@ public class UserController extends BaseController {
     public String logout() {
         //清除cookie、session
         userService.signOutLogin(request,response);
-        return "redirect:/hot";
+        return "redirect:/index-hot";
     }
 
     /**

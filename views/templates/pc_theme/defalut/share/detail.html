@@ -192,13 +192,13 @@
                             </div>
                             <div class="media-body">
                                 <#if list.infoType=0>
-                                <a class="link-dark" href="/question/${list.infoId!}" title="">${list.title!}</a>
+                                <a class="link-dark" href="/q/${list.shortUrl!}" title="">${list.title!}</a>
                             </#if>
                             <#if list.infoType=1>
-                            <a class="link-dark" href="/article/${list.infoId!}" title="">${list.title!}</a>
+                            <a class="link-dark" href="/a/${list.shortUrl!}" title="">${list.title!}</a>
                             </#if>
                             <#if list.infoType=2>
-                            <a class="link-dark" href="/share${list.infoId!}" title="">${list.title!}</a>
+                            <a class="link-dark" href="/s/${list.shortUrl!}" title="">${list.title!}</a>
                             </#if>
                             </div>
                         </div>
@@ -214,7 +214,7 @@
                         <ul class="taglist-inline multi">
                             <@fly_topicpage orderby="rand" rows="25">
                             <#list topic_page.list as list>
-                            <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.id!}">${list.topic!}</a></li>
+                            <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
                             </#list>
                             </@fly_topicpage>
                         </ul>

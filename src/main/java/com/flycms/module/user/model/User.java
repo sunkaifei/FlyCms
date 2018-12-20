@@ -13,7 +13,9 @@ import java.util.Date;
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     //用户id
-    private Integer userId;
+    private Long userId;
+    //短域名
+    private String shortUrl;
     //用户名,可做登录使用
     private String userName;
     //手机号码,可做登录使用
@@ -56,7 +58,7 @@ public class User implements Serializable {
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date birthday;
     //所在的会员组
-    private Integer groupId;
+        private Long groupId;
     //经验值
     private Integer exp;
     //所有提的问题数量

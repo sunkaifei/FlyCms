@@ -2,6 +2,8 @@ package com.flycms.module.article.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.ShortUrlUtils;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.article.dao.ArticleDao;
 import com.flycms.module.article.model.Article;
 import com.flycms.module.article.model.ArticleComment;
@@ -71,7 +73,7 @@ public class ArticleService {
         if(StringUtils.isBlank(article.getCategoryId())){
             return data=DataVo.failure("必须选择文章分类！");
         }
-        if(this.checkArticleByTitle(article.getTitle(),article.getUserId(),null)){
+        if(this.checkArticleByTitle(article.getTitle(),article.getUserId(),0)){
             return data=DataVo.failure("标题已存在！");
         }
         if (StringUtils.isBlank(article.getTags())) {
@@ -97,6 +99,10 @@ public class ArticleService {
     public Article addArticle(Article article,String[] tags)   throws Exception {
         //转换为数组
         String[] str = article.getCategoryId().split(",");
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        article.setId(snowFlake.nextId());
+        String code=this.shortUrl();
+        article.setShortUrl(code);
         article.setTitle(StringEscapeUtils.escapeHtml4(article.getTitle()));
         article.setCreateTime(new Date());
         article.setStatus(Integer.parseInt(configService.getStringByKey("user_article_verify")));
@@ -151,13 +157,20 @@ public class ArticleService {
     // ///////////////////////////////
     @CacheEvict(value = "article", allEntries = true)
     @Transactional
-    public DataVo deleteArticleById(Integer id) {
+    public DataVo deleteArticleById(Long id) {
         DataVo data = DataVo.failure("操作失败");
         Article article=articleDao.findArticleById(id,0);
         if(article==null){
             data=DataVo.failure("该信息不存在！");
         }
         articleDao.deleteArticleById(id);
+        //删除统计
+        articleDao.deleteArticleCountById(id);
+        //删除评论内容
+        articleDao.deleteArticleCommentById(id);
+        //按文章id删除用户顶或者踩记录
+        articleDao.deleteAllArticleVotesById(id);
+        //按id删除文章统计关联
         articleDao.deleteArticleAndCcategoryById(id);
         feedService.deleteUserFeed(article.getUserId(),1,article.getId());
         solrService.indexDeleteInfo(1,article.getId());
@@ -224,7 +237,7 @@ public class ArticleService {
                 }
             }
             userService.updateArticleCount(article.getUserId());
-            data = DataVo.jump("文章更新成功！","/article/"+article.getId());
+            data = DataVo.jump("文章更新成功！","/a/"+article.getShortUrl());
         }else{
             data=DataVo.failure("更新失败！");
         }
@@ -244,7 +257,7 @@ public class ArticleService {
      */
     @CacheEvict(value = "article", allEntries = true)
     @Transactional
-    public DataVo updateArticleStatusById(Integer id, Integer status, Integer recommend) throws Exception {
+    public DataVo updateArticleStatusById(long id, Integer status, Integer recommend) throws Exception {
         DataVo data = DataVo.failure("该信息不存在或已删除");
         Article article=articleDao.findArticleById(id,0);
         if(article==null){
@@ -283,7 +296,7 @@ public class ArticleService {
      *         文章id
      * @return
      */
-    public int updateArticleWeight(Double weight,Integer articleId){
+    public int updateArticleWeight(Double weight,long articleId){
         return articleDao.updateArticleWeight(weight,articleId);
     }
 
@@ -294,7 +307,7 @@ public class ArticleService {
      *         文章id
      * @return
      */
-    public int updateArticleViewCount(Integer articleId){
+    public int updateArticleViewCount(long articleId){
         return articleDao.updateArticleViewCount(articleId);
     }
 
@@ -359,6 +372,18 @@ public class ArticleService {
     // /////       查询       ////////
     // ///////////////////////////////
     /**
+     * 按shortUrl查询文章信息
+     *
+     * @param shortUrl
+     *         短域名字符串
+     * @return
+     */
+    @Cacheable(value = "article")
+    public Article findArticleByShorturl(String shortUrl){
+        return articleDao.findArticleByShorturl(shortUrl);
+    }
+
+    /**
      * 按id查询文章信息
      *
      * @param id
@@ -368,7 +393,7 @@ public class ArticleService {
      * @return
      */
     @Cacheable(value = "article")
-    public Article findArticleById(Integer id, Integer status){
+    public Article findArticleById(long id, Integer status){
         return articleDao.findArticleById(id,status);
     }
 
@@ -379,10 +404,33 @@ public class ArticleService {
      *         需要查询的文章id
      * @return
      */
-    public ArticleCount findArticleCountById(Integer articleId){
+    public ArticleCount findArticleCountById(long articleId){
         return articleDao.findArticleCountById(articleId);
     }
 
+    /**
+     * 查询文章短域名是否被占用
+     *
+     * @param shortUrl
+     * @return
+     */
+    public boolean checkArticleByShorturl(String shortUrl) {
+        int totalCount = articleDao.checkArticleByShorturl(shortUrl);
+        return totalCount > 0 ? true : false;
+    }
+
+    public String shortUrl(){
+        String[] aResult = ShortUrlUtils.shortUrl (null);
+        String code=null;
+        for ( int i = 0; i < aResult. length ; i++) {
+            code=aResult[i];
+            //查询文章短域名是否被占用
+            if(!this.checkArticleByShorturl(code)){
+                break;
+            }
+        }
+        return code;
+    }
     /**
      * 查询文章标题是否存在
      *
@@ -394,7 +442,7 @@ public class ArticleService {
      *         当修改内容检查重复标题时，排除当前文章id，不排除可设置为null
      * @return
      */
-    public boolean checkArticleByTitle(String title,Integer userId,Integer id) {
+    public boolean checkArticleByTitle(String title,long userId,long id) {
         int totalCount = articleDao.checkArticleByTitle(title,userId,id);
         return totalCount > 0 ? true : false;
     }
@@ -410,7 +458,7 @@ public class ArticleService {
      *         评论内容
      * @return
      */
-    public boolean checkArticleComment(Integer articleId,Integer userId,String content) {
+    public boolean checkArticleComment(long articleId,long userId,String content) {
         int totalCount = articleDao.checkArticleComment(articleId,userId,content);
         return totalCount > 0 ? true : false;
     }
@@ -427,7 +475,7 @@ public class ArticleService {
      *         用户id
      * @return
      */
-    public boolean checkArticleVotes(Integer infoType,Integer infoId,Integer userId) {
+    public boolean checkArticleVotes(Integer infoType,long infoId,long userId) {
         int totalCount = articleDao.checkArticleVotes(infoType,infoId,userId);
         return totalCount > 0 ? true : false;
     }
@@ -445,7 +493,7 @@ public class ArticleService {
      *         每页数量
      * @return
      */
-    public PageVo<Article> getArticleListPage(String title, Integer userId,String createTime, Integer status,String orderby, String order, int pageNum, int rows) {
+    public PageVo<Article> getArticleListPage(String title, long userId,String createTime, Integer status,String orderby, String order, int pageNum, int rows) {
         PageVo<Article> pageVo = new PageVo<Article>(pageNum);
         pageVo.setRows(rows);
         List<Article> list = new ArrayList<Article>();
@@ -479,7 +527,7 @@ public class ArticleService {
      *         0所有，1未审核 2正常状态 3审核未通过 4删除
      * @return
      */
-    public ArticleComment findArticleCommentById(Integer id, Integer status){
+    public ArticleComment findArticleCommentById(Long id, Integer status){
         return articleDao.findArticleCommentById(id,status);
     }
 
@@ -497,7 +545,7 @@ public class ArticleService {
      * @return
      */
     @Cacheable(value = "article")
-    public PageVo<ArticleComment> getArticleCommentListPage(Integer articleId, Integer userId,String createTime, Integer status,String orderby, String order, int pageNum, int rows) {
+    public PageVo<ArticleComment> getArticleCommentListPage(long articleId, long userId,String createTime, Integer status,String orderby, String order, int pageNum, int rows) {
         PageVo<ArticleComment> pageVo = new PageVo<ArticleComment>(pageNum);
         pageVo.setRows(rows);
         List<ArticleComment> list = new ArrayList<ArticleComment>();
@@ -519,12 +567,12 @@ public class ArticleService {
      *         文章id
      * @return
      */
-    public ArticleComment findNewestArticleById(Integer articleId){
+    public ArticleComment findNewestArticleById(long articleId){
         return articleDao.findNewestArticleById(articleId);
     }
 
     //文章索引列表
-    public List<ArticleComment> getArticleCommentByArticleId(Integer articleId){
+    public List<ArticleComment> getArticleCommentByArticleId(long articleId){
         return articleDao.getArticleCommentByArticleId(articleId);
     }
 }

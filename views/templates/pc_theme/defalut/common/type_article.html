@@ -1,4 +1,4 @@
-                            <@fly_articleinfo id="${list.infoId!}">
+                            <@fly_articleinfo id="${list.infoId?c}">
                             <div class="index-list-item" data-info-type="1" data-info-id="${article.id!}" data-user-id="${article.userId!}">
                                 <#if user??>
                                 <#if article.userId != user.userId><button data-user-id="${article.userId!}" class="Button button-blue right-close <@fly_checkfollow userFollow="${article.userId!}" userFans="${user.userId!}"><#if result gt 0> btn-primary button-grey</#if></@fly_checkfollow> userFollow-button" style="display: block;"><@fly_checkfollow userFollow="${article.userId!}" userFans="${user.userId!}"><#if result=1>已关注<#elseif result=2>互相关注<#else><i class="fa fa-plus"></i> 关注他</#if></@fly_checkfollow></button></#if>
@@ -8,13 +8,13 @@
                                 <@fly_userinfo userId="${article.userId!}">
                                 <div  class="user">
                                     <div class="author-avatar">
-                                        <a href="/people/${userinfo.userId!}">
+                                        <a href="/people/${userinfo.shortUrl!}">
                                             <img class="avatar-38 mr-10 hidden-xs" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="${userinfo.nickName!}">
                                         </a>
                                     </div>
                                     <div class="author-content">
                                         <div class="author-name">
-                                            <a href="/people/${userinfo.userId!}">${userinfo.nickName!}</a>
+                                            <a href="/people/${userinfo.shortUrl!}">${userinfo.nickName!}</a>
                                         </div>
                                         <div class="author-nick">
                                             <#if userinfo.signature??>${userinfo.signature!}<#else>这个家伙很懒什么也没留下！</#if>
@@ -22,7 +22,7 @@
                                 </div>
                                 </div>
                                 </@fly_userinfo>
-                                <h2 class="title"><a href="/article/${article.id}">${article.title!}</a></h2>
+                                <h2 class="title"><a href="/a/${article.shortUrl}">${article.title!}</a></h2>
 
                                 <div class="summary">
                                     <!--<div class="blog-rank">

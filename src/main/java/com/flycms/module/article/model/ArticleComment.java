@@ -22,13 +22,13 @@ import java.util.Date;
 public class ArticleComment implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Integer id;
+    private Long id;
     //文章id
-    private Integer articleId;
+    private Long articleId;
     //评论归属id，默认为0
-    private Integer parentId;
+    private Long parentId;
     //用户ID
-    private Integer userId;
+    private Long userId;
     //评论内容
     @NotEmpty(message="请填写评论内容！")
     private String content;

@@ -11,8 +11,7 @@
     <link href="/assets/js/vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/js/vendors/font-awesome/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" media="screen" href="/assets/skin/pc_theme/defalut/css/global.css" />
-    <link rel="stylesheet" href="/assets/js/vendors/syntaxhighlighter/styles/shCore.css">
-    <link rel="stylesheet" href="/assets/js/vendors/syntaxhighlighter/styles/shCoreDefault.css">
+    <link rel="stylesheet" media="screen" href="/assets/js/vendors/prettify/sunburst-by-james-for-prettify.css" />
     <link type="image/x-icon" rel="icon" href="/assets/images/favicon.ico" />
     <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.js"></script>
     <script type="text/javascript" src="/assets/skin/pc_theme/defalut/js/sea.config.js"></script>
@@ -29,17 +28,18 @@
                         <li><a href="/explore/">问答</a></li>
                         <li class="active">编辑答案</li>
                     </ol>
-                    <form id="add_form" action="/ucenter/question/add" method="post">
+                    <form name="example" action="/ucenter/answer/edit_save" method="post" id="add_form">
                         <div class="form-group">
-                            <label for="content">答案内容(选填)</label>
+                            <label for="txt_content">答案内容(选填)</label>
                             <div id="content"></div>
-                            <textarea id="txt_content" name="content" class="hidden">${answer.content!}</textarea>
+                            <textarea id="txt_content" name="content" class="hidden" style="width:100%;height:300px;">${answer.content!}</textarea>
                         </div>
                         <div class="row mt-20">
                             <div class="col-xs-12 col-md-11">
                             </div>
                             <div class="col-xs-12 col-md-1">
-                                <button type="submit" class="btn btn-primary pull-right submit-btn">发布问题</button>
+                                <input type="hidden" name='id' id="id" value="${answer.id!}">
+                                <button type="submit" class="btn btn-primary pull-right submit-answer">发布问题</button>
                             </div>
                         </div>
                     </form>

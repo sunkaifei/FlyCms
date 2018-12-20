@@ -14,6 +14,7 @@
 		insert into fly_answer
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
 			<if test="userId != null">user_id,</if>
 			<if test="questionId != null">question_id,</if>
 			<if test="content != null">content,</if>
@@ -22,6 +23,7 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
 			<if test="userId != null">#{userId},</if>
 			<if test="questionId != null">#{questionId},</if>
 			<if test="content != null">#{content},</if>
@@ -62,6 +64,17 @@
 	<update id="updateAnswerStatusById">
 		update fly_answer
 		<set>
+			<if test="status != null and status !='' or status==0">status=#{status},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 按id更新答案内容 -->
+	<update id="updateAnswerById">
+		update fly_answer
+		<set>
+			<if test="content != null and content !=''">content=#{content},</if>
+			<if test="lastTime != null">last_time=#{lastTime},</if>
 			<if test="status != null and status !='' or status==0">status=#{status},</if>
 		</set>
 		where id=#{id}

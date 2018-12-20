@@ -42,7 +42,7 @@ public class AnswerAdminController extends BaseController {
             if (!NumberUtils.isNumber(id)) {
                 return data = DataVo.failure("id参数错误");
             }
-            Answer answer=answerService.findAnswerById(Integer.valueOf(id), 0);
+            Answer answer=answerService.findAnswerById(Long.parseLong(id), 0);
             if(answer==null) {
                 return DataVo.failure("id错误或不存在！");
             }else {
@@ -65,7 +65,7 @@ public class AnswerAdminController extends BaseController {
         if (!NumberUtils.isNumber(status)) {
             return data = DataVo.failure("审核状态参数错误");
         }
-        data = answerService.updateAnswerStatusById(Integer.valueOf(id),Integer.valueOf(status));
+        data = answerService.updateAnswerStatusById(Long.parseLong(id),Integer.valueOf(status));
         return data;
     }
 
@@ -77,7 +77,7 @@ public class AnswerAdminController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return data=DataVo.failure("话题参数错误");
         }
-        data = answerService.deleteAnswerById(Integer.valueOf(id));
+        data = answerService.deleteAnswerById(Long.parseLong(id));
         return data;
     }
 }

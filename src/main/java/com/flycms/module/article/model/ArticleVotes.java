@@ -20,13 +20,13 @@ import java.util.Date;
 @Getter
 public class ArticleVotes implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
+    private Long id;
     //用户ID
-    private Integer userId;
+    private Long userId;
     //内容类型，0文章，1评论内容
     private Integer infoType;
     //信息id
-    private Integer infoId;
+    private Long infoId;
     //顶
     private Integer digg;
     //踩

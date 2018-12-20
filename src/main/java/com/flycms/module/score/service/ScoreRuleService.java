@@ -3,6 +3,7 @@ package com.flycms.module.score.service;
 import com.flycms.core.utils.DateUtils;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.score.dao.ScoreDetailDao;
 import com.flycms.module.score.dao.ScoreRuleDao;
 import com.flycms.module.score.model.ScoreDetail;
@@ -57,6 +58,8 @@ public class ScoreRuleService {
     @Transactional
 	public DataVo addScoreRule(ScoreRule scoreRule) {
         DataVo data = DataVo.failure("操作失败");
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        scoreRule.setId(snowFlake.nextId());
         scoreRule.setCreateTime(new Date());
         scoreRule.setUpdateTime(new Date());
     	int totalCount=scoreRuleDao.saveScoreRule(scoreRule);
@@ -111,7 +114,7 @@ public class ScoreRuleService {
     }
 
     //开启规则和关闭操作
-    public DataVo updateRuleStatus(Integer id) {
+    public DataVo updateRuleStatus(Long id) {
         DataVo data = DataVo.failure("操作失败");
         ScoreRule rule=scoreRuleDao.findScoreRuleById(id,0);
         if(rule!=null){
@@ -145,7 +148,7 @@ public class ScoreRuleService {
      * @param id
      * @return
      */
-    public ScoreRule findScoreRuleById(Integer id,Integer status) {
+    public ScoreRule findScoreRuleById(Long id,Integer status) {
         return scoreRuleDao.findScoreRuleById(id,status);
     }
 
@@ -157,7 +160,7 @@ public class ScoreRuleService {
      * @param userId
      * @param scoreRuleId
      */
-    public void scoreRuleBonus(Integer userId, Integer scoreRuleId) {
+    public void scoreRuleBonus(Long userId, Long scoreRuleId) {
         this.scoreRuleBonus(userId,scoreRuleId,null);
     }
 
@@ -170,7 +173,7 @@ public class ScoreRuleService {
      * @param foreignId
      *        奖励的信息编号id
      */
-    public void scoreRuleBonus(Integer userId, Integer scoreRuleId, Integer foreignId) {
+    public void scoreRuleBonus(Long userId, Long scoreRuleId, Long foreignId) {
         //规则开启状态下才执行奖励
     	ScoreRule scoreRule = this.findScoreRuleById(scoreRuleId,2);
         if(scoreRule != null){
@@ -201,7 +204,7 @@ public class ScoreRuleService {
         }
     }
 
-    public void scoreRuleCancelBonus(Integer userId, Integer scoreRuleId, Integer foreignId) {
+    public void scoreRuleCancelBonus(Long userId, Long scoreRuleId, Long foreignId) {
         ScoreDetail scoreDetail = scoreDetailService.findByForeignAndRule(userId, scoreRuleId, foreignId);
         if(scoreDetail != null){
             scoreDetailService.scoreDetailByCancel(scoreDetail.getId());

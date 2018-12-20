@@ -33,7 +33,7 @@ public class Favoritepage extends AbstractTagPlugin {
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
-		Integer userId = null;
+		Long userId = null;
 
 		Integer infoType = null;
 
@@ -51,7 +51,7 @@ public class Favoritepage extends AbstractTagPlugin {
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){ 
 			if("userId".equals(str)){
-				userId = Integer.parseInt(paramWrap.get(str).toString());
+				userId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("infoType".equals(str)){
 				infoType = Integer.parseInt(paramWrap.get(str).toString());

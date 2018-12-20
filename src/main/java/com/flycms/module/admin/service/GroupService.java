@@ -2,6 +2,7 @@ package com.flycms.module.admin.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.admin.dao.GroupDao;
 import com.flycms.module.admin.model.Group;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +36,15 @@ public class GroupService {
             return DataVo.failure("该用户组名已存在");
         }
         Group group =new Group();
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        group.setId(snowFlake.nextId());
         group.setName(name);
         group.setCreateAt(new Date());
         groupDao.addGroup(group);
         return DataVo.success("添加成功！");
     }
 
-    public boolean addGroupPermission(int roleId,int permissionId){
+    public boolean addGroupPermission(Long roleId,Long permissionId){
         int totalCount = groupDao.addGroupPermission(roleId,permissionId);
         return totalCount > 0 ? true : false;
     }
@@ -49,14 +52,14 @@ public class GroupService {
     // /////        删除      ////////
     // ///////////////////////////////
     //按id删除角色信息
-    public boolean deleteGroup(int id){
+    public boolean deleteGroup(Long id){
         groupDao.deleteGroupPermission(id,null);
         int totalCount = groupDao.deleteGroup(id);
         return totalCount > 0 ? true : false;
     }
 
     //按id删除角色和权限关联信息
-    public boolean deleteGroupPermission(int roleId,int permissionId){
+    public boolean deleteGroupPermission(Long roleId,Long permissionId){
         int totalCount = groupDao.deleteGroupPermission(roleId,permissionId);
         return totalCount > 0 ? true : false;
     }
@@ -65,7 +68,7 @@ public class GroupService {
     // /////       修改       ////////
     // ///////////////////////////////
     //按id修改组名
-    public DataVo updateGroup(String name, int id){
+    public DataVo updateGroup(String name, Long id){
         DataVo data = DataVo.failure("操作失败");
         if(groupDao.updateGroup(name,id)>0){
             data=DataVo.success("修改成功");
@@ -79,7 +82,7 @@ public class GroupService {
     // /////       查询       ////////
     // ///////////////////////////////
     //按id查询权限组信息
-    public Group findGroupById(int id){
+    public Group findGroupById(Long id){
         return groupDao.findGroupById(id);
     }
 
@@ -112,12 +115,12 @@ public class GroupService {
     };
 
     //按管理员id查询所在会员组id
-    public Integer findUserAndGroupById(int adminId){
+    public Integer findUserAndGroupById(Long adminId){
         return  groupDao.findUserAndGroupById(adminId);
     }
 
     //按管理员id查询所在会员组信息
-    public Group findUserByGroup(int adminId){
+    public Group findUserByGroup(Long adminId){
         return  groupDao.findUserByGroup(adminId);
     }
 }

@@ -11,7 +11,7 @@ import java.util.Date;
 @Getter
 public class Admin implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int id;
+    private Long id;
     private String nickName;
     @NotEmpty(message="用户名不能为空")
     private String adminName;
@@ -23,7 +23,7 @@ public class Admin implements Serializable {
     private String ip;
     private String avatar;
     private String email;
-    private int roleId;
+    private Long roleId;
     private Date lastLoginTime;
     private String lastLoginIp;
     private int attempts;

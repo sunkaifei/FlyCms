@@ -4,6 +4,7 @@ import cn.hutool.http.HttpStatus;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.exception.FlycmsException;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.job.dao.JobDao;
 import com.flycms.module.job.model.Job;
 import com.flycms.module.job.model.JobLog;
@@ -59,6 +60,8 @@ public class JobService {
         if(this.checkJobByMethodName(job.getBeanName(),job.getMethodName())){
             return data=DataVo.failure("该任务已存在！");
         }
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        job.setId(snowFlake.nextId());
         job.setCreateTime(new Date());
         int totalCount=jobDao.insertJob(job);
         if(totalCount > 0){
@@ -78,6 +81,8 @@ public class JobService {
      * @param jobLog
      */
     public void insertJobLog(JobLog jobLog){
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        jobLog.setId(snowFlake.nextId());
         jobLog.setCreateTime(new Date());
         jobDao.insertJobLog(jobLog);
     };
@@ -89,7 +94,7 @@ public class JobService {
      *
      * @param id
      */
-    public DataVo deleteJobById(Integer id){
+    public DataVo deleteJobById(Long id){
         DataVo data = DataVo.failure("操作失败");
         int totalCount=jobDao.deleteJobById(id);
         if(totalCount > 0){
@@ -177,7 +182,7 @@ public class JobService {
      * @param id
      * @return
      */
-    public Job findJobById(Integer id){
+    public Job findJobById(Long id){
         return jobDao.findJobById(id);
     };
 
@@ -206,7 +211,7 @@ public class JobService {
      *         需要排除的当前id
      * @return
      */
-    public boolean checkJobByMethodNameNotId(String beanName,String methodName,Integer id) {
+    public boolean checkJobByMethodNameNotId(String beanName,String methodName,Long id) {
         int totalCount = jobDao.checkJobByMethodNameNotId(beanName,methodName,id);
         return totalCount > 0 ? true : false;
     }

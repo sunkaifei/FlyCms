@@ -37,7 +37,7 @@ public interface UserInviteDao {
     // ///////////////////////////////
     // /////        查詢      ////////
     // ///////////////////////////////
-    public UserInvite findInviteByid(@Param("id") Integer id);
+    public UserInvite findInviteByid(@Param("id") Long id);
 
     /**
      * 查询当前用户id对邀请用户id是否存在
@@ -48,13 +48,13 @@ public interface UserInviteDao {
      *         邀请人ID
      * @return
      */
-    public int checkUserInvite(@Param("toUserId") Integer toUserId,@Param("formUserId") Integer formUserId);
+    public int checkUserInvite(@Param("toUserId") Long toUserId,@Param("formUserId") Long formUserId);
 
     //查询用户组总数
-    public int getUserInviteCount(@Param("userId") Integer userId, @Param("status") Integer status);
+    public int getUserInviteCount(@Param("userId") Long userId, @Param("status") Integer status);
 
     //用户组列表
-    public List<UserInvite> getUserInviteList(@Param("userId") Integer userId,
+    public List<UserInvite> getUserInviteList(@Param("userId") Long userId,
                                         @Param("status") Integer status,
                                         @Param("orderby") String orderby,
                                         @Param("order") String order,

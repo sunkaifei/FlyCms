@@ -41,14 +41,14 @@ public class ArticleController extends BaseController {
     protected ArticleCategoryService articleCategoryService;
 
     //文章列表
-    @GetMapping(value = {"/article/","/article/index","/a/{id}" })
+    @GetMapping(value = {"/ac/","/ac/index","/ac/{id}" })
     public String getArticleList(@PathVariable(value = "id", required = false) String id, @RequestParam(value = "p", defaultValue = "1") int p, ModelMap modelMap){
         ArticleCategory category=null;
         if(id != null){
             if (!NumberUtils.isNumber(id)) {
                 return theme.getPcTemplate("404");
             }
-            category =articleCategoryService.findCategoryById(Integer.valueOf(id),2);
+            category =articleCategoryService.findCategoryById(Long.parseLong(id),2);
             if(category==null){
                 return theme.getPcTemplate("404");
             }
@@ -64,13 +64,13 @@ public class ArticleController extends BaseController {
     }
 
     //文章详细页面
-    @GetMapping(value = "/article/{id}")
-    public String getArticleById(@PathVariable(value = "id", required = false) String id, @RequestParam(value = "p", defaultValue = "1") int p, ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+    @GetMapping(value = "/a/{shortUrl}")
+    public String getArticleById(@PathVariable(value = "shortUrl", required = false) String shortUrl, @RequestParam(value = "p", defaultValue = "1") int p, ModelMap modelMap){
+        if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
         }
         //查询文章内容信息，由于缓存问题，统计要实时更新，所以统计和内容分开查询
-        Article article=articleService.findArticleById(Integer.valueOf(id), 2);
+        Article article=articleService.findArticleByShorturl(shortUrl);
         if(article==null){
             return theme.getPcTemplate("404");
         }
@@ -99,7 +99,7 @@ public class ArticleController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return data = DataVo.failure("id参数错误");
         }
-        Article article=articleService.findArticleById(Integer.valueOf(id), 2);
+        Article article=articleService.findArticleById(Long.parseLong(id), 2);
         if(article==null){
             return data = DataVo.failure("该内容不存在或者未审核！");
         }
@@ -163,15 +163,15 @@ public class ArticleController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return theme.getPcTemplate("404");
         }
-        Article article=articleService.findArticleById(Integer.valueOf(id), 0);
+        Article article=articleService.findArticleById(Long.parseLong(id), 0);
         if(article==null){
             return theme.getPcTemplate("404");
         }
-        if (getUser().getUserId() != article.getUserId()) {
+        if (!getUser().getUserId().equals(article.getUserId())) {
             modelMap.addAttribute("message", "只能修改属于自己的文章！");
             return theme.getPcTemplate("message_tip");
         }
-        article.setContent(StringEscapeUtils.escapeHtml4(article.getContent()));
+        //article.setContent(StringEscapeUtils.escapeHtml4(article.getContent()));
         modelMap.addAttribute("article", article);
         modelMap.addAttribute("user", getUser());
         return theme.getPcTemplate("article/edit_article");
@@ -208,7 +208,7 @@ public class ArticleController extends BaseController {
     //按父级id查询id下所有分类列表
     @ResponseBody
     @RequestMapping(value = "/ucenter/article/category_child")
-    public List<ArticleCategory> getCategoryChildList(@RequestParam(value = "parentId", defaultValue = "0") int parentId){
+    public List<ArticleCategory> getCategoryChildList(@RequestParam(value = "parentId", defaultValue = "0") Long parentId){
         List<ArticleCategory> list=articleCategoryService.getCategoryListByFatherId(parentId);
         return list;
     }
@@ -222,7 +222,7 @@ public class ArticleController extends BaseController {
             if (!NumberUtils.isNumber(id)) {
                 return data=DataVo.failure("文章参数错误");
             }
-            articleService.updateArticleViewCount(Integer.valueOf(id));
+            articleService.updateArticleViewCount(Long.parseLong(id));
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
@@ -255,7 +255,7 @@ public class ArticleController extends BaseController {
             ArticleVotes articleVotes=new ArticleVotes();
             articleVotes.setInfoType(Integer.valueOf(type));
             articleVotes.setUserId(getUser().getUserId());
-            articleVotes.setInfoId(Integer.valueOf(id));
+            articleVotes.setInfoId(Long.parseLong(id));
             articleVotes.setDigg(1);
             data=articleService.updateArticleVotesById(articleVotes);
         } catch (Exception e) {

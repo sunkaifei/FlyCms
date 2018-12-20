@@ -36,7 +36,7 @@
                 <#if (topiclist?size>0)>
                 <div class="question-header-tags">
                     <#list topiclist as list>
-                    <span class="tat-content"><a class="TopicLink" href="/topics/${list.id!}" target="_blank">${list.topic!}</a></span>
+                    <span class="tat-content"><a class="TopicLink" href="/topics/${list.shortUrl!}" target="_blank">${list.topic!}</a></span>
                     </#list>
                 </div>
                 </#if>
@@ -99,7 +99,7 @@
                         <@fly_userinfo userId="${answer.userId!}">
                         <div  class="user">
                             <div class="author-avatar">
-                                <a href="/people/${userinfo.userId!}" target="_blank">
+                                <a href="/people/${userinfo.shortUrl!}" target="_blank">
                                     <img class="avatar-38 mr-10 hidden-xs" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="${userinfo.nickName!}">
                                 </a>
                             </div>
@@ -116,6 +116,17 @@
                         <div class="answer-info">${answer.countDigg!} 人赞同了该回答</div>
                         <div class="summary">
                             <p class="excerpt wordbreak">${answer.content!}</p>
+                            <@fly_login>
+                            <#if status??><#-- 检查是否登陆 -->
+                            <#if user.userId=answer.userId>
+                            <div class="post-opt">
+                                <ul class="list-inline text-muted">
+                                    <li><i class="fa fa-pencil"></i> <a href="/ucenter/answer/edit-${answer.id!}"> 修改</a></li>
+                                </ul>
+                            </div>
+                            </#if>
+                            </#if>
+                            </@fly_login>
                         </div>
                         <div class="item-actions">
                             <span>
@@ -155,13 +166,13 @@
                             </div>
                             <div class="media-body">
                                 <#if list.infoType=0>
-                                <a class="link-dark" href="/question/${list.infoId!}" title="">${list.title!}</a>
+                                <a class="link-dark" href="/q/${list.shortUrl!}" title="">${list.title!}</a>
                                 </#if>
                                 <#if list.infoType=1>
-                                <a class="link-dark" href="/article/${list.infoId!}" title="">${list.title!}</a>
+                                <a class="link-dark" href="/a/${list.shortUrl!}" title="">${list.title!}</a>
                                 </#if>
                                 <#if list.infoType=2>
-                                <a class="link-dark" href="/share${list.infoId!}" title="">${list.title!}</a>
+                                <a class="link-dark" href="/s/${list.shortUrl!}" title="">${list.title!}</a>
                                 </#if>
                             </div>
                         </div>
@@ -177,7 +188,7 @@
                         <ul class="taglist-inline multi">
                             <@fly_topicpage orderby="rand" rows="25">
                             <#list topic_page.list as list>
-                            <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.id!}">${list.topic!}</a></li>
+                            <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
                             </#list>
                             </@fly_topicpage>
                         </ul>

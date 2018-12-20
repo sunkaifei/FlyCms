@@ -25,28 +25,31 @@ public interface AnswerDao {
     public int addAnswer(Answer answer);
 
     //增加答案相关统计信息
-    public int addAnswerCount(@Param("answerId") Integer answerId);
+    public int addAnswerCount(@Param("answerId") Long answerId);
 
     // ///////////////////////////////
     // /////        刪除      ////////
     // ///////////////////////////////
 
     //答案id删除该id信息
-    public int deleteAnswerById(@Param("id") Integer id);
+    public int deleteAnswerById(@Param("id") Long id);
 
     //按答案id删除答案相关统计信息
-    public int deleteAnswerCountById(@Param("answerId") Integer answerId);
+    public int deleteAnswerCountById(@Param("answerId") Long answerId);
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////
 
     //修改答案审核状态
-    public int updateAnswerStatusById(@Param("id") Integer id,@Param("status") Integer status);
+    public int updateAnswerStatusById(@Param("id") Long id,@Param("status") Integer status);
+
+    //按id更新答案内容
+    public int updateAnswerById(Answer answer);
 
     // ///////////////////////////////
     // ///// 查詢 ////////
     // ///////////////////////////////
-    public Answer findAnswerById(@Param("id") Integer id, @Param("status") Integer status);
+    public Answer findAnswerById(@Param("id") Long id, @Param("status") Integer status);
 
     /**
      * 按id和用户id查询评论内容
@@ -57,7 +60,7 @@ public interface AnswerDao {
      *         用户id
      * @return
      */
-    public Answer findAnswerByIdAndUserId(@Param("id") Integer id, @Param("userId") Integer userId);
+    public Answer findAnswerByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 
     /**
      * 查询该用户同样答案内容是否已存在！
@@ -68,7 +71,7 @@ public interface AnswerDao {
      *         答案内容
      * @return
      */
-    public int checkAnswerByContent( @Param("userId") Integer userId,@Param("content") String content);
+    public int checkAnswerByContent( @Param("userId") Long userId,@Param("content") String content);
 
     /**
      * 按参数查询记录数
@@ -83,8 +86,8 @@ public interface AnswerDao {
      *         审核状态
      * @return
      */
-    public int getAnswerCount(@Param("questionId") Integer questionId,
-                                @Param("userId") Integer userId,
+    public int getAnswerCount(@Param("questionId") Long questionId,
+                                @Param("userId") Long userId,
                                 @Param("createTime") String createTime,
                                 @Param("status") Integer status);
 
@@ -109,8 +112,8 @@ public interface AnswerDao {
      *         每页条数
      * @return
      */
-    public List<Answer> getAnswerList(@Param("questionId") Integer questionId,
-                                      @Param("userId") Integer userId,
+    public List<Answer> getAnswerList(@Param("questionId") Long questionId,
+                                      @Param("userId") Long userId,
                                       @Param("createTime") String createTime,
                                       @Param("status") Integer status,
                                       @Param("orderby") String orderby,
@@ -119,8 +122,8 @@ public interface AnswerDao {
                                       @Param("rows") Integer rows);
 
     //按问题id或者用户id查询答案列表
-    public List<Answer> gettAnswerByQuestionIdList(@Param("questionId") Integer questionId, @Param("userId") Integer userId);
+    public List<Answer> gettAnswerByQuestionIdList(@Param("questionId") Long questionId, @Param("userId") Long userId);
 
     //按问题id查询最新的第一条评论内容
-    public Answer findNewestAnswerById(@Param("questionId") Integer questionId);
+    public Answer findNewestAnswerById(@Param("questionId") Long questionId);
 }

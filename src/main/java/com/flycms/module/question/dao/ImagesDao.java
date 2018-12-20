@@ -37,7 +37,7 @@ public interface ImagesDao {
      * @param id
      * @return
      */
-    public int deleteImagesById(@Param("id") Integer id);
+    public int deleteImagesById(@Param("id") Long id);
 
 
     /**
@@ -47,7 +47,7 @@ public interface ImagesDao {
      * @param tid
      * @return
      */
-    public int deleteImagesByTid(@Param("channelId") Integer channelId, @Param("tid") Integer tid);
+    public int deleteImagesByTid(@Param("channelId") Integer channelId, @Param("tid") Long tid);
 
     /**
      * 按图片路径删除数据
@@ -58,7 +58,7 @@ public interface ImagesDao {
      *         图片地址
      * @return
      */
-    public int deleteImagesByTidAndImgurl(@Param("tid") Integer tid, @Param("imgurl") String imgurl);
+    public int deleteImagesByTidAndImgurl(@Param("tid") Long tid, @Param("imgurl") String imgurl);
 
     // ///////////////////////////////
     // /////        修改      ////////
@@ -69,7 +69,7 @@ public interface ImagesDao {
     // ///////////////////////////////
     // ///// 查詢 ////////
     // ///////////////////////////////
-    public Images getImagesById(@Param("id") Integer id);
+    public Images getImagesById(@Param("id") Long id);
 
     /**
      * 按信息类别和信息ID查询所有相关图片信息
@@ -77,42 +77,36 @@ public interface ImagesDao {
      * @param tid
      * @return
      */
-    public List<Images> getImagesListByTid( @Param("tid") Integer tid);
+    public List<Images> getImagesListByTid( @Param("tid") Long tid);
 
     /**
      * 按信息类型id和信息id查询第一个文章图片
      *
-     * @param channelId
-     * @param tid
+     * @param imgUrl
      * @return
      */
-    public Images getImagesInfoById(@Param("channelId") Integer channelId,
-                                    @Param("tid") Integer tid);
+    public Images findImagesByImgurl(@Param("imgUrl") String imgUrl);
 
 
     /**
      * 用信息id和图片地址查询该图片是否存在
      * @param tid
      *         信息id
-     * @param imgurl
+     * @param imgUrl
      *         图片地址
      * @return
      */
-    public int checkImagesByTidAndImgurl(@Param("tid") Integer tid,@Param("imgurl") String imgurl);
+    public int checkImagesByTidAndImgurl(@Param("tid") Long tid,@Param("imgUrl") String imgUrl);
 
     /**
-     * 查询除该条信息id以外是否有其他该图片路径
+     * 查询图片路径是否存在
      *
-     * @param tid
-     *        需要排除的id
-     * @param imgurl
+     * @param imgUrl
      *        图片地址
      * @return
      */
-    public int checkImagesNotTidAndImgurl(
-            @Param("tid") Integer tid,
-            @Param("imgurl") String imgurl
-    );
+    public int checkImagesByImgurl(@Param("imgUrl") String imgUrl);
+
 
     /**
      * 按信息id查询所有关联图片的数量

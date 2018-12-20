@@ -34,19 +34,19 @@ public class Markgroup extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		try {
 			// 获取页面的参数
-			Integer groupId = 0;
+			Long groupId = 0L;
 			// 获取文件的分页
 			//审核设置，默认0
-			Integer permissionId = 0;
+			Long permissionId = 0L;
 			//处理标签变量
 			@SuppressWarnings("unchecked")
 			Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 			for(String str:paramWrap.keySet()){ 
 				if("groupId".equals(str)){
-					groupId = Integer.parseInt(paramWrap.get(str).toString());
+					groupId = Long.parseLong(paramWrap.get(str).toString());
 				}
 				if("permissionId".equals(str)){
-					permissionId = Integer.parseInt(paramWrap.get(str).toString());
+					permissionId = Long.parseLong(paramWrap.get(str).toString());
 				}
 
 			}

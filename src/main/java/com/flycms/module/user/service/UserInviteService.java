@@ -30,7 +30,7 @@ public class UserInviteService {
     // ///////////////////////////////
 
     @Transactional
-    public DataVo addUserInvite(Integer toUserId,Integer formUserId){
+    public DataVo addUserInvite(Long toUserId,Long formUserId){
         DataVo data = DataVo.failure("操作失败");
         if(this.checkUserInvite(toUserId,formUserId)){
             return data = DataVo.failure("该用户已被邀请");
@@ -70,7 +70,7 @@ public class UserInviteService {
      *         邀请人ID
      * @return
      */
-    public boolean checkUserInvite(Integer toUserId,Integer formUserId){
+    public boolean checkUserInvite(Long toUserId,Long formUserId){
         int totalCount = userInviteDao.checkUserInvite(toUserId,formUserId);
         return totalCount > 0 ? true : false;
     }
@@ -83,7 +83,7 @@ public class UserInviteService {
      * @return
      * @throws Exception
      */
-    public PageVo<UserInvite> getUserInviteListPage(Integer userId,Integer status,String orderby,String order,int pageNum, int rows) {
+    public PageVo<UserInvite> getUserInviteListPage(Long userId,Integer status,String orderby,String order,int pageNum, int rows) {
         PageVo<UserInvite> pageVo = new PageVo<UserInvite>(pageNum);
         pageVo.setRows(rows);
         if(orderby==null){

@@ -41,7 +41,7 @@ public interface ScoreDetailDao {
     // /////        刪除      ////////
     // ///////////////////////////////
     //按id删除本条积分记录
-    public int deleteScoreDetailById(@Param("id") int id);
+    public int deleteScoreDetailById(@Param("id") Long id);
 
 
 	// ///////////////////////////////
@@ -52,7 +52,7 @@ public interface ScoreDetailDao {
 	 *
 	 * @param id
 	 */
-	public void scoreDetailByCancel(@Param("id") Integer id);
+	public void scoreDetailByCancel(@Param("id") Long id);
 	
 	// ///////////////////////////////
 	// /////       查询       ////////
@@ -64,7 +64,7 @@ public interface ScoreDetailDao {
      * @param id
      * @return
      */
-    public ScoreDetail findScoreDetailById(@Param("id") Integer id);
+    public ScoreDetail findScoreDetailById(@Param("id") Long id);
 
 	/**
 	 * 按用户id查询积分记录数量
@@ -72,7 +72,7 @@ public interface ScoreDetailDao {
 	 * @param userId
 	 * @return
 	 */
-	public int scoreDetailCount(@Param("userId") Integer userId,
+	public int scoreDetailCount(@Param("userId") Long userId,
                                 @Param("status") Integer status
     );
 
@@ -84,7 +84,7 @@ public interface ScoreDetailDao {
 	 * @param rows
 	 * @return
 	 */
-	public List<ScoreDetail> scoreDetaillist(@Param("userId") Integer userId,
+	public List<ScoreDetail> scoreDetaillist(@Param("userId") Long userId,
                                              @Param("status") Integer status,
                                              @Param("orderby") String orderby,
                                              @Param("order") String order,
@@ -99,7 +99,7 @@ public interface ScoreDetailDao {
 	 * @param type
 	 * @return
 	 */
-	public List<ScoreDetail> scoreDetailCanBonus(@Param("userId") Integer userId, @Param("scoreRuleId") Integer scoreRuleId, @Param("type") String type);
+	public List<ScoreDetail> scoreDetailCanBonus(@Param("userId") Long userId, @Param("scoreRuleId") Long scoreRuleId, @Param("type") String type);
 
     /**
      * 根据会员、获取奖励的外键、奖励规则ID获取奖励激励，不包括foreign_id=0
@@ -109,8 +109,8 @@ public interface ScoreDetailDao {
 	 * @param foreignId
 	 * @return
 	 */
-	public ScoreDetail findByForeignAndRule(@Param("userId") Integer userId,
-                                            @Param("scoreRuleId") Integer scoreRuleId,
-                                            @Param("foreignId") Integer foreignId);
+	public ScoreDetail findByForeignAndRule(@Param("userId") Long userId,
+                                            @Param("scoreRuleId") Long scoreRuleId,
+                                            @Param("foreignId") Long foreignId);
 	
 }

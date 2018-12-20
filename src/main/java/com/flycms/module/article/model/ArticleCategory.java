@@ -20,9 +20,9 @@ import java.io.Serializable;
 public class ArticleCategory implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Integer id;
+    private Long id;
 
-    private Integer fatherId;
+    private Long fatherId;
 
     private String name;
 

@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @Setter
 @Getter
 public class UserGroup implements Serializable {
-    private Integer id;
+    private Long id;
     @NotEmpty(message="用户组名不能为空")
     private String groupName;
 

@@ -35,10 +35,10 @@ public interface PermissionDao {
     // /////        删除      ////////
     // ///////////////////////////////
     //按id删除权限
-    public int deletePermission(@Param("id") int id);
+    public int deletePermission(@Param("id") Long id);
 
     //按id删除权限和权限组关联信息
-    public int deleteRolePermission(@Param("permissionId") int permissionId);
+    public int deleteRolePermission(@Param("permissionId") Long permissionId);
 
     // ///////////////////////////////
     // /////        修改      ////////
@@ -49,7 +49,7 @@ public interface PermissionDao {
     // /////       查詢       ////////
     // ///////////////////////////////
     //按id查询权限节点详细信息
-    public Permission findPermissionById(@Param("id") int id);
+    public Permission findPermissionById(@Param("id") Long id);
 
     //查询权限url是否存在
     public List<Permission> findPermissionByActionKey(@Param("actionKey") String actionKey);
@@ -65,7 +65,7 @@ public interface PermissionDao {
      * @Date: 11:58 2018/6/28
      *
      */
-    public List<Permission> findPermissionByUserId(@Param("adminId") int adminId);
+    public List<Permission> findPermissionByUserId(@Param("adminId") Long adminId);
 
     //查询所有权限数量
     public int getPermissionCount();
@@ -77,5 +77,5 @@ public interface PermissionDao {
     public List<Permission> getAllPermissions();
 
     //检查是否有权限
-    public int markAssignedPermissions(@Param("groupId") int groupId, @Param("permissionId") int permissionId);
+    public int markAssignedPermissions(@Param("groupId") Long groupId, @Param("permissionId") Long permissionId);
 }

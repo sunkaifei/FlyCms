@@ -40,8 +40,8 @@ spring:
   ##数据库连接信息
   datasource:
       url: jdbc:mysql://127.0.0.1:3306/flycms?useSSL=false&useUnicode=true&characterEncoding=UTF-8
-      username: 你的用戶名
-      password: 你的密碼
+      username: root
+      password: 您的密码
       driver-class-name: com.mysql.jdbc.Driver
       ###################以下为druid增加的配置###########################
       type: com.alibaba.druid.pool.DruidDataSource
@@ -86,15 +86,19 @@ logging:
         learning: trace
         #com.flycms.module.score.dao : DEBUG  #直接写包路径，不能用*通配符
         #com.flycms.module.user.dao : DEBUG
-        #com.flycms.module.article.dao : DEBUG
+        com.flycms.module.article.dao : DEBUG
         #com.flycms.module.question.dao : DEBUG
-        #com.flycms.module.topic.dao : DEBUG
+        com.flycms.module.topic.dao : DEBUG
         #com.flycms.module.other.dao : DEBUG
         #com.flycms.module.job.dao : DEBUG
         #com.flycms.module.links.dao : DEBUG
     pattern:
         console: "%d{yyyy/MM/dd-HH:mm:ss} [%thread] %-5level %logger- %msg%n"
     file: "logs/flycms-logging.log"
+
+#solr服务器连接设置
+solr:
+   serverUrl: "http://127.0.0.1:8983/solr/info"
 
 #网站基本设置
 site:
