@@ -20,7 +20,7 @@ import java.io.Serializable;
 public class FilterKeyword implements Serializable {
     private static final long serialVersionUID = 1L;
     //id
-    private Integer id;
+    private Long id;
     //违禁关键词
     private String keyword;
 }

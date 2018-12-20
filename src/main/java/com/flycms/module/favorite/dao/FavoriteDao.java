@@ -28,7 +28,7 @@ public interface FavoriteDao {
     // /////        刪除      ////////
     // ///////////////////////////////
     //按id删除收藏信息
-    public int deleteFavoriteById(@Param("userId") Integer userId,@Param("infoType") Integer infoType,@Param("infoId") Integer infoId);
+    public int deleteFavoriteById(@Param("userId") Integer userId, @Param("infoType") Integer infoType, @Param("infoId") Integer infoId);
 
     // ///////////////////////////////
     // /////        修改      ////////
@@ -52,19 +52,19 @@ public interface FavoriteDao {
      *         收藏信息id
      * @return
      */
-    public int checkFavoriteByUser(@Param("userId") Long userId,@Param("infoType") Integer infoType,@Param("infoId") Long infoId);
+    public int checkFavoriteByUser(@Param("userId") Long userId, @Param("infoType") Integer infoType, @Param("infoId") Long infoId);
 
     //查询收藏总数
     public int getFavoriteCount(@Param("userId") Long userId,
-                            @Param("infoType") Integer infoType,
-                            @Param("createTime") String createTime);
+                                @Param("infoType") Integer infoType,
+                                @Param("createTime") String createTime);
 
     //收藏列表
     public List<Favorite> getFavoriteList(@Param("userId") Long userId,
-                                      @Param("infoType") Integer infoType,
-                                      @Param("createTime") String createTime,
-                                      @Param("orderby") String orderby,
-                                      @Param("order") String order,
-                                      @Param("offset") Integer offset,
-                                      @Param("rows") Integer rows);
+                                          @Param("infoType") Integer infoType,
+                                          @Param("createTime") String createTime,
+                                          @Param("orderby") String orderby,
+                                          @Param("order") String order,
+                                          @Param("offset") Integer offset,
+                                          @Param("rows") Integer rows);
 }

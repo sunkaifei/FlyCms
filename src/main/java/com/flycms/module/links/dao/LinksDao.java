@@ -112,8 +112,8 @@ public interface LinksDao {
 		 * @return
 		 */
 		public List<Links> getLinksList(@Param("type") Integer type,
-												@Param("isShow") Integer isShow,
-												@Param("offset") long offset,
-												@Param("rows") long rows);
+                                        @Param("isShow") Integer isShow,
+                                        @Param("offset") long offset,
+                                        @Param("rows") long rows);
 
 }

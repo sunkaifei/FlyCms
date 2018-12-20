@@ -56,7 +56,7 @@ public interface ShareDao {
      *         0不推荐,1内容页推荐,2栏目页推荐,3专题页推荐,4首页推荐,5全站推荐
      * @return
      */
-    public int updateShareStatusById(@Param("id") Long id,@Param("status") Integer status,@Param("recommend")  Integer recommend);
+    public int updateShareStatusById(@Param("id") Long id, @Param("status") Integer status, @Param("recommend") Integer recommend);
     // ///////////////////////////////
     // ///// 查詢 ////////
     // ///////////////////////////////
@@ -94,25 +94,25 @@ public interface ShareDao {
      *         排除当前内容id
      * @return
      */
-    public int checkShareByTitle(@Param("title") String title,@Param("userId") Long userId,@Param("id") Long id);
+    public int checkShareByTitle(@Param("title") String title, @Param("userId") Long userId, @Param("id") Long id);
 
     //分享总数
     public int getShareCount(@Param("title") String title,
-                                @Param("userId") Long userId,
-                                @Param("createTime") String createTime,
-                                @Param("status") Integer status);
+                             @Param("userId") Long userId,
+                             @Param("createTime") String createTime,
+                             @Param("status") Integer status);
 
     //分享列表
     public List<Share> getShareList(@Param("title") String title,
-                                          @Param("userId") Long userId,
-                                          @Param("createTime") String createTime,
-                                          @Param("status") Integer status,
-                                          @Param("orderby") String orderby,
-                                          @Param("order") String order,
-                                          @Param("offset") Integer offset,
-                                          @Param("rows") Integer rows);
+                                    @Param("userId") Long userId,
+                                    @Param("createTime") String createTime,
+                                    @Param("status") Integer status,
+                                    @Param("orderby") String orderby,
+                                    @Param("order") String order,
+                                    @Param("offset") Integer offset,
+                                    @Param("rows") Integer rows);
 
     //分享索引列表
     public List<Share> getShareIndexList(@Param("offset") Integer offset,
-                                    @Param("rows") Integer rows);
+                                         @Param("rows") Integer rows);
 }

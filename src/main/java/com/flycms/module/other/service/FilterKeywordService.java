@@ -2,6 +2,7 @@ package com.flycms.module.other.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.core.utils.SymbolConvertUtils;
 import com.flycms.module.other.dao.FilterKeywordDao;
 import com.flycms.module.other.model.FilterKeyword;
@@ -60,7 +61,11 @@ public class FilterKeywordService {
         if(this.checkFilterKeyword(keyword)){
             return data=DataVo.failure("该关键词已存在！");
         }
-        int totalCount=filterKeywordDao.addFilterKeyword(keyword);
+		SnowFlake snowFlake = new SnowFlake(2, 3);
+		FilterKeyword keybaen=new FilterKeyword();
+		keybaen.setId(snowFlake.nextId());
+		keybaen.setKeyword(keyword);
+        int totalCount=filterKeywordDao.addFilterKeyword(keybaen);
         if(totalCount > 0){
             data = DataVo.success("添加成功");
         }else{
@@ -73,7 +78,7 @@ public class FilterKeywordService {
     // ///////////////////////////////
     //按id删除违禁关键词
     @CacheEvict(value = "longterm", allEntries = true)
-    public DataVo deleteFilterKeywordById(Integer id){
+    public DataVo deleteFilterKeywordById(Long id){
         DataVo data = DataVo.failure("操作失败");
         int totalCount=filterKeywordDao.deleteFilterKeywordById(id);
         if(totalCount > 0){
@@ -94,7 +99,7 @@ public class FilterKeywordService {
 	 * @return
 	 */
 	@CacheEvict(value = "longterm", allEntries = true)
-	public DataVo updateFilterKeywordById(String keyword,Integer id) {
+	public DataVo updateFilterKeywordById(String keyword,Long id) {
 		DataVo data = DataVo.failure("操作失败");
 		if(this.checkFilterKeywordNotId(keyword,id)){
 			return data=DataVo.failure("该关键词已存在！");
@@ -117,7 +122,7 @@ public class FilterKeywordService {
 	 * @param id
 	 * @return
 	 */
-	public FilterKeyword findFilterKeywordById(Integer id){
+	public FilterKeyword findFilterKeywordById(Long id){
 		return filterKeywordDao.findFilterKeywordById(id);
 	};
 
@@ -142,7 +147,7 @@ public class FilterKeywordService {
 	 *         需要排除的id
 	 * @return
 	 */
-	public boolean checkFilterKeywordNotId(String keyword,Integer id) {
+	public boolean checkFilterKeywordNotId(String keyword,Long id) {
 		int totalCount = filterKeywordDao.checkFilterKeywordNotId(keyword,id);
 		return totalCount > 0 ? true : false;
 	}

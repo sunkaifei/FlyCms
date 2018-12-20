@@ -14,10 +14,12 @@
         insert into fly_filter_keyword
         <!-- 添加表字段 -->
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
             <if test="keyword != null and keyword!=''">keyword,</if>
         </trim>
         <!-- 注入控制层字段 -->
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
             <if test="keyword != null and keyword!=''">#{keyword},</if>
         </trim>
     </insert>

@@ -44,7 +44,7 @@ public interface ConfigDao {
 
     public int getConfigCount();
 
-    public List<Config> getConfigList(@Param("offset")int offset, @Param("rows") int rows);
+    public List<Config> getConfigList(@Param("offset") int offset, @Param("rows") int rows);
 
     //所有配置列表信息
     public List<Config> getConfigAllList();

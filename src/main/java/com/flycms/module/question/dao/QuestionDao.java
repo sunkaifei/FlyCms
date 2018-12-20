@@ -31,7 +31,7 @@ public interface QuestionDao {
     public int addQuestionCount(@Param("questionId") Long questionId);
 
     //添加关注问题关联
-    public int addQuestionFollow(@Param("questionId") Long questionId,@Param("userId") Long userId);
+    public int addQuestionFollow(@Param("questionId") Long questionId, @Param("userId") Long userId);
     // ///////////////////////////////
     // /////        刪除      ////////
     // ///////////////////////////////
@@ -46,7 +46,7 @@ public interface QuestionDao {
     * 如：deleteQuestionFollow(questionId,null);
     *
     */
-    public int deleteQuestionFollow(@Param("questionId") Long questionId,@Param("userId") Long userId);
+    public int deleteQuestionFollow(@Param("questionId") Long questionId, @Param("userId") Long userId);
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////
@@ -62,7 +62,7 @@ public interface QuestionDao {
      *         0不推荐,1内容页推荐,2栏目页推荐,3专题页推荐,4首页推荐,5全站推荐
      * @return
      */
-    public int updateQuestionById(@Param("id") Long id,@Param("status") Integer status,@Param("recommend")  Integer recommend);
+    public int updateQuestionById(@Param("id") Long id, @Param("status") Integer status, @Param("recommend") Integer recommend);
 
     /**
      * 按id更新问题回答数量统计
@@ -133,7 +133,7 @@ public interface QuestionDao {
      *         用户id
      * @return
      */
-    public int checkQuestionByTitle(@Param("title") String title,@Param("userId") Long userId);
+    public int checkQuestionByTitle(@Param("title") String title, @Param("userId") Long userId);
 
     /**
      * 查询是否已关注该问题
@@ -144,13 +144,13 @@ public interface QuestionDao {
      *         用户id
      * @return
      */
-    public int checkQuestionFollow(@Param("questionId") Long questionId,@Param("userId") Long userId);
+    public int checkQuestionFollow(@Param("questionId") Long questionId, @Param("userId") Long userId);
 
     //查询所有问题数量
     public int getQuestionCount(@Param("title") String title,
-                             @Param("userId") Long userId,
-                             @Param("createTime") String createTime,
-                             @Param("status") Integer status);
+                                @Param("userId") Long userId,
+                                @Param("createTime") String createTime,
+                                @Param("status") Integer status);
 
     //问题列表
     public List<Question> getQuestionList(@Param("title") String title,

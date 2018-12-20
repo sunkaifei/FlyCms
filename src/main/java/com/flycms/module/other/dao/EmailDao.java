@@ -44,5 +44,5 @@ public interface EmailDao {
 
     public int getEmailTempletCount();
 
-    public List<Email> getEmailTempletList(@Param("offset")int offset, @Param("rows") int rows);
+    public List<Email> getEmailTempletList(@Param("offset") int offset, @Param("rows") int rows);
 }

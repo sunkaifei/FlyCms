@@ -43,7 +43,7 @@ public interface UserGroupDao {
     public int updateUserGroup(UserGroup group);
 
     //更新用户组排序
-    public int updateGroupSort(@Param("id") Long id,@Param("sort") Integer sort);
+    public int updateGroupSort(@Param("id") Long id, @Param("sort") Integer sort);
 
 
     // ///////////////////////////////
@@ -56,7 +56,7 @@ public interface UserGroupDao {
     public UserGroup findUuserGroupByUserId(@Param("userId") Long userId);
 
     //查询用户组名是否存在,如果id不为空或者null，排除当前id意外检查是否已存在！
-    public int checkUuserGroupByName(@Param("groupName") String groupName,@Param("id") Long id);
+    public int checkUuserGroupByName(@Param("groupName") String groupName, @Param("id") Long id);
 
     //查询用户组总数
     public int getUserGroupCount();

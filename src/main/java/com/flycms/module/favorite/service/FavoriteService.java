@@ -2,6 +2,7 @@ package com.flycms.module.favorite.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.article.model.Article;
 import com.flycms.module.article.service.ArticleService;
 import com.flycms.module.favorite.dao.FavoriteDao;
@@ -69,6 +70,8 @@ public class FavoriteService {
             data = DataVo.failure("已成功收藏！");
         }else{
             Favorite favorite=new Favorite();
+            SnowFlake snowFlake = new SnowFlake(2, 3);
+            favorite.setId(snowFlake.nextId());
             favorite.setUserId(userId);
             favorite.setInfoType(infoType);
             favorite.setInfoId(infoId);

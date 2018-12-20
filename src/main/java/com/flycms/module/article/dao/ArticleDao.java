@@ -29,7 +29,7 @@ public interface ArticleDao {
     public int addArticleCount(@Param("articleId") long articleId);
 
     //按id查询文章信息
-    public int addArticleAndCategory(@Param("articleId") long articleId,@Param("categoryId") String categoryId,@Param("typeId") Integer typeId);
+    public int addArticleAndCategory(@Param("articleId") long articleId, @Param("categoryId") String categoryId, @Param("typeId") Integer typeId);
 
     //添加文章评论内容
     public int addArticleComment(ArticleComment articleComment);
@@ -64,8 +64,8 @@ public interface ArticleDao {
      * @return
      */
     public Long deleteArticleVotesById(@Param("infoType") Integer infoType,
-                                      @Param("infoId") Long infoId,
-                                      @Param("userId") Long userId);
+                                       @Param("infoId") Long infoId,
+                                       @Param("userId") Long userId);
 
     // ///////////////////////////////
     // /////        修改      ////////
@@ -84,10 +84,10 @@ public interface ArticleDao {
      *         0不推荐,1内容页推荐,2栏目页推荐,3专题页推荐,4首页推荐,5全站推荐
      * @return
      */
-    public int updateArticleStatusById(@Param("id") Long id,@Param("status") Integer status,@Param("recommend") Integer recommend);
+    public int updateArticleStatusById(@Param("id") Long id, @Param("status") Integer status, @Param("recommend") Integer recommend);
 
     //按id更新文章分类
-    public int editArticleAndCcategoryById(@Param("categoryId") String categoryId,@Param("typeId") Integer typeId,@Param("articleId") long articleId);
+    public int editArticleAndCcategoryById(@Param("categoryId") String categoryId, @Param("typeId") Integer typeId, @Param("articleId") long articleId);
 
     /**
      * 更新文章被评论的数量
@@ -143,7 +143,7 @@ public interface ArticleDao {
      *         文章id
      * @return
      */
-    public int updateArticleWeight(@Param("weight") Double weight,@Param("articleId") Long articleId);
+    public int updateArticleWeight(@Param("weight") Double weight, @Param("articleId") Long articleId);
 
     //按id更新文章浏览数量统计
     public int updateArticleViewCount(@Param("articleId") Long articleId);
@@ -154,7 +154,7 @@ public interface ArticleDao {
     public Article findArticleByShorturl(@Param("shortUrl") String shortUrl);
 
     //按id查询文章信息
-    public Article findArticleById(@Param("id") Long id,@Param("status") Integer status);
+    public Article findArticleById(@Param("id") Long id, @Param("status") Integer status);
 
     //按id查询文章统计信息
     public ArticleCount findArticleCountById(@Param("articleId") Long articleId);
@@ -179,7 +179,7 @@ public interface ArticleDao {
      *         当修改内容检查重复标题时，排除当前文章id，不排除可设置为null
      * @return
      */
-    public int checkArticleByTitle(@Param("title") String title,@Param("userId") Long userId,@Param("id") Long id);
+    public int checkArticleByTitle(@Param("title") String title, @Param("userId") Long userId, @Param("id") Long id);
 
     /**
      * 查询文章相同的评论内容是否已添加
@@ -192,7 +192,7 @@ public interface ArticleDao {
      *         评论内容
      * @return
      */
-    public int checkArticleComment(@Param("articleId") Long articleId,@Param("userId") Long userId,@Param("content") String content);
+    public int checkArticleComment(@Param("articleId") Long articleId, @Param("userId") Long userId, @Param("content") String content);
 
     /**
      * 按信息类型id、文章id、用户id查询用户顶或者踩记录是否发布过同样内容
@@ -206,7 +206,7 @@ public interface ArticleDao {
      *         用户id
      * @return
      */
-    public int checkArticleVotes(@Param("infoType") Integer infoType, @Param("infoId") Long infoId,@Param("userId") Long userId);
+    public int checkArticleVotes(@Param("infoType") Integer infoType, @Param("infoId") Long infoId, @Param("userId") Long userId);
 
     //查询所有文章数量
     public int getArticleCount(@Param("title") String title,
@@ -239,23 +239,23 @@ public interface ArticleDao {
      *         0所有，1未审核 2正常状态 3审核未通过 4删除
      * @return
      */
-    public ArticleComment findArticleCommentById(@Param("id") Long id,@Param("status") Integer status);
+    public ArticleComment findArticleCommentById(@Param("id") Long id, @Param("status") Integer status);
 
     //查询所有文章数量
     public int getArticleCommentCount(@Param("articleId") Long articleId,
-                               @Param("userId") Long userId,
-                               @Param("createTime") String createTime,
-                               @Param("status") Integer status);
+                                      @Param("userId") Long userId,
+                                      @Param("createTime") String createTime,
+                                      @Param("status") Integer status);
 
     //文章列表
     public List<ArticleComment> getArticleCommentList(@Param("articleId") Long articleId,
-                                        @Param("userId") Long userId,
-                                        @Param("createTime") String createTime,
-                                        @Param("status") Integer status,
-                                        @Param("orderby") String orderby,
-                                        @Param("order") String order,
-                                        @Param("offset") Integer offset,
-                                        @Param("rows") Integer rows);
+                                                      @Param("userId") Long userId,
+                                                      @Param("createTime") String createTime,
+                                                      @Param("status") Integer status,
+                                                      @Param("orderby") String orderby,
+                                                      @Param("order") String order,
+                                                      @Param("offset") Integer offset,
+                                                      @Param("rows") Integer rows);
 
 
 
@@ -268,7 +268,7 @@ public interface ArticleDao {
      *         用户id
      * @return
      */
-    public int findArticleVotes(@Param("articleId") Long articleId,@Param("userId") Long userId);
+    public int findArticleVotes(@Param("articleId") Long articleId, @Param("userId") Long userId);
 
     /**
      * 按问题id查询最新的第一条评论内容

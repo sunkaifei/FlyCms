@@ -77,7 +77,7 @@ public interface ImagesDao {
      * @param tid
      * @return
      */
-    public List<Images> getImagesListByTid( @Param("tid") Long tid);
+    public List<Images> getImagesListByTid(@Param("tid") Long tid);
 
     /**
      * 按信息类型id和信息id查询第一个文章图片
@@ -96,7 +96,7 @@ public interface ImagesDao {
      *         图片地址
      * @return
      */
-    public int checkImagesByTidAndImgurl(@Param("tid") Long tid,@Param("imgUrl") String imgUrl);
+    public int checkImagesByTidAndImgurl(@Param("tid") Long tid, @Param("imgUrl") String imgUrl);
 
     /**
      * 查询图片路径是否存在

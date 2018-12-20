@@ -2,6 +2,7 @@ package com.flycms.module.user.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.user.dao.UserGroupDao;
 import com.flycms.module.user.model.UserGroup;
 import org.apache.commons.lang.math.NumberUtils;
@@ -33,6 +34,8 @@ public class UserGroupService {
         if(this.checkUuserGroupByName(group.getGroupName(),null)){
             return data=DataVo.failure("该用户组名已存在！");
         }
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+        group.setId(snowFlake.nextId());
         int total = userGroupDao.addUserGroup(group);
         if(total>0){
             data=DataVo.success("操作成功");

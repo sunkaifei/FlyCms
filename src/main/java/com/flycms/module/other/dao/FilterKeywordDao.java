@@ -29,24 +29,24 @@ public interface FilterKeywordDao {
      *         关键词
      * @return
      */
-    public int addFilterKeyword(@Param("keyword") String keyword);
+    public int addFilterKeyword(FilterKeyword keyword);
     // ///////////////////////////////
     // /////        刪除      ////////
     // ///////////////////////////////
     //按id删除违禁关键词
-    public int deleteFilterKeywordById(@Param("id") Integer id);
+    public int deleteFilterKeywordById(@Param("id") Long id);
 
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////
     //按id查询并更新违禁关键词信息
-    public int updateFilterKeywordById(@Param("keyword") String keyword,@Param("id") Integer id);
+    public int updateFilterKeywordById(@Param("keyword") String keyword, @Param("id") Long id);
 
     // ///////////////////////////////
     // /////        查詢      ////////
     // ///////////////////////////////
     //按id查询违禁关键词信息
-    public FilterKeyword findFilterKeywordById(@Param("id") Integer id);
+    public FilterKeyword findFilterKeywordById(@Param("id") Long id);
 
     /**
      * 查询违禁关键词是否存在
@@ -64,7 +64,7 @@ public interface FilterKeywordDao {
      *         关键词
      * @return
      */
-    public int checkFilterKeywordNotId(@Param("keyword") String keyword,@Param("id") Integer id);
+    public int checkFilterKeywordNotId(@Param("keyword") String keyword, @Param("id") Long id);
 
     /**
      *  所有违禁关键词列表

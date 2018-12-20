@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.message.dao.MessageDao;
 import com.flycms.module.message.model.Message;
 import com.flycms.module.user.model.User;
@@ -50,6 +51,8 @@ public class MessageService {
 	public DataVo addMessage(Message message) {
 		DataVo data = DataVo.failure("操作失败");
 		//格式化系统时间
+		SnowFlake snowFlake = new SnowFlake(2, 3);
+		message.setId(snowFlake.nextId());
 		int totalCount = messageDao.addMessage(message);
 		if(totalCount > 0){
 			data = DataVo.success("信息已发送！", DataVo.NOOP);
