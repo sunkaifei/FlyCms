@@ -16,7 +16,7 @@
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="id != null">id,</if>
 			<if test="topic != null">topic,</if>
-			<if test="url != null">url,</if>
+			<if test="shortUrl != null">short_url,</if>
 			<if test="content != null">content,</if>
 			<if test="countView != null">count_view,</if>
 			<if test="countNum != null">count_num,</if>
@@ -28,7 +28,7 @@
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null">#{id},</if>
 			<if test="topic != null">#{topic},</if>
-			<if test="url != null">#{url},</if>
+			<if test="shortUrl != null">#{shortUrl},</if>
 			<if test="content != null">#{content},</if>
 			<if test="countView != null">#{countView},</if>
 			<if test="countNum != null">#{countNum},</if>

@@ -63,7 +63,7 @@ public class ArticleAdminController extends BaseController {
             if (!NumberUtils.isNumber(id)) {
                 return data = DataVo.failure("id参数错误");
             }
-            Article article=articleService.findArticleById(Integer.valueOf(id), 0);
+            Article article=articleService.findArticleById(Long.parseLong(id), 0);
             if(article==null) {
                 return DataVo.failure("id错误或不存在！");
             }else {
@@ -93,7 +93,7 @@ public class ArticleAdminController extends BaseController {
                 return data = DataVo.failure("推荐参数错误");
             }
         }
-        data = articleService.updateArticleStatusById(Integer.valueOf(id),Integer.valueOf(status),Integer.valueOf(recommend));
+        data = articleService.updateArticleStatusById(Long.parseLong(id),Integer.valueOf(status),Integer.valueOf(recommend));
         return data;
     }
 

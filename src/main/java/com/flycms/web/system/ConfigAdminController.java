@@ -255,7 +255,7 @@ public class ConfigAdminController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return theme.getPcTemplate("404");
         }
-        FilterKeyword keyword = filterKeywordService.findFilterKeywordById(Integer.valueOf(id));
+        FilterKeyword keyword = filterKeywordService.findFilterKeywordById(Long.parseLong(id));
         if(keyword==null){
             return theme.getPcTemplate("404");
         }
@@ -279,11 +279,11 @@ public class ConfigAdminController extends BaseController {
         if (StringUtils.isBlank(keyword)) {
             return data=DataVo.failure("关键词不能为空");
         }
-        FilterKeyword filterKeyword = filterKeywordService.findFilterKeywordById(Integer.valueOf(id));
+        FilterKeyword filterKeyword = filterKeywordService.findFilterKeywordById(Long.parseLong(id));
         if(filterKeyword==null){
             return data = DataVo.failure("该条信息不存在");
         }
-        data = filterKeywordService.updateFilterKeywordById(keyword,Integer.valueOf(id));
+        data = filterKeywordService.updateFilterKeywordById(keyword,Long.parseLong(id));
         return data;
     }
 
@@ -299,11 +299,11 @@ public class ConfigAdminController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return data = DataVo.failure("id错误失败");
         }
-        FilterKeyword keyword = filterKeywordService.findFilterKeywordById(Integer.valueOf(id));
+        FilterKeyword keyword = filterKeywordService.findFilterKeywordById(Long.parseLong(id));
         if(keyword==null){
             return data = DataVo.failure("该违禁关键词不存在");
         }
-        data = filterKeywordService.deleteFilterKeywordById(Integer.valueOf(id));
+        data = filterKeywordService.deleteFilterKeywordById(Long.parseLong(id));
         return data;
     }
 }

@@ -40,7 +40,7 @@ public class FeedService {
      * @return
      */
     @Transactional
-    public DataVo addUserFeed(long userId,Integer infoType,long infoId) {
+    public DataVo addUserFeed(Long userId,Integer infoType,Long infoId) {
         DataVo data = DataVo.failure("操作失败");
         if(this.checkUserFeed(userId,infoType,infoId)) {
             return DataVo.failure("该feed已存在");
@@ -60,14 +60,14 @@ public class FeedService {
     // ///////////////////////////////
     // /////        刪除      ////////
     // ///////////////////////////////
-    public Long deleteUserFeed(long userId,Integer infoType,long infoId){
+    public Long deleteUserFeed(Long userId,Integer infoType,Long infoId){
         return feedDao.deleteUserFeed(userId,infoType,infoId);
     }
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////
     //修改该用户feed信息的审核状态
-    public Long updateuUserFeedById(Integer infoType,long infoId,Integer status){
+    public Long updateuUserFeedById(Integer infoType,Long infoId,Integer status){
         return feedDao.updateuUserFeedById(infoType,infoId,status);
     }
 
@@ -75,7 +75,7 @@ public class FeedService {
     // /////        查詢      ////////
     // ///////////////////////////////
     //按id查询用户是否存在
-    public boolean checkUserFeed(long userId,Integer infoType,long infoId){
+    public boolean checkUserFeed(Long userId,Integer infoType,Long infoId){
         int totalCount = feedDao.checkUserFeed(userId,infoType,infoId);
         return totalCount > 0 ? true : false;
     }
@@ -90,7 +90,7 @@ public class FeedService {
      * @return
      * @throws Exception
      */
-    public PageVo<Feed> getUserListFeedPage(Integer userId,Integer status, int pageNum, int rows) {
+    public PageVo<Feed> getUserListFeedPage(Long userId,Integer status, int pageNum, int rows) {
         PageVo<Feed> pageVo = new PageVo<Feed>(pageNum);
         pageVo.setRows(rows);
         pageVo.setList(feedDao.getUserFeedList(userId,status,pageVo.getOffset(), pageVo.getRows()));

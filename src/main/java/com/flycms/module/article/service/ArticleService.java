@@ -73,7 +73,7 @@ public class ArticleService {
         if(StringUtils.isBlank(article.getCategoryId())){
             return data=DataVo.failure("必须选择文章分类！");
         }
-        if(this.checkArticleByTitle(article.getTitle(),article.getUserId(),0)){
+        if(this.checkArticleByTitle(article.getTitle(),article.getUserId(),0L)){
             return data=DataVo.failure("标题已存在！");
         }
         if (StringUtils.isBlank(article.getTags())) {
@@ -257,7 +257,7 @@ public class ArticleService {
      */
     @CacheEvict(value = "article", allEntries = true)
     @Transactional
-    public DataVo updateArticleStatusById(long id, Integer status, Integer recommend) throws Exception {
+    public DataVo updateArticleStatusById(Long id, Integer status, Integer recommend) throws Exception {
         DataVo data = DataVo.failure("该信息不存在或已删除");
         Article article=articleDao.findArticleById(id,0);
         if(article==null){
@@ -393,7 +393,7 @@ public class ArticleService {
      * @return
      */
     @Cacheable(value = "article")
-    public Article findArticleById(long id, Integer status){
+    public Article findArticleById(Long id, Integer status){
         return articleDao.findArticleById(id,status);
     }
 
@@ -404,7 +404,7 @@ public class ArticleService {
      *         需要查询的文章id
      * @return
      */
-    public ArticleCount findArticleCountById(long articleId){
+    public ArticleCount findArticleCountById(Long articleId){
         return articleDao.findArticleCountById(articleId);
     }
 
@@ -442,7 +442,7 @@ public class ArticleService {
      *         当修改内容检查重复标题时，排除当前文章id，不排除可设置为null
      * @return
      */
-    public boolean checkArticleByTitle(String title,long userId,long id) {
+    public boolean checkArticleByTitle(String title,Long userId,Long id) {
         int totalCount = articleDao.checkArticleByTitle(title,userId,id);
         return totalCount > 0 ? true : false;
     }
@@ -458,7 +458,7 @@ public class ArticleService {
      *         评论内容
      * @return
      */
-    public boolean checkArticleComment(long articleId,long userId,String content) {
+    public boolean checkArticleComment(Long articleId,Long userId,String content) {
         int totalCount = articleDao.checkArticleComment(articleId,userId,content);
         return totalCount > 0 ? true : false;
     }
@@ -475,7 +475,7 @@ public class ArticleService {
      *         用户id
      * @return
      */
-    public boolean checkArticleVotes(Integer infoType,long infoId,long userId) {
+    public boolean checkArticleVotes(Integer infoType,Long infoId,Long userId) {
         int totalCount = articleDao.checkArticleVotes(infoType,infoId,userId);
         return totalCount > 0 ? true : false;
     }
@@ -493,7 +493,7 @@ public class ArticleService {
      *         每页数量
      * @return
      */
-    public PageVo<Article> getArticleListPage(String title, long userId,String createTime, Integer status,String orderby, String order, int pageNum, int rows) {
+    public PageVo<Article> getArticleListPage(String title, Long userId,String createTime, Integer status,String orderby, String order, int pageNum, int rows) {
         PageVo<Article> pageVo = new PageVo<Article>(pageNum);
         pageVo.setRows(rows);
         List<Article> list = new ArrayList<Article>();
@@ -545,7 +545,7 @@ public class ArticleService {
      * @return
      */
     @Cacheable(value = "article")
-    public PageVo<ArticleComment> getArticleCommentListPage(long articleId, long userId,String createTime, Integer status,String orderby, String order, int pageNum, int rows) {
+    public PageVo<ArticleComment> getArticleCommentListPage(Long articleId, Long userId,String createTime, Integer status,String orderby, String order, int pageNum, int rows) {
         PageVo<ArticleComment> pageVo = new PageVo<ArticleComment>(pageNum);
         pageVo.setRows(rows);
         List<ArticleComment> list = new ArrayList<ArticleComment>();
@@ -567,12 +567,12 @@ public class ArticleService {
      *         文章id
      * @return
      */
-    public ArticleComment findNewestArticleById(long articleId){
+    public ArticleComment findNewestArticleById(Long articleId){
         return articleDao.findNewestArticleById(articleId);
     }
 
     //文章索引列表
-    public List<ArticleComment> getArticleCommentByArticleId(long articleId){
+    public List<ArticleComment> getArticleCommentByArticleId(Long articleId){
         return articleDao.getArticleCommentByArticleId(articleId);
     }
 }

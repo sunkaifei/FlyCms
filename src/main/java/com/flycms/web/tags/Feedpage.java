@@ -35,7 +35,7 @@ public class Feedpage extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
 		//所属主信息类型，0是所有，1是文章，2是小组话题
-		Integer userId=0;
+		Long userId=0L;
 
 		Integer status=2;
 		//翻页页数
@@ -46,7 +46,7 @@ public class Feedpage extends AbstractTagPlugin {
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){
 			if("userId".equals(str)){
-				userId = Integer.parseInt(paramWrap.get(str).toString());
+				userId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("status".equals(str)){
 				status = Integer.parseInt(paramWrap.get(str).toString());
