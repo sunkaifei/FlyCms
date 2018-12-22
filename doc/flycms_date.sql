@@ -40,7 +40,7 @@ CREATE TABLE `fly_admin` (
 -- ----------------------------
 -- Records of fly_admin
 -- ----------------------------
-INSERT INTO `fly_admin` VALUES ('1', 'flycms', 'flycms', '$2a$10$HGv0RBwVXs9BGHI6EMmtcuG64t9Slv9LRL../wPNb3Gi.rrfuzAsi', '', '79678111@qq.com', '1', '2018-04-18 09:00:19', '175.12.244.105', '0/1.jpg', '2018-12-20 11:31:17', '223.72.68.55', '0', '2018-12-18 19:39:45');
+INSERT INTO `fly_admin` VALUES ('272843906771857408', 'flycms', 'flycms', '$2a$10$HGv0RBwVXs9BGHI6EMmtcuG64t9Slv9LRL../wPNb3Gi.rrfuzAsi', '', '79678111@qq.com', '1', '2018-04-18 09:00:19', '175.12.244.105', '0/1.jpg', '2018-12-20 11:31:17', '223.72.68.55', '0', '2018-12-18 19:39:45');
 
 -- ----------------------------
 -- Table structure for `fly_admin_group`
