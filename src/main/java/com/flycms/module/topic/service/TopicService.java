@@ -44,7 +44,25 @@ public class TopicService {
 	
 	// ///////////////////////////////
 	// ///// 增加 ////////
-	// ///////////////////////////////		
+	// ///////////////////////////////
+
+	@Transactional
+	public DataVo addTopic(Topic topic) {
+		DataVo data = DataVo.failure("操作失败");
+		if(this.checkTopicByTopic(topic.getTopic())){
+			return data=DataVo.failure("该话题已存在");
+		}
+		SnowFlake snowFlake = new SnowFlake(2, 3);
+		topic.setId(snowFlake.nextId());
+		if(topic.getShortUrl()==null){
+			String code=this.shortUrl();
+			topic.setShortUrl(code);
+		}
+		topic.setCreateTime(new Date());
+		topicDao.addTopic(topic);
+		data = DataVo.jump("添加成功成功！","/system/topic/add");
+		return data;
+	}
 	/**
 	 * 增加话题信息
 	 * 

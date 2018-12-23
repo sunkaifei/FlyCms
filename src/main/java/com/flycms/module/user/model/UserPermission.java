@@ -8,7 +8,7 @@ import java.io.Serializable;
 @Getter
 public class UserPermission implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int id;
+    private Long id;
     private String actionKey;
     private String controller;
     private String remark;

@@ -25,10 +25,10 @@ public interface UserPermissionDao {
     // /////        删除      ////////
     // ///////////////////////////////
     //按id删除权限
-    public int deletePermission(@Param("id") Integer id);
+    public int deletePermission(@Param("id") Long id);
 
     //按id删除权限和权限组关联信息
-    public int deleteGroupPermission(@Param("permissionId") Integer permissionId);
+    public int deleteGroupPermission(@Param("permissionId") Long permissionId);
 
     // ///////////////////////////////
     // /////        修改      ////////
@@ -39,7 +39,7 @@ public interface UserPermissionDao {
     // /////       查詢       ////////
     // ///////////////////////////////
     //按id查询权限节点详细信息
-    public UserPermission findPermissionById(@Param("id") Integer id);
+    public UserPermission findPermissionById(@Param("id") Long id);
 
     //查询权限url是否存在
     public UserPermission findPermissionByActionKey(@Param("actionKey") String actionKey);

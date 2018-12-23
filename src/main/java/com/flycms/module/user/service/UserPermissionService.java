@@ -3,6 +3,7 @@ package com.flycms.module.user.service;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.user.dao.UserPermissionDao;
 import com.flycms.module.user.model.UserPermission;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +61,8 @@ public class UserPermissionService {
                         if(s!=null){
                             if (!checkPermission(StringUtils.deleteWhitespace(s), per.getController())) {
                                 per.setActionKey(StringUtils.deleteWhitespace(s));
+                                SnowFlake snowFlake = new SnowFlake(2, 3);
+                                per.setId(snowFlake.nextId());
                                 int permissionId=userPermissionDao.addPermission(per);
                             }
                             //添加当前Controller里所有的权限路径到list里
@@ -84,7 +87,7 @@ public class UserPermissionService {
     // ///////////////////////////////
     //按id删除权限权限
     @Transactional
-    public boolean deletePermission(int id){
+    public boolean deletePermission(Long id){
         int totalCount = userPermissionDao.deletePermission(id);
         userPermissionDao.deleteGroupPermission(id);
         return totalCount > 0 ? true : false;
@@ -108,7 +111,7 @@ public class UserPermissionService {
     // /////       查询       ////////
     // ///////////////////////////////
     //按id查询权限组信息
-    public UserPermission findPermissionById(int id){
+    public UserPermission findPermissionById(Long id){
         return userPermissionDao.findPermissionById(id);
     }
 
