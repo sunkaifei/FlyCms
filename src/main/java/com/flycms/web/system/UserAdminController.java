@@ -86,7 +86,7 @@ public class UserAdminController extends BaseController {
     //删除权限节点
     @PostMapping("/permission_del")
     @ResponseBody
-    public DataVo deletePermission(@RequestParam(value = "id") int id){
+    public DataVo deletePermission(@RequestParam(value = "id") Long id){
         DataVo data = DataVo.failure("操作失败");
         if(userPermissionService.deletePermission(id)){
             data = DataVo.success("该权限已删除");
@@ -97,7 +97,7 @@ public class UserAdminController extends BaseController {
     }
 
     @GetMapping(value = "/permission_update/{id}")
-    public String updateGrouupPermissions(@PathVariable int id, ModelMap modelMap){
+    public String updateGrouupPermissions(@PathVariable Long id, ModelMap modelMap){
         UserPermission permission = userPermissionService.findPermissionById(id);
         modelMap.put("permission", permission);
         modelMap.addAttribute("admin", getAdminUser());
