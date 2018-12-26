@@ -10,6 +10,7 @@ import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 import com.flycms.core.entity.DataVo;
+import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.user.dao.UserDao;
 import com.flycms.module.user.model.UserActivation;
 import com.flycms.module.config.dao.SmsapiDao;
@@ -153,6 +154,8 @@ public class SmsapiService {
                 System.out.println("SendStatus=" + smsSendDetailDTO.getSendStatus());
                 if(smsSendDetailDTO.getSendStatus()==1) {
                     UserActivation activation=new UserActivation();
+                    SnowFlake snowFlake = new SnowFlake(2, 3);
+                    activation.setId(snowFlake.nextId());
                     activation.setUserName(PhoneNumber);
                     activation.setCode(code);
                     activation.setCodeType(type);

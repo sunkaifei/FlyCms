@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 public class UserCount implements Serializable {
     private static final long serialVersionUID = 1L;
     //id
-    private Integer userId;
+    private Long userId;
     //发布问题数量
     private Integer countQuestion;
     //关注的问题数量

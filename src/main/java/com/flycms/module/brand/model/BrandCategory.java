@@ -8,7 +8,7 @@ import java.io.Serializable;
 @Setter
 @Getter
 public class BrandCategory implements Serializable {
-    private Integer id;
+    private Long id;
     @NotEmpty(message="分类名不能为空")
     private String name;
 

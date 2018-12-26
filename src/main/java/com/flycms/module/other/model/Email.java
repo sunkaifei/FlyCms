@@ -11,7 +11,7 @@ import java.util.Date;
 public class Email implements Serializable {
     private static final long serialVersionUID = 1L;
     //用户id
-    private Integer id;
+    private Long id;
     //模板标记码
     private String tpCode;
     //邮件标题

@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 @Getter
 public class UserAccount implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id ;
+    private Long id ;
     //用户id
     private Integer userId;
     private BigDecimal balance;

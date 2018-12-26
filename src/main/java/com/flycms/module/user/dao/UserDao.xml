@@ -14,7 +14,7 @@
 		insert into fly_user
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			<if test="id != null">id,</if>
+			<if test="userId != null">user_id,</if>
 			<if test="userName != null">user_name,</if>
 			<if test="password != null">password,</if>
 			<if test="userEmail != null">user_email,</if>
@@ -33,7 +33,7 @@
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
-			<if test="id != null">#{id},</if>
+			<if test="userId != null">#{userId},</if>
 			<if test="userName != null">#{userName},</if>
 			<if test="password != null">#{password},</if>
 			<if test="userEmail != null">#{userEmail},</if>
