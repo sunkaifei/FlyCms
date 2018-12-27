@@ -1,93 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>登入 - layuiAdmin</title>
-    <meta name="renderer" content="webkit">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="/assets/system/layui/css/layui.css" media="all">
-    <link rel="stylesheet" href="/assets/system/style/admin.css" media="all">
-    <link rel="stylesheet" href="/assets/system/style/login.css" media="all">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>java开源问答系统 - 开源之家问答系统社区</title>
+    <meta name='keywords' content='问答系统,java问答系统,开源之家问答系统 ,Laravel问答系统,社区问答系统'>
+    <meta name='description' content='开源之家问答系统站长社区交流平台，同时也是开源之家问答系统的实际站点演示。'>
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="stylesheet" href="/assets/admin-lte/css/admin.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/js/vendors/autovalidate/style.css" />
+    <link rel="shortcut icon" href="/assets/favicon.ico" />
+    <!--[if lt IE 9]>
+    <script src="/assets/js/html5shiv.min.js"></script>
+    <script src="/assets/js/respond.min.js"></script>
+    <![endif]-->
     <script type="text/javascript" src="/assets/js/sea.js"></script>
     <script type="text/javascript" src="/assets/js/sea.config.js"></script>
 </head>
-<body>
+<body class="skin-blue">
+<div class="wrapper" style="background: url(/assets/admin-lte/img/bg.jpg) no-repeat;background-size: 100% 100%;">
+    <div class="loginbox">
+        <form action='/system/login_act' method='post' id="myloginForm">
+            <div class="form-group text-center">
+                <h2 style="color:#fff"><strong>FlyCms后台管理</strong></h2>
+            </div>
+            <input type="hidden" name="redirectUrl" id="redirectUrl" value="${redirectUrl!}">
+            <div class="form-group input-group input-group-lg">
+                <span class="input-group-addon"><i class="fa fa-user" style="width:30px"></i></span>
+                <input type="text" class="form-control" autocomplete="off" name="admin_name" placeholder="用户名" pattern="required" />
+            </div>
 
-<div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="display: none;">
+            <div class="form-group input-group input-group-lg">
+                <span class="input-group-addon"><i class="fa fa-key" style="width:30px"></i></span>
+                <input type="password" class="form-control" name="password" autocomplete="off" placeholder="密码" pattern="required" />
+            </div>
 
-    <div class="layadmin-user-login-main">
-        <div class="layadmin-user-login-box layadmin-user-login-header">
-            <h2>layuiAdmin</h2>
-            <p>layui 官方出品的单页面后台管理模板系统</p>
-        </div>
-        <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
-            <form action='/system/login_act' method='post' id="myloginForm">
-                <div class="layui-form-item">
-                    <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-login-username"></label>
-                    <input type="text" name="admin_name" id="LAY-user-login-username" lay-verify="required" placeholder="用户名" class="layui-input">
-                </div>
-                <div class="layui-form-item">
-                    <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
-                    <input type="password" name="password" id="LAY-user-login-password" lay-verify="required" placeholder="密码" class="layui-input">
-                </div>
-                <div class="layui-form-item">
-                    <div class="layui-row">
-                        <div class="layui-col-xs7">
-                            <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="LAY-user-login-vercode"></label>
-                            <input type="text" name="captcha" id="LAY-user-login-vercode" lay-verify="required" placeholder="图形验证码" class="layui-input">
-                        </div>
-                        <div class="layui-col-xs5">
-                            <div style="margin-left: 10px;">
-                                <a href="javascript:void(0);" id="reloadCaptcha"><img src="/captcha/default" class="layadmin-user-login-codeimg" id="LAY-user-get-vercode"></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="layui-form-item" style="margin-bottom: 20px;">
-                    <input type="checkbox" name="remember" lay-skin="primary" title="记住密码">
-                    <a href="forget.html" class="layadmin-user-jump-change layadmin-link" style="margin-top: 7px;">忘记密码？</a>
-                </div>
-                <div class="layui-form-item">
-                    <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="LAY-user-login-submit">登 入</button>
-                </div>
-                <div class="layui-trans layui-form-item layadmin-user-login-other">
-                    <label>社交账号登入</label>
-                    <a href="javascript:;"><i class="layui-icon layui-icon-login-qq"></i></a>
-                    <a href="javascript:;"><i class="layui-icon layui-icon-login-wechat"></i></a>
-                    <a href="javascript:;"><i class="layui-icon layui-icon-login-weibo"></i></a>
+            <div class="form-group input-group input-group-lg">
+                <span class="input-group-addon"><i class="fa fa-font" style="width:30px"></i></span>
+                <input type="text" class="form-control" autocomplete="off" name='captcha' placeholder="验证码" pattern="required" />
+                <span class="input-group-addon no-padding"><a href="javascript:void(0);" id="reloadCaptcha"><img src="/captcha/default" style="width:110px"></a></span>
+            </div>
 
-                    <a href="reg.html" class="layadmin-user-jump-change layadmin-link">注册帐号</a>
-                </div>
-            </form>
-        </div>
+            <div class="form-group"><button type="submit" class="btn btn-lg btn-warning btn-block"><strong>登 录</strong></button></div>
+        </form>
     </div>
-
-    <div class="layui-trans layadmin-user-login-footer">
-
-        <p>© 2018 <a href="http://www.layui.com/" target="_blank">layui.com</a></p>
-        <p>
-            <span><a href="http://www.layui.com/admin/#get" target="_blank">获取授权</a></span>
-            <span><a href="http://www.layui.com/admin/pro/" target="_blank">在线演示</a></span>
-            <span><a href="http://www.layui.com/admin/" target="_blank">前往官网</a></span>
-        </p>
-    </div>
-
-    <!--<div class="ladmin-user-login-theme">
-      <script type="text/html" template>
-        <ul>
-          <li data-theme=""><img src="{{ layui.setter.base }}style/res/bg-none.jpg"></li>
-          <li data-theme="#03152A" style="background-color: #03152A;"></li>
-          <li data-theme="#2E241B" style="background-color: #2E241B;"></li>
-          <li data-theme="#50314F" style="background-color: #50314F;"></li>
-          <li data-theme="#344058" style="background-color: #344058;"></li>
-          <li data-theme="#20222A" style="background-color: #20222A;"></li>
-        </ul>
-      </script>
-    </div>-->
-
 </div>
-
+<footer class="main-footer">
+    Power by  <a href="http://www.28844.com" target="_blank">www.28844.com</a> Copyright &copy; 2005-2018
+</footer>
 <script type="text/javascript">seajs.use('adminlogin', function(adminlogin) {});</script>
 </body>
 </html>
