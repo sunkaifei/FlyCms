@@ -48995,7 +48995,7 @@ CREATE TABLE `fly_score_detail` (
   `score` int(11) DEFAULT NULL,
   `balance` int(11) DEFAULT NULL,
   `remark` varchar(255) DEFAULT NULL,
-  `foreign_id` int(11) DEFAULT NULL,
+  `foreign_id` bigint(20) DEFAULT NULL,
   `score_rule_id` int(11) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   `status` tinyint(2) DEFAULT '1' COMMENT '审核状态',
