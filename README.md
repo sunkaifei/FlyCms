@@ -122,6 +122,17 @@ FlyCms比论坛更开放，比资讯网站更了解用户，以用户为中心�
 - 查看日志运行 `tail -200f FlyCms.log`
 
 ### 建议用assembly打包方式  
+
+### 前端标签使用示范
+`    
+<@fly_userpower groupName="技术专家组">
+     <nav class="list-group mt30">
+         <a href="/ucenter/article/add" class="list-group-item active">发布文章</a>
+     </nav>
+     </@fly_userpower>
+`  
+  
+  
 - IDEA打包  
 ![image](doc/db.png)  
 - 打包后的的文件目录结构，`resources`目录里只要`application.yml`一个文件就可以了  

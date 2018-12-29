@@ -96,6 +96,11 @@
 		select g.* from fly_user_group g left join fly_user_group_merge r on g.id=r.group_id where r.user_id=#{userId} limit 1
 	</select>
 
+	<!-- 查询用户组名和用户session里的用户id查询用户当前权限 -->
+	<select id="checkUuserPower" resultType="Integer">
+		select count(*) from fly_user_group g left join fly_user_group_merge r on g.id=r.group_id where g.group_name=#{groupName} and r.user_id=#{userId} limit 1
+	</select>
+
 	<!-- 查询用户组名是否存在,如果id不为空或者null，排除当前id意外检查是否已存在！ -->
 	<select id="checkUuserGroupByName" resultType="Integer">
 		select count(*) from fly_user_group

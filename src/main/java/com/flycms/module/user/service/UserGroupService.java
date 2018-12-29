@@ -109,6 +109,12 @@ public class UserGroupService {
         return userGroupDao.findUuserGroupByUserId(userId);
     }
 
+    //查询用户组名和用户session里的用户id查询用户当前权限是否存在
+    public boolean checkUuserPower(String groupName,Long userId) {
+        int totalCount = userGroupDao.checkUuserPower(groupName,userId);
+        return totalCount > 0 ? true : false;
+    }
+
     //查询用户组名是否存在
     public boolean checkUuserGroupByName(String groupName,Long id) {
         int totalCount = userGroupDao.checkUuserGroupByName(groupName,id);

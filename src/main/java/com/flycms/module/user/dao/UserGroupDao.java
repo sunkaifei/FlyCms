@@ -55,6 +55,9 @@ public interface UserGroupDao {
     //按用户userId查询所在的用户组信息
     public UserGroup findUuserGroupByUserId(@Param("userId") Long userId);
 
+    //查询用户组名和用户session里的用户id查询用户当前权限
+    public int checkUuserPower(@Param("groupName") String groupName, @Param("userId") Long userId);
+
     //查询用户组名是否存在,如果id不为空或者null，排除当前id意外检查是否已存在！
     public int checkUuserGroupByName(@Param("groupName") String groupName, @Param("id") Long id);
 
