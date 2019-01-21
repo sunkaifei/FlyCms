@@ -54,7 +54,7 @@ public interface UserDao {
      *        用户id
      * @return
      */
-    public int addUserAndGroup(@Param("groupId") Long groupId, @Param("userId") Long userId);
+    public int addUserAndGroup(@Param("groupId") Long groupId,@Param("userId") Long userId);
 
     //添加用户注册验证操作记录
     public int addUserActivation(UserActivation userActivation);
@@ -69,7 +69,7 @@ public interface UserDao {
     public int deleteUserById(@Param("userId") Long userId);
 
     //按关注人id和粉丝ID删除用户粉丝关联信息
-    public int deleteUserFans(@Param("userFollow") Long userFollow, @Param("userFans") Long userFans);
+    public int deleteUserFans(@Param("userFollow") Long userFollow,@Param("userFans") Long userFans);
 
     /**
      * 按用户seeeionKey查询删除用户登陆保持记录
@@ -178,7 +178,7 @@ public interface UserDao {
      *         验证码
      * @return
      */
-    public int updateUserActivationByStatus(@Param("userName") String userName, @Param("code") String code);
+    public int updateUserActivationByStatus(@Param("userName") String userName,@Param("code") String code);
 
     /**
      * 修改用户头像
@@ -200,7 +200,7 @@ public interface UserDao {
      *        用户id
      * @return
      */
-    public int updateUserAccountScore(@Param("calculate") String calculate, @Param("score") Integer score, @Param("userId") Long userId);
+    public int updateUserAccountScore(@Param("calculate") String calculate,@Param("score") Integer score,@Param("userId") Long userId);
 
     /**
      * 修改用户登录手机号码
@@ -211,7 +211,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateuUserMobile(@Param("userMobile") String userMobile, @Param("userId") Long userId);
+    public int updateuUserMobile(@Param("userMobile") String userMobile,@Param("userId") Long userId);
 
 
     /**
@@ -223,7 +223,7 @@ public interface UserDao {
      *         用户id
      * @return
      */
-    public int updateuUserEmail(@Param("userEmail") String userEmail, @Param("userId") Long userId);
+    public int updateuUserEmail(@Param("userEmail") String userEmail,@Param("userId") Long userId);
 
     /**
      * 更新用户权限组信息
@@ -304,7 +304,7 @@ public interface UserDao {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public int checkUserByUserName(@Param("userName") String userName, @Param("userId") Long userId);
+    public int checkUserByUserName(@Param("userName") String userName,@Param("userId") Long userId);
 
     /**
      * 排除当前用户id后查询手机号码是否存在,如果userId设置为null则查全部的手机号码
@@ -315,7 +315,7 @@ public interface UserDao {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public int checkUserByMobile(@Param("userMobile") String userMobile, @Param("userId") Long userId);
+    public int checkUserByMobile(@Param("userMobile") String userMobile,@Param("userId") Long userId);
 
     /**
      * 排除当前用户id后查询当前邮箱是否存在,如果userId设置为null则查全部的邮箱
@@ -326,7 +326,7 @@ public interface UserDao {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public int checkUserByEmail(@Param("userEmail") String userEmail, @Param("userId") Long userId);
+    public int checkUserByEmail(@Param("userEmail") String userEmail,@Param("userId") Long userId);
 
     /**
      * 排除当前用户id后查询当前昵称是否存在,如果userId设置为null则查全部的昵称
@@ -337,7 +337,7 @@ public interface UserDao {
      *         需要排除的user_id,可设置为null
      * @return
      */
-    public int checkUserByNickName(@Param("nickName") String nickName, @Param("userId") Long userId);
+    public int checkUserByNickName(@Param("nickName") String nickName,@Param("userId") Long userId);
 
     /**
      * 查询当前用户权限是否存在
@@ -357,7 +357,7 @@ public interface UserDao {
      *         未激活权限组id
      * @return
      */
-    public int checkUserByActivation(@Param("userId") Long userId, @Param("groupId") Long groupId);
+    public int checkUserByActivation(@Param("userId") Long userId,@Param("groupId") Long groupId);
 
     /**
      * 查询验证码在当前时间5分钟内获取并且是否过时或不存在
@@ -368,7 +368,7 @@ public interface UserDao {
      *         查询的验证码类型，1手机注册验证码,2安全手机设置验证码,3密码重置验证码
      * @return
      */
-    public UserActivation findByUserActivationCode(@Param("userName") String userName, @Param("codeType") Integer codeType);
+    public UserActivation findByUserActivationCode(@Param("userName") String userName,@Param("codeType") Integer codeType);
 
     /**
      * 查询指定日期内申请验证码次数
@@ -377,7 +377,7 @@ public interface UserDao {
      * @param referTime
      * @return
      */
-    public int checkUserActivationCount(@Param("userName") String userName, @Param("referTime") String referTime);
+    public int checkUserActivationCount(@Param("userName") String userName,@Param("referTime") String referTime);
 
     /**
      * 查询是否已关注或者是该用户粉丝
@@ -388,7 +388,7 @@ public interface UserDao {
      *         粉丝id
      * @return
      */
-    public int checkUserFans(@Param("userFollow") Long userFollow, @Param("userFans") Long userFans);
+    public int checkUserFans(@Param("userFollow") Long userFollow,@Param("userFans") Long userFans);
 
     /**
      * 查询是否是互相关注用户，等于2则为互相关注
@@ -399,7 +399,7 @@ public interface UserDao {
      *         粉丝id
      * @return
      */
-    public int checkUserMutualFans(@Param("userFollow") Long userFollow, @Param("userFans") Long userFans);
+    public int checkUserMutualFans(@Param("userFollow") Long userFollow,@Param("userFans") Long userFans);
 
     //查询用户组总数
     public int getUserCount(@Param("userName") String userName,
@@ -419,41 +419,41 @@ public interface UserDao {
 
     //查询粉丝总数
     public int getUserFansCount(@Param("userFollow") Long userFollow,
-                                @Param("userFans") Long userFans,
-                                @Param("createTime") String createTime);
+                            @Param("userFans") Long userFans,
+                            @Param("createTime") String createTime);
 
     //粉丝列表
     public List<UserFans> getUserFansList(@Param("userFollow") Long userFollow,
-                                          @Param("userFans") Long userFans,
-                                          @Param("createTime") String createTime,
-                                          @Param("orderby") String orderby,
-                                          @Param("order") String order,
-                                          @Param("offset") int offset,
-                                          @Param("rows") int rows);
+                                  @Param("userFans") Long userFans,
+                                  @Param("createTime") String createTime,
+                                  @Param("orderby") String orderby,
+                                  @Param("order") String order,
+                                  @Param("offset") int offset,
+                                  @Param("rows") int rows);
 
     //查询热门用户组总数
     public int getUserHotCount(@Param("userName") String userName,
-                               @Param("nickName") String nickName,
-                               @Param("userMobile") String userMobile,
-                               @Param("userEmail") String userEmail,
-                               @Param("province") Integer province,
-                               @Param("city") Integer city,
-                               @Param("area") Integer area,
-                               @Param("status") Integer status);
+                            @Param("nickName") String nickName,
+                            @Param("userMobile") String userMobile,
+                            @Param("userEmail") String userEmail,
+                            @Param("province") Integer province,
+                            @Param("city") Integer city,
+                            @Param("area") Integer area,
+                            @Param("status") Integer status);
 
     //查询热门用户组列表
     public List<User> getUserHotList(@Param("userName") String userName,
-                                     @Param("nickName") String nickName,
-                                     @Param("userMobile") String userMobile,
-                                     @Param("userEmail") String userEmail,
-                                     @Param("province") Integer province,
-                                     @Param("city") Integer city,
-                                     @Param("area") Integer area,
-                                     @Param("status") Integer status,
-                                     @Param("orderby") String orderby,
-                                     @Param("order") String order,
-                                     @Param("offset") int offset,
-                                     @Param("rows") int rows);
+                                  @Param("nickName") String nickName,
+                                  @Param("userMobile") String userMobile,
+                                  @Param("userEmail") String userEmail,
+                                  @Param("province") Integer province,
+                                  @Param("city") Integer city,
+                                  @Param("area") Integer area,
+                                  @Param("status") Integer status,
+                                  @Param("orderby") String orderby,
+                                  @Param("order") String order,
+                                  @Param("offset") int offset,
+                                  @Param("rows") int rows);
 
     /**
      * 根据UserId查询用户登录时间

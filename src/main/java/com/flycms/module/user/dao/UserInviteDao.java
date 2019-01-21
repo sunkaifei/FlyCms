@@ -48,16 +48,16 @@ public interface UserInviteDao {
      *         邀请人ID
      * @return
      */
-    public int checkUserInvite(@Param("toUserId") Long toUserId, @Param("formUserId") Long formUserId);
+    public int checkUserInvite(@Param("toUserId") Long toUserId,@Param("formUserId") Long formUserId);
 
     //查询用户组总数
     public int getUserInviteCount(@Param("userId") Long userId, @Param("status") Integer status);
 
     //用户组列表
     public List<UserInvite> getUserInviteList(@Param("userId") Long userId,
-                                              @Param("status") Integer status,
-                                              @Param("orderby") String orderby,
-                                              @Param("order") String order,
-                                              @Param("offset") int offset,
-                                              @Param("rows") int rows);
+                                        @Param("status") Integer status,
+                                        @Param("orderby") String orderby,
+                                        @Param("order") String order,
+                                        @Param("offset") int offset,
+                                        @Param("rows") int rows);
 }

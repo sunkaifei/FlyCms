@@ -3,14 +3,14 @@ Navicat MySQL Data Transfer
 
 Source Server         : 开源之家
 Source Server Version : 50723
-Source Host           : 118.190.151.102:3306
-Source Database       : flycms
+Source Host           : 127.0.0.1:3306
+Source Database       : flycms_date
 
 Target Server Type    : MYSQL
 Target Server Version : 50723
 File Encoding         : 65001
 
-Date: 2018-12-20 16:02:12
+Date: 2019-01-21 14:42:55
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -40,7 +40,7 @@ CREATE TABLE `fly_admin` (
 -- ----------------------------
 -- Records of fly_admin
 -- ----------------------------
-INSERT INTO `fly_admin` VALUES ('272843906771857408', 'flycms', 'flycms', '$2a$10$HGv0RBwVXs9BGHI6EMmtcuG64t9Slv9LRL../wPNb3Gi.rrfuzAsi', '', '79678111@qq.com', '1', '2018-04-18 09:00:19', '175.12.244.105', '0/1.jpg', '2018-12-20 11:31:17', '223.72.68.55', '0', '2018-12-18 19:39:45');
+INSERT INTO `fly_admin` VALUES ('272843906771857408', 'flycms', 'flycms', '$2a$10$HGv0RBwVXs9BGHI6EMmtcuG64t9Slv9LRL../wPNb3Gi.rrfuzAsi', '', '79678111@qq.com', '1', '2018-04-18 09:00:19', '175.12.244.105', '0/1.jpg', '2018-12-20 22:34:50', '192.168.1.5', '0', '2018-12-18 19:39:45');
 
 -- ----------------------------
 -- Table structure for `fly_admin_group`
@@ -47986,7 +47986,7 @@ DROP TABLE IF EXISTS `fly_article`;
 CREATE TABLE `fly_article` (
   `id` bigint(20) unsigned NOT NULL,
   `short_url` varchar(10) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
   `title` varchar(250) DEFAULT NULL COMMENT '标题',
   `content` longtext COMMENT '内容',
   `keywords` varchar(255) DEFAULT NULL COMMENT '关键词',
@@ -48133,7 +48133,7 @@ CREATE TABLE `fly_article_votes` (
   `burys` int(11) DEFAULT '0' COMMENT '0未踩，1为踩',
   `create_time` datetime DEFAULT NULL COMMENT '添加时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COMMENT='顶和踩记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COMMENT='顶和踩记录表';
 
 -- ----------------------------
 -- Records of fly_article_votes
@@ -48256,7 +48256,7 @@ CREATE TABLE `fly_feed` (
   `info_id` bigint(20) unsigned NOT NULL COMMENT '信息id',
   `status` int(2) NOT NULL DEFAULT '1' COMMENT '审核状态',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=154 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=284733788507090945 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_feed
@@ -48812,12 +48812,13 @@ CREATE TABLE `fly_images` (
   `img_width` int(11) DEFAULT NULL,
   `img_height` int(11) DEFAULT NULL,
   `signature` varchar(255) DEFAULT NULL,
-  `add_time` datetime DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
   `img_delete` int(1) DEFAULT NULL,
   `sort` int(5) DEFAULT NULL,
   `picflag` int(1) DEFAULT NULL,
+  `info_count` int(11) DEFAULT '0' COMMENT '图片使用次数',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=284731183697506305 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_images
@@ -48836,7 +48837,7 @@ CREATE TABLE `fly_images_info_merge` (
   `info_type` tinyint(5) DEFAULT NULL COMMENT '信息类型，0问题，1答案，2文章，3分享',
   `info_count` int(11) DEFAULT '0' COMMENT '统计信息被使用次数',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=284733787366240257 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_images_info_merge
@@ -48996,7 +48997,7 @@ CREATE TABLE `fly_score_detail` (
   `balance` int(11) DEFAULT NULL,
   `remark` varchar(255) DEFAULT NULL,
   `foreign_id` bigint(20) DEFAULT NULL,
-  `score_rule_id` int(11) DEFAULT NULL,
+  `score_rule_id` bigint(20) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   `status` tinyint(2) DEFAULT '1' COMMENT '审核状态',
   PRIMARY KEY (`id`)
@@ -49223,6 +49224,24 @@ CREATE TABLE `fly_topic` (
 -- ----------------------------
 -- Records of fly_topic
 -- ----------------------------
+INSERT INTO `fly_topic` VALUES ('273112157280022528', '单例模式', '6rYJbi', null, '', '0', '0', '0', '0', '1', '2018-12-20 12:51:18');
+INSERT INTO `fly_topic` VALUES ('273112157863030784', '懒汉式', 'uQnuq2', null, '', '0', '0', '0', '0', '1', '2018-12-20 12:51:18');
+INSERT INTO `fly_topic` VALUES ('273112158399901696', '饿汉式', 'yE3yqm', null, '', '0', '0', '0', '0', '1', '2018-12-20 12:51:18');
+INSERT INTO `fly_topic` VALUES ('273227505417334784', 'jQuery', 'qIJNbi', null, '', '0', '1', '0', '0', '1', '2018-12-20 20:29:39');
+INSERT INTO `fly_topic` VALUES ('273235759933435904', 'linux', '3qaiqq', null, '', '0', '1', '0', '0', '1', '2018-12-20 21:02:27');
+INSERT INTO `fly_topic` VALUES ('273235760180899840', '中文字体', 'aErInm', null, '', '0', '1', '0', '0', '1', '2018-12-20 21:02:27');
+INSERT INTO `fly_topic` VALUES ('273236120211566592', '阿里巴巴', 'fYjENv', null, '', '0', '1', '0', '0', '1', '2018-12-20 21:03:53');
+INSERT INTO `fly_topic` VALUES ('273236120366755840', 'java', 'emAfyu', null, '', '0', '1', '0', '0', '1', '2018-12-20 21:03:53');
+INSERT INTO `fly_topic` VALUES ('273236120496779264', '面试题', '73QnIr', null, '', '0', '1', '0', '0', '1', '2018-12-20 21:03:53');
+INSERT INTO `fly_topic` VALUES ('275746685374967808', 'css', 'n6BBrm', null, '', '0', '1', '0', '0', '1', '2018-12-27 19:19:59');
+INSERT INTO `fly_topic` VALUES ('275768629310795776', 'idea', '2Yjmui', null, '', '0', '1', '0', '0', '1', '2018-12-27 20:47:10');
+INSERT INTO `fly_topic` VALUES ('275768629394681856', 'git', '7b6ZJn', null, '', '0', '0', '0', '0', '1', '2018-12-27 20:47:10');
+INSERT INTO `fly_topic` VALUES ('275768629885415424', 'commit', 'vmUrEf', null, '', '0', '0', '0', '0', '1', '2018-12-27 20:47:11');
+INSERT INTO `fly_topic` VALUES ('276333796864045056', 'Integer', 'buANBv', null, '', '0', '1', '0', '0', '1', '2018-12-29 10:12:57');
+INSERT INTO `fly_topic` VALUES ('283658184605052928', 'map', 'iUramu', null, '', '0', '1', '0', '0', '1', '2019-01-18 15:17:27');
+INSERT INTO `fly_topic` VALUES ('283658186156945408', 'containsKey', 'VJJN3a', null, '', '0', '1', '0', '0', '1', '2019-01-18 15:17:27');
+INSERT INTO `fly_topic` VALUES ('283705217105801216', '测试', 'jeAvim', null, '', '0', '16', '0', '0', '1', '2019-01-18 18:24:20');
+INSERT INTO `fly_topic` VALUES ('283771155628961792', 'fghfgh', 'Bb2YJz', null, '', '0', '1', '0', '0', '1', '2019-01-18 22:46:21');
 
 -- ----------------------------
 -- Table structure for `fly_topic_category`
@@ -49302,7 +49321,7 @@ CREATE TABLE `fly_topic_info_merge` (
   `status` tinyint(1) DEFAULT '1' COMMENT '信息显示状态，默认为显示，0不显示，1显示',
   PRIMARY KEY (`id`),
   UNIQUE KEY `topic_index` (`info_id`,`topic_id`,`info_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=317 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=354 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of fly_topic_info_merge

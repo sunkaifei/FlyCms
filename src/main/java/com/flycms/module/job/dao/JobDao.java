@@ -86,7 +86,7 @@ public interface JobDao {
      *         方法名称
      * @return
      */
-    public int checkJobByMethodName(@Param("beanName") String beanName, @Param("methodName") String methodName);
+    public int checkJobByMethodName(@Param("beanName") String beanName,@Param("methodName") String methodName);
 
     /**
      * 查询定时任务在排除当前id下手否有同一个Baen存在
@@ -99,7 +99,7 @@ public interface JobDao {
      *         需要排除的当前id
      * @return
      */
-    public int checkJobByMethodNameNotId(@Param("beanName") String beanName, @Param("methodName") String methodName, @Param("id") Long id);
+    public int checkJobByMethodNameNotId(@Param("beanName") String beanName,@Param("methodName") String methodName, @Param("id") Long id);
 
     /**
      *  所有定时任务配置列表

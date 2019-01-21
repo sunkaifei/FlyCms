@@ -78,7 +78,7 @@ public class UserGroupService {
         }
         int total = userGroupDao.updateUserGroup(group);
         if(total>0){
-            data=DataVo.jump("用户更新成功！","/admin/user/group_list");
+            data=DataVo.jump("用户更新成功！","/system/user/group_list");
         }else{
             data=DataVo.failure("添加失败");
         }
@@ -109,7 +109,7 @@ public class UserGroupService {
         return userGroupDao.findUuserGroupByUserId(userId);
     }
 
-    //查询用户组名和用户session里的用户id查询用户当前权限是否存在
+    //查询用户组名和用户session里的用户id查询用户当前权限
     public boolean checkUuserPower(String groupName,Long userId) {
         int totalCount = userGroupDao.checkUuserPower(groupName,userId);
         return totalCount > 0 ? true : false;

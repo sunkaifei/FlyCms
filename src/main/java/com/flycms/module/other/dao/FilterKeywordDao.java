@@ -40,7 +40,7 @@ public interface FilterKeywordDao {
     // /////        修改      ////////
     // ///////////////////////////////
     //按id查询并更新违禁关键词信息
-    public int updateFilterKeywordById(@Param("keyword") String keyword, @Param("id") Long id);
+    public int updateFilterKeywordById(@Param("keyword") String keyword,@Param("id") Long id);
 
     // ///////////////////////////////
     // /////        查詢      ////////
@@ -64,7 +64,7 @@ public interface FilterKeywordDao {
      *         关键词
      * @return
      */
-    public int checkFilterKeywordNotId(@Param("keyword") String keyword, @Param("id") Long id);
+    public int checkFilterKeywordNotId(@Param("keyword") String keyword,@Param("id") Long id);
 
     /**
      *  所有违禁关键词列表

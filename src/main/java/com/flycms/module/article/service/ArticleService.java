@@ -106,7 +106,7 @@ public class ArticleService {
         article.setTitle(StringEscapeUtils.escapeHtml4(article.getTitle()));
         article.setCreateTime(new Date());
         article.setStatus(Integer.parseInt(configService.getStringByKey("user_article_verify")));
-        article.setContent(imagesService.replaceContent(article.getContent(),article.getUserId()));
+        article.setContent(imagesService.replaceContent(1,article.getId(),article.getUserId(),article.getContent()));
         int totalCount=articleDao.addArticle(article);
         if(totalCount > 0) {
             articleDao.addArticleAndCategory(article.getId(), article.getCategoryId(), Integer.valueOf(str[str.length - 1]));

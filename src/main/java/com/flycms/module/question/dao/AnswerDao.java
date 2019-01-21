@@ -41,7 +41,7 @@ public interface AnswerDao {
     // ///////////////////////////////
 
     //修改答案审核状态
-    public int updateAnswerStatusById(@Param("id") Long id, @Param("status") Integer status);
+    public int updateAnswerStatusById(@Param("id") Long id,@Param("status") Integer status);
 
     //按id更新答案内容
     public int updateAnswerById(Answer answer);
@@ -71,7 +71,7 @@ public interface AnswerDao {
      *         答案内容
      * @return
      */
-    public int checkAnswerByContent(@Param("userId") Long userId, @Param("content") String content);
+    public int checkAnswerByContent( @Param("userId") Long userId,@Param("content") String content);
 
     /**
      * 按参数查询记录数
@@ -87,9 +87,9 @@ public interface AnswerDao {
      * @return
      */
     public int getAnswerCount(@Param("questionId") Long questionId,
-                              @Param("userId") Long userId,
-                              @Param("createTime") String createTime,
-                              @Param("status") Integer status);
+                                @Param("userId") Long userId,
+                                @Param("createTime") String createTime,
+                                @Param("status") Integer status);
 
     /**
      * 按参数查询答案列表

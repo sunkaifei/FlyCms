@@ -22,7 +22,7 @@ import java.io.Serializable;
 public class QuestionCount implements Serializable {
     private static final long serialVersionUID = 1L;
     //问题id
-    private Long questionId;
+    private Integer questionId;
     //回答数量
     private Integer countAnswer;
     //关注人数

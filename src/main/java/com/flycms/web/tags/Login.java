@@ -33,8 +33,6 @@ public class Login extends AbstractTagPlugin {
 		try {
 
 			//获取HttpSession
-			ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-			HttpServletRequest request = attr.getRequest();
 			User loginMember = (User) request.getSession().getAttribute(Const.SESSION_USER);
 			env.setVariable("status", builder.build().wrap(loginMember));
 			body.render(env.getOut());

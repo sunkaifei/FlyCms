@@ -68,7 +68,7 @@ define(function(require, exports, module) {
     $("#phoneNumber").on("blur", function(){
         var username=$("#phoneNumber").val();
         if(username.length>0){
-            if(/^[1][3,4,5,7,8][0-9]{9}$/.test(username)){
+            if(/^[1][3,4,5,6,7,8][0-9]{9}$/.test(username)){
                 $(this).closest('div').removeClass('has-error').addClass('has-success');
             }else{
                 $(this).closest('div').removeClass('has-success').addClass('has-error');
@@ -81,7 +81,7 @@ define(function(require, exports, module) {
     $("#addMobileCode").on("click", function(){
         var username=$("#phoneNumber").val();
         if(username.length>0){
-            if(!/^[1][3,4,5,7,8][0-9]{9}$/.test(username)){
+            if(!/^[1][3,4,5,6,7,8][0-9]{9}$/.test(username)){
                 $('#myMobileModal').modal('hide');
                 $("#phoneNumber").closest('div').removeClass('has-success').addClass('has-error');
                 $("#phoneNumber").focus();
@@ -137,7 +137,7 @@ define(function(require, exports, module) {
         var password2=$("#password2").val();
         var invite=$("#invite").val();
         if(phoneNumber.length>0){
-            if(!/^[1][3,4,5,7,8][0-9]{9}$/.test(phoneNumber)){
+            if(!/^[1][3,4,5,6,7,8][0-9]{9}$/.test(phoneNumber)){
                 $("#phoneNumber").closest('div').removeClass('has-success').addClass('has-error');
                 $("#phoneNumber").focus();
                 return false;

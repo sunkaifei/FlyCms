@@ -46,7 +46,7 @@
                     <div class="carousel-caption">
                         <h1>Java版开源问答管理系统免费发布了！</h1>
                         <p>FlyCms是一款100%开放源码的Java问答系统，基于Spring Boot框架开发，容易扩展，具有强大的负载能力和稳定性。</p>
-                        <p><a class="btn btn-lg btn-primary" href="http://www.28844.com/share/1" role="button">立即查看</a></p>
+                        <p><a class="btn btn-lg btn-primary" href="https://www.28844.com/s/7BjmIb" role="button">立即查看</a></p>
                     </div>
                 </div>
             </div>
@@ -167,7 +167,7 @@
                         <@fly_userinfo userId="${list.userId!}">
                         <li class="text-muted">
                             <img class="avatar-32" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>">
-                            <a href="/people/${userinfo.userId!}" class="ellipsis" target="_blank">${userinfo.nickName!}</a>
+                            <a href="/people/${userinfo.shortUrl!}" class="ellipsis" target="_blank">${userinfo.nickName!}</a>
                             <@fly_usercount userId="${list.userId!}">
                             <span class="text-muted pull-right">${count.score!} 金币</span>
                             </@fly_usercount>

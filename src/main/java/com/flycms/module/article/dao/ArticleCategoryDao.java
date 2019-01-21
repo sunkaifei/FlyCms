@@ -39,10 +39,10 @@ public interface ArticleCategoryDao {
     // /////        查詢      ////////
     // ///////////////////////////////
     //查询分类名称是否存在
-    public int checkArticleCategoryByName(@Param("name") String name, @Param("id") Long id);
+    public int checkArticleCategoryByName(@Param("name") String name,@Param("id") Long id);
 
     //按id查询分类信息
-    public ArticleCategory findCategoryById(@Param("id") Long id, @Param("status") Integer status);
+    public ArticleCategory findCategoryById(@Param("id") Long id,@Param("status") Integer status);
 
     //根据分类id查询所属的所有子类
     public List<ArticleCategory> getCategoryListByFatherId(@Param("fatherId") Long fatherId);

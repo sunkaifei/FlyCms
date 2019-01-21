@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Open source house, All rights reserved
@@ -47,9 +48,10 @@ public class Images implements Serializable {
     /**  图片指纹 */
     public String signature;
     /** 添加时间 */
-    public String addTime;
+    public Date createTime;
     /** 删除设置 */
     public String imgDelete;
     /** 排序 */
     public Integer sort;
+    private Integer infoCount;
 }

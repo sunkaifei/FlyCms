@@ -20,7 +20,7 @@ import java.io.Serializable;
 public class ShareCount implements Serializable {
     private static final long serialVersionUID = 1L;
     //问题id
-    private Long shareId;
+    private Integer shareId;
     //下载数量
     private Integer countDownloads;
     //评论人数

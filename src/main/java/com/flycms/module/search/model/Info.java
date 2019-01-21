@@ -25,7 +25,7 @@ public class Info {
     //信息标题
     private String title;
     //信息id
-    private Long infoId;
+    private long infoId;
     //信息类型
     private Integer infoType;
     //信息分类搜索id

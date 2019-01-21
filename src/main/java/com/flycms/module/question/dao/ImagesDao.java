@@ -2,6 +2,7 @@ package com.flycms.module.question.dao;
 
 import com.flycms.module.order.model.Order;
 import com.flycms.module.question.model.Images;
+import com.flycms.module.question.model.ImagesInfoMerge;
 import com.flycms.module.question.model.Question;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -28,6 +29,14 @@ public interface ImagesDao {
      * @return
      */
     public int addImages(Images images);
+
+    /**
+     * 添加图片和信息关联记录
+     *
+     * @param imagesInfoMerge
+     * @return
+     */
+    public int addImagesInfoMerge(ImagesInfoMerge imagesInfoMerge);
     // ///////////////////////////////
     // /////        刪除      ////////
     // ///////////////////////////////
@@ -66,6 +75,9 @@ public interface ImagesDao {
 
     public int updateImagesById(Images images);
 
+    //更新图片被使用次数
+    public int updateImagesCount(Long id);
+
     // ///////////////////////////////
     // ///// 查詢 ////////
     // ///////////////////////////////
@@ -77,7 +89,7 @@ public interface ImagesDao {
      * @param tid
      * @return
      */
-    public List<Images> getImagesListByTid(@Param("tid") Long tid);
+    public List<Images> getImagesListByTid( @Param("tid") Long tid);
 
     /**
      * 按信息类型id和信息id查询第一个文章图片
@@ -96,7 +108,7 @@ public interface ImagesDao {
      *         图片地址
      * @return
      */
-    public int checkImagesByTidAndImgurl(@Param("tid") Long tid, @Param("imgUrl") String imgUrl);
+    public int checkImagesByTidAndImgurl(@Param("tid") Long tid,@Param("imgUrl") String imgUrl);
 
     /**
      * 查询图片路径是否存在

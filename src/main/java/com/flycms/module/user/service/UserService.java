@@ -165,6 +165,8 @@ public class UserService {
             return data=DataVo.success("新用户密码不能为空！");
         }
         //用户添加时间
+        String code=this.shortUrl();
+        user.setShortUrl(code);
         user.setCreateTime(new Date());
         int totalCount = userDao.addUser(user);
         if(totalCount > 0){
@@ -236,6 +238,8 @@ public class UserService {
             return data=DataVo.failure(2,"已取消关注");
         }else{
             UserFans fans=new UserFans();
+            SnowFlake snowFlake = new SnowFlake(2, 3);
+            fans.setId(snowFlake.nextId());
             fans.setUserFollow(userFollow);
             fans.setUserFans(userFans);
             fans.setCreateTime(new Date());
@@ -392,11 +396,25 @@ public class UserService {
             userDao.addUserAndGroup(user.getGroupId(),user.getUserId());
         }
         if(totalCount > 0){
-            data = DataVo.jump("用户信息修改","/admin/user/user_edit/"+user.getUserId());
+            data = DataVo.jump("用户信息修改","/system/user/user_edit/"+user.getUserId());
         }else{
             data=DataVo.failure("更新失败，请联系管理员！");
         }
         return data;
+    }
+
+    /**
+     * 修改用户头像
+     *
+     * @param userId
+     *         用户id
+     * @param avatar
+     *         用户头像地址
+     * @return
+     */
+    @CacheEvict(value = "user", allEntries = true)
+    public int updateAvatar(Long userId,String avatar) {
+        return userDao.updateAvatar(userId,avatar);
     }
 
     /**

@@ -40,13 +40,13 @@ public interface GuideDao {
 
     //查询所有导航数量
     public int getGuideCount(@Param("name") String name,
-                             @Param("status") Integer status);
+                                @Param("status") Integer status);
 
     //导航列表
     public List<Guide> getGuideList(@Param("name") String name,
-                                    @Param("status") Integer status,
-                                    @Param("orderby") String orderby,
-                                    @Param("order") String order,
-                                    @Param("offset") Integer offset,
-                                    @Param("rows") Integer rows);
+                                          @Param("status") Integer status,
+                                          @Param("orderby") String orderby,
+                                          @Param("order") String order,
+                                          @Param("offset") Integer offset,
+                                          @Param("rows") Integer rows);
 }

@@ -55,10 +55,7 @@ public class QuestionService {
         if (ss.length>5) {
             return DataVo.failure("话题数不能大于5个");
         }
-        //内容保存本地并转换图片地址为本地
-        if(content!=null){
-            content=imagesService.replaceContent(content,userId);
-        }
+
         Question question=new Question();
         SnowFlake snowFlake = new SnowFlake(2, 3);
         question.setId(snowFlake.nextId());
@@ -67,15 +64,16 @@ public class QuestionService {
         question.setUserId(userId);
         question.setTitle(StringEscapeUtils.escapeHtml4(title));
         question.setCreateTime(new Date());
+        //内容保存本地并转换图片地址为本地
+        if(content!=null){
+            content=imagesService.replaceContent(1,question.getId(),question.getUserId(),content);
+        }
         question.setContent(content);
         question.setStatus(Integer.parseInt(configService.getStringByKey("user_question_verify")));
         int totalCount=questionDao.addQuestion(question);
         if(totalCount>0){
             //增加问题相关统计信息
             questionDao.addQuestionCount(question.getId());
-            if(content!=null){
-                imagesService.saveImagesData(question.getId(), userId, question.getContent());
-            }
             if (!StringUtils.isBlank(tags)) {
                 for (String string : ss) {
                     if (string != " " && string.length()>=2) {

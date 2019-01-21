@@ -210,6 +210,9 @@ public class UserAdminController extends BaseController {
     @GetMapping(value = "/user_edit/{id}")
     public String userEdit(@PathVariable Long id,ModelMap modelMap){
         User user=userService.findUserById(id,0);
+        if(user==null){
+            return theme.errorTips(modelMap,"用户不存在");
+        }
         modelMap.addAttribute("user",user);
         modelMap.addAttribute("admin", getAdminUser());
         return theme.getAdminTemplate("user/user_edit");
@@ -275,6 +278,9 @@ public class UserAdminController extends BaseController {
     @GetMapping(value = "/group_edit/{id}")
     public String groupEdit(@PathVariable Long id,ModelMap modelMap){
         UserGroup group=userGroupService.findUserGroupByid(id);
+        if(group==null){
+            return theme.errorTips(modelMap,"权限组不存在");
+        }
         modelMap.addAttribute("group", group);
         modelMap.addAttribute("admin", getAdminUser());
         return theme.getAdminTemplate("user/group_edit");

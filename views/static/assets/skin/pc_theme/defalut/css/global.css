@@ -931,8 +931,11 @@ li.empty {
     box-sizing: border-box;
     padding-left: 15px;
     padding-right: 15px;
+    height: auto;
+    overflow: hidden;
 }
 .list-header h4{
+	float: left;
 	margin-top: 15px;
     font-weight: 600;
 	font-size: 22px;

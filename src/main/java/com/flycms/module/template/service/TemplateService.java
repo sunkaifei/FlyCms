@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ModelMap;
 
 /**
  * Open source house, All rights reserved
@@ -48,6 +49,11 @@ public class TemplateService {
 	 */
 	public String get500() {
 		return this.getPcTemplate("500");
+	}
+
+	public String errorTips(ModelMap modelMap, String message) {
+		modelMap.addAttribute("message",message);
+		return this.getPcTemplate("message_tip");
 	}
 
 	/**

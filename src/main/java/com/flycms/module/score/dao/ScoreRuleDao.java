@@ -88,7 +88,7 @@ public interface ScoreRuleDao {
 	 * @param id
 	 * @return
 	 */
-	public ScoreRule findScoreRuleById(@Param("id") Long id, @Param("status") Integer status);
+	public ScoreRule findScoreRuleById(@Param("id") Long id,@Param("status") Integer status);
 	
 	
 	/**
@@ -100,16 +100,16 @@ public interface ScoreRuleDao {
 
 	//查询积分规则总数
 	public int getScoreRuleCount(@Param("name") String name,
-                                 @Param("createTime") Date createTime,
-                                 @Param("status") Integer status);
+							@Param("createTime") Date createTime,
+							@Param("status") Integer status);
 
 	//查询积分规则列表
 	public List<ScoreRule> getScoreRuleList(@Param("name") String name,
-                                            @Param("createTime") Date createTime,
-                                            @Param("status") Integer status,
-                                            @Param("orderby") String orderby,
-                                            @Param("order") String order,
-                                            @Param("offset") int offset,
-                                            @Param("rows") int rows);
+											@Param("createTime") Date createTime,
+											@Param("status") Integer status,
+											@Param("orderby") String orderby,
+											@Param("order") String order,
+											@Param("offset") int offset,
+											@Param("rows") int rows);
 
 }

@@ -86,9 +86,9 @@ logging:
         learning: trace
         #com.flycms.module.score.dao : DEBUG  #直接写包路径，不能用*通配符
         #com.flycms.module.user.dao : DEBUG
-        com.flycms.module.article.dao : DEBUG
+        #com.flycms.module.article.dao : DEBUG
         #com.flycms.module.question.dao : DEBUG
-        com.flycms.module.topic.dao : DEBUG
+        #com.flycms.module.topic.dao : DEBUG
         #com.flycms.module.other.dao : DEBUG
         #com.flycms.module.job.dao : DEBUG
         #com.flycms.module.links.dao : DEBUG

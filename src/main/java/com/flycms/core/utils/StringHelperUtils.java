@@ -210,7 +210,7 @@ public class StringHelperUtils {
 		if (StringUtils.isBlank(PhoneNumber)) {
 			return false;
 		}
-		return check("^((13[0-9])|(15[^4])|(18[0,1,2,3,5-9])|(17[0-8])|(147))\\d{8}$",PhoneNumber);
+		return check("^((13[0-9])|(15[^4])|(166)|(18[0,1,2,3,5-9])|(17[0-8])|(147))\\d{8}$",PhoneNumber);
 	}
 	/**
 	 * 获取图片地址的图片后缀

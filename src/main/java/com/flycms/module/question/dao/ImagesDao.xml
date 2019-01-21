@@ -14,31 +14,55 @@
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="id != null">id,</if>
-			<if test="imgurl != null">imgurl,</if>
-			<if test="imgname != null">imgname,</if>
+			<if test="imgUrl != null">img_url,</if>
+			<if test="imgName != null">img_name,</if>
 			<if test="description != null">description,</if>
-			<if test="filesize != null">filesize,</if>
+			<if test="fileSize != null">file_size,</if>
 			<if test="imgWidth != null">img_width,</if>
 			<if test="imgHeight != null">img_height,</if>
 			<if test="signature != null">signature,</if>
-			<if test="addTime != null">add_time,</if>
+			<if test="createTime != null">create_time,</if>
 			<if test="sort != null">sort,</if>
+			<if test="infoCount != null">info_count,</if>
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null">#{id},</if>
-			<if test="imgurl != null">#{imgurl},</if>
-			<if test="imgname != null">#{imgname},</if>
+			<if test="imgUrl != null">#{imgUrl},</if>
+			<if test="imgName != null">#{imgName},</if>
 			<if test="description != null">#{description},</if>
-			<if test="filesize != null">#{filesize},</if>
+			<if test="fileSize != null">#{fileSize},</if>
 			<if test="imgWidth != null">#{imgWidth},</if>
 			<if test="imgHeight != null">#{imgHeight},</if>
 			<if test="signature != null">#{signature},</if>
-			<if test="addTime != null">#{addTime},</if>
+			<if test="createTime != null">#{createTime},</if>
 			<if test="sort != null">#{sort},</if>
+			<if test="infoCount != null">#{infoCount},</if>
 		</trim>
 	</insert>
 
+	<!-- 添加图片和信息关联记录 -->
+	<insert id="addImagesInfoMerge">
+		insert into fly_images_info_merge
+		<!--  添加表字段  -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="infoId != null">info_id,</if>
+			<if test="imgId != null">img_id,</if>
+			<if test="userId != null">user_id,</if>
+			<if test="picId != null">pic_id,</if>
+			<if test="infoType != null">info_type,</if>
+		</trim>
+		<!--  注入控制层字段  -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="infoId != null">#{infoId},</if>
+			<if test="imgId != null">#{imgId},</if>
+			<if test="userId != null">#{userId},</if>
+			<if test="picId != null">#{picId},</if>
+			<if test="infoType != null">#{infoType},</if>
+		</trim>
+	</insert>
 	<!-- ############################## -->
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
@@ -68,6 +92,11 @@
 	<update id="updateImagesById">
 		update fly_images set channel_id=#{channelId},tid=#{tid},user_id=#{userId},picid=#{picid},imgurl=#{imgurl},imgname=#{imgname},description=#{description},filesize=#{filesize},img_width=#{img_width},img_height=#{img_height},thumb=#{thumb}
 		where id=#{id}
+	</update>
+
+	<!-- 更新图片被使用次数 -->
+	<update id="updateImagesCount">
+		update fly_images set info_count=(select count(*) from fly_images_info_merge where img_id=#{imgId}) where id=#{imgId}
 	</update>
 
 	<!-- ############################## -->

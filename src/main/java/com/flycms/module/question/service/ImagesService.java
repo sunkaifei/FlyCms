@@ -1,10 +1,3 @@
-/*
- *	Copyright © 2015 Zhejiang SKT Science Technology Development Co., Ltd. All rights reserved.
- *	浙江斯凯特科技发展有限公司 版权所有
- *	http://www.28844.com
- *
- */
-
 package com.flycms.module.question.service;
 
 import java.awt.image.BufferedImage;
@@ -28,9 +21,10 @@ import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.module.question.dao.ImagesDao;
 import com.flycms.module.question.model.Images;
+import com.flycms.module.question.model.ImagesInfoMerge;
 import com.flycms.module.question.model.Question;
-import com.flycms.module.user.dao.UserDao;
 import com.flycms.module.user.model.User;
+import com.flycms.module.user.service.UserService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,85 +35,22 @@ import org.springframework.stereotype.Service;
  * 版权：开源中国<br/>
  *
  * 图片管理服务
- * 
+ *
  * @author sunkaifei
- * 
+ *
  */
 @Service
 public class ImagesService {
 	private Logger logger = Logger.getLogger(this.getClass());
     @Autowired
-    private UserDao userDao;
+    private UserService userService;
 
 	@Autowired
 	private ImagesDao imagesDao;
-	
+
 	// ///////////////////////////////
 	// ///// 增加 ////////
 	// ///////////////////////////////
-
-	/**
-	 *        信息类型:0文档,1企业，2话题，3小组
-	 * @param tid
-	 *        信息id
-	 * @param userId
-	 *        作者id
-	 * @param content
-	 *        替换内容
-     * @return
-	 */
-	public void saveImagesData(Long tid, Long userId, String content) throws Exception {
-            List<Images> list = new ArrayList<Images>();
-			Pattern pRemoteFileurl = Pattern.compile("<img.*?src=\"?(.*?)(\"|>|\\s+)");
-			Matcher mRemoteFileurl = pRemoteFileurl.matcher(content);
-			String remoteFileurl = null;
-			int nFileNum = 0;
-			while (mRemoteFileurl.find()) {
-				remoteFileurl = mRemoteFileurl.group(1);
-                String extension = StringHelperUtils.getImageUrlSuffix(remoteFileurl);
-                extension = "." + extension;
-                SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-                String filename = Md5Utils.code(df.format(new Date()) + nFileNum, 16) + "_"+ nFileNum + extension;
-                String reg = "(?!.*((img.baidu.com)|(127.0.0.1)|(^/upload/content/))).*$";
-
-				if(FileUtils.isFile(Const.UPLOAD_PATH + remoteFileurl)){
-					File picture = new File(Const.UPLOAD_PATH + remoteFileurl);
-					FileInputStream fis = new FileInputStream(picture);
-					BufferedImage sourceImg = ImageIO.read(fis);
-					if (!this.checkImagesByTidAndImgurl(tid,remoteFileurl)) {
-                        Images images = new Images();
-						SnowFlake snowFlake = new SnowFlake(2, 3);
-						images.setId(snowFlake.nextId());
-                        images.setInfoId(tid);
-                        images.setUserId(userId);
-                        images.setImgUrl(remoteFileurl);
-                        images.setFileSize(String.format("%.1f", picture.length() / 1024.0));
-                        images.setImgWidth(Integer.toString(sourceImg.getWidth()));
-                        images.setImgHeight(Integer.toString(sourceImg.getHeight()));
-                        images.setSort(nFileNum);
-                        imagesDao.addImages(images);
-					}
-					fis.close();
-				}
-
-				nFileNum = nFileNum + 1;
-				Images images=new Images();
-				images.setImgUrl(remoteFileurl);
-				list.add(images);
-			}
-			List<Images> imgdata=imagesDao.getImagesListByTid(tid);
-			if(list.size()>0) {
-				for (Images img : imgdata) {
-					if(!listSearch(img.getImgUrl(),list)){  //新内容中查询不到原有路径数据就执行删除
-						/*if(this.checkImagesNotTidAndImgurl(tid,img.getImgUrl())){
-							this.deleteImagesByTidAndImgurl(tid,img.getImgUrl());
-						}else{
-							this.delImagesByDateAndFile(tid,img.getImgUrl());
-						}*/
-					}
-				}
-			}
-	}
 
     /**
      * 保存内容中的图片本地化路径处理
@@ -179,7 +110,8 @@ public class ImagesService {
 	 * @return
 	 * @throws Exception
 	 */
-	public String replaceContent(Integer channelId,Integer infoId,Integer userId,String content) throws Exception {
+	public String replaceContent(Integer typeId,Long infoId,Long userId,String content) throws Exception {
+		SnowFlake snowFlake = new SnowFlake(2, 3);
 		Pattern pRemoteFileurl = Pattern.compile("<img.*?src=\"?(.*?)(\"|>|\\s+)");
 		Matcher mRemoteFileurl = pRemoteFileurl.matcher(content);
 		StringBuffer sb = new StringBuffer();
@@ -188,36 +120,17 @@ public class ImagesService {
 		String imgpath = getImgPath();
 		StringBuffer imgBuffer = new StringBuffer();
 		while (mRemoteFileurl.find()) {
+			System.out.println("==================nFileNum================:"+nFileNum);
 			remoteFileurl = mRemoteFileurl.group(1);
 			String extension = StringHelperUtils.getImageUrlSuffix(remoteFileurl);
 			extension = "." + extension;
 			SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
 			String filename = Md5Utils.code(df.format(new Date()) + nFileNum, 16) + "_"+ nFileNum + extension;
 			String reg = "(?!.*((img.baidu.com)|(127.0.0.1)|(^/upload/content/))).*$";
+			System.out.println(remoteFileurl+"==================filename================:"+filename+"=========="+remoteFileurl.matches(reg));
 			String pathac ="";
-
-			Images imaData=this.findImagesByImgurl(imgpath + filename);
-			if(imaData==null){
-				if(FileUtils.isFile(Const.UPLOAD_PATH + remoteFileurl)){
-					File picture = new File(Const.UPLOAD_PATH + remoteFileurl);
-					FileInputStream fis = new FileInputStream(picture);
-					BufferedImage sourceImg = ImageIO.read(fis);
-					Images images = new Images();
-					images.setImgUrl(remoteFileurl);
-					images.setFileSize(String.format("%.1f", picture.length() / 1024.0));
-					images.setImgWidth(Integer.toString(sourceImg.getWidth()));
-					images.setImgHeight(Integer.toString(sourceImg.getHeight()));
-					images.setSort(nFileNum);
-					imagesDao.addImages(images);
-					fis.close();
-				}
-			}else{
-
-			}
-
-
-
 			if (remoteFileurl.matches(reg)) {
+				System.out.println("==================22222222222222222================:"+nFileNum);
 				saveUrlAs(remoteFileurl, Const.UPLOAD_PATH+imgpath + filename);
 				pathac = imgpath + filename;
 				mRemoteFileurl.appendReplacement(sb, "<img src=\"" + pathac+"\" ");
@@ -228,46 +141,75 @@ public class ImagesService {
 				}
 				nFileNum = nFileNum + 1;
 			} else {
+				System.out.println("==================111111111================:");
 				if (getContentUrl(remoteFileurl)) {
+					System.out.println("==================22222222222222222================:");
 					if(FileUtils.isFile(Const.UPLOAD_PATH + "/" + StringHelperUtils.getImageRootUrl(remoteFileurl))){  //判断文件是否存在，不存在则不执行
 						FileUtils.moveFile(Const.UPLOAD_PATH + "/" + StringHelperUtils.getImageRootUrl(remoteFileurl),Const.UPLOAD_PATH + imgpath + filename);//开始移动文件
 					}
 					pathac = imgpath + filename;
 					mRemoteFileurl.appendReplacement(sb, "<img src=\"" + pathac+"\" ");
 				}
+
+				nFileNum = nFileNum + 1;
 			}
+			String pictureUrl= null;
+			if (remoteFileurl.matches(reg)) {
+				pictureUrl = imgpath + filename;
+			} else {
+				pictureUrl =  remoteFileurl;
+			}
+			System.out.println("==================33333333333333333333333================:"+ pictureUrl);
+			Images imaData=this.findImagesByImgurl(pictureUrl);
+			if(imaData==null){
+				System.out.println(remoteFileurl+"========fffff========="+getContentUrl(remoteFileurl)+"================="+Const.UPLOAD_PATH +imgpath + filename);
+
+				if(getContentUrl(remoteFileurl)){
+					pictureUrl = Const.UPLOAD_PATH +imgpath + filename;
+				}else{
+					pictureUrl = Const.UPLOAD_PATH + remoteFileurl;
+				}
+				File picture = new File(pictureUrl);
+				System.out.println("==================444444================:"+pictureUrl);
+				FileInputStream fis = new FileInputStream(picture);
+				System.out.println("==================5555555================:");
+				BufferedImage sourceImg = ImageIO.read(fis);
+				System.out.println("==================6666666================:");
+				Images images = new Images();
+				images.setId(snowFlake.nextId());
+				images.setImgUrl(imgpath + filename);
+				images.setFileSize(String.format("%.1f", picture.length() / 1024.0));
+				images.setImgWidth(Integer.toString(sourceImg.getWidth()));
+				images.setImgHeight(Integer.toString(sourceImg.getHeight()));
+				images.setSort(nFileNum);
+				images.setCreateTime(new Date());
+				images.setInfoCount(1);
+				int totalCount=imagesDao.addImages(images);
+				if(totalCount > 0){
+					ImagesInfoMerge merge = new ImagesInfoMerge();
+					merge.setId(snowFlake.nextId());
+					merge.setInfoType(typeId);
+					merge.setInfoId(infoId);
+					merge.setImgId(images.getId());
+					merge.setUserId(userId);
+					imagesDao.addImagesInfoMerge(merge);
+				}
+				fis.close();
+			}else{
+				ImagesInfoMerge merge = new ImagesInfoMerge();
+				merge.setId(snowFlake.nextId());
+				merge.setInfoType(typeId);
+				merge.setInfoId(infoId);
+				merge.setImgId(imaData.getId());
+				merge.setUserId(userId);
+				imagesDao.addImagesInfoMerge(merge);
+				imagesDao.updateImagesCount(imaData.getId());
+			}
+
 		}
 		mRemoteFileurl.appendTail(sb);
 		return sb.toString();
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	public DataVo saveAvatarDataFile(User user, BufferedImage image) throws ParseException {
 		DataVo data = DataVo.failure("操作失败");
@@ -289,7 +231,7 @@ public class ImagesService {
 			if (!file.exists())
 				file.createNewFile();
 			ImageIO.write(image, "PNG", file);
-            userDao.updateAvatar(user.getUserId(),saveUrl + fileName);
+			userService.updateAvatar(user.getUserId(),saveUrl + fileName);
 			return DataVo.jump("上传成功", saveUrl + fileName);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -302,15 +244,15 @@ public class ImagesService {
 	// ///////////////////////////////
 	/**
 	 * 按图片索引ID删除图片信息
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */
 	public boolean deleteImagesById(Long id) {
 		int totalCount = imagesDao.deleteImagesById(id);
-        return totalCount > 0 ? true : false; 
+        return totalCount > 0 ? true : false;
 	}
-	
+
 	/**
 	 * 按图片信息id和图片指纹删除图片信息
      * @param tid
@@ -321,12 +263,12 @@ public class ImagesService {
 	 */
 	public boolean deleteImagesByTidAndImgurl(Long tid, String imgurl) {
 		int totalCount = imagesDao.deleteImagesByTidAndImgurl(tid,imgurl);
-        return totalCount > 0 ? true : false; 
+        return totalCount > 0 ? true : false;
 	}
-	
+
 	/**
 	 * 按信息分类和内容id删除图片信息
-	 * 
+	 *
 	 * @param channelid
 	 *        信息分类id
 	 * @param article_id
@@ -340,10 +282,10 @@ public class ImagesService {
 				FileUtils.delFileA(Const.UPLOAD_PATH + list.getImgUrl()); //删除内容中图片
 			}
 		}
-		int totalCount = imagesDao.deleteImagesByTid(channelid,article_id); 
-        return totalCount > 0 ? true : false; 
+		int totalCount = imagesDao.deleteImagesByTid(channelid,article_id);
+        return totalCount > 0 ? true : false;
 	}
-	
+
 	/**
 	 * 删除图片文件和图片数据
 	 *
@@ -356,21 +298,21 @@ public class ImagesService {
 	public boolean delImagesByDateAndFile(Long tid, String imgurl) {
 		FileUtils.delFileA(Const.UPLOAD_PATH + imgurl); //删除内容中图片
 		int totalCount = imagesDao.deleteImagesByTidAndImgurl(tid,imgurl);
-        return totalCount > 0 ? true : false; 
+        return totalCount > 0 ? true : false;
 	}
 	// ///////////////////////////////
 	// ///// 修改 ////////
 	// ///////////////////////////////
-	
-	
-	
+
+
+
 	// ///////////////////////////////
 	// ///// 查询 ////////
 	// ///////////////////////////////
-	
+
 	/**
 	 * 按信息类型id和信息id查询第一个文章图片
-	 * 
+	 *
 	 * @param imgUrl
 	 * @return
 	 */
@@ -389,7 +331,7 @@ public class ImagesService {
         int totalCount = imagesDao.checkImagesByTidAndImgurl(tid,imgurl);
         return totalCount > 0 ? true : false;
     }
-	
+
 	/**
 	 * 查询图片路径是否存在
 	 *
@@ -399,12 +341,12 @@ public class ImagesService {
 	 */
 	public boolean checkImagesByImgurl(String imgUrl) {
 		int totalCount = imagesDao.checkImagesByImgurl(imgUrl);
-        return totalCount > 0 ? true : false; 
+        return totalCount > 0 ? true : false;
 	}
-	
+
 	/**
 	 * 按信息id查询所有关联图片的数量
-	 * 
+	 *
 	 * @param channelid
 	 *        信息类别id
 	 * @param img_width
@@ -416,13 +358,13 @@ public class ImagesService {
 	public int getImagesByTidListCount(Integer channelid, Integer img_width, Integer img_height){
 		return imagesDao.getImagesByTidListCount(channelid,img_width,img_height);
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 		 *按信息id查询所有关联的图片
-		 * 
+		 *
 		 * @param channelid
 		 *        信息类别id
 		 * @param img_width
@@ -443,10 +385,10 @@ public class ImagesService {
 		pageVo.setList(imageslist);
 		return pageVo;
 	}
-	
+
 	/**
 	 * 缩放图片服务处理
-	 * 
+	 *
 	 * @param width
 	 * @param height
 	 * @param savePath
@@ -467,10 +409,10 @@ public class ImagesService {
 		return savePath;
 	}
 
-	
+
 	/**
 	 * 更新内容时对已有的图片数据分析本地化路径处理
-	 * 
+	 *
 	 * @param content
 	 * @param savepath
 	 * @param accesspath
@@ -518,10 +460,10 @@ public class ImagesService {
 		mRemoteFileurl.appendTail(sb);
 		return sb.toString();
 	}
-	
+
 	/**
 	 * 查询图片list内是否包含该图片路径
-	 * 
+	 *
 	 * @param name
 	 * @param list
 	 * @return
@@ -591,11 +533,11 @@ public class ImagesService {
 			return false;
 		}
 	}
-	
+
 
 	/**
 	 * 判断url是否是用户临时文件
-	 * 
+	 *
 	 * @param url
 	 *            需要判断的url
 	 * @return
@@ -606,6 +548,6 @@ public class ImagesService {
 		Matcher matcher = p.matcher(url);
 		return matcher.find();
 	}
-	
+
 
 }

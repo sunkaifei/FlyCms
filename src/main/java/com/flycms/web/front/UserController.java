@@ -151,7 +151,7 @@ public class UserController extends BaseController {
         if(!password.equals(password2)){
             return data = DataVo.failure("两次密码输入不一样");
         }
-        return data =data = userService.addUserReg(1,phoneNumber, password,mobilecode,invite,request,response);
+        return data = userService.addUserReg(1,phoneNumber, password,mobilecode,invite,request,response);
     }
 
     //用户登录页面
@@ -570,7 +570,7 @@ public class UserController extends BaseController {
     @PostMapping(value = "/ucenter/user/follow")
     public DataVo userFollow(@RequestParam(value = "id", required = false) String id) {
         DataVo data = DataVo.failure("操作失败");
-        try {
+//        try {
             if (!NumberUtils.isNumber(id)) {
                 return data=DataVo.failure("问题参数错误");
             }
@@ -581,9 +581,9 @@ public class UserController extends BaseController {
                 return data=DataVo.failure("无法关注自己！");
             }
             data=userService.addUserFans(Long.parseLong(id),getUser().getUserId());
-        } catch (Exception e) {
+  /*      } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
-        }
+        }*/
         return data;
     }
 

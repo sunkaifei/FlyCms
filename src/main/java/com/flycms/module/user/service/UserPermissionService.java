@@ -100,7 +100,7 @@ public class UserPermissionService {
     public DataVo updatePermissions(UserPermission permission){
         DataVo data = DataVo.failure("操作失败");
         if(userPermissionDao.updatePermissions(permission)>0){
-            data=DataVo.jump("修改成功","/admin/user/group_update/"+permission.getId());
+            data=DataVo.jump("修改成功","/system/user/group_update/"+permission.getId());
         }else{
             data=DataVo.failure("修改失败！");
         }

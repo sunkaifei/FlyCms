@@ -8,40 +8,6 @@ define(function(require, exports, module) {
 	    path: '/assets/js/vendors/layer/' //layer.js所在的目录，可以是绝对目录，也可以是相对目录
 	});
 
-    $(".userFollow-button").on("click", function(){
-        if(userid>0) {
-            var id = $(this).parent().attr("data-user-id");
-            $.ajax({
-                url: '/ucenter/user/follow',
-                data: {"id":id},
-                dataType: "json",
-                type :  "post",
-                cache : false,
-                async: false,
-                error : function(i, g, h) {
-                    layer.msg('发送错误', {icon: 2});
-                },
-                success: function(data){
-                    if(data.code==0){
-                        //弹出提示2秒后刷新页面
-                        layer.msg(data.message,{icon: 1, time: 2000},function(){
-                            window.location.reload();
-                        });
-                        return false;
-                    }else if(data.code==2) {
-                        layer.msg(data.message,{icon: 5, time: 2000},function(){
-                            window.location.reload();
-                        });
-                    }else{
-                        layer.msg(data.message, {icon: 2});
-                    }
-                }
-            });
-        }else{
-            $("#loginModal").modal();
-        }
-    });
-
     $(".load-content").on("click", function(){
         var id = $(this).parent().parent().parent().attr("data-info-id");
         var type = $(this).parent().parent().parent().attr("data-info-type");

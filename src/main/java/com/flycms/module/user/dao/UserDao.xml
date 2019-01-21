@@ -160,12 +160,12 @@
 	<!-- ######       删除       ###### -->
 	<!-- ############################## -->
 	<!-- 按id删除用户信息 -->
-	<delete id="deleteUserById" parameterType="Integer">
+	<delete id="deleteUserById">
 		delete from fly_user where user_id = #{userId}
 	</delete>
 
     <!-- 按关注人id和粉丝ID删除用户粉丝关联信息 -->
-    <delete id="deleteUserFans" parameterType="Integer">
+    <delete id="deleteUserFans">
 		delete from fly_user_fans where user_follow = #{userFollow} and user_fans = #{userFans}
 	</delete>
 
