@@ -9,7 +9,7 @@
 	<!-- ############################## -->
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
-	<insert id="addPermission" useGeneratedKeys="true" keyProperty="id" parameterType="com.flycms.module.user.model.UserPermission">
+	<insert id="addPermission">
 		insert into fly_user_permission
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -31,12 +31,12 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按id删除权限 -->
-	<delete id="deletePermission" parameterType="Integer">
+	<delete id="deletePermission">
 		delete from fly_user_permission where id=#{id}
 	</delete>
 
 	<!-- 按id删除权限管理信息 -->
-	<delete id="deleteGroupPermission" parameterType="Integer">
+	<delete id="deleteGroupPermission">
 		delete from fly_user_group_permission_merge where permission_id=#{permissionId}
 	</delete>
 	<!-- ############################## -->

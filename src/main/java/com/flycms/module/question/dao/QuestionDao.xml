@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 增加问题信息-->
-	<insert id="addQuestion" useGeneratedKeys="true" keyProperty="id">
+	<insert id="addQuestion">
 		insert into fly_question
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -48,7 +48,7 @@
 	</insert>
 
 	<!-- 添加关注问题关联-->
-	<insert id="addQuestionFollow" useGeneratedKeys="true" keyProperty="id">
+	<insert id="addQuestionFollow">
 		insert into fly_question_follow_merge
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -66,17 +66,17 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按问题id删除主表信息 -->
-	<delete id="deleteQuestionById" parameterType="Integer">
+	<delete id="deleteQuestionById">
 		delete from fly_question where id=#{questionId}
 	</delete>
 
 	<!-- 按问题id删除问题相关统计信息 -->
-	<delete id="deleteQuestionCountById" parameterType="Integer">
+	<delete id="deleteQuestionCountById">
 		delete from fly_question_count where question_id=#{questionId}
 	</delete>
 
 	<!-- 按问题id和用户id删除关注关联信息 -->
-	<delete id="deleteQuestionFollow" parameterType="Integer">
+	<delete id="deleteQuestionFollow">
 		delete from fly_question_follow_merge
 		<where>
 			<if test="questionId != null and questionId !=''">and question_id=#{questionId}</if>

@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 添加用户feed信息 -->
-	<insert id="addUserFeed" parameterType="Integer">
+	<insert id="addUserFeed">
 		insert into fly_feed
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -40,7 +40,7 @@
 	<!-- ###### 修改 ###### -->
 	<!-- ############################## -->
 	<!-- 修改该用户feed信息的审核状态 -->
-	<update id="updateuUserFeedById" parameterType="java.lang.Long">
+	<update id="updateuUserFeedById">
 		update fly_feed set status = #{status} where info_type=#{infoType} and info_id=#{infoId}
 	</update>
 

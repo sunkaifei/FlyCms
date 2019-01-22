@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 添加用户组信息 -->
-	<insert id="addUserGroup" useGeneratedKeys="true" keyProperty="id">
+	<insert id="addUserGroup">
 		insert into fly_user_group
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -51,12 +51,12 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按id删除角色信息 -->
-	<delete id="deleteUserGroup" parameterType="Integer">
+	<delete id="deleteUserGroup">
 		delete from fly_user_group where id = #{id}
 	</delete>
 
 	<!-- 按id删除角色和权限关联信息 -->
-	<delete id="deleteUserGroupPermission" parameterType="Integer">
+	<delete id="deleteUserGroupPermission">
 		delete from fly_user_group_permission_merge
 		<where>
 			<if test="groupId != null and groupId !='' ">and group_id=#{groupId}</if>

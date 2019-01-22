@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 增加话题信息-->
-	<insert id="addTopic" useGeneratedKeys="true" keyProperty="id">
+	<insert id="addTopic">
 		insert into fly_topic
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -49,7 +49,7 @@
 	</insert>
 
 	<!-- 添加话题分类信息-->
-	<insert id="addTopicCategory" useGeneratedKeys="true" keyProperty="id">
+	<insert id="addTopicCategory">
 		insert into fly_topic_category
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">

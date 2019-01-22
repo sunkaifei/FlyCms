@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 添加资源分享分类 -->
-	<insert id="addShareCategory" useGeneratedKeys="true" keyProperty="id">
+	<insert id="addShareCategory">
 		insert into fly_share_category
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -42,7 +42,7 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按分类id删除该资源分享分类信息 -->
-	<delete id="deleteShareCategoryById" parameterType="Integer">
+	<delete id="deleteShareCategoryById">
 		delete from fly_share_category where id=#{id}
 	</delete>
 

@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 添加分享内容 -->
-	<insert id="saveShare" useGeneratedKeys="true" keyProperty="id">
+	<insert id="saveShare">
 		insert into fly_share
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -54,7 +54,7 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按分享id删除信息 -->
-	<delete id="deleteShareById" parameterType="Integer">
+	<delete id="deleteShareById">
 		delete from fly_share where id=#{id}
 	</delete>
 

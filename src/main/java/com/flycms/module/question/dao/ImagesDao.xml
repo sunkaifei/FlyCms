@@ -9,7 +9,7 @@
 	<!-- ############################## -->
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
-	<insert id="addImages" useGeneratedKeys="true" keyProperty="id">
+	<insert id="addImages">
 		insert into fly_images
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -67,22 +67,22 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按图片id删除图片信息 -->
-	<delete id="deleteImagesById" parameterType="Integer">
+	<delete id="deleteImagesById">
 		delete from fly_images where id=#{id}
 	</delete>
 
 	<!-- 按图片地址删除图片信息 -->
-	<delete id="deleteImagesByimgurl" parameterType="Integer">
+	<delete id="deleteImagesByimgurl">
 		delete from fly_images where imgurl=#{imgurl}
 	</delete>
 
 	<!-- 按信息分类和内容id删除图片信息 -->
-	<delete id="deleteImagesByTid" parameterType="Integer">
+	<delete id="deleteImagesByTid">
 		delete from fly_images where channel_id = #{channelId} and tid=#{tid}
 	</delete>
 
 	<!-- 按图片路径删除数据-->
-	<delete id="deleteImagesByTidAndImgurl" parameterType="Integer">
+	<delete id="deleteImagesByTidAndImgurl">
 		delete from fly_images where tid=#{tid} and imgurl=#{imgurl}
 	</delete>
 

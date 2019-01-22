@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 增加答案信息-->
-	<insert id="addAnswer" useGeneratedKeys="true" keyProperty="id">
+	<insert id="addAnswer">
 		insert into fly_answer
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -49,12 +49,12 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按答案id答案主表信息 -->
-	<delete id="deleteAnswerById" parameterType="Integer">
+	<delete id="deleteAnswerById">
 		delete from fly_answer where id=#{id}
 	</delete>
 
 	<!-- 按答案id删除答案相关统计信息 -->
-	<delete id="deleteAnswerCountById" parameterType="Integer">
+	<delete id="deleteAnswerCountById">
 		delete from fly_answer_count where answer_id=#{answerId}
 	</delete>
 	<!-- ############################## -->

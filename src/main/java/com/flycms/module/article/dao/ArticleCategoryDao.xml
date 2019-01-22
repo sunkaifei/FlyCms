@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 添加文章分类 -->
-	<insert id="addArticleCategory" useGeneratedKeys="true" keyProperty="id">
+	<insert id="addArticleCategory">
 		insert into fly_article_category
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -40,7 +40,7 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按分类id删除该分类信息 -->
-	<delete id="deleteArticleCategoryById" parameterType="Integer">
+	<delete id="deleteArticleCategoryById">
 		delete from fly_article_category where id=#{id}
 	</delete>
 
