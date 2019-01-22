@@ -25,10 +25,13 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @Service
 public class SolrService {
@@ -345,7 +348,7 @@ public class SolrService {
      * @throws SolrServerException
      * @throws ParseException
      */
-    public PageVo<Info> searchInfo(String title, Integer userId, Integer infoType, Integer categoryId, String notId,String orderby,int page,int rows) throws IOException, SolrServerException, ParseException {
+    public PageVo<Info> searchInfo(String title, Long userId, Integer infoType, Long categoryId, String notId, String orderby, int page, int rows) throws IOException, SolrServerException, ParseException {
         PageVo<Info> pageVo = new PageVo<Info>(page);
         pageVo.setRows(rows);
         if(page<1){
@@ -429,7 +432,7 @@ public class SolrService {
             bean = new Info();
             bean.setId(solrDocument.getFieldValue("id").toString());
             bean.setShortUrl(solrDocument.getFieldValue("shortUrl").toString());
-            bean.setUserId(Integer.parseInt(solrDocument.getFieldValue("userId").toString()));
+            bean.setUserId(Long.parseLong(solrDocument.getFieldValue("userId").toString()));
             bean.setTitle(solrDocument.getFieldValue("title").toString());
             bean.setInfoId(Long.parseLong(solrDocument.getFieldValue("infoId").toString()));
             bean.setInfoType(Integer.parseInt(solrDocument.getFieldValue("infoType").toString()));

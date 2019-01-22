@@ -38,11 +38,11 @@ public class Infopage extends AbstractTagPlugin {
 		//问题id
 		String title = null;
 		//用户id
-		Integer userId = null;
+		Long userId = null;
 		//信息类型，0是全部，1问答，2文章，3分享
 		Integer infoType = null;
 		//按信息分类id查询
-		Integer categoryId = null;
+		Long categoryId = null;
 		//需要排除id
 		String notId=null;
 		//排序规则,recommend按推荐值排序，weight按权重值排序
@@ -58,7 +58,7 @@ public class Infopage extends AbstractTagPlugin {
 				title = paramWrap.get(str).toString();
 			}
 			if("userId".equals(str)){
-				userId = Integer.parseInt(paramWrap.get(str).toString());
+				userId = Long.parseLong(paramWrap.get(str).toString());
 			}
 			if("infoType".equals(str)){
 				if(!StringUtils.isBlank(paramWrap.get(str).toString())) {
@@ -74,7 +74,7 @@ public class Infopage extends AbstractTagPlugin {
 			}
 			if("categoryId".equals(str)){
 				if(!StringUtils.isBlank(paramWrap.get(str).toString())){
-					categoryId = Integer.parseInt(paramWrap.get(str).toString());
+					categoryId = Long.parseLong(paramWrap.get(str).toString());
 				}else{
 					categoryId = null;
 				}

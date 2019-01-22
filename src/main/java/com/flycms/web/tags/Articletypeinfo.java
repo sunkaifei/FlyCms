@@ -33,7 +33,7 @@ public class Articletypeinfo extends AbstractTagPlugin {
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
-		long id = 0;
+		Long id = null;
 		Integer status = 2;
 		
 		@SuppressWarnings("unchecked")

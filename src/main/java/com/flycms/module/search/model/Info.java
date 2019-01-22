@@ -21,11 +21,11 @@ public class Info {
     //短域名
     private String shortUrl;
     //用户id
-    private Integer userId;
+    private Long userId;
     //信息标题
     private String title;
     //信息id
-    private long infoId;
+    private Long infoId;
     //信息类型
     private Integer infoType;
     //信息分类搜索id

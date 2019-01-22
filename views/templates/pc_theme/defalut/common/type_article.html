@@ -1,4 +1,4 @@
-                            <@fly_articleinfo id="${list.infoId?c}">
+                            <@fly_articleinfo id="${list.infoId}">
                             <div class="index-list-item" data-info-type="1" data-info-id="${article.id!}" data-user-id="${article.userId!}">
                                 <#if user??>
                                 <#if article.userId != user.userId><button data-user-id="${article.userId!}" class="Button button-blue right-close <@fly_checkfollow userFollow="${article.userId!}" userFans="${user.userId!}"><#if result gt 0> btn-primary button-grey</#if></@fly_checkfollow> userFollow-button" style="display: block;"><@fly_checkfollow userFollow="${article.userId!}" userFans="${user.userId!}"><#if result=1>已关注<#elseif result=2>互相关注<#else><i class="fa fa-plus"></i> 关注他</#if></@fly_checkfollow></button></#if>
