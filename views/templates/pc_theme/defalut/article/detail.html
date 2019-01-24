@@ -39,7 +39,7 @@
                             <ul class="list-inline text-muted">
                                 <li><i class="fa fa-clock-o"></i> 发表于 <@fly_dateformat time=article.createTime?string('yyyy-MM-dd HH:mm:ss') /> </li>
                                 <li>阅读 ( ${article.countView!} )</li>
-                                <li>分类：<a href="/ac/${article.typeId!}" target="_blank"><@fly_articletypeinfo id="${article.typeId!}">${type.name!}</@fly_articletypeinfo></a></li>
+                                <#if article.typeId gt 0><li>分类：<a href="/ac/${article.typeId!}" target="_blank"><@fly_articletypeinfo id="${article.typeId!}">${type.name!}</@fly_articletypeinfo></a></li></#if>
                             </ul>
                         </div>
                     </div>

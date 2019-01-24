@@ -10,7 +10,7 @@
 	<!-- ######       增加       ###### -->
 	<!-- ############################## -->
 	<!-- 添加用户注册信息 -->
-	<insert id="addUser">
+	<insert id="addUser" useGeneratedKeys="true" keyProperty="userId">
 		insert into fly_user
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -55,7 +55,7 @@
 	</insert>
 
     <!-- 添加用户统计表 -->
-    <insert id="addUserCount">
+    <insert id="addUserCount" parameterType="Integer">
         insert into fly_user_count
         <!-- 添加表字段 -->
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -87,7 +87,7 @@
 	</insert>
 
 	<!-- 添加用户关联信息 -->
-	<insert id="addUserAccount">
+	<insert id="addUserAccount" parameterType="Integer">
 		insert into fly_user_account
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -100,7 +100,7 @@
 	</insert>
 
     <!-- 添加用户与权限组关联信息 -->
-    <insert id="addUserAndGroup">
+    <insert id="addUserAndGroup" parameterType="Integer">
         insert into fly_user_group_merge
         <!-- 添加表字段 -->
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -115,7 +115,7 @@
     </insert>
 
     <!-- 添加用户注册验证操作记录 -->
-    <insert id="addUserActivation">
+    <insert id="addUserActivation" parameterType="Integer">
         insert into fly_user_activation
         <!--  添加表字段  -->
         <trim prefix="(" suffix=")" suffixOverrides=",">

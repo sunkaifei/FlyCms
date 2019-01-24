@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 增加答案信息-->
-	<insert id="addAnswer">
+	<insert id="addAnswer" useGeneratedKeys="true" keyProperty="id">
 		insert into fly_answer
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">

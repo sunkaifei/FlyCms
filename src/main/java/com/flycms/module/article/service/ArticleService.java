@@ -70,7 +70,12 @@ public class ArticleService {
         if(StringUtils.isBlank(article.getContent())){
             return data=DataVo.failure("内容不能为空！");
         }
-        if(StringUtils.isBlank(article.getCategoryId())){
+        if(StringUtils.isBlank(article.getCategoryId()) || article.getCategoryId().length() < 2){
+            return data=DataVo.failure("必须选择文章分类！");
+        }
+        //转换为数组
+        String[] str = article.getCategoryId().split(",");
+        if((new Long(0)).equals(Long.parseLong(str[str.length - 1]))){
             return data=DataVo.failure("必须选择文章分类！");
         }
         if(this.checkArticleByTitle(article.getTitle(),article.getUserId(),0L)){
@@ -106,10 +111,10 @@ public class ArticleService {
         article.setTitle(StringEscapeUtils.escapeHtml4(article.getTitle()));
         article.setCreateTime(new Date());
         article.setStatus(Integer.parseInt(configService.getStringByKey("user_article_verify")));
-        article.setContent(imagesService.replaceContent(1,article.getId(),article.getUserId(),article.getContent()));
+        article.setContent(imagesService.replaceContent(2,article.getId(),article.getUserId(),article.getContent()));
         int totalCount=articleDao.addArticle(article);
         if(totalCount > 0) {
-            articleDao.addArticleAndCategory(article.getId(), article.getCategoryId(), Integer.valueOf(str[str.length - 1]));
+            articleDao.addArticleAndCategory(article.getId(), article.getCategoryId(), Long.parseLong(str[str.length - 1]));
             //添加用户feed信息
             feedService.addUserFeed(article.getUserId(), 1, article.getId());
             //添加文章统计关联数据
@@ -173,6 +178,7 @@ public class ArticleService {
         //按id删除文章统计关联
         articleDao.deleteArticleAndCcategoryById(id);
         feedService.deleteUserFeed(article.getUserId(),1,article.getId());
+        topicService.deleteTopicAndInfoUpCount(1,article.getId());
         solrService.indexDeleteInfo(1,article.getId());
         userService.updateArticleCount(article.getUserId());
         data = DataVo.jump("删除成功！","/admin/article/article_list");
@@ -192,7 +198,12 @@ public class ArticleService {
         if(StringUtils.isBlank(article.getContent())){
             return data=DataVo.failure("内容不能为空！");
         }
-        if(StringUtils.isBlank(article.getCategoryId())){
+        if(StringUtils.isBlank(article.getCategoryId()) || article.getCategoryId().length() < 2){
+            return data=DataVo.failure("必须选择文章分类！");
+        }
+        //转换为数组
+        String[] str = article.getCategoryId().split(",");
+        if((new Long(0)).equals(Long.parseLong(str[str.length - 1]))){
             return data=DataVo.failure("必须选择文章分类！");
         }
         if(this.checkArticleByTitle(article.getTitle(),article.getUserId(),article.getId())){
@@ -205,11 +216,9 @@ public class ArticleService {
         if (tags.length>5) {
             return DataVo.failure("话题数不能大于5个");
         }
-        //转换为数组
-        String[] str = article.getCategoryId().split(",");
         article.setUpdateTime(new Date());
         article.setStatus(Integer.parseInt(configService.getStringByKey("user_article_verify")));
-        article.setContent(imagesService.replaceContent(article.getContent(),article.getUserId()));
+        article.setContent(imagesService.replaceContent(2,article.getId(),article.getUserId(),article.getContent()));
         int totalCount=articleDao.editArticleById(article);
         if(totalCount > 0){
             //修改分类信息
@@ -272,7 +281,7 @@ public class ArticleService {
                 feedService.updateuUserFeedById(1,article.getId(),1);
             }
             userService.updateArticleCount(article.getUserId());
-            solrService.indexQuestionId(article.getId());
+            solrService.indexArticleId(article.getId());
             //更新权重
             //this.weight(article,null);
         }else{

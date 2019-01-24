@@ -8,9 +8,9 @@ import java.io.Serializable;
 @Setter
 @Getter
 public class Attribute implements Serializable {
-    private Integer id;
+    private Long id;
 
-    private Integer modelId;
+    private Long modelId;
 
     private Integer type;
 

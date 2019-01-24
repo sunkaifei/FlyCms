@@ -59,13 +59,12 @@ public class AnswerService {
         if(checkAnswerByContent(userId,content)){
             return data= DataVo.failure("请勿重复发表相同内容");
         }
-        content=imagesService.replaceContent(content,userId);
         Answer answer=new Answer();
         SnowFlake snowFlake = new SnowFlake(2, 3);
         answer.setId(snowFlake.nextId());
         answer.setQuestionId(questionId);
         answer.setUserId(userId);
-        answer.setContent(content);
+        answer.setContent(imagesService.replaceContent(1,answer.getId(),answer.getUserId(),content));
         answer.setCreateTime(new Date());
         answer.setStatus(Integer.parseInt(configService.getStringByKey("user_answer_verify")));
         int totalCount=answerDao.addAnswer(answer);
@@ -178,7 +177,7 @@ public class AnswerService {
         if(answer==null){
             return data = DataVo.failure("该答案不存在或已删除");
         }
-        answer.setContent(imagesService.replaceContent(content,answer.getUserId()));
+        answer.setContent(imagesService.replaceContent(1,answer.getId(),answer.getUserId(),answer.getContent()));
         answer.setLastTime(new Date());
         Question question=questionService.findQuestionById(answer.getQuestionId(),0);
         if(question.getStatus()!=1){

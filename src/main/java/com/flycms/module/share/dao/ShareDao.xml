@@ -58,6 +58,25 @@
 		delete from fly_share where id=#{id}
 	</delete>
 
+	<!-- 按分享id删除统计信息 -->
+	<delete id="deleteShareCountById">
+		delete from fly_share_count where id=#{id}
+	</delete>
+
+	<!-- 删除分类id和分享id关联该信息 -->
+	<delete id="deleteShareCategoryMergeById">
+		delete from fly_share_category_merge where share_id=#{shareId}
+	</delete>
+
+	<!-- 按id删除文章评论内容 -->
+	<delete id="deleteShareCommentById">
+		delete from fly_share_comment where share_id=#{shareId}
+	</delete>
+
+	<!-- 按文章id删除用户顶或者踩记录 -->
+	<delete id="deleteAllShareVotesById">
+		delete from fly_share_votes where share_id=#{shareId}
+	</delete>
 	<!-- ############################## -->
 	<!-- ###### 修改 ###### -->
 	<!-- ############################## -->

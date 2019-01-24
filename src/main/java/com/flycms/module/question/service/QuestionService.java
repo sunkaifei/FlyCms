@@ -93,7 +93,7 @@ public class QuestionService {
                 feedService.addUserFeed(userId,0,question.getId());
                 userService.updateQuestionCount(userId);
                 solrService.indexQuestionId(question.getId());
-                data=DataVo.jump("已成功提交", "/question/" + question.getId());
+                data=DataVo.jump("已成功提交", "/q/" + question.getShortUrl());
             }else{
                 data=DataVo.jump("已成功提交,等待审核", "/search?s=" + question.getTitle());
             }
@@ -145,6 +145,10 @@ public class QuestionService {
             }
             //按问题id删除问题相关统计信息
             questionDao.deleteQuestionCountById(question.getId());
+
+            feedService.deleteUserFeed(question.getUserId(),0,question.getId());
+
+            topicService.deleteTopicAndInfoUpCount(0,question.getId());
             //清除本id相关联的关联数据
             questionDao.deleteQuestionFollow(question.getId(),null);
             //更新该问题用户的提问数量
@@ -228,7 +232,7 @@ public class QuestionService {
      * @return
      */
     @Cacheable(value = "question",key="#id")
-    public Question findQuestionById(long id, Integer status){
+    public Question findQuestionById(Long id, Integer status){
         return questionDao.findQuestionById(id,status);
     }
 

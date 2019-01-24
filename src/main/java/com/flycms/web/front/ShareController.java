@@ -85,7 +85,7 @@ public class ShareController extends BaseController {
     }
 
     //发布分享资源
-    @GetMapping(value = "/share/add")
+    @GetMapping(value = "/ucenter/share/add")
     public String addShare(ModelMap modelMap){
         if (getUser() != null) {
             modelMap.addAttribute("user", getUser());

@@ -73,7 +73,7 @@ public class QuestionController extends BaseController {
             return data = DataVo.failure("id参数错误");
         }
         Map<String, Object> map = new HashMap<>();
-        Question question=questionService.findQuestionById(Integer.valueOf(id),2);
+        Question question=questionService.findQuestionById(Long.parseLong(id),2);
         if(question==null){
             return data = DataVo.failure("该内容不存在或者未审核！");
         }else{
@@ -130,7 +130,7 @@ public class QuestionController extends BaseController {
         if (!NumberUtils.isNumber(id)) {
             return theme.getPcTemplate("404");
         }
-        Question question=questionService.findQuestionById(Integer.valueOf(id),0);
+        Question question=questionService.findQuestionById(Long.parseLong(id),0);
         if (question == null) {
             return theme.getPcTemplate("404");
         }
@@ -149,7 +149,7 @@ public class QuestionController extends BaseController {
             if (!NumberUtils.isNumber(questionId)) {
                 return data=DataVo.failure("话题参数错误");
             }
-            Question question=questionService.findQuestionById(Integer.valueOf(questionId),2);
+            Question question=questionService.findQuestionById(Long.parseLong(questionId),2);
             if(question==null){
                 return data=DataVo.failure("该话题不存在或已删除");
             }

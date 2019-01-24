@@ -25,13 +25,10 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 @Service
 public class SolrService {
@@ -348,7 +345,7 @@ public class SolrService {
      * @throws SolrServerException
      * @throws ParseException
      */
-    public PageVo<Info> searchInfo(String title, Long userId, Integer infoType, Long categoryId, String notId, String orderby, int page, int rows) throws IOException, SolrServerException, ParseException {
+    public PageVo<Info> searchInfo(String title, Long userId, Integer infoType, Long categoryId, String notId,String orderby,int page,int rows) throws IOException, SolrServerException, ParseException {
         PageVo<Info> pageVo = new PageVo<Info>(page);
         pageVo.setRows(rows);
         if(page<1){

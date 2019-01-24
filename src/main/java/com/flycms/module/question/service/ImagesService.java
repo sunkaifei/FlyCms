@@ -51,62 +51,17 @@ public class ImagesService {
 	// ///////////////////////////////
 	// ///// 增加 ////////
 	// ///////////////////////////////
-
-    /**
-     * 保存内容中的图片本地化路径处理
-     *
-     * @param content
-     *        需要分析的内容
-     * @return
-     * @throws Exception
-     */
-    public String replaceContent(String content,long userId) throws Exception {
-        Pattern pRemoteFileurl = Pattern.compile("<img.*?src=\"?(.*?)(\"|>|\\s+)");
-        Matcher mRemoteFileurl = pRemoteFileurl.matcher(content);
-        StringBuffer sb = new StringBuffer();
-        String remoteFileurl = null;
-        int nFileNum = 0;
-        String imgpath = getImgPath();
-        StringBuffer imgBuffer = new StringBuffer();
-        while (mRemoteFileurl.find()) {
-            remoteFileurl = mRemoteFileurl.group(1);
-            String extension = StringHelperUtils.getImageUrlSuffix(remoteFileurl);
-            extension = "." + extension;
-            SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-            String filename = Md5Utils.code(df.format(new Date()) + nFileNum, 16) + "_"+ nFileNum + extension;
-            String reg = "(?!.*((img.baidu.com)|(127.0.0.1)|(^/upload/content/))).*$";
-            String pathac ="";
-            if (remoteFileurl.matches(reg)) {
-                saveUrlAs(remoteFileurl, Const.UPLOAD_PATH+imgpath + filename);
-                pathac = imgpath + filename;
-                mRemoteFileurl.appendReplacement(sb, "<img src=\"" + pathac+"\" ");
-                if (imgBuffer.toString().length() < 1) {
-                    imgBuffer.append(imgpath + filename);
-                } else {
-                    imgBuffer.append(";").append(imgpath + filename);
-                }
-                nFileNum = nFileNum + 1;
-            } else {
-                if (getContentUrl(remoteFileurl)) {
-                    if(FileUtils.isFile(Const.UPLOAD_PATH + "/" + StringHelperUtils.getImageRootUrl(remoteFileurl))){  //判断文件是否存在，不存在则不执行
-                        FileUtils.moveFile(Const.UPLOAD_PATH + "/" + StringHelperUtils.getImageRootUrl(remoteFileurl),Const.UPLOAD_PATH + imgpath + filename);//开始移动文件
-                    }
-                    pathac = imgpath + filename;
-                    mRemoteFileurl.appendReplacement(sb, "<img src=\"" + pathac+"\" ");
-                }
-            }
-        }
-        mRemoteFileurl.appendTail(sb);
-        return sb.toString();
-    }
-
-
-
 	/**
 	 * 保存内容中的图片本地化路径处理
 	 *
+	 * @param typeId
+	 *         信息类型，0问题，1答案，2文章，3分享
+	 * @param infoId
+	 *         信息id
+	 * @param userId
+	 *         用户id
 	 * @param content
-	 *        需要分析的内容
+	 *         需要分析处理并下载的内容
 	 * @return
 	 * @throws Exception
 	 */
@@ -120,17 +75,14 @@ public class ImagesService {
 		String imgpath = getImgPath();
 		StringBuffer imgBuffer = new StringBuffer();
 		while (mRemoteFileurl.find()) {
-			System.out.println("==================nFileNum================:"+nFileNum);
 			remoteFileurl = mRemoteFileurl.group(1);
 			String extension = StringHelperUtils.getImageUrlSuffix(remoteFileurl);
 			extension = "." + extension;
 			SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
 			String filename = Md5Utils.code(df.format(new Date()) + nFileNum, 16) + "_"+ nFileNum + extension;
 			String reg = "(?!.*((img.baidu.com)|(127.0.0.1)|(^/upload/content/))).*$";
-			System.out.println(remoteFileurl+"==================filename================:"+filename+"=========="+remoteFileurl.matches(reg));
 			String pathac ="";
 			if (remoteFileurl.matches(reg)) {
-				System.out.println("==================22222222222222222================:"+nFileNum);
 				saveUrlAs(remoteFileurl, Const.UPLOAD_PATH+imgpath + filename);
 				pathac = imgpath + filename;
 				mRemoteFileurl.appendReplacement(sb, "<img src=\"" + pathac+"\" ");
@@ -141,9 +93,7 @@ public class ImagesService {
 				}
 				nFileNum = nFileNum + 1;
 			} else {
-				System.out.println("==================111111111================:");
 				if (getContentUrl(remoteFileurl)) {
-					System.out.println("==================22222222222222222================:");
 					if(FileUtils.isFile(Const.UPLOAD_PATH + "/" + StringHelperUtils.getImageRootUrl(remoteFileurl))){  //判断文件是否存在，不存在则不执行
 						FileUtils.moveFile(Const.UPLOAD_PATH + "/" + StringHelperUtils.getImageRootUrl(remoteFileurl),Const.UPLOAD_PATH + imgpath + filename);//开始移动文件
 					}
@@ -159,22 +109,11 @@ public class ImagesService {
 			} else {
 				pictureUrl =  remoteFileurl;
 			}
-			System.out.println("==================33333333333333333333333================:"+ pictureUrl);
 			Images imaData=this.findImagesByImgurl(pictureUrl);
 			if(imaData==null){
-				System.out.println(remoteFileurl+"========fffff========="+getContentUrl(remoteFileurl)+"================="+Const.UPLOAD_PATH +imgpath + filename);
-
-				if(getContentUrl(remoteFileurl)){
-					pictureUrl = Const.UPLOAD_PATH +imgpath + filename;
-				}else{
-					pictureUrl = Const.UPLOAD_PATH + remoteFileurl;
-				}
-				File picture = new File(pictureUrl);
-				System.out.println("==================444444================:"+pictureUrl);
+				File picture = new File(Const.UPLOAD_PATH +imgpath + filename);
 				FileInputStream fis = new FileInputStream(picture);
-				System.out.println("==================5555555================:");
 				BufferedImage sourceImg = ImageIO.read(fis);
-				System.out.println("==================6666666================:");
 				Images images = new Images();
 				images.setId(snowFlake.nextId());
 				images.setImgUrl(imgpath + filename);
@@ -548,6 +487,10 @@ public class ImagesService {
 		Matcher matcher = p.matcher(url);
 		return matcher.find();
 	}
+	public static void main(String[] args) {
+		System.out.println(getContentUrl("/upload/content/2019/1/24/30EC1B7906CBFC8B_0.png"));
 
+
+	}
 
 }

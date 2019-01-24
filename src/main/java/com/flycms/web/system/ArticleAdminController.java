@@ -127,7 +127,7 @@ public class ArticleAdminController extends BaseController {
     //文章
     @PostMapping("/del")
     @ResponseBody
-    public DataVo deleteRole(@RequestParam(value = "id") Long id){
+    public DataVo deleteArticleById(@RequestParam(value = "id") Long id){
         DataVo data = DataVo.failure("操作失败");
         data = articleService.deleteArticleById(id);
         return data;

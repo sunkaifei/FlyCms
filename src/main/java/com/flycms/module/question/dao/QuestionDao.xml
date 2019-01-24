@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 增加问题信息-->
-	<insert id="addQuestion">
+	<insert id="addQuestion" useGeneratedKeys="true" keyProperty="id">
 		insert into fly_question
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -48,7 +48,7 @@
 	</insert>
 
 	<!-- 添加关注问题关联-->
-	<insert id="addQuestionFollow">
+	<insert id="addQuestionFollow" useGeneratedKeys="true" keyProperty="id">
 		insert into fly_question_follow_merge
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">

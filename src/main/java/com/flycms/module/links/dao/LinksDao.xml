@@ -9,7 +9,7 @@
 	<!-- ############################## -->
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
-	<insert id="addLinks">
+	<insert id="addLinks" parameterType="com.flycms.module.links.model.Links">
 		insert into fly_links
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">

@@ -10,7 +10,7 @@
 	<!-- ###### 增加 ###### -->
 	<!-- ############################## -->
 	<!-- 添加文章 -->
-	<insert id="addArticle">
+	<insert id="addArticle" useGeneratedKeys="true" keyProperty="id">
 		insert into fly_article
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -73,7 +73,7 @@
 	</insert>
 
 	<!-- 添加文章评论内容-->
-	<insert id="addArticleComment">
+	<insert id="addArticleComment" useGeneratedKeys="true" keyProperty="id">
 		insert into fly_article_comment
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
@@ -117,32 +117,32 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
 	<!-- 按id删除文章信息 -->
-	<delete id="deleteArticleById">
+	<delete id="deleteArticleById" parameterType="java.lang.Long">
 		delete from fly_article where id=#{id}
 	</delete>
 
     <!-- 按id删除文章统计关联 -->
-    <delete id="deleteArticleCountById">
+    <delete id="deleteArticleCountById" parameterType="java.lang.Long">
 		delete from fly_article_count where article_id=#{articleId}
 	</delete>
 
     <!-- 按id删除文章评论内容 -->
-    <delete id="deleteArticleCommentById">
+    <delete id="deleteArticleCommentById" parameterType="java.lang.Long">
 		delete from fly_article_comment where article_id=#{articleId}
 	</delete>
 
 	<!-- 按id删除文章和分类关联 -->
-	<delete id="deleteArticleAndCcategoryById">
+	<delete id="deleteArticleAndCcategoryById" parameterType="java.lang.Long">
 		delete from fly_article_category_merge where article_id=#{articleId}
 	</delete>
 
     <!-- 按文章id删除用户顶或者踩记录 -->
-    <delete id="deleteAllArticleVotesById">
-		delete from fly_article_votes where info_id=#{articleId}
+    <delete id="deleteAllArticleVotesById" parameterType="java.lang.Long">
+		delete from fly_article_votes where article_id=#{articleId}
 	</delete>
 
 	<!-- 按信息类型id、文章id、用户id删除用户顶或者踩记录 -->
-	<delete id="deleteArticleVotesById">
+	<delete id="deleteArticleVotesById" parameterType="java.lang.Long">
 		delete from fly_article_votes where info_type= #{infoType} and info_id=#{infoId} and user_id = #{userId}
 	</delete>
 	<!-- ############################## -->

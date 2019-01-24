@@ -35,7 +35,15 @@ public interface ShareDao {
     // ///////////////////////////////
     // /////        刪除      ////////
     // ///////////////////////////////
+    public int deleteShareById(Long id);
 
+    public int deleteShareCountById(Long id);
+
+    public int deleteShareCategoryMergeById(Long shareId);
+
+    public int deleteShareCommentById(Long shareId);
+
+    public int deleteAllShareVotesById(Long shareId);
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////

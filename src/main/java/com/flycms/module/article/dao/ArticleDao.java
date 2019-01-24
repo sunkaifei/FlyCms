@@ -26,10 +26,10 @@ public interface ArticleDao {
     public int addArticle(Article article);
 
     //添加文章统计关联数据
-    public int addArticleCount(@Param("articleId") long articleId);
+    public int addArticleCount(@Param("articleId") Long articleId);
 
     //按id查询文章信息
-    public int addArticleAndCategory(@Param("articleId") long articleId,@Param("categoryId") String categoryId,@Param("typeId") Integer typeId);
+    public int addArticleAndCategory(@Param("articleId") Long articleId,@Param("categoryId") String categoryId,@Param("typeId") Long typeId);
 
     //添加文章评论内容
     public int addArticleComment(ArticleComment articleComment);
@@ -40,19 +40,19 @@ public interface ArticleDao {
     // /////        刪除      ////////
     // ///////////////////////////////
     //按id删除文章信息
-    public Long deleteArticleById(@Param("id") long id);
+    public Long deleteArticleById(@Param("id") Long id);
 
     //按id删除文章统计关联
-    public Long deleteArticleCountById(@Param("articleId") long articleId);
+    public Long deleteArticleCountById(@Param("articleId") Long articleId);
 
     //按id删除文章评论内容
-    public Long deleteArticleCommentById(@Param("articleId") long articleId);
+    public Long deleteArticleCommentById(@Param("articleId") Long articleId);
 
     //按id删除文章和分类关联
-    public Long deleteArticleAndCcategoryById(@Param("articleId") long articleId);
+    public Long deleteArticleAndCcategoryById(@Param("articleId") Long articleId);
 
     //按文章id删除用户顶或者踩记录
-    public Long deleteAllArticleVotesById(@Param("articleId") long articleId);
+    public Long deleteAllArticleVotesById(@Param("articleId") Long articleId);
 
     /**
      * 按信息类型id、文章id、用户id删除用户顶或者踩记录
@@ -87,7 +87,7 @@ public interface ArticleDao {
     public int updateArticleStatusById(@Param("id") Long id,@Param("status") Integer status,@Param("recommend") Integer recommend);
 
     //按id更新文章分类
-    public int editArticleAndCcategoryById(@Param("categoryId") String categoryId,@Param("typeId") Integer typeId,@Param("articleId") long articleId);
+    public int editArticleAndCcategoryById(@Param("categoryId") String categoryId,@Param("typeId") Integer typeId,@Param("articleId") Long articleId);
 
     /**
      * 更新文章被评论的数量

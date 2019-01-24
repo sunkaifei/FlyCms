@@ -45,7 +45,7 @@ public class QuestionAdminController extends BaseController {
             if (!NumberUtils.isNumber(id)) {
                 return data = DataVo.failure("id参数错误");
             }
-            Question question=questionService.findQuestionById(Integer.valueOf(id),0);
+            Question question=questionService.findQuestionById(Long.parseLong(id),0);
             if(question==null) {
                 return DataVo.failure("id错误或不存在！");
             }else {
@@ -81,8 +81,8 @@ public class QuestionAdminController extends BaseController {
 
     //编辑问题内容
     @GetMapping(value = "/edit_question/{id}")
-    public String editQuestion(@PathVariable int id,ModelMap modelMap){
-        Question question=questionService.findQuestionById(id,0);
+    public String editQuestion(@PathVariable String id,ModelMap modelMap){
+        Question question=questionService.findQuestionById(Long.parseLong(id),0);
         modelMap.addAttribute("admin", getAdminUser());
         modelMap.addAttribute("question", question);
         return theme.getAdminTemplate("content/edit_question");

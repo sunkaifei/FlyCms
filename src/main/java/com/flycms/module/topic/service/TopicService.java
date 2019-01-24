@@ -111,7 +111,8 @@ public class TopicService {
      */
 	@Transactional
 	public int addTopicAndInfo(Long infoId,Long topicId,Integer infoType,Integer status){
-		return topicDao.addTopicAndInfo(infoId,topicId,infoType,status);
+		SnowFlake snowFlake = new SnowFlake(2, 3);
+		return topicDao.addTopicAndInfo(snowFlake.nextId(),infoId,topicId,infoType,status);
 	}
 	
 	/**

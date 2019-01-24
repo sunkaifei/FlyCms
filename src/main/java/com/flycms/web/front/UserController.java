@@ -577,11 +577,11 @@ public class UserController extends BaseController {
             if(getUser()==null){
                 return data=DataVo.failure("请登陆后关注");
             }
-            if(getUser().getUserId().equals(Long.parseLong(id))){
+            if((getUser().getUserId().equals(Long.parseLong(id)))){
                 return data=DataVo.failure("无法关注自己！");
             }
             data=userService.addUserFans(Long.parseLong(id),getUser().getUserId());
-       } catch (Exception e) {
+        } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }
         return data;

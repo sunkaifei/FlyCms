@@ -34,7 +34,7 @@
 	<!-- ###### 删除 ###### -->
 	<!-- ############################## -->
     <!-- 按id删除收藏信息 -->
-    <delete id="deleteFavoriteById">
+    <delete id="deleteFavoriteById" parameterType="Integer">
 		delete from fly_favorite where user_id= #{userId} and info_type= #{infoType} and info_id= #{infoId}
 	</delete>
 

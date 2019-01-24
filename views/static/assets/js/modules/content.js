@@ -335,6 +335,36 @@ define(function(require, exports, module) {
         return false;
     });
 
+    $(document).on('click', '.share-delete', function (){
+        var id = $(this).attr("data-id");
+        layer.confirm('您是确定删除本条答案？删除后将无法恢复！', {
+            btn: ['确定','取消'] //按钮
+        }, function(){
+            $.ajax({
+                url: "/system/share/del?"+Math.random(),
+                data: {"id":id},
+                dataType: "json",
+                type :  "POST",
+                cache : false,
+                async: false,
+                error : function(i, g, h) {
+                    layer.msg('发送错误', {icon: 2});
+                },
+                success: function(ret){
+                    if (ret.code >= 0) {
+                        layer.msg("删除成功！", {icon: 1});
+                        window.location.reload();
+                        return false;
+                    } else {
+                        layer.msg(ret.message, {icon: 5});
+                        return false;
+                    }
+                }
+            });
+        }, function(){
+        });
+    });
+
     /* 分享审核 */
     $(document).on('click', '.share-status', function (){
         var id = $(this).attr("data-id");

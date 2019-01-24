@@ -100,7 +100,30 @@ public class ShareService {
     // ///////////////////////////////
     // /////        刪除      ////////
     // ///////////////////////////////
-
+    @CacheEvict(value = "share", allEntries = true)
+    @Transactional
+    public DataVo deleteShareById(Long id) {
+        DataVo data = DataVo.failure("操作失败");
+        Share share=shareDao.findShareById(id,0);
+        if(share==null){
+            data=DataVo.failure("该信息不存在！");
+        }
+        shareDao.deleteShareById(id);
+        //删除统计
+        shareDao.deleteShareCountById(id);
+        //删除评论内容
+        shareDao.deleteShareCommentById(id);
+        //按文章id删除用户顶或者踩记录
+        shareDao.deleteAllShareVotesById(id);
+        //按id删除分享和分类关联记录
+        shareDao.deleteShareCategoryMergeById(id);
+        feedService.deleteUserFeed(share.getUserId(),2,share.getId());
+        topicService.deleteTopicAndInfoUpCount(2,share.getId());
+        solrService.indexDeleteInfo(2,share.getId());
+        userService.updateShareCount(share.getUserId());
+        data = DataVo.jump("删除成功！","/system/share/share_list");
+        return data;
+    }
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////

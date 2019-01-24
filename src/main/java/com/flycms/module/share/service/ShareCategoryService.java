@@ -85,7 +85,7 @@ public class ShareCategoryService {
     // /////        刪除      ////////
     // ///////////////////////////////
     @Transactional
-    public DataVo deleteShareCategoryById(Integer id) {
+    public DataVo deleteShareCategoryById(Long id) {
         DataVo data = DataVo.failure("操作失败");
         int totalCount =shareCategoryDao.deleteShareCategoryById(id);
         if(totalCount>0){

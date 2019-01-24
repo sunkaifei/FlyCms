@@ -115,6 +115,15 @@ public class ShareAdminController extends BaseController {
         return data;
     }
 
+    //删除分享
+    @PostMapping("/del")
+    @ResponseBody
+    public DataVo deleteShareById(@RequestParam(value = "id") Long id){
+        DataVo data = DataVo.failure("操作失败");
+        data = shareService.deleteShareById(id);
+        return data;
+    }
+
     //按父级id查询id下所有地区列表
     @ResponseBody
     @RequestMapping(value = "/category_child")
@@ -300,7 +309,7 @@ public class ShareAdminController extends BaseController {
             if (!NumberUtils.isNumber(id)) {
                 data = DataVo.failure("分类id错误！");
             }
-            data = shareCategoryService.deleteShareCategoryById(Integer.valueOf(id));
+            data = shareCategoryService.deleteShareCategoryById(Long.parseLong(id));
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
         }

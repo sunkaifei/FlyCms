@@ -35,7 +35,7 @@ public class Feedpage extends AbstractTagPlugin {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		// 获取页面的参数
 		//所属主信息类型，0是所有，1是文章，2是小组话题
-		Long userId=0L;
+		Long userId=null;
 
 		Integer status=2;
 		//翻页页数

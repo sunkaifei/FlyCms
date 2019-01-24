@@ -27,7 +27,7 @@ public interface ShareCategoryDao {
     // /////        刪除      ////////
     // ///////////////////////////////
     //按分类id删除该资源分享分类信息
-    public int deleteShareCategoryById(Integer id);
+    public int deleteShareCategoryById(Long id);
     // ///////////////////////////////
     // /////        修改      ////////
     // ///////////////////////////////

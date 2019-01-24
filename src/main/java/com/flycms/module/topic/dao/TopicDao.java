@@ -41,7 +41,7 @@ public interface TopicDao {
      *         信息显示状态，默认为显示，0不显示，1显示
      * @return
      */
-    public int addTopicAndInfo(@Param("infoId") Long infoId,@Param("topicId") Long topicId,@Param("infoType") Integer infoType,@Param("status") Integer status);
+    public int addTopicAndInfo(@Param("id") Long id,@Param("infoId") Long infoId,@Param("topicId") Long topicId,@Param("infoType") Integer infoType,@Param("status") Integer status);
 
     /**
      * 添加用户关注的关注的标签id
