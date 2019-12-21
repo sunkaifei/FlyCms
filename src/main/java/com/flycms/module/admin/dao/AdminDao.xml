@@ -3,7 +3,7 @@
 
 <!-- Open source house, All rights reserved. -->
 <!-- 开源之家 版权所有 -->
-<!-- http://www.28844.com -->
+<!-- http://www.97560.com -->
 
 <mapper namespace="com.flycms.module.admin.dao.AdminDao">
 	<!-- ############################## -->
@@ -36,7 +36,7 @@
 
 	<!-- 添加用户与权限组关联信息 -->
 	<insert id="addAdminAndRole">
-		insert into fly_admin_role
+		insert into fly_admin_group
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="roleId != null">role_id,</if>
@@ -59,7 +59,7 @@
 
 	<!-- 按管理员id删除权限管理员关联权限 -->
 	<delete id="deleteAdminAndRole" parameterType="Integer">
-		delete from fly_admin_role where admin_id = #{adminId}
+		delete from fly_admin_group where admin_id = #{adminId}
 	</delete>
 	<!-- ############################## -->
 	<!-- ###### 修改 ###### -->
