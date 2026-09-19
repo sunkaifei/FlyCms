@@ -1,8 +1,12 @@
 # Compiled class file
 *.class
 
+# Maven build output
+target/
+
 # Log file
 *.log
+logs/
 
 # BlueJ files
 *.ctxt
