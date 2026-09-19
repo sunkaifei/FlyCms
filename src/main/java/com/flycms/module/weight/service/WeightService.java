@@ -8,7 +8,6 @@ import com.flycms.module.question.model.Question;
 import com.flycms.module.question.service.QuestionService;
 import com.flycms.module.share.service.ShareService;
 import com.flycms.module.weight.model.Weight;
-import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +41,6 @@ public class WeightService {
 
     //更新文章权重
     public void updateArticleWeight(){
-        List<SolrInputDocument> docs = new ArrayList<>();
         int j=articleService.getArticleIndexCount();
         int c = j%1000==0?j/1000:j/1000+1;
         for (int i=0; i<c;i++) {

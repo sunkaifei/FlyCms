@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.user.dao.UserInviteDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加用户邀请信息记录 -->
+	<insert id="addUserInvite" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_user_invite
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="toUserId != null">to_user_id,</if>
+			<if test="formUserId != null">form_user_id,</if>
+			<if test="status != null">status,</if>
+			<if test="createTime != null">create_time,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="toUserId != null">#{toUserId},</if>
+			<if test="formUserId != null">#{formUserId},</if>
+			<if test="status != null">#{status},</if>
+			<if test="createTime != null">#{createTime},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询用户邀请信息 -->
+	<select id="findInviteByid" resultType="com.flycms.module.user.model.UserInvite">
+		select * from fly_user_invite where id=#{id}
+	</select>
+
+	<!-- 查询当前用户id对邀请用户id是否存在 -->
+	<select id="checkUserInvite" resultType="Integer">
+        select count(*) from fly_user_invite where to_user_id=#{toUserId} and form_user_id=#{formUserId}
+    </select>
+
+	<!-- 查询用户邀请用户总数 -->
+	<select id="getUserInviteCount" resultType="Integer">
+		select count(*) from fly_user_invite
+		<where>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			and form_user_id = #{userId}
+		</where>
+	</select>
+
+	<!-- 查询用户邀请用户列表 -->
+	<select id="getUserInviteList" resultType="com.flycms.module.user.model.UserInvite">
+		select * from fly_user_invite
+		<where>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			and form_user_id = #{userId}
+		</where>
+		order by
+		<if test="orderby != null">${orderby}</if>
+		<if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+</mapper>  

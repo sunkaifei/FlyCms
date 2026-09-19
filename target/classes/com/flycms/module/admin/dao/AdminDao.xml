@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.97560.com -->
+
+<mapper namespace="com.flycms.module.admin.dao.AdminDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加用户注册信息 -->
+	<insert id="addAdmin" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_admin
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="nickName != null">nick_name,</if>
+			<if test="adminName != null">admin_name,</if>
+			<if test="password != null">password,</if>
+			<if test="email != null">email,</if>
+			<if test="createAt != null">createAt,</if>
+			<if test="lastLoginTime != null">last_login_time,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="nickName != null">#{nickName},</if>
+			<if test="adminName != null">#{adminName},</if>
+			<if test="password != null">#{password},</if>
+			<if test="email != null">#{email},</if>
+			<if test="createAt != null">#{createAt},</if>
+			<if test="lastLoginTime != null">#{lastLoginTime},</if>
+		</trim>
+	</insert>
+
+	<!-- 添加用户与权限组关联信息 -->
+	<insert id="addAdminAndRole">
+		insert into fly_admin_group
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="roleId != null">role_id,</if>
+			<if test="adminId != null">admin_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="roleId != null">#{roleId},</if>
+			<if test="adminId != null">#{adminId},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按id删除管理员信息 -->
+	<delete id="deleteAdminById" parameterType="Integer">
+		delete from fly_admin where id = #{adminId}
+	</delete>
+
+	<!-- 按管理员id删除权限管理员关联权限 -->
+	<delete id="deleteAdminAndRole" parameterType="Integer">
+		delete from fly_admin_group where admin_id = #{adminId}
+	</delete>
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<!-- 更新用户登录ip地址和登录时间 -->
+	<update id="updateAdminLogin">
+		update fly_admin
+		<set>
+			<if test="attempts != null">attempts=#{attempts},</if>
+			<if test="lastLoginIp != null">last_login_ip=#{lastLoginIp},</if>
+			<if test="lastLoginTime != null">last_login_time=#{lastLoginTime},</if>
+			<if test="attemptsTime != null">attempts_time=#{attemptsTime},</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<!-- 更新用户登录ip地址和登录时间 -->
+	<update id="updateAdmin">
+		update fly_admin
+		<set>
+			<if test="nickName != null">nick_name = #{nickName},</if>
+			<if test="adminName != null and adminName !=''">admin_name = #{adminName},</if>
+			<if test="password != null and password !=''">password = #{password},</if>
+			<if test="email != null and email !=''">email = #{email},</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<!-- 修改管理员密码 -->
+	<update id="updateAdminPassword">
+		update fly_admin set password=#{password} where id=#{adminId}
+	</update>
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按用户id查询管理员信息 -->
+	<select id="findAdminById" resultType="com.flycms.module.admin.model.Admin">
+		select * from fly_admin
+		<where>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			and id = #{adminId}
+		</where>
+		 LIMIT 1
+	</select>
+
+	<!-- 按用户名查询用户注册信息 -->
+	<select id="findByUsername" resultType="com.flycms.module.admin.model.Admin">
+		select * from fly_admin where admin_name = #{admin_name} limit 1
+	</select>
+
+	<!-- 按用户名查询用户注册信息 -->
+	<select id="checkAdminByName" resultType="Integer">
+		select count(*) from fly_admin
+		<where>
+			<if test="adminId != null">and id != #{adminId}</if>
+			and  admin_name = #{admin_name}
+		</where>
+	</select>
+
+	<!-- 查询管理员总数 -->
+	<select id="getAdminCount" resultType="Integer">
+		select count(*) from fly_admin
+		<where>
+			<if test="adminName != null">and admin_name = #{adminName}</if>
+			<if test="nickName != null">and nick_name = #{nickName}</if>
+			<if test="mobile != null">and mobile = #{mobile}</if>
+			<if test="email != null">and email = #{email}</if>
+		</where>
+	</select>
+
+	<!-- 查询管理员列表 -->
+	<select id="getAdminList" resultType="com.flycms.module.admin.model.Admin">
+		select * from fly_admin
+		<where>
+			<if test="adminName != null">and admin_name = #{adminName}</if>
+			<if test="nickName != null">and nick_name = #{nickName}</if>
+			<if test="mobile != null">and mobile = #{mobile}</if>
+			<if test="email != null">and email = #{email}</if>
+		</where>
+		limit #{offset},#{rows}
+	</select>
+</mapper>  

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.share.dao.ShareCategoryDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加资源分享分类 -->
+	<insert id="addShareCategory">
+		insert into fly_share_category
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="fatherId != null">father_id,</if>
+			<if test="name != null">name,</if>
+			<if test="keywords != null">keywords,</if>
+			<if test="description != null">description,</if>
+			<if test="recomment != null">recomment,</if>
+			<if test="status != null">status,</if>
+			<if test="issys != null">issys,</if>
+			<if test="sort != null">sort,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="fatherId != null">#{fatherId},</if>
+			<if test="name != null">#{name},</if>
+			<if test="keywords != null">#{keywords},</if>
+			<if test="description != null">#{description},</if>
+			<if test="recomment != null">#{recomment},</if>
+			<if test="status != null">#{status},</if>
+			<if test="issys != null">#{issys},</if>
+			<if test="sort != null">#{sort},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按分类id删除该资源分享分类信息 -->
+	<delete id="deleteShareCategoryById">
+		delete from fly_share_category where id=#{id}
+	</delete>
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<!-- 按id更新资源分享分类 -->
+	<update id="editShareCategoryById">
+		update fly_share_category
+		<set>
+			<if test="name != null and name != ''">name=#{name},</if>
+			<if test="fatherId != null and fatherId != '' or fatherId==0">father_id=#{fatherId},</if>
+			<if test="keywords != null and keywords != ''">keywords=#{keywords},</if>
+			<if test="description != null and description != ''">description=#{description},</if>
+			<if test="recomment != null and recomment != ''">recomment=#{recomment},</if>
+			<if test="status != null and status != ''">status=#{status},</if>
+			<if test="issys != null and issys != ''">issys=#{issys},</if>
+			<if test="sort != null and sort != ''">sort=#{sort},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 查询资源分享分类名称是否存在 -->
+	<select id="checkShareCategoryByName" resultType="Integer">
+		select count(*) from fly_share_category
+		<where>
+			<if test="id != null">and id != #{id}</if>
+			and name= #{name}
+		</where>
+	</select>
+
+	<!-- 按id查询资源分享分类信息 -->
+	<select id="findCategoryById" resultType="com.flycms.module.share.model.ShareCategory">
+		select * from fly_share_category
+        <where>
+            <if test="status == 0">and status &gt;= 0</if>
+            <if test="status == 1">and status = 0</if>
+            <if test="status == 2">and status = 1</if>
+            and  id=#{id}
+        </where>
+	</select>
+
+	<!--根据分类父级分类id查询所属的所有子类 -->
+	<select id="getCategoryListByFatherId" resultType="com.flycms.module.share.model.ShareCategory">
+		select * from fly_share_category where father_id=#{fatherId}
+	</select>
+
+	<!-- 查询所有分类 -->
+	<select id="getCategoryAllList" resultType="com.flycms.module.share.model.ShareCategory">
+		select * from fly_share_category
+	</select>
+</mapper>  

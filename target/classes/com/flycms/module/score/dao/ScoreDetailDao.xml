@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+<mapper namespace="com.flycms.module.score.dao.ScoreDetailDao">
+	<!-- ############################## -->
+	<!-- ######       增加       ###### -->
+	<!-- ############################## -->
+	<!-- 保存用户积分记录 -->
+	<insert id="saveScoreDetail">
+	    insert into fly_score_detail
+	    <!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="userId != null and userId !=''">user_id,</if>
+			<if test="type != null">type,</if>
+			<if test="score != null">score,</if>
+			<if test="userId != null">balance,</if>
+			<if test="remark != null">remark,</if>
+			<if test="foreignId != null">foreign_id,</if>
+			<if test="scoreRuleId != null">score_rule_id,</if>
+			<if test="createTime != null">create_time,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="userId != null and userId !=''">#{userId},</if>
+			<if test="type != null">#{type},</if>
+			<if test="score != null">#{score},</if>
+			<if test="userId != null and userId !=''">(SELECT score FROM fly_user_account WHERE user_id=#{userId}),</if>
+			<if test="remark != null">#{remark},</if>
+			<if test="foreignId != null">#{foreignId},</if>
+			<if test="scoreRuleId != null">#{scoreRuleId},</if>
+			<if test="createTime != null">#{createTime},</if>
+		</trim>
+	</insert>
+	<!-- ############################## -->
+	<!-- ######       删除       ###### -->
+	<!-- ############################## -->
+	<!-- 按id删除本条积分记录 -->
+	<delete id="deleteScoreDetailById" parameterType="Integer">
+		delete from fly_score_detail where id = #{id}
+	</delete>
+	<!-- ############################## -->
+	<!-- ######        修改      ###### -->
+	<!-- ############################## -->
+	<!-- 修改奖励记录 -->
+	<update id="scoreDetailByCancel">
+	    UPDATE fly_score_detail SET status=0 WHERE id=#{id}
+	</update>
+
+	<!-- ############################## -->
+	<!-- ######       查询       ###### -->
+	<!-- ############################## -->
+
+	<select id="findScoreDetailById" resultType="com.flycms.module.score.model.ScoreDetail">
+    	select * from fly_score_detail WHERE id=#{id}
+	</select>
+
+	<!-- 按用户id查询积分记录数量 -->
+	<select id="scoreDetailCount" resultType="Integer">
+		select count(*) from fly_score_detail
+		<where>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+		</where>
+	</select>
+	
+    <!-- 按用户id查询积分记录列表 -->
+    <select id="scoreDetaillist" resultType="com.flycms.module.score.model.ScoreDetail">
+	    select * from fly_score_detail
+		<where>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+		</where>
+		order by
+		<if test="orderby != null">${orderby}</if>
+		<if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+    </select>
+
+	<!-- 根据会员、获取奖励的外键、奖励规则ID获取奖励激励，不包括foreign_id=0 -->
+	<select id="findByForeignAndRule" resultType="com.flycms.module.score.model.ScoreDetail">
+	    select * from fly_score_detail
+	    <where>
+		    and (foreign_id!=null or foreign_id!='')
+			and status=1
+			and type = 1
+		    <if test="foreignId != null and foreignId !=''">and foreign_id=#{foreignId}</if>
+		    <if test="userId != null and userId !=''">and user_id=#{userId}</if>
+		    <if test="scoreRuleId != null and scoreRuleId !=''">and score_rule_id=#{scoreRuleId}</if>
+	    </where>
+	</select>
+
+	<!-- 是否能奖励，如果返回记录为0，表示可以奖励 -->
+	<select id="scoreDetailCanBonus" resultType="com.flycms.module.score.model.ScoreDetail">
+	    select * from fly_score_detail WHERE user_id=#{userId} and score_rule_id=#{scoreRuleId} and status=1
+		<choose>
+			<!-- 只有一次奖励 -->
+			<when test="type == 'one'">
+				<!--不需要其他的条件了-->
+			</when>
+			<when test="type == 'day'">
+				and to_days(create_time) = to_days(now())
+			</when>
+			<when test="type == 'week'">
+				and yearweek(date_format(create_time,'%Y-%m-%d')) = yearweek(now());
+			</when>
+			<when test="type == 'month'">
+				and date_format(create_time,'%Y-%m') = date_format(now(),'%Y-%m')
+			</when>
+			<when test="type == 'year'">
+				and year(create_time) = year(NOW())
+			</when>
+		</choose>
+	</select>
+</mapper>

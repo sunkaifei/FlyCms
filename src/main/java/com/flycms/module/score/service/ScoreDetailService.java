@@ -1,4 +1,5 @@
 package com.flycms.module.score.service;
+import com.flycms.core.utils.OrderbyUtils;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.score.dao.ScoreDetailDao;
@@ -7,7 +8,7 @@ import com.flycms.module.user.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -114,10 +115,12 @@ public class ScoreDetailService{
         pageVo.setRows(rows);
         if(orderby==null){
             orderby="id";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "id");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
 		pageVo.setCount(scoreDetailDao.scoreDetailCount(userId,status));
 		
 		List<ScoreDetail> detaillist = scoreDetailDao.scoreDetaillist(userId,status,orderby,order, pageVo.getOffset(), pageVo.getRows());

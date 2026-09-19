@@ -1,5 +1,6 @@
 package com.flycms.module.user.service;
 
+import com.flycms.core.utils.OrderbyUtils;
 import com.flycms.constant.Const;
 import com.flycms.constant.SiteConst;
 import com.flycms.core.utils.*;
@@ -21,10 +22,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 /**
  * 开发公司：28844.com<br/>
@@ -1025,10 +1026,12 @@ public class UserService {
         List<User> list = new ArrayList<User>();
         if(orderby==null){
             orderby="user_id";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "user_id");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         pageVo.setList(userDao.getUserList(username, trueName, mobile, email,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(userDao.getUserCount(username, trueName, mobile, email));
         return pageVo;
@@ -1060,10 +1063,12 @@ public class UserService {
         List<UserFans> list = new ArrayList<UserFans>();
         if(orderby==null){
             orderby="id";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "id");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         pageVo.setList(userDao.getUserFansList(userFollow, userFans, createTime,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(userDao.getUserFansCount(userFollow, userFans, createTime));
         return pageVo;
@@ -1083,10 +1088,12 @@ public class UserService {
         List<User> list = new ArrayList<User>();
         if(orderby==null){
             orderby="a.score";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "a.score");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         pageVo.setList(userDao.getUserHotList(userName, nickName, mobile, email,province,city,area,status,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(userDao.getUserHotCount(userName, nickName, mobile, email,province,city,area,status));
         return pageVo;

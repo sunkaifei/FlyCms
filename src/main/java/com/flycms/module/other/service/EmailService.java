@@ -8,15 +8,15 @@ package com.flycms.module.other.service;
 import java.security.Security;
 import java.util.*;
 
-import javax.mail.Address;
-import javax.mail.Authenticator;
-import javax.mail.Message.RecipientType;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Address;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message.RecipientType;
+import jakarta.mail.MessagingException;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 
 import com.flycms.core.utils.DateUtils;
 import com.flycms.core.utils.PlaceholderUtils;
@@ -93,7 +93,7 @@ public class EmailService {
         };
         // 使用环境属性和授权信息，创建邮件会话
         Session mailSession = Session.getInstance(props, authenticator);
-        Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+        // JDK 9+ 已移除 Sun 内部 SSL Provider，JSSE 默认已注册，无需手动添加
         props.put("mail.smtp.socketFactory.fallback", "false");
         props.put("mail.smtp.starttls.enable", "true");
         // 创建邮件消息

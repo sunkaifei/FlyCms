@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.question.dao.ImagesDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<insert id="addImages" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_images
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="imgUrl != null">img_url,</if>
+			<if test="imgName != null">img_name,</if>
+			<if test="description != null">description,</if>
+			<if test="fileSize != null">file_size,</if>
+			<if test="imgWidth != null">img_width,</if>
+			<if test="imgHeight != null">img_height,</if>
+			<if test="signature != null">signature,</if>
+			<if test="createTime != null">create_time,</if>
+			<if test="sort != null">sort,</if>
+			<if test="infoCount != null">info_count,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="imgUrl != null">#{imgUrl},</if>
+			<if test="imgName != null">#{imgName},</if>
+			<if test="description != null">#{description},</if>
+			<if test="fileSize != null">#{fileSize},</if>
+			<if test="imgWidth != null">#{imgWidth},</if>
+			<if test="imgHeight != null">#{imgHeight},</if>
+			<if test="signature != null">#{signature},</if>
+			<if test="createTime != null">#{createTime},</if>
+			<if test="sort != null">#{sort},</if>
+			<if test="infoCount != null">#{infoCount},</if>
+		</trim>
+	</insert>
+
+	<!-- 添加图片和信息关联记录 -->
+	<insert id="addImagesInfoMerge">
+		insert into fly_images_info_merge
+		<!--  添加表字段  -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="infoId != null">info_id,</if>
+			<if test="imgId != null">img_id,</if>
+			<if test="userId != null">user_id,</if>
+			<if test="picId != null">pic_id,</if>
+			<if test="infoType != null">info_type,</if>
+		</trim>
+		<!--  注入控制层字段  -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="infoId != null">#{infoId},</if>
+			<if test="imgId != null">#{imgId},</if>
+			<if test="userId != null">#{userId},</if>
+			<if test="picId != null">#{picId},</if>
+			<if test="infoType != null">#{infoType},</if>
+		</trim>
+	</insert>
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按图片id删除图片信息 -->
+	<delete id="deleteImagesById" parameterType="Integer">
+		delete from fly_images where id=#{id}
+	</delete>
+
+	<!-- 按图片地址删除图片信息 -->
+	<delete id="deleteImagesByimgurl" parameterType="Integer">
+		delete from fly_images where imgurl=#{imgurl}
+	</delete>
+
+	<!-- 按信息分类和内容id删除图片信息 -->
+	<delete id="deleteImagesByTid" parameterType="Integer">
+		delete from fly_images where channel_id = #{channelId} and tid=#{tid}
+	</delete>
+
+	<!-- 按图片路径删除数据-->
+	<delete id="deleteImagesByTidAndImgurl" parameterType="Integer">
+		delete from fly_images where tid=#{tid} and imgurl=#{imgurl}
+	</delete>
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<update id="updateImagesById">
+		update fly_images set channel_id=#{channelId},tid=#{tid},user_id=#{userId},picid=#{picid},imgurl=#{imgurl},imgname=#{imgname},description=#{description},filesize=#{filesize},img_width=#{img_width},img_height=#{img_height},thumb=#{thumb}
+		where id=#{id}
+	</update>
+
+	<!-- 更新图片被使用次数 -->
+	<update id="updateImagesCount">
+		update fly_images set info_count=(select count(*) from fly_images_info_merge where img_id=#{imgId}) where id=#{imgId}
+	</update>
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询图片信息 -->
+	<select id="findImagesByImgurl" resultType="com.flycms.module.question.model.Images">
+		select * from fly_images where img_url=#{imgUrl} limit 1
+	</select>
+
+	<!-- 按信息类别和信息ID查询所有相关图片信息 -->
+	<select id="getImagesListByTid" resultType="com.flycms.module.question.model.Images">
+		select * from fly_images where tid=#{tid}
+	</select>
+
+	<!-- 按信息类型id和信息id查询第一个文章图片 -->
+	<select id="getImagesInfoById" resultType="com.flycms.module.question.model.Images">
+		select * from fly_images where channel_id = #{channelId} and tid=#{tid} ORDER BY sort DESC
+	</select>
+
+	<!-- 用信息id和图片地址查询该图片是否存在 -->
+	<select id="checkImagesByTidAndImgurl" resultType="Integer">
+		select count(*) from fly_images where tid=#{tid} and img_url=#{imgUrl} limit 1
+	</select>
+
+	<!-- 查询图片路径是否存在 -->
+	<select id="checkImagesByImgurl" resultType="Integer">
+		select count(1) from fly_images where img_url=#{imgUrl}
+	</select>
+
+
+</mapper>  

@@ -11,10 +11,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.Date;
 
 /**
@@ -80,11 +80,13 @@ public class UserSessionUtils {
 
         Cookie cookie = new Cookie(siteConst.getSessionKey(),sessionKey);
         cookie.setPath("/");
-        String domain =request.getServerName();
-        if(!"127.0.0.1".equals(domain) && !"localhost".equals(domain)){
-            cookie.setDomain(siteConst.getCookieDomain());
-        }else{
-            cookie.setDomain(domain);
+        // 仅当配置了 cookieDomain 且与当前访问主机匹配时才设置 Domain 属性；
+        // 未配置时不设置（浏览器默认限定为当前主机），避免把 cookie 发到不匹配的域被浏览器拒收
+        String domain = request.getServerName();
+        String configuredDomain = siteConst.getCookieDomain();
+        if (configuredDomain != null && !configuredDomain.trim().isEmpty()
+                && (domain.equals(configuredDomain) || domain.endsWith(configuredDomain))) {
+            cookie.setDomain(configuredDomain);
         }
         cookie.setMaxAge(maxAgeInSeconds);
         response.addCookie(cookie);

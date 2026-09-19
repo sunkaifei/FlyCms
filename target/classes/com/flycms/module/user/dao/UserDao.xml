@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.user.dao.UserDao">
+	<!-- ############################## -->
+	<!-- ######       增加       ###### -->
+	<!-- ############################## -->
+	<!-- 添加用户注册信息 -->
+	<insert id="addUser" useGeneratedKeys="true" keyProperty="userId">
+		insert into fly_user
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userId != null">user_id,</if>
+			<if test="shortUrl != null">short_url,</if>
+			<if test="userName != null">user_name,</if>
+			<if test="password != null">password,</if>
+			<if test="userEmail != null">user_email,</if>
+			<if test="trueName != null">true_name,</if>
+			<if test="sex != null">sex,</if>
+			<if test="telephone != null">telephone,</if>
+			<if test="userMobile != null">user_mobile,</if>
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="area != null">area,</if>
+			<if test="contactAddr != null">contact_addr,</if>
+			<if test="zip != null">zip,</if>
+			<if test="qq != null">qq,</if>
+			<if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="userId != null">#{userId},</if>
+			<if test="shortUrl != null">#{shortUrl},</if>
+			<if test="userName != null">#{userName},</if>
+			<if test="password != null">#{password},</if>
+			<if test="userEmail != null">#{userEmail},</if>
+			<if test="trueName != null">#{trueName},</if>
+			<if test="sex != null">#{sex},</if>
+			<if test="telephone != null">#{telephone},</if>
+			<if test="userMobile != null">#{userMobile},</if>
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="area != null">#{area},</if>
+			<if test="contactAddr != null">#{contactAddr},</if>
+			<if test="zip != null">#{zip},</if>
+			<if test="qq != null">#{qq},</if>
+			<if test="status != null">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+		</trim>
+	</insert>
+
+    <!-- 添加用户统计表 -->
+    <insert id="addUserCount" parameterType="Integer">
+        insert into fly_user_count
+        <!-- 添加表字段 -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+        </trim>
+        <!-- 注入控制层字段 -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+        </trim>
+    </insert>
+
+	<!-- 添加用户session记录 -->
+	<insert id="addUserSession">
+		insert into fly_user_session
+		<!--  添加表字段  -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="sessionKey != null">session_key,</if>
+			<if test="userId != null">user_id,</if>
+			<if test="expireTime != null">expire_time,</if>
+			<if test="updateTime != null">update_time,</if>
+		</trim>
+		<!--  注入控制层字段  -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="sessionKey != null">#{sessionKey},</if>
+			<if test="userId != null">#{userId},</if>
+			<if test="expireTime != null">#{expireTime},</if>
+			<if test="updateTime != null">#{updateTime},</if>
+		</trim>
+	</insert>
+
+	<!-- 添加用户关联信息 -->
+	<insert id="addUserAccount" parameterType="Integer">
+		insert into fly_user_account
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userId != null">user_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="userId != null">#{userId},</if>
+		</trim>
+	</insert>
+
+    <!-- 添加用户与权限组关联信息 -->
+    <insert id="addUserAndGroup" parameterType="Integer">
+        insert into fly_user_group_merge
+        <!-- 添加表字段 -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="groupId != null">group_id,</if>
+            <if test="userId != null">user_id,</if>
+        </trim>
+        <!-- 注入控制层字段 -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="groupId != null">#{groupId},</if>
+            <if test="userId != null">#{userId},</if>
+        </trim>
+    </insert>
+
+    <!-- 添加用户注册验证操作记录 -->
+    <insert id="addUserActivation" parameterType="Integer">
+        insert into fly_user_activation
+        <!--  添加表字段  -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="userName != null">user_name,</if>
+            <if test="code != null">code,</if>
+            <if test="codeType != null">code_type,</if>
+            <if test="referTime != null">refer_time,</if>
+            <if test="referStatus != null">refer_status,</if>
+        </trim>
+        <!--  注入控制层字段  -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="userName != null">#{userName},</if>
+            <if test="code != null">#{code},</if>
+            <if test="codeType != null">#{codeType},</if>
+            <if test="referTime != null">#{referTime},</if>
+            <if test="referStatus != null">#{referStatus},</if>
+        </trim>
+    </insert>
+
+
+    <!-- 添加用户关注操作记录 -->
+    <insert id="addUserFans">
+        insert into fly_user_fans
+        <!--  添加表字段  -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="userFollow != null">user_follow,</if>
+            <if test="userFans != null">user_fans,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <!--  注入控制层字段  -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="userFollow != null">#{userFollow},</if>
+            <if test="userFans != null">#{userFans},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+	<!-- ############################## -->
+	<!-- ######       删除       ###### -->
+	<!-- ############################## -->
+	<!-- 按id删除用户信息 -->
+	<delete id="deleteUserById">
+		delete from fly_user where user_id = #{userId}
+	</delete>
+
+    <!-- 按关注人id和粉丝ID删除用户粉丝关联信息 -->
+    <delete id="deleteUserFans">
+		delete from fly_user_fans where user_follow = #{userFollow} and user_fans = #{userFans}
+	</delete>
+
+	<!-- 按用户seeeionKey查询删除用户登陆保持记录 -->
+	<delete id="deleteUserSessionBySessionKey">
+		delete from fly_user_session where session_key = #{sessionKey}
+	</delete>
+	<!-- ############################## -->
+	<!-- ######        修改      ###### -->
+	<!-- ############################## -->
+	<!-- 更新用户登录ip地址和登录时间 -->
+	<update id="updateUserLogin">
+		update fly_user
+		<set>
+			<if test="attempts != null">attempts=#{attempts},</if>
+			<if test="loginIp != null">login_ip=#{loginIp},</if>
+			<if test="lastLogin != null">last_login=#{lastLogin},</if>
+			<if test="attemptsTime != null">attempts_time=#{attemptsTime},</if>
+		</set>
+		where user_id = #{userId}
+	</update>
+
+	<!-- 按id更新用户信息 -->
+	<update id="updateUser">
+		update fly_user
+		<set>
+			<if test="userName != null and userName !=''">user_name = #{userName},</if>
+			<if test="password != null and password !=''">password = #{password},</if>
+			<if test="userEmail != null and userEmail !=''">user_email = #{userEmail},</if>
+			<if test="trueName != null">true_name = #{trueName},</if>
+			<if test="nickName != null">nick_name = #{nickName},</if>
+			<if test="sex != null">sex = #{sex},</if>
+			<if test="birthday != null">birthday = #{birthday},</if>
+			<if test="signature != null">signature = #{signature},</if>
+			<if test="work != null">work = #{work},</if>
+			<if test="description != null">description = #{description},</if>
+			<if test="telephone != null">telephone = #{telephone},</if>
+			<if test="userMobile != null">user_mobile = #{userMobile},</if>
+			<if test="province != null">province = #{province},</if>
+			<if test="city != null">city = #{city},</if>
+			<if test="area != null">area = #{area},</if>
+			<if test="contactAddr != null">contact_addr = #{contactAddr},</if>
+			<if test="zip != null">zip = #{zip},</if>
+			<if test="qq != null">qq = #{qq},</if>
+			<if test="status != null">status = #{status},</if>
+		</set>
+		where user_id = #{userId}
+	</update>
+
+	<!-- 更新用户登录密码 -->
+	<update id="updatePassword">
+		update fly_user set password=#{password} where user_id=#{userId}
+	</update>
+
+	<!-- 更新统计用户所有提的问题数量 -->
+	<update id="updateQuestionCount">
+		update fly_user_count set count_question=(select count(*) from fly_question where user_id=#{userId} and status = 1) where user_id=#{userId}
+	</update>
+
+	<!-- 更新统计用户所有关注的问题数量 -->
+	<update id="updateQuestionFollowCount">
+		update fly_user_count set count_question_follw=(select count(*) from fly_question_follow_merge where user_id=#{userId}) where user_id=#{userId}
+	</update>
+
+	<!-- 更新统计用户所有发布文章数量 -->
+	<update id="updateArticleCount">
+		update fly_user_count set count_article=(select count(*) from fly_article where user_id=#{userId} and status = 1) where user_id=#{userId}
+	</update>
+
+	<!-- 更新统计用户所有发布分享数量 -->
+	<update id="updateShareCount">
+		update fly_user_count set count_share=(select count(*) from fly_share where user_id=#{userId} and status = 1) where user_id=#{userId}
+	</update>
+
+	<!-- 更新统计用户所有加入的话题数量 -->
+	<update id="updateTopicCount">
+		update fly_user_count set count_topic=(select count(*) from fly_topic_follow where user_id=#{userId}) where user_id=#{userId}
+	</update>
+
+	<!-- 更新统计用户所有发布的答案数量 -->
+	<update id="updateAnswerCount">
+		update fly_user_count set count_answer=(select count(*) from fly_answer where user_id=#{userId} and status = 1) where user_id=#{userId}
+	</update>
+
+    <!-- 更新统计用户所有关注人数数量 -->
+    <update id="updateUserFollwCount">
+		update fly_user_count set count_follw=(select count(*) from fly_user_fans where user_fans=#{userId}) where user_id=#{userId}
+	</update>
+
+    <!-- 更新统计用户所有粉丝数量 -->
+    <update id="updateUserFansCount">
+		update fly_user_count set count_fans=(select count(*) from fly_user_fans where user_follow=#{userId}) where user_id=#{userId}
+	</update>
+
+    <!-- 按用户名（邮箱、手机号）+ 验证码查询修改验证状态为已验证，0未验证，1为已验证 -->
+    <update id="updateUserActivationByStatus">
+		update fly_user_activation set refer_status=1 where user_name=#{userName} and code=#{code}
+	</update>
+
+	<!-- 更新用户头像 -->
+	<update id="updateAvatar">
+		update fly_user set avatar=#{avatar} where user_id=#{userId}
+	</update>
+
+	<!-- 更新用户最终积分 -->
+	<update id="updateUserAccountScore">
+		update fly_user_account
+		<set>
+			<choose>
+				<when test="calculate == 'plus'">
+					score = score+#{score}
+				</when>
+				<when test="calculate == 'reduce'">
+					score = score-#{score}
+				</when>
+			</choose>
+		</set>
+		where user_id=#{userId}
+	</update>
+
+	<!-- 修改用户登录手机号码 -->
+	<update id="updateuUserMobile">
+		update fly_user set user_mobile=#{userMobile} where user_id=#{userId}
+	</update>
+
+    <!-- 修改用户登录手机号码 -->
+    <update id="updateuUserEmail">
+		update fly_user set user_email = #{userEmail} where user_id=#{userId}
+	</update>
+
+	<!-- 更新用户权限组信息 -->
+	<update id="updateUserAndGroup">
+		update fly_user_group_merge
+		<set>
+			<if test="groupId != null and groupId != ''">group_id=#{groupId},</if>
+			<if test="serveStartTime != null and serveStartTime != ''">serve_start_time=#{serveStartTime},</if>
+			<if test="serveEndTime != null and serveEndTime != ''">serve_end_time=#{serveEndTime},</if>
+		</set>
+		where user_id=#{userId}
+	</update>
+
+	<!-- 更新用户登录ip地址和登录时间 -->
+	<update id="updateUserSession">
+		update fly_user_session
+		<set>
+			<if test="sessionKey != null">session_key=#{sessionKey},</if>
+			<if test="expireTime != null">expire_time=#{expireTime},</if>
+			<if test="updateTime != null">update_time=#{updateTime},</if>
+		</set>
+		where user_id = #{userId}
+	</update>
+	<!-- ############################## -->
+	<!-- ######       查询       ###### -->
+	<!-- ############################## -->
+	<!-- 按shortUrl查询用户信息 -->
+	<select id="findUserByShorturl" resultType="com.flycms.module.user.model.User">
+        select u.* ,a.balance,a.score from fly_user u inner join fly_user_account a on u.user_id=a.user_id where u.short_url=#{shortUrl} and u.status = 1
+    </select>
+
+	<!-- 按用户id查询用户注册信息 用户状态0是所有 1未审核 2正常状态 3 删除至回收站 4锁定 -->
+	<select id="findUserById" resultType="com.flycms.module.user.model.User">
+		select u.* ,a.balance,a.score from fly_user u inner join fly_user_account a on u.user_id=a.user_id
+		<where>
+			<if test="status == 0">and u.status &gt;= 0</if>
+			<if test="status == 1">and u.status = 0</if>
+			<if test="status == 2">and u.status = 1</if>
+			<if test="status == 3">and u.status = 2</if>
+			<if test="status == 4">and u.status = 3</if>
+			and u.user_id=#{userId}
+		</where>
+	</select>
+
+	<!-- 按用户id查询用户统计信息 -->
+	<select id="findUserCountById" resultType="com.flycms.module.user.model.UserCount">
+		select c.*,a.* from fly_user_count c inner join fly_user_account a on c.user_id=a.user_id where c.user_id=#{userId}
+	</select>
+
+	<!-- 按用户id查询用户信息 -->
+	<select id="findUserAccountById" resultType="com.flycms.module.user.model.UserAccount">
+		select * from fly_user_account where user_id=#{userId}
+	</select>
+
+    <!-- 按用户名查询用户注册信息 -->
+    <select id="findByUsername" resultType="com.flycms.module.user.model.User">
+		select * from fly_user where user_name=#{userName} limit 1
+	</select>
+
+    <!-- 按邮箱查询用户注册信息 -->
+    <select id="findByEmail" resultType="com.flycms.module.user.model.User">
+		select * from fly_user where user_email=#{userEmail} limit 1
+	</select>
+
+    <!-- 按手机号查询用户注册信息 -->
+    <select id="findByMobile" resultType="com.flycms.module.user.model.User">
+		select * from fly_user where user_mobile=#{userMobile} limit 1
+	</select>
+
+	<!-- 查询问答短域名是否被占用 -->
+	<select id="checkUserByShorturl" resultType="Integer">
+		select count(1) from fly_user where short_url=#{shortUrl}
+	</select>
+
+    <!-- 按id查询用户是否存在 -->
+    <select id="checkUserById" resultType="Integer">
+        select count(*) from fly_user where user_id=#{userId}
+    </select>
+
+	<!-- 查询当前用户名是否被占用 -->
+	<select id="checkUserByUserName" resultType="Integer">
+		select count(*) from fly_user
+		<where>
+			<if test="userId != null and userId !=''">and user_id != #{userId}</if>
+			and user_name=#{userName}
+		</where>
+	</select>
+
+	<!-- 查询当前手机号码是否被占用 -->
+	<select id="checkUserByMobile" resultType="Integer">
+		select count(*) from fly_user
+		<where>
+			<if test="userId != null and userId !=''">and user_id != #{userId}</if>
+			and (user_mobile=#{userMobile} or user_name=#{userMobile})
+		</where>
+	</select>
+
+    <!-- 查询当前邮箱是否被占用 -->
+    <select id="checkUserByEmail" resultType="Integer">
+		select count(*) from fly_user
+		<where>
+			<if test="userId != null and userId !=''">and user_id != #{userId}</if>
+			and user_email=#{userEmail}
+		</where>
+	</select>
+
+	<!-- 查询当前昵称是否被占用 -->
+	<select id="checkUserByNickName" resultType="Integer">
+		select count(*) from fly_user
+		<where>
+			<if test="userId != null and userId !=''">and user_id != #{userId}</if>
+			and nick_name=#{nickName}
+		</where>
+	</select>
+
+	<!-- 查询当前用户权限是否存在 -->
+	<select id="checkUserByRole" resultType="Integer">
+		select count(*) from fly_user_group_merge where user_id = #{userId}
+	</select>
+
+	<!-- 查询当前用户是否是未激活权限组内用户 -->
+	<select id="checkUserByActivation" resultType="Integer">
+		select count(*) from fly_user_group_merge where user_id = #{userId} and group_id = #{groupId}
+	</select>
+
+    <!-- 查询验证码在当前时间5分钟内获取并且是否过时或不存在 -->
+    <select id="findByUserActivationCode" resultType="com.flycms.module.user.model.UserActivation">
+		select * from fly_user_activation where user_name=#{userName} and code_type=#{codeType} and refer_status=0 and refer_time between date_add(now(), interval - 5 minute) and now() order by refer_time desc limit 1
+	</select>
+
+	<!-- 查询指定日期内申请验证码次数 -->
+	<select id="checkUserActivationCount" resultType="Integer">
+		select count(1) from fly_user_activation where user_name=#{userName} and to_days(refer_time)=to_days(#{referTime})
+	</select>
+
+    <!-- 查询是否已关注或者是该用户粉丝 -->
+    <select id="checkUserFans" resultType="Integer">
+		select count(1) from fly_user_fans where user_follow=#{userFollow} and  user_fans=#{userFans}
+	</select>
+
+	<!-- 查询是否是互相关注用户，等于2则为互相关注 -->
+	<select id="checkUserMutualFans" resultType="Integer">
+		select count(1) from fly_user_fans where (user_fans = #{userFollow} or user_follow = #{userFollow}) and (user_follow =#{userFans} or user_fans = #{userFans}) limit 3
+	</select>
+
+	<!-- 查询用户组总数 -->
+	<select id="getUserCount" resultType="Integer">
+		select count(1) from fly_user
+		<where>
+			<if test="userName != null">and user_name = #{userName}</if>
+			<if test="trueName != null">and true_name = #{trueName}</if>
+			<if test="userMobile != null">and user_mobile = #{userMobile}</if>
+			<if test="userEmail != null">and user_email = #{userEmail}</if>
+		</where>
+	</select>
+
+	<!-- 查询用户组列表 -->
+	<select id="getUserList" resultType="com.flycms.module.user.model.User">
+		select * from fly_user
+		<where>
+			<if test="userName != null">and user_name = #{userName}</if>
+			<if test="trueName != null">and true_name = #{trueName}</if>
+			<if test="userMobile != null">and user_mobile = #{userMobile}</if>
+			<if test="userEmail != null">and user_email = #{userEmail}</if>
+		</where>
+        order by
+        <if test="orderby != null">${orderby}</if>
+        <if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+
+    <!-- 查询粉丝总数 -->
+    <select id="getUserFansCount" resultType="Integer">
+        select count(*) from fly_user_fans
+        <where>
+            <if test="userFollow != null">and user_follow = #{userFollow}</if>
+            <if test="userFans != null">and user_fans = #{userFans}</if>
+            <if test="createTime != null">and DATE(create_time) = #{createTime}</if>
+        </where>
+    </select>
+
+    <!-- 查询粉丝列表 -->
+    <select id="getUserFansList" resultType="com.flycms.module.user.model.UserFans">
+        select * from fly_user_fans
+        <where>
+            <if test="userFollow != null">and user_follow = #{userFollow}</if>
+            <if test="userFans != null">and user_fans = #{userFans}</if>
+            <if test="createTime != null">and DATE(create_time) = #{createTime}</if>
+        </where>
+        order by
+        <if test="orderby != null">${orderby}</if>
+        <if test="order != null">${order}</if>
+        limit #{offset},#{rows}
+    </select>
+
+    <!-- 查询热门用户组总数 -->
+    <select id="getUserHotCount" resultType="Integer">
+        select count(*) from fly_user u
+        inner join fly_user_count c on u.user_id=c.user_id
+        inner join fly_user_account a on u.user_id=a.user_id
+        <where>
+            <if test="userName != null">and u.user_name = #{userName}</if>
+            <if test="nickName != null">and u.nick_name = #{nickName}</if>
+            <if test="userMobile != null">and u.user_mobile = #{userMobile}</if>
+            <if test="userEmail != null">and u.user_email = #{userEmail}</if>
+            <if test="province != null">and u.province = #{province}</if>
+            <if test="city != null">and u.city = #{city}</if>
+            <if test="area != null">and u.area = #{area}</if>
+            <if test="status == 0">and u.status &gt;= 0</if>
+            <if test="status == 1">and u.status = 0</if>
+            <if test="status == 2">and u.status = 1</if>
+            <if test="status == 3">and u.status = 2</if>
+            <if test="status == 4">and u.status = 3</if>
+            and u.nick_name is not null
+        </where>
+    </select>
+
+    <!-- 查询热门用户组列表 -->
+    <select id="getUserHotList" resultType="com.flycms.module.user.model.User">
+        select u.user_id from fly_user u
+        inner join fly_user_count c on u.user_id=c.user_id
+        inner join fly_user_account a on u.user_id=a.user_id
+        <where>
+            <if test="userName != null">and u.user_name = #{userName}</if>
+            <if test="nickName != null">and u.nick_name = #{nickName}</if>
+            <if test="userMobile != null">and u.user_mobile = #{userMobile}</if>
+            <if test="userEmail != null">and u.user_email = #{userEmail}</if>
+            <if test="province != null">and u.province = #{province}</if>
+            <if test="city != null">and u.city = #{city}</if>
+            <if test="area != null">and u.area = #{area}</if>
+            <if test="status == 0">and u.status &gt;= 0</if>
+            <if test="status == 1">and u.status = 0</if>
+            <if test="status == 2">and u.status = 1</if>
+            <if test="status == 3">and u.status = 2</if>
+            <if test="status == 4">and u.status = 3</if>
+            and u.nick_name is not null
+        </where>
+        order by
+        <if test="orderby != null">${orderby}</if>
+        <if test="order != null">${order}</if>
+        limit #{offset},#{rows}
+    </select>
+
+	<!-- 根据seeeionKey查询用户登录时间 -->
+	<select id="findUserSessionBySeeeionKey" resultType="com.flycms.module.user.model.UserSession">
+		select * from fly_user_session where session_key = #{sessionKey} order by update_time desc limit 1
+	</select>
+
+	<!-- 查询当前用户登陆状态是否存在 -->
+	<select id="checkUserSessionByUserId" resultType="Integer">
+		select count(*) from fly_user_session where user_id = #{userId}
+	</select>
+
+</mapper>  

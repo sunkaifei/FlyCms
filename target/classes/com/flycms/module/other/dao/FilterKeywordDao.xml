@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.other.dao.FilterKeywordDao">
+    <!-- ############################## -->
+    <!-- ###### 增加 ###### -->
+    <!-- ############################## -->
+    <!-- 添加违禁关键词-->
+    <insert id="addFilterKeyword">
+        insert into fly_filter_keyword
+        <!-- 添加表字段 -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="keyword != null and keyword!=''">keyword,</if>
+        </trim>
+        <!-- 注入控制层字段 -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="keyword != null and keyword!=''">#{keyword},</if>
+        </trim>
+    </insert>
+
+    <!-- ############################## -->
+    <!-- ###### 删除 ###### -->
+    <!-- ############################## -->
+    <!-- 按id删除违禁关键词 -->
+    <delete id="deleteFilterKeywordById" parameterType="Integer">
+		delete from fly_filter_keyword where id=#{id}
+	</delete>
+
+    <!-- ############################## -->
+    <!-- ###### 修改 ###### -->
+    <!-- ############################## -->
+    <!-- 按id查询并更新违禁关键词信息-->
+    <update id="updateFilterKeywordById">
+        update fly_filter_keyword set keyword=#{keyword} where id=#{id}
+    </update>
+
+    <!-- ############################## -->
+    <!-- ###### 查询 ###### -->
+    <!-- ############################## -->
+    <!-- 按id查询违禁关键词信息-->
+    <select id="findFilterKeywordById" resultType="com.flycms.module.other.model.FilterKeyword">
+		select * from fly_filter_keyword where id=#{id}
+	</select>
+
+    <!-- 查询违禁关键词是否存在 -->
+    <select id="checkFilterKeyword" resultType="Integer">
+		select count(1) from fly_filter_keyword where keyword=#{keyword}
+	</select>
+
+    <!-- 查询当前id以外该违禁关键词是否存在 -->
+    <select id="checkFilterKeywordNotId" resultType="Integer">
+		select count(1) from fly_filter_keyword where keyword=#{keyword} and id!=#{id}
+	</select>
+
+    <!-- 违禁关键词列表 -->
+    <select id="getFilterKeywordAllList" resultType="String">
+        select keyword from fly_filter_keyword
+    </select>
+
+    <!-- 违禁关键词总数 -->
+    <select id="getFilterKeywordCount" resultType="Integer">
+		select count(1) from fly_filter_keyword
+	</select>
+
+    <!-- 违禁关键词列表 -->
+    <select id="getFilterKeywordList" resultType="com.flycms.module.other.model.FilterKeyword">
+		select * from fly_filter_keyword order by id desc limit #{offset},#{rows}
+	</select>
+</mapper>
+

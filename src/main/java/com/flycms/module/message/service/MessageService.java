@@ -1,5 +1,6 @@
 package com.flycms.module.message.service;
 
+import com.flycms.core.utils.OrderbyUtils;
 import java.text.ParseException;
 import java.util.List;
 
@@ -111,10 +112,12 @@ public class MessageService {
 		pageVo.setRows(rows);
 		if(orderby==null){
 			orderby="send_time";
-		}
+			}
+        orderby = OrderbyUtils.check(orderby, "send_time");
 		if(order==null){
 			order="desc";
-		}
+			}
+        order = OrderbyUtils.check(order, "desc");
 		pageVo.setCount(messageDao.getMessageCount(fromId,toId,subject,sendTime,writeTime,hasView,isAdmin,state));
 		List<Message> messagelist = messageDao.getMessageList(fromId,toId,subject,sendTime,writeTime,hasView,isAdmin,state,orderby,order,pageVo.getOffset(), pageVo.getRows());
 		

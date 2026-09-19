@@ -1,5 +1,6 @@
 package com.flycms.module.question.service;
 
+import com.flycms.core.utils.OrderbyUtils;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.SnowFlake;
@@ -13,7 +14,7 @@ import com.flycms.module.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -242,10 +243,12 @@ public class AnswerService {
         List<Answer> list = new ArrayList<Answer>();
         if(orderby==null){
             orderby="id";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "id");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         pageVo.setList(answerDao.getAnswerList(questionId,userId,addTime,status,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(answerDao.getAnswerCount(questionId,userId,addTime,status));
         return pageVo;

@@ -1,7 +1,7 @@
 package com.flycms.core.base;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.flycms.core.utils.StringHelperUtils;
 import org.apache.commons.lang.StringUtils;

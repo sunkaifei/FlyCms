@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.favorite.dao.FavoriteDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加收藏信息 -->
+	<insert id="addFavorite">
+		insert into fly_favorite
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="userId != null and userId != ''">user_id,</if>
+			<if test="infoType != null and infoType != ''">info_type,</if>
+			<if test="infoId != null and infoId != ''">info_id,</if>
+			<if test="createTime != null">create_time,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="userId != null and userId != ''">#{userId},</if>
+			<if test="infoType != null and infoType != ''">#{infoType},</if>
+			<if test="infoId != null and infoId != ''">#{infoId},</if>
+			<if test="createTime != null">#{createTime},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+    <!-- 按id删除收藏信息 -->
+    <delete id="deleteFavoriteById" parameterType="Integer">
+		delete from fly_favorite where user_id= #{userId} and info_type= #{infoType} and info_id= #{infoId}
+	</delete>
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询收藏信息 -->
+	<select id="findFavoriteById" resultType="com.flycms.module.favorite.model.Favorite">
+		select * from fly_favorite where id=#{id}
+	</select>
+
+	<!-- 查询收藏信息是否存在 -->
+	<select id="checkFavoriteByUser" resultType="Integer">
+		select count(*) from fly_favorite where user_id= #{userId} and info_type= #{infoType} and info_id= #{infoId}
+	</select>
+
+    <!-- 查询用户组总数 -->
+    <select id="getFavoriteCount" resultType="Integer">
+        select count(*) from fly_favorite
+        <where>
+            <if test="userId != null">and user_id = #{userId}</if>
+            <if test="infoType != null">and info_type = #{infoType}</if>
+            <if test="createTime != null">and to_days(create_time)=to_days(#{createTime}</if>
+        </where>
+    </select>
+
+    <!-- 查询收藏列表 -->
+    <select id="getFavoriteList" resultType="com.flycms.module.favorite.model.Favorite">
+        select * from fly_favorite
+        <where>
+            <if test="userId != null">and user_id = #{userId}</if>
+            <if test="infoType != null">and info_type = #{infoType}</if>
+            <if test="createTime != null">and to_days(create_time)=to_days(#{createTime}</if>
+        </where>
+        order by
+        <if test="orderby != null">${orderby}</if>
+        <if test="order != null">${order}</if>
+        limit #{offset},#{rows}
+    </select>
+
+</mapper>  

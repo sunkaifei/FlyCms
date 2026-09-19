@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.links.dao.LinksDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<insert id="addLinks" parameterType="com.flycms.module.links.model.Links">
+		insert into fly_links
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="type != null and type!='' or type==0">type,</if>
+			<if test="linkName != null and linkName!=''">link_name,</if>
+			<if test="linkUrl != null and linkUrl!=''">link_url,</if>
+			<if test="linkLogo != null and linkLogo!=''">link_logo,</if>
+			<if test="isShow != null and isShow!=''">is_show,</if>
+			<if test="sort != null and sort!=''">sort,</if>
+			<if test="createTime != null">create_time,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="type != null and type!='' or type==0">#{type},</if>
+			<if test="linkName != null and linkName!=''">#{linkName},</if>
+			<if test="linkUrl != null and linkUrl!=''">#{linkUrl},</if>
+			<if test="linkLogo != null and linkLogo!=''">#{linkLogo},</if>
+			<if test="isShow != null and isShow!=''">#{isShow},</if>
+			<if test="sort != null and sort!=''">#{sort},</if>
+			<if test="createTime != null">#{createTime},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按友情链接ID删除本条信息-->
+	<delete id="deleteLinksById">
+		delete from fly_links where id=#{id}
+	</delete>
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<update id="updateLinksById">
+		update fly_links
+		<set>
+			<if test="type != null and type!='' or type==0">type=#{type},</if>
+			<if test="linkName != null and linkName!=''">link_name=#{linkName},</if>
+			<if test="linkUrl != null and linkUrl!=''">link_url=#{linkUrl},</if>
+			<if test="linkLogo != null and linkLogo!=''">link_logo=#{linkLogo},</if>
+			<if test="isShow != null and isShow!=''">is_show=#{isShow},</if>
+			<if test="sort != null and sort!=''">sort=#{sort},</if>
+			<if test="createTime != null">create_time=#{createTime},</if>
+		</set>
+		where
+		id=#{id}
+	</update>
+
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询友情链接信息 -->
+	<select id="findLinksById" resultType="com.flycms.module.links.model.Links">
+		select * from fly_links where id=#{id}
+	</select>
+
+	<!-- 查询网站链接是否存在-->
+	<select id="checkLinksByLinkUrl" resultType="Integer">
+		select count(1) from fly_links where link_url=#{linkUrl}
+	</select>
+	
+	<!-- 查询友情链接所有数量 -->
+	<select id="getLinksCount" resultType="Integer">
+		select count(*) from fly_links
+		<where>
+			<if test="type!=null and type!='' or type==0">and type=#{type}</if>
+			<if test="isShow == 0">and is_show &gt;= 0</if>
+			<if test="isShow == 1">and is_show = 0</if>
+			<if test="isShow == 2">and is_show = 1</if>
+		</where>
+	</select>
+
+	<!-- 查友情链接列表 -->
+	<select id="getLinksList" resultType="com.flycms.module.links.model.Links">
+		select * from fly_links
+		<where>
+			<if test="type!=null and type!='' or type==0">and type=#{type}</if>
+			<if test="isShow == 0">and is_show &gt;= 0</if>
+			<if test="isShow == 1">and is_show = 0</if>
+			<if test="isShow == 2">and is_show = 1</if>
+		</where>
+		limit #{offset},#{rows}
+	</select>
+</mapper>  

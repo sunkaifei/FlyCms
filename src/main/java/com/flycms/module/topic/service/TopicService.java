@@ -6,6 +6,7 @@
 
 package com.flycms.module.topic.service;
 
+import com.flycms.core.utils.OrderbyUtils;
 import java.util.Date;
 import java.util.List;
 
@@ -337,7 +338,8 @@ public class TopicService {
         }
 		if(order==null){
 			order="desc";
-		}
+			}
+        order = OrderbyUtils.check(order, "desc");
 		List<Topic> list =null;
 		if(!"rand".equals(orderby)){
 		    list = topicDao.getTopicList(topic,type,isgood,status,field,order,pageVo.getOffset(), pageVo.getRows());
@@ -367,10 +369,12 @@ public class TopicService {
         pageVo.setRows(rows);
         if(orderBy==null){
             orderBy="id";
-        }
+            }
+        orderBy = OrderbyUtils.check(orderBy, "id");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         List<TopicInfo>	list = topicDao.getTopicAndInfoList(infoType,topicId,status,orderBy,order,pageVo.getOffset(), pageVo.getRows());
         int count = topicDao.getTopicAndInfoCount(infoType,topicId,status);
         pageVo.setList(list);

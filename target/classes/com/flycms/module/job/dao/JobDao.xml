@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.job.dao.JobDao">
+    <!-- ############################## -->
+    <!-- ###### 增加 ###### -->
+    <!-- ############################## -->
+    <!-- 添加定时任务配置-->
+    <insert id="insertJob" useGeneratedKeys="true" keyProperty="id">
+        insert into fly_job
+        <!-- 添加表字段 -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="beanName != null and beanName!=''">bean_name,</if>
+            <if test="cronExpression != null and cronExpression!=''">cron_expression,</if>
+            <if test="methodName != null and methodName!=''">method_name,</if>
+            <if test="params != null and params!=''">params,</if>
+            <if test="remark != null and remark!=''">remark,</if>
+            <if test="status != null and status!=''">status,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <!-- 注入控制层字段 -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="beanName != null and beanName!=''">#{beanName},</if>
+            <if test="cronExpression != null and cronExpression!=''">#{cronExpression},</if>
+            <if test="methodName != null and methodName!=''">#{methodName},</if>
+            <if test="params != null and params!=''">#{params},</if>
+            <if test="remark != null and remark!=''">#{remark},</if>
+            <if test="status != null and status!=''">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <!-- 添加定时任务配置日志-->
+    <insert id="insertJobLog">
+        insert into fly_job_log
+        <!-- 添加表字段 -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="beanName != null and beanName!=''">bean_name,</if>
+            <if test="cronExpression != null and cronExpression!=''">cron_expression,</if>
+            <if test="errorMsg != null and errorMsg!=''">error_msg,</if>
+            <if test="jobId != null and jobId!=''">job_id,</if>
+            <if test="methodName != null and methodName!=''">method_name,</if>
+            <if test="params != null and params!=''">params,</if>
+            <if test="status != null and status!=''">status,</if>
+            <if test="times != null and times!=''">times,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <!-- 注入控制层字段 -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="beanName != null and beanName!=''">#{beanName},</if>
+            <if test="cronExpression != null and cronExpression!=''">#{cronExpression},</if>
+            <if test="errorMsg != null and errorMsg!=''">#{errorMsg},</if>
+            <if test="jobId != null and jobId!=''">#{jobId},</if>
+            <if test="methodName != null and methodName!=''">#{methodName},</if>
+            <if test="params != null and params!=''">#{params},</if>
+            <if test="status != null and status!=''">#{status},</if>
+            <if test="times != null and times!=''">#{times},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+    <!-- ############################## -->
+    <!-- ###### 删除 ###### -->
+    <!-- ############################## -->
+    <!-- 按id删除定时任务配置 -->
+    <delete id="deleteJobById" parameterType="Integer">
+		delete from fly_job where id=#{id}
+	</delete>
+
+    <!-- ############################## -->
+    <!-- ###### 修改 ###### -->
+    <!-- ############################## -->
+    <!-- 更新定时任务配置审核状态 -->
+    <update id="updateJobById">
+		update fly_job
+        <set>
+            <if test="beanName != null and beanName!=''">bean_name=#{beanName},</if>
+            <if test="cronExpression != null and cronExpression!=''">cron_expression=#{cronExpression},</if>
+            <if test="methodName != null and methodName!=''">method_name=#{methodName},</if>
+            <if test="params != null and params!=''">params=#{params},</if>
+            <if test="remark != null and remark!=''">remark=#{remark},</if>
+            <if test="status != null and status!=''">status=#{status},</if>
+            <if test="createTime != null">create_time=#{createTime},</if>
+        </set>
+		where id=#{id}
+	</update>
+
+    <!-- 更新定时任务配置审核状态 -->
+    <update id="updateStatus">
+		update fly_job set status=#{status} where id=#{id}
+	</update>
+
+    <!-- ############################## -->
+    <!-- ###### 查询 ###### -->
+    <!-- ############################## -->
+    <!-- 按id查询定时任务配置信息 -->
+    <select id="findJobById" resultType="com.flycms.module.job.model.Job">
+        select * from fly_job where id=#{id}
+    </select>
+
+    <!-- 查询定时任务配置是否存在 -->
+    <select id="checkJob" resultType="Integer">
+		select count(1) from fly_job where keyword=#{keyword}
+	</select>
+
+    <!-- 查询定时任务同一个Baen下面的方法是否存在 -->
+    <select id="checkJobByMethodName" resultType="Integer">
+		select count(1) from fly_job where bean_name=#{beanName} and method_name=#{methodName}
+	</select>
+
+    <!-- 查询定时任务在排除当前id下手否有同一个Baen存在 -->
+    <select id="checkJobByMethodNameNotId" resultType="Integer">
+		select count(1) from fly_job where bean_name=#{beanName} and method_name=#{methodName} and id != #{id}
+	</select>
+
+    <!-- 所有定时任务配置列表 -->
+    <select id="getJobAllList" resultType="com.flycms.module.job.model.Job">
+		select * from fly_job where status=1
+	</select>
+
+    <!-- 定时任务配置总数 -->
+    <select id="getJobCount" resultType="Integer">
+		select count(1) from fly_job
+	</select>
+
+    <!-- 定时任务配置列表 -->
+    <select id="getJobList" resultType="com.flycms.module.job.model.Job">
+		select * from fly_job order by id desc limit #{offset},#{rows}
+	</select>
+
+    <!-- 定时任务日志总数 -->
+    <select id="getJobLogCount" resultType="Integer">
+		select count(1) from fly_job_log
+	</select>
+
+    <!-- 定时任务日志列表 -->
+    <select id="getJobLogList" resultType="com.flycms.module.job.model.JobLog">
+		select * from fly_job_log order by id desc limit #{offset},#{rows}
+	</select>
+
+</mapper>
+

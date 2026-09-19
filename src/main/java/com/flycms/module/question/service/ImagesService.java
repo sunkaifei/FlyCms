@@ -25,7 +25,8 @@ import com.flycms.module.question.model.ImagesInfoMerge;
 import com.flycms.module.question.model.Question;
 import com.flycms.module.user.model.User;
 import com.flycms.module.user.service.UserService;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ImagesService {
-	private Logger logger = Logger.getLogger(this.getClass());
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private UserService userService;
 

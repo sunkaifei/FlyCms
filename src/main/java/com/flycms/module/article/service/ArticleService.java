@@ -1,5 +1,6 @@
 package com.flycms.module.article.service;
 
+import com.flycms.core.utils.OrderbyUtils;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.ShortUrlUtils;
@@ -23,7 +24,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -508,10 +509,12 @@ public class ArticleService {
         List<Article> list = new ArrayList<Article>();
         if(orderby==null){
             orderby="id";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "id");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         pageVo.setList(articleDao.getArticleList(title,userId,createTime,status,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(articleDao.getArticleCount(title,userId,createTime,status));
         return pageVo;
@@ -560,10 +563,12 @@ public class ArticleService {
         List<ArticleComment> list = new ArrayList<ArticleComment>();
         if(orderby==null){
             orderby="id";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "id");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         pageVo.setList(articleDao.getArticleCommentList(articleId,userId,createTime,status,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(articleDao.getArticleCommentCount(articleId,userId,createTime,status));
         return pageVo;

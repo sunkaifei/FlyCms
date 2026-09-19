@@ -4,7 +4,7 @@ import com.flycms.constant.Const;
 import com.flycms.module.admin.model.Admin;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  *

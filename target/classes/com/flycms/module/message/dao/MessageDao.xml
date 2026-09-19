@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.message.dao.MessageDao">
+    <!-- ############################## -->
+    <!-- ###### 增加 ###### -->
+    <!-- ############################## -->
+    <!-- 增加站内短信 -->
+    <insert id="addMessage" parameterType="com.flycms.module.message.model.Message">
+        insert into fly_message
+        <!-- 添加表字段 -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="fromId != null">from_id,</if>
+            <if test="toId != null">to_id,</if>
+            <if test="subject != null">subject,</if>
+            <if test="message != null">message,</if>
+            <if test="sendTime != null">send_time,</if>
+            <if test="writeTime != null">write_time,</if>
+            <if test="hasView != null">has_view,</if>
+            <if test="isAdmin != null">is_admin,</if>
+            <if test="state != null">state,</if>
+        </trim>
+        <!-- 注入控制层字段 -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="fromId != null">#{fromId},</if>
+            <if test="toId != null">#{toId},</if>
+            <if test="subject != null">#{subject},</if>
+            <if test="message != null">#{message},</if>
+            <if test="sendTime != null">#{sendTime},</if>
+            <if test="writeTime != null">#{writeTime},</if>
+            <if test="hasView != null">#{hasView},</if>
+            <if test="isAdmin != null">#{isAdmin},</if>
+            <if test="state != null">#{state},</if>
+        </trim>
+    </insert>
+
+    <!-- ############################## -->
+    <!-- ###### 删除 ###### -->
+    <!-- ############################## -->
+    <!-- 按id删除站内短信 -->
+    <delete id="deleteMessageById" parameterType="int">
+		delete from fly_message where id=#{id}
+	</delete>
+    <!-- ############################## -->
+    <!-- ###### 修改 ###### -->
+    <!-- ############################## -->
+
+
+    <!-- ############################## -->
+    <!-- ###### 查询 ###### -->
+    <!-- ############################## -->
+    <!-- 按id查询站内短信信息 -->
+    <select id="findMessageById" resultType="com.flycms.module.message.model.Message">
+        select * from fly_message where id = #{id}
+    </select>
+
+
+    <!-- 按用户id查询最后对话数 -->
+    <select id="getMessageCount" resultType="Integer">
+        select count(*) from fly_message
+        <where>
+            <if test="fromId != null">and from_id = #{fromId}</if>
+            <if test="toId != null">and to_id = #{toId}</if>
+            <if test="subject != null">and subject LIKE CONCAT(CONCAT('%', #{subject}),'%')</if>
+            <if test="sendTime != null">and send_time BETWEEN STR_TO_DATE(#{sendTime}, '%Y-%m-%d %H')</if>
+            <if test="writeTime != null">and write_time BETWEEN STR_TO_DATE(#{writeTime}, '%Y-%m-%d %H')</if>
+            <if test="hasView == 0">and has_view &gt;= 0</if>
+            <if test="hasView == 1">and has_view = 0</if>
+            <if test="hasView == 2">and has_view = 1</if>
+            <if test="isAdmin == 0">and is_admin &gt;= 0</if>
+            <if test="isAdmin == 1">and is_admin = 0</if>
+            <if test="isAdmin == 2">and is_admin = 1</if>
+            <if test="state == 0">and state &gt;= 0</if>
+            <if test="state == 1">and state = 0</if>
+            <if test="state == 2">and state = 1</if>
+        </where>
+    </select>
+
+    <!-- 按用户id查询最后对话列表 -->
+    <select id="getMessageList" resultType="com.flycms.module.message.model.Message">
+        select * from fly_message
+        <where>
+            <if test="fromId != null">and from_id = #{fromId}</if>
+            <if test="toId != null">and to_id = #{toId}</if>
+            <if test="subject != null">and subject LIKE CONCAT(CONCAT('%', #{subject}),'%')</if>
+            <if test="sendTime != null">and send_time BETWEEN STR_TO_DATE(#{sendTime}, '%Y-%m-%d %H')</if>
+            <if test="writeTime != null">and write_time BETWEEN STR_TO_DATE(#{writeTime}, '%Y-%m-%d %H')</if>
+            <if test="hasView == 0">and has_view &gt;= 0</if>
+            <if test="hasView == 1">and has_view = 0</if>
+            <if test="hasView == 2">and has_view = 1</if>
+            <if test="isAdmin == 0">and is_admin &gt;= 0</if>
+            <if test="isAdmin == 1">and is_admin = 0</if>
+            <if test="isAdmin == 2">and is_admin = 1</if>
+            <if test="state == 0">and state &gt;= 0</if>
+            <if test="state == 1">and state = 0</if>
+            <if test="state == 2">and state = 1</if>
+        </where>
+        limit #{offset},#{rows}
+    </select>
+</mapper>

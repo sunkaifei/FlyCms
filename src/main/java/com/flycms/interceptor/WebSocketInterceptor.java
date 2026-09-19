@@ -2,7 +2,7 @@ package com.flycms.interceptor;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import com.flycms.constant.Const;
 import com.flycms.module.user.model.User;

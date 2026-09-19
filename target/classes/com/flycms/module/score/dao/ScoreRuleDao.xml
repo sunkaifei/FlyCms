@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+<mapper namespace="com.flycms.module.score.dao.ScoreRuleDao">
+    <!-- ############################## -->
+    <!-- ######       增加       ###### -->
+    <!-- ############################## -->
+    <!-- 保存积分规则 -->
+    <insert id="saveScoreRule">
+	    insert into fly_score_rule
+        <!-- 添加表字段 -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="score != null">score,</if>
+            <if test="remark != null">remark,</if>
+            <if test="type != null">type,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="status != null">status,</if>
+        </trim>
+        <!-- 注入控制层字段 -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="score != null">#{score},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="type != null">#{type},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="status != null">#{status},</if>
+        </trim>
+    </insert>
+    <!-- ############################## -->
+    <!-- ######       删除       ###### -->
+    <!-- ############################## -->
+    <!-- 按id删除本条积分规则 -->
+    <delete id="deleteScoreRuleById" parameterType="Integer">
+		delete from fly_score_rule where id = #{id}
+	</delete>
+
+    <!-- ############################## -->
+    <!-- ######        修改      ###### -->
+    <!-- ############################## -->
+    <update id="updateScoreRule">
+        UPDATE fly_score_rule
+        <set>
+            <if test="name != null and name !=''">name = #{name},</if>
+            <if test="remark != null and remark !=''">remark = #{remark},</if>
+            <if test="score != null and score !=''">score = #{score},</if>
+            <if test="remark != null and remark !=''">remark = #{remark},</if>
+            <if test="type != null and type !=''">type = #{type},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id=#{id}
+    </update>
+    
+    <update id="updateScoreRuleEnabled">
+        UPDATE fly_score_rule SET status=(CASE WHEN status=0 then 1 ELSE 0 END) WHERE id=#{id}
+    </update>
+
+    <!-- ############################## -->
+    <!-- ######       查询       ###### -->
+    <!-- ############################## -->
+
+    <!-- 根据规则名称查找 -->
+    <select id="findScoreRuleByName" resultType="com.flycms.module.score.model.ScoreRule">
+        select * from fly_score_rule where name = #{name}
+    </select>
+
+    <!-- 根据规则id查找 -->
+    <select id="findScoreRuleById" resultType="com.flycms.module.score.model.ScoreRule">
+        SELECT * FROM fly_score_rule
+        <where>
+            and id=#{id}
+            <if test="status == 0">and status &gt;= 0</if>
+            <if test="status == 1">and status = 0</if>
+            <if test="status == 2">and status = 1</if>
+        </where>
+    </select>
+
+    <!-- 查询所有规则 -->
+    <select id="allScoreRuleList" resultType="com.flycms.module.score.model.ScoreRule">
+        SELECT * FROM fly_score_rule ORDER BY ID ASC
+    </select>
+
+    <!-- 查询积分规则总数 -->
+    <select id="getScoreRuleCount" resultType="Integer">
+        select count(*) from fly_score_rule
+        <where>
+            <if test="name!=null and name!=''">and name LIKE CONCAT(CONCAT('%', #{name}),'%')</if>
+            <if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+            <if test="status == 0">and status &gt;= 0</if>
+            <if test="status == 1">and status = 0</if>
+            <if test="status == 2">and status = 1</if>
+            <if test="status == 3">and status = 2</if>
+            <if test="status == 4">and status = 3</if>
+        </where>
+    </select>
+
+    <!-- 查询积分规则列表 -->
+    <select id="getScoreRuleList" resultType="com.flycms.module.score.model.ScoreRule">
+        select * from fly_score_rule
+        <where>
+            <if test="name!=null and name!=''">and name LIKE CONCAT(CONCAT('%', #{name}),'%')</if>
+            <if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+            <if test="status == 0">and status &gt;= 0</if>
+            <if test="status == 1">and status = 0</if>
+            <if test="status == 2">and status = 1</if>
+            <if test="status == 3">and status = 2</if>
+            <if test="status == 4">and status = 3</if>
+        </where>
+        order by
+        <if test="orderby != null">${orderby}</if>
+        <if test="order != null">${order}</if>
+        limit #{offset},#{rows}
+    </select>
+</mapper>

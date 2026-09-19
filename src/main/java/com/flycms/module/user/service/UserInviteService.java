@@ -1,5 +1,6 @@
 package com.flycms.module.user.service;
 
+import com.flycms.core.utils.OrderbyUtils;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.module.user.dao.UserInviteDao;
@@ -7,7 +8,7 @@ import com.flycms.module.user.model.UserInvite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -88,10 +89,12 @@ public class UserInviteService {
         pageVo.setRows(rows);
         if(orderby==null){
             orderby="create_time";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "create_time");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         pageVo.setList(userInviteDao.getUserInviteList(userId, status,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(userInviteDao.getUserInviteCount(userId, status));
         return pageVo;

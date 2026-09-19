@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.user.dao.FeedDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加用户feed信息 -->
+	<insert id="addUserFeed" parameterType="Integer">
+		insert into fly_feed
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="userId != null">user_id,</if>
+			<if test="infoType != null">info_type,</if>
+			<if test="infoId != null">info_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="userId != null">#{userId},</if>
+			<if test="infoType != null">#{infoType},</if>
+			<if test="infoId != null">#{infoId},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按用户feed信息 -->
+	<delete id="deleteUserFeed">
+		delete from fly_feed where user_id=#{userId} and info_type=#{infoType} and info_id=#{infoId}
+	</delete>
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<!-- 修改该用户feed信息的审核状态 -->
+	<update id="updateuUserFeedById" parameterType="java.lang.Long">
+		update fly_feed set status = #{status} where info_type=#{infoType} and info_id=#{infoId}
+	</update>
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 查询该用户feed是否存在 -->
+	<select id="checkUserFeed" resultType="Integer">
+        select count(1) from fly_feed where user_id=#{userId} and info_type=#{infoType} and info_id=#{infoId}
+    </select>
+
+	<!-- 查询用户信息流总数 -->
+	<select id="getUserFeedCount" resultType="Integer">
+		SELECT count(1) from
+		fly_feed f
+		WHERE
+		(f.user_id=#{userId} or exists(select user_follow from fly_user_fans where user_fans=#{userId})) and f.status = 1
+	</select>
+
+	<!-- 查询用户信息流列表 -->
+	<select id="getUserFeedList" resultType="com.flycms.module.user.model.Feed">
+		select
+		f.user_id,f.info_type,f.info_id
+		from
+		fly_feed f
+		WHERE
+		(f.user_id=#{userId} or exists(select user_follow from fly_user_fans where user_fans=#{userId})) and f.status = 1
+		order by f.id desc
+		limit #{offset},#{rows}
+	</select>
+</mapper>  

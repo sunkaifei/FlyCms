@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.admin.dao.PermissionDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<insert id="addPermission" useGeneratedKeys="true" keyProperty="id" parameterType="com.flycms.module.admin.model.Permission">
+		insert into fly_admin_permission
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="actionKey != null">actionKey,</if>
+			<if test="controller != null">controller,</if>
+			<if test="remark != null">remark,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="actionKey != null">#{actionKey},</if>
+			<if test="controller != null">#{controller},</if>
+			<if test="remark != null">#{remark},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按id删除权限 -->
+	<delete id="deletePermission">
+		delete from fly_admin_permission where id=#{id}
+	</delete>
+
+	<!-- 按id删除权限 -->
+	<delete id="deleteRolePermission">
+		delete from fly_admin_group_permission_merge where permission_id=#{permissionId}
+	</delete>
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<update id="updatePermissions">
+		update fly_admin_permission
+		<set>
+			<if test="remark != null and remark != ''">remark=#{remark},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询权限节点详细信息 -->
+	<select id="findPermissionById" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission where id = #{id}
+	</select>
+
+	<!-- 按actionKey信息 -->
+	<select id="findPermissionByActionKey" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission where actionKey=#{actionKey}
+	</select>
+
+	<!-- 查询权限url是否存在 -->
+	<select id="checkPermission" resultType="Integer">
+		select count(*) from fly_admin_permission where actionKey=#{actionKey} and controller=#{controller}
+	</select>
+
+	<!-- 根据用用户ID查询用户所有权限 -->
+	<select id="findPermissionByUserId" resultType="com.flycms.module.admin.model.Permission">
+		select p.* from fly_admin_permission p , fly_admin_group_permission_merge gp, fly_admin_group_merge gm where gm.admin_id = #{adminId} and p.id = gp.permission_id and gp.group_id = gm.group_id
+	</select>
+
+	<!-- 查询permission总数量 -->
+	<select id="getPermissionCount" resultType="Integer">
+		select count(*) from fly_admin_permission
+	</select>
+
+	<!-- 查询permission列表 -->
+	<select id="getPermissionList" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission order by controller asc limit #{offset},#{rows}
+	</select>
+
+	<!-- 查询所有权限list -->
+	<select id="getAllPermissions" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission order by controller asc
+	</select>
+
+	<!-- 检查是否有权限 -->
+	<select id="markAssignedPermissions" resultType="Integer">
+		select count(*) from fly_admin_group_permission_merge where group_id=#{groupId} and permission_id=#{permissionId} limit 1
+	</select>
+</mapper>  

@@ -4,7 +4,8 @@ import com.flycms.core.base.BaseController;
 import com.flycms.core.utils.StringHelperUtils;
 import com.flycms.module.search.service.SolrService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 public class SearchController extends BaseController {
-    protected final static Logger logger = Logger.getLogger(SearchController.class);
+    protected final static Logger logger = LoggerFactory.getLogger(SearchController.class);
     @Autowired
     private SolrService solrService;
 
@@ -61,7 +62,7 @@ public class SearchController extends BaseController {
             modelMap.addAttribute("p", p);
             return theme.getPcTemplate("search/detail");
         } catch (Exception e) {
-            logger.fatal(e.getMessage());
+            logger.error(e.getMessage());
             return theme.get404();
         }
     }

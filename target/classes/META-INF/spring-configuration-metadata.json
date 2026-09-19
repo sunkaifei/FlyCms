@@ -1,0 +1,44 @@
+{
+  "groups": [
+    {
+      "name": "site",
+      "type": "com.flycms.constant.SiteConst",
+      "sourceType": "com.flycms.constant.SiteConst"
+    },
+    {
+      "name": "solr",
+      "type": "com.flycms.constant.SolrConst",
+      "sourceType": "com.flycms.constant.SolrConst"
+    },
+    {
+      "name": "spring.datasource",
+      "type": "javax.sql.DataSource",
+      "sourceType": "com.flycms.config.DruidConfig",
+      "sourceMethod": "dataSource()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "site.cookie-domain",
+      "type": "java.lang.String",
+      "description": "cookie所在的域",
+      "sourceType": "com.flycms.constant.SiteConst"
+    },
+    {
+      "name": "site.session-key",
+      "type": "java.lang.String",
+      "description": "sessionKey名称",
+      "sourceType": "com.flycms.constant.SiteConst"
+    },
+    {
+      "name": "solr.server-url",
+      "type": "java.lang.String",
+      "description": "solr服务器连接设置",
+      "sourceType": "com.flycms.constant.SolrConst"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}

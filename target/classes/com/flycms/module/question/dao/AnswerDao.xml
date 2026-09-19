@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.question.dao.AnswerDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 增加答案信息-->
+	<insert id="addAnswer" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_answer
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="userId != null">user_id,</if>
+			<if test="questionId != null">question_id,</if>
+			<if test="content != null">content,</if>
+			<if test="createTime != null">create_time,</if>
+			<if test="status != null">status,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="userId != null">#{userId},</if>
+			<if test="questionId != null">#{questionId},</if>
+			<if test="content != null">#{content},</if>
+			<if test="createTime != null">#{createTime},</if>
+			<if test="status != null">#{status},</if>
+		</trim>
+	</insert>
+
+	<!-- 增加答案相关统计信息-->
+	<insert id="addAnswerCount">
+		insert into fly_answer_count
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="answerId != null">answer_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="answerId != null">#{answerId},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按答案id答案主表信息 -->
+	<delete id="deleteAnswerById">
+		delete from fly_answer where id=#{id}
+	</delete>
+
+	<!-- 按答案id删除答案相关统计信息 -->
+	<delete id="deleteAnswerCountById">
+		delete from fly_answer_count where answer_id=#{answerId}
+	</delete>
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<!-- 按id更新问题审核状态 -->
+	<update id="updateAnswerStatusById">
+		update fly_answer
+		<set>
+			<if test="status != null and status !='' or status==0">status=#{status},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 按id更新答案内容 -->
+	<update id="updateAnswerById">
+		update fly_answer
+		<set>
+			<if test="content != null and content !=''">content=#{content},</if>
+			<if test="lastTime != null">last_time=#{lastTime},</if>
+			<if test="status != null and status !='' or status==0">status=#{status},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询评论内容 -->
+	<select id="findAnswerById" resultType="com.flycms.module.question.model.Answer">
+		select a.*,c.count_digg,c.count_burys,c.count_comment from fly_answer a inner join fly_answer_count c on a.id=c.answer_id
+		<where>
+			<if test="status == 0">and a.status &gt;= 0</if>
+			<if test="status == 1">and a.status = 0</if>
+			<if test="status == 2">and a.status = 1</if>
+			<if test="status == 3">and a.status = 2</if>
+			<if test="status == 4">and a.status = 3</if>
+			and  a.id=#{id}
+		</where>
+	</select>
+
+	<!-- 按id和用户id查询评论内容 -->
+	<select id="findAnswerByIdAndUserId" resultType="com.flycms.module.question.model.Answer">
+		select * from fly_answer where id=#{id} and  user_id = #{userId}
+	</select>
+
+    <!-- 查询该用户同样答案内容是否已存在！ -->
+    <select id="checkAnswerByContent" resultType="Integer">
+		select count(*) from fly_answer where user_id = #{userId} and content=#{content}
+	</select>
+
+	<!-- 答案总数 -->
+	<select id="getAnswerCount" resultType="Integer">
+		select count(*) from fly_answer
+		<where>
+            <if test="questionId!=null and questionId!='' ">and question_id=#{questionId}</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+		</where>
+	</select>
+
+	<!-- 答案列表 -->
+	<select id="getAnswerList" resultType="com.flycms.module.question.model.Answer">
+		select * from fly_answer
+		<where>
+			<if test="questionId!=null and questionId!='' ">and question_id=#{questionId}</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+		</where>
+        order by
+        <if test="orderby != null">${orderby}</if>
+        <if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+
+	<!-- 问题列表 -->
+	<select id="gettAnswerByQuestionIdList" resultType="com.flycms.module.question.model.Answer">
+		select * from fly_answer
+		<where>
+			<if test="questionId != null and questionId !=''">and question_id = #{questionId}</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+		</where>
+	</select>
+
+	<!-- 按问题id查询最新的第一条评论内容 -->
+	<select id="findNewestAnswerById" resultType="com.flycms.module.question.model.Answer">
+		select a.*,c.count_digg,c.count_burys,c.count_comment from fly_answer a inner join fly_answer_count c on a.id=c.answer_id
+		where a.question_id=#{questionId} and a.status = 1
+		order by last_time desc,id desc limit 1
+	</select>
+
+</mapper>  

@@ -14,7 +14,8 @@ import com.flycms.module.other.model.FilterKeyword;
 import com.flycms.module.other.service.FilterKeywordService;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -22,7 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/system/site")
 public class ConfigAdminController extends BaseController {
-    protected final static Logger logger = Logger.getLogger(ConfigAdminController.class);
+    protected final static Logger logger = LoggerFactory.getLogger(ConfigAdminController.class);
     @Autowired
     protected ConfigService configService;
     @Autowired

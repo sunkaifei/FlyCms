@@ -9,7 +9,7 @@ import com.flycms.core.base.AbstractTagPlugin;
 import freemarker.template.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import org.springframework.stereotype.Service;
 
 import freemarker.core.Environment;
@@ -30,7 +30,7 @@ public class Stringcut extends AbstractTagPlugin {
 		// 获取页面的参数
 		String content = params.get("content").toString();
 		Integer num = Integer.parseInt(params.get("num").toString());
-		content = Jsoup.clean(content, Whitelist.none());
+		content = Jsoup.clean(content, Safelist.none());
 		content = StringUtils.abbreviate(content, num);
 		env.setVariable("info_content", builder.build().wrap(content));
 		body.render(env.getOut());

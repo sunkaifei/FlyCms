@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.order.dao.OrderDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加分享订单信息 -->
+	<insert id="addSharOrdere">
+		insert into fly_share_order
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="shareId != null and shareId !=''">share_id,</if>
+			<if test="userId != null and userId !=''">user_id,</if>
+			<if test="status != null and status !=''">status,</if>
+			<if test="createTime != null">create_time,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="shareId != null and shareId !=''">#{shareId},</if>
+			<if test="userId != null and userId !=''">#{userId},</if>
+			<if test="status != null and status !=''">#{status},</if>
+			<if test="createTime != null">#{createTime},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询地区信息 -->
+	<select id="findOrderByid" resultType="com.flycms.module.order.model.Order">
+		select * from fly_order where id=#{id}
+	</select>
+
+
+	<!-- 按分享id和用户id查询分享订单总数 -->
+	<select id="getShareOrderCount" resultType="Integer">
+		select count(*) from fly_share_order o left join fly_share s on o.share_id=s.id
+		<where>
+			<if test="shareId!=null and shareId!=''">and o.share_id = #{shareId}</if>
+			<if test="userId != null and userId !=''">and o.user_id = #{userId}</if>
+			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+		</where>
+	</select>
+
+	<!-- 按分享id和用户id查询分享订单 -->
+	<select id="getShareOrder" resultType="com.flycms.module.share.model.Share">
+		select s.* from fly_share_order o left join fly_share s on o.share_id=s.id
+		<where>
+			<if test="shareId!=null and shareId!=''">and o.share_id = #{shareId}</if>
+			<if test="userId != null and userId !=''">and o.user_id = #{userId}</if>
+			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+		</where>
+		order by
+		<if test="orderby != null">o.${orderby}</if>
+		<if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+
+</mapper>  

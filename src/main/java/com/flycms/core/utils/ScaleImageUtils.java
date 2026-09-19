@@ -7,13 +7,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 
 import com.flycms.core.utils.lucbir.features.PHash;
 import com.flycms.core.utils.lucbir.index.LucbirIndexer;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGEncodeParam;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 
 /**
@@ -105,10 +106,8 @@ public abstract class ScaleImageUtils {
         }
          
         FileOutputStream fos = new FileOutputStream(new File(savePath));
-        JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(fos);
-        
-        encoder.encode(image);
-  
+        ImageIO.write(image, "jpg", fos);
+
         image.flush();
         fos.flush();
         fos.close();
@@ -140,16 +139,19 @@ public abstract class ScaleImageUtils {
         }
          
         FileOutputStream fos = new FileOutputStream(new File(savePath));
-        JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(fos);
-         
-        JPEGEncodeParam encodeParam = JPEGCodec.getDefaultJPEGEncodeParam(image);
+        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
+        ImageOutputStream ios = ImageIO.createImageOutputStream(fos);
+        writer.setOutput(ios);
+        ImageWriteParam encodeParam = writer.getDefaultWriteParam();
         if (quality == null || quality <= 0) {
             quality = DEFAULT_SCALE_QUALITY;
         }
-        /** 设置图片压缩质量 */  
-        encodeParam.setQuality(quality, true);  
-        encoder.encode(image, encodeParam);  
-  
+        encodeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        encodeParam.setCompressionQuality(quality);
+        writer.write(null, new IIOImage(image, null, null), encodeParam);
+        writer.dispose();
+        ios.flush();
+
         image.flush();
         fos.flush();
         fos.close();

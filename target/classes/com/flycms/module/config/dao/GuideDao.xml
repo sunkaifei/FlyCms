@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.config.dao.GuideDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加网站配置信息 -->
+	<insert id="addGuide">
+		insert into fly_guide
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="name != null and name != ''">name,</if>
+			<if test="link != null and link != ''">link,</if>
+			<if test="sort != null and sort != ''">sort,</if>
+			<if test="status != null and status != ''">status,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="name != null and name != ''">#{name},</if>
+			<if test="link != null and link != ''">#{link},</if>
+			<if test="sort != null and sort != ''">#{sort},</if>
+			<if test="status != null and status != ''">#{status},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 导航总数 -->
+	<select id="getGuideCount" resultType="Integer">
+		select count(*) from fly_guide
+		<where>
+			<if test="name!=null and name!=''">and name LIKE CONCAT(CONCAT('%', #{name}),'%')</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+		</where>
+	</select>
+
+	<!-- 导航列表 -->
+	<select id="getGuideList" resultType="com.flycms.module.config.model.Guide">
+		select * from fly_guide
+		<where>
+			<if test="name!=null and name!=''">and name LIKE CONCAT(CONCAT('%', #{name}),'%')</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+		</where>
+		order by
+		<if test="orderby != null">${orderby}</if>
+		<if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+</mapper>  

@@ -1,5 +1,6 @@
 package com.flycms.module.question.service;
 
+import com.flycms.core.utils.OrderbyUtils;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.ShortUrlUtils;
@@ -22,7 +23,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -335,10 +336,12 @@ public class QuestionService {
         List<Question> list = new ArrayList<Question>();
         if(orderby==null){
             orderby="id";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "id");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         pageVo.setList(questionDao.getQuestionList(title,userId,createTime,status,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(questionDao.getQuestionCount(title,userId,createTime,status));
         return pageVo;

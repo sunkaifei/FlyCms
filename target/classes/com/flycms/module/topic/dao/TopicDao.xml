@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.topic.dao.TopicDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 增加话题信息-->
+	<insert id="addTopic">
+		insert into fly_topic
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="topic != null">topic,</if>
+			<if test="shortUrl != null">short_url,</if>
+			<if test="content != null">content,</if>
+			<if test="countView != null">count_view,</if>
+			<if test="countNum != null">count_num,</if>
+			<if test="createTime != null">create_time,</if>
+			<if test="isgood != null">isgood,</if>
+			<if test="status != null">status,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="topic != null">#{topic},</if>
+			<if test="shortUrl != null">#{shortUrl},</if>
+			<if test="content != null">#{content},</if>
+			<if test="countView != null">#{countView},</if>
+			<if test="countNum != null">#{countNum},</if>
+			<if test="createTime != null">#{createTime},</if>
+			<if test="isgood != null">#{isgood},</if>
+			<if test="status != null">#{status},</if>
+		</trim>
+	</insert>
+
+	<!-- 增加标签与内容关联信息-->
+	<insert id="addTopicAndInfo">
+		insert into fly_topic_info_merge (id,info_id,topic_id,info_type,status) values (#{id},#{infoId},#{topicId},#{infoType},#{status})
+	</insert>
+
+	<!-- 添加用户关注的关注的标签id-->
+	<insert id="addTopicAndUser">
+		insert into fly_topic_follow (user_id,topic_id,create_time) values (#{userId},#{topicId},#{createTime})
+	</insert>
+
+	<!-- 添加话题分类信息-->
+	<insert id="addTopicCategory" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_topic_category
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+			<if test="fatherId != null">father_id,</if>
+			<if test="name != null">name,</if>
+			<if test="customUrl != null">custom_url,</if>
+			<if test="keywords != null">keywords,</if>
+			<if test="description != null">description,</if>
+			<if test="isRecommend != null">is_recommend,</if>
+			<if test="sort != null">sort,</if>
+			<if test="status != null">status,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="fatherId != null">#{fatherId},</if>
+			<if test="name != null">#{name},</if>
+			<if test="customUrl != null">#{customUrl},</if>
+			<if test="keywords != null">#{keywords},</if>
+			<if test="description != null">#{description},</if>
+			<if test="isRecommend != null">#{isRecommend},</if>
+			<if test="sort != null">#{sort},</if>
+			<if test="status != null">#{status},</if>
+		</trim>
+	</insert>
+
+	<!-- 用户增加编辑话题信息 -->
+	<insert id="addUserEditTopic">
+		insert into fly_topic_edlt
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userId != null">user_id,</if>
+			<if test="topicId != null">topic_id,</if>
+			<if test="content != null">content,</if>
+			<if test="createTime != null">create_time,</if>
+			<if test="status != null">status,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="userId != null">#{userId},</if>
+			<if test="topicId != null">#{topicId},</if>
+			<if test="content != null">#{content},</if>
+			<if test="createTime != null">#{createTime},</if>
+			<if test="status != null">#{status},</if>
+		</trim>
+	</insert>
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+    <!-- 按话题id删除信息 -->
+    <delete id="deleteTopicById">
+		delete from fly_topic where id=#{id}
+	</delete>
+
+    <!-- 按话题id删除关注信息 -->
+    <delete id="deleteTopicbyUserId">
+		delete from fly_topic_follow where user_id=#{userId} and topic_id=#{topicId}
+	</delete>
+
+	<!-- 删除话题和信息关联信息 -->
+	<delete id="deleteTopicAndInfo">
+		delete from fly_topic_info_merge where info_id=#{infoId} and topic_id=#{topicId} and info_type=#{infoType}
+	</delete>
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+    <!-- 按id更新标签信息 -->
+    <update id="updateTopicById">
+		update fly_topic set classId=#{classId},tag=#{tag},tagurl=#{tagurl},content=#{content},count_view=#{count_view},count_num=#{count_num},isgood=#{isgood},status=#{status}
+		where id=#{id}
+	</update>
+
+    <!-- 按id更新话题统计信息 -->
+    <update id="updateTopicByCount">
+		update fly_topic set count_num=(select count(*) from fly_topic_info_merge where topic_id=#{id}) where id=#{id}
+	</update>
+
+    <!-- 按id更新审核状态 -->
+    <update id="updateTagStatus">
+		update fly_topic set status=#{status} where id=#{id}
+	</update>
+
+    <!-- 按id更新话题关注人数统计信息 -->
+    <update id="updateTopicFollowByCount">
+		update fly_topic set count_follow=(select count(*) from fly_topic_follow where topic_id=#{id}) where id=#{id}
+	</update>
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按shortUrl查询话题信息 -->
+	<select id="findTopicByShorturl" resultType="com.flycms.module.topic.model.Topic">
+        select * from fly_topic where short_url=#{shortUrl} and status = 1
+    </select>
+
+	<!-- 按id查询话题信息 -->
+	<select id="findTopicById" resultType="com.flycms.module.topic.model.Topic">
+		select * from fly_topic
+		<where>
+			id=#{id}
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+		</where>
+	</select>
+
+    <!-- 按话题查询是否存在 -->
+    <select id="findTopicByTopic" resultType="com.flycms.module.topic.model.Topic">
+		select * from fly_topic where topic=#{topic} limit 1
+	</select>
+
+	<!-- 查询话题短域名是否被占用 -->
+	<select id="checkTopicByShorturl" resultType="Integer">
+		select count(1) from fly_topic where short_url=#{shortUrl}
+	</select>
+
+	<!-- 按话题关键词查询tag是否存在 -->
+	<select id="checkTopicByTopic" resultType="Integer">
+		select count(1) from fly_topic where topic=#{topic}
+	</select>
+
+	<!-- 查询用户下是否该关注标签-->
+	<select id="checkTopicByUserId" resultType="Integer">
+		select count(1) from fly_topic_follow where user_id=#{userId} and topic_id=#{topicId}
+	</select>
+
+	<!-- 查询标签所有数量 -->
+	<select id="getTopicCount" resultType="Integer">
+		select count(1) from fly_topic
+		<where>
+			<if test="topic != null"> and topic =  LIKE CONCAT(CONCAT('%', #{topic}),'%')</if>
+			<if test="isgood &gt; 0">and isgood = #{isgood}</if>
+			<choose>
+				<when test="type == 'day'">
+					and to_days(create_time) = to_days(now())
+				</when>
+				<when test="type == 'week'">
+					and yearweek(date_format(create_time,'%Y-%m-%d')) = yearweek(now());
+				</when>
+				<when test="type == 'month'">
+					and date_format(create_time,'%Y-%m') = date_format(now(),'%Y-%m')
+				</when>
+				<when test="type == 'year'">
+					and year(create_time) = year(NOW())
+				</when>
+			</choose>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+		</where>
+	</select>
+
+	<!-- 查标签列表 -->
+	<select id="getTopicList" resultType="com.flycms.module.topic.model.Topic">
+		select * from fly_topic
+		<where>
+			<if test="topic != null"> and topic =  LIKE CONCAT(CONCAT('%', #{topic}),'%')</if>
+			<if test="isgood &gt; 0">and isgood = #{isgood}</if>
+			<choose>
+				<when test="type == 'day'">
+					and to_days(create_time) = to_days(now())
+				</when>
+				<when test="type == 'week'">
+					and yearweek(date_format(create_time,'%Y-%m-%d')) = yearweek(now());
+				</when>
+				<when test="type == 'month'">
+					and date_format(create_time,'%Y-%m') = date_format(now(),'%Y-%m')
+				</when>
+				<when test="type == 'year'">
+					and year(create_time) = year(NOW())
+				</when>
+			</choose>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+		</where>
+		order by
+		<if test="orderBy != null">${orderBy}</if>
+		<if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+
+	<!-- 随机查询话题列表 -->
+	<select id="getTopicRandList" resultType="com.flycms.module.topic.model.Topic">
+		SELECT *
+		FROM fly_topic AS t1 JOIN (SELECT ROUND(RAND() * (
+		(SELECT MAX(id) FROM fly_topic where id &lt; 1000 )-(SELECT MIN(id) FROM fly_topic where id &lt;1000 ))+(SELECT MIN(id) FROM fly_topic where id &lt; 1000 )) AS id) AS t2
+		<where>
+			and t1.id >= t2.id
+			<if test="topic != null"> and topic =  LIKE CONCAT(CONCAT('%', #{topic}),'%')</if>
+			<if test="isgood &gt; 0">and isgood = #{isgood}</if>
+			<choose>
+				<when test="type == 'day'">
+					and to_days(create_time) = to_days(now())
+				</when>
+				<when test="type == 'week'">
+					and yearweek(date_format(create_time,'%Y-%m-%d')) = yearweek(now());
+				</when>
+				<when test="type == 'month'">
+					and date_format(create_time,'%Y-%m') = date_format(now(),'%Y-%m')
+				</when>
+				<when test="type == 'year'">
+					and year(create_time) = year(NOW())
+				</when>
+			</choose>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+		</where>
+		order by
+		<if test="orderBy != null">t1.${orderBy}</if>
+		<if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+
+	<!-- 按id查询话题关联的所有内容数量 -->
+	<select id="getTopicAndInfoCount" resultType="Integer">
+		select count(1) from (
+			select id from fly_topic_info_merge
+			<where>
+				<if test="status == 0">and status &gt;= 0</if>
+				<if test="status == 1">and status = 0</if>
+				<if test="status == 2">and status = 1</if>
+				<if test="infoType != null">and info_type=#{infoType}</if>
+				<if test="topicId != null">and topic_id=#{topicId}</if>
+			</where>
+            GROUP BY info_id order by id desc
+		) f
+	</select>
+
+    <!-- 按话题id查标所有内容列表 -->
+    <select id="getTopicAndInfoList" resultType="com.flycms.module.topic.model.TopicInfo">
+        select info_type,info_id from fly_topic_info_merge
+        <where>
+            <if test="status == 0">and status &gt;= 0</if>
+            <if test="status == 1">and status = 0</if>
+            <if test="status == 2">and status = 1</if>
+            <if test="status == 3">and status = 2</if>
+            <if test="infoType != null">and info_type=#{infoType}</if>
+            <if test="topicId != null">and topic_id=#{topicId}</if>
+        </where>
+        GROUP BY info_id
+        order by
+        <if test="orderBy != null">${orderBy}</if>
+        <if test="order != null">${order}</if>
+        limit #{offset},#{rows}
+    </select>
+
+	<!-- 按文章id查询所有文章关联的标签 -->
+	<select id="getInfoByTopicList" resultType="com.flycms.module.topic.model.Topic">
+		select t.* from fly_topic t left join fly_topic_info_merge ti  on t.id=ti.topic_id where t.status = 1 and ti.info_type=#{infoType} and ti.info_id=#{infoId}
+	</select>
+
+	<!-- 按用户id查询所有关注标签数量 -->
+	<select id="getUserTagsCount" resultType="Integer">
+		select count(1) from fly_topic_follow where user_id=#{userId}
+	</select>
+
+	<!-- 按用户id查询所有关注标签列表-->
+	<select id="getUserTagsList" resultType="com.flycms.module.topic.model.Topic">
+		select * from (select * from (select t.tag_id, row_number() OVER(ORDER BY t.count_num DESC) AS row_number from fly_user_tags u left join fly_tags t on u.tag_id=t.tag_id where u.user_id=#{userId}) p where p.row_number &gt; #{offset} ) q where rownum &lt;= #{rows}
+	</select>
+</mapper>  

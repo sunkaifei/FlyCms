@@ -1,5 +1,6 @@
 package com.flycms.module.config.service;
 
+import com.flycms.core.utils.OrderbyUtils;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.module.config.dao.GuideDao;
@@ -7,7 +8,7 @@ import com.flycms.module.config.model.Guide;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -76,10 +77,12 @@ public class GuideService {
         List<Guide> list = new ArrayList<Guide>();
         if(orderby==null){
             orderby="id";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "id");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         pageVo.setList(guideDao.getGuideList(name,status,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(guideDao.getGuideCount(name,status));
         return pageVo;

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.share.dao.ShareDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加分享内容 -->
+	<insert id="saveShare">
+		insert into fly_share
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="shortUrl != null">short_url,</if>
+			<if test="title != null and title !=''">title,</if>
+			<if test="content != null">content,</if>
+			<if test="userId != null">user_id,</if>
+			<if test="createTime != null">create_time,</if>
+			<if test="needmoney != null">needmoney,</if>
+			<if test="downloads != null">downloads,</if>
+			<if test="hide != null">hide,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="shortUrl != null">#{shortUrl},</if>
+			<if test="title != null and title !=''">#{title},</if>
+			<if test="content != null">#{content},</if>
+			<if test="userId != null">#{userId},</if>
+			<if test="createTime != null and createTime !=''">#{createTime},</if>
+			<if test="needmoney != null">#{needmoney},</if>
+			<if test="downloads != null">#{downloads},</if>
+			<if test="hide != null">#{hide},</if>
+		</trim>
+	</insert>
+
+	<!-- 添加分享属性关联-->
+	<insert id="addShareCount">
+		insert into fly_share_count
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="shareId != null and shareId!=''">share_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="shareId != null and shareId!=''">#{shareId},</if>
+		</trim>
+	</insert>
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按分享id删除信息 -->
+	<delete id="deleteShareById">
+		delete from fly_share where id=#{id}
+	</delete>
+
+	<!-- 按分享id删除统计信息 -->
+	<delete id="deleteShareCountById">
+		delete from fly_share_count where id=#{id}
+	</delete>
+
+	<!-- 删除分类id和分享id关联该信息 -->
+	<delete id="deleteShareCategoryMergeById">
+		delete from fly_share_category_merge where share_id=#{shareId}
+	</delete>
+
+	<!-- 按id删除文章评论内容 -->
+	<delete id="deleteShareCommentById">
+		delete from fly_share_comment where share_id=#{shareId}
+	</delete>
+
+	<!-- 按文章id删除用户顶或者踩记录 -->
+	<delete id="deleteAllShareVotesById">
+		delete from fly_share_votes where share_id=#{shareId}
+	</delete>
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<!-- 按id更新分享 -->
+	<update id="updateShareById">
+		update fly_share
+		<set>
+			<if test="title != null and title != ''">title=#{title},</if>
+			<if test="content != null and content != ''">content=#{content},</if>
+			<if test="needmoney != null and needmoney != ''">needmoney=#{needmoney},</if>
+			<if test="downloads != null and downloads != ''">downloads=#{downloads},</if>
+			<if test="hide != null and hide != ''">hide=#{hide},</if>
+			<if test="updateTime != null">update_time=#{updateTime},</if>
+			<if test="status != null and status != ''">status=#{status},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 按id更新分享审核状态 -->
+	<update id="updateShareStatusById">
+		update fly_share
+		<set>
+			<if test="status != null and status !='' or status==0">status=#{status},</if>
+			<if test="recommend != null and recommend !='' or recommend==0">recommend=#{recommend},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 按id更新分享浏览数量统计 -->
+	<update id="updateShareViewCount">
+		update fly_share_count set count_view=count_view+1 where share_id=#{shareId}
+	</update>
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按shortUrl查询文章信息 -->
+	<select id="findShareByShorturl" resultType="com.flycms.module.share.model.Share">
+        select * from fly_share where short_url=#{shortUrl} and status = 1
+    </select>
+
+	<!-- 按id查询分享信息 -->
+	<select id="findShareById" resultType="com.flycms.module.share.model.Share">
+		select * from fly_share
+		<where>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+			and id=#{id}
+		</where>
+	</select>
+
+	<!-- 按id查询分享信息 -->
+	<select id="findShareCountById" resultType="com.flycms.module.share.model.ShareCount">
+		select * from fly_share_count where share_id=#{shareId}
+	</select>
+
+	<!-- 查询分享短域名是否被占用 -->
+	<select id="checkShareByShorturl" resultType="Integer">
+		select count(1) from fly_share where short_url=#{shortUrl}
+	</select>
+
+	<!-- 查询该用户同样标题内容是否已存在！ -->
+	<select id="checkShareByTitle" resultType="Integer">
+		select count(*) from fly_share
+		<where>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="id != null and id !=''">and id!=#{id}</if>
+			and title=#{title}
+		</where>
+	</select>
+
+	<!-- 分享总数 -->
+	<select id="getShareCount" resultType="Integer">
+		select count(*) from fly_share
+		<where>
+			<if test="title!=null and title!=''">and title LIKE CONCAT(CONCAT('%', #{title}),'%')</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+		</where>
+	</select>
+
+	<!-- 分享列表 -->
+	<select id="getShareList" resultType="com.flycms.module.share.model.Share">
+		select * from fly_share
+		<where>
+			<if test="title!=null and title!='' ">and title LIKE CONCAT(CONCAT('%', #{title}),'%')</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+		</where>
+		order by
+		<if test="orderby != null">${orderby}</if>
+		<if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+
+	<!-- 分享索引列表 -->
+	<select id="getShareIndexList" resultType="com.flycms.module.share.model.Share">
+		select * from fly_share where status = 1 limit #{offset},#{rows}
+	</select>
+
+</mapper>  

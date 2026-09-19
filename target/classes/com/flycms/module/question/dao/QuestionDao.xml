@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.question.dao.QuestionDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 增加问题信息-->
+	<insert id="addQuestion" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_question
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="shortUrl != null">short_url,</if>
+			<if test="userId != null">user_id,</if>
+			<if test="title != null">title,</if>
+			<if test="content != null">content,</if>
+			<if test="createTime != null">create_time,</if>
+			<if test="status != null">status,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="shortUrl != null">#{shortUrl},</if>
+			<if test="userId != null">#{userId},</if>
+			<if test="title != null">#{title},</if>
+			<if test="content != null">#{content},</if>
+			<if test="createTime != null">#{createTime},</if>
+			<if test="status != null">#{status},</if>
+		</trim>
+	</insert>
+
+	<!-- 增加问题相关统计信息-->
+	<insert id="addQuestionCount">
+		insert into fly_question_count
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="questionId != null">question_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="questionId != null">#{questionId},</if>
+		</trim>
+	</insert>
+
+	<!-- 添加关注问题关联-->
+	<insert id="addQuestionFollow" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_question_follow_merge
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="questionId != null and questionId!=''">question_id,</if>
+			<if test="userId != null and userId!=''">user_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="questionId != null and questionId!=''">#{questionId},</if>
+			<if test="userId != null and userId!=''">#{userId},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按问题id删除主表信息 -->
+	<delete id="deleteQuestionById">
+		delete from fly_question where id=#{questionId}
+	</delete>
+
+	<!-- 按问题id删除问题相关统计信息 -->
+	<delete id="deleteQuestionCountById">
+		delete from fly_question_count where question_id=#{questionId}
+	</delete>
+
+	<!-- 按问题id和用户id删除关注关联信息 -->
+	<delete id="deleteQuestionFollow">
+		delete from fly_question_follow_merge
+		<where>
+			<if test="questionId != null and questionId !=''">and question_id=#{questionId}</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<!-- 下面是为了防止两个参数都为null的时候数据表被清空！ -->
+			<if test="questionId == null and userId == null">
+				<choose>
+					<when test="questionId != null">
+						and question_id=#{questionId}
+					</when>
+					<otherwise>
+						and user_id=#{userId}
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+	</delete>
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<!-- 按id更新问题审核状态 -->
+	<update id="updateQuestionById">
+		update fly_question
+		<set>
+			<if test="status != null and status !='' or status==0">status=#{status},</if>
+			<if test="recommend != null and recommend !='' or recommend==0">recommend=#{recommend},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 按id更新问题回答数量统计 -->
+	<update id="updateQuestionByAnswerCount">
+		update fly_question_count set count_answer=(select count(*) from fly_answer where question_id=#{questionId} and status=1) where question_id=#{questionId}
+	</update>
+
+	<!-- 按id更新问题关注数量统计 -->
+	<update id="updateQuestionByFollowCount">
+		update fly_question_count set count_follow=(select count(*) from fly_question_follow_merge where question_id=#{questionId}) where question_id=#{questionId}
+	</update>
+
+	<!-- 按id更新问题浏览数量统计 -->
+	<update id="updateQuestionByViewCount">
+		update fly_question_count set count_view=count_view+1 where question_id=#{questionId}
+	</update>
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按shortUrl查询文章信息 -->
+	<select id="findQuestionByShorturl" resultType="com.flycms.module.question.model.Question">
+        select * from fly_question where short_url=#{shortUrl} and status = 1
+    </select>
+
+	<!-- 按id查询问答信息 -->
+	<select id="findQuestionById" resultType="com.flycms.module.question.model.Question">
+		select * from fly_question
+		<where>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+			and  id=#{id}
+		</where>
+	</select>
+
+	<!-- 按id查询问答信息 -->
+	<select id="findQuestionCountById" resultType="com.flycms.module.question.model.QuestionCount">
+		select * from fly_question_count where question_id=#{questionId}
+	</select>
+
+	<!-- 查询问答短域名是否被占用 -->
+	<select id="checkQuestionByShorturl" resultType="Integer">
+		select count(1) from fly_question where short_url=#{shortUrl}
+	</select>
+
+	<!-- 查询该用户同样标题内容是否已存在！ -->
+	<select id="checkQuestionByTitle" resultType="Integer">
+		select count(*) from fly_question where user_id = #{userId} and title=#{title}
+	</select>
+
+	<!-- 查询是否已关注该问题 -->
+	<select id="checkQuestionFollow" resultType="Integer">
+		select count(*) from fly_question_follow_merge where question_id = #{questionId} and user_id = #{userId}
+	</select>
+
+	<!-- 问题总数 -->
+	<select id="getQuestionCount" resultType="Integer">
+		select count(*) from fly_question
+		<where>
+			<if test="title!=null and title!=''">and title LIKE CONCAT(CONCAT('%', #{title}),'%')</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+		</where>
+	</select>
+
+	<!-- 问题列表 -->
+	<select id="getQuestionList" resultType="com.flycms.module.question.model.Question">
+		select * from fly_question
+		<where>
+			<if test="title!=null and title!='' ">and title LIKE CONCAT(CONCAT('%', #{title}),'%')</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+		</where>
+		order by
+		<if test="orderby != null">${orderby}</if>
+		<if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+
+
+	<!-- 问题与用户关联列表 -->
+	<select id="getQuestionFollowList" resultType="com.flycms.module.question.model.QuestionFollow">
+		select * from fly_question_follow_merge
+		<where>
+			<if test="questionId != null and questionId !=''">and question_id = #{questionId}</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+		</where>
+	</select>
+
+	<!-- 问题索引总数 -->
+	<select id="getQuestionIndexCount" resultType="Integer">
+		select count(*) from fly_question where status = 1
+	</select>
+
+	<!-- 问题索引列表 -->
+	<select id="getQuestionIndexList" resultType="com.flycms.module.question.model.Question">
+		select * from fly_question where status = 1 limit #{offset},#{rows}
+	</select>
+</mapper>  

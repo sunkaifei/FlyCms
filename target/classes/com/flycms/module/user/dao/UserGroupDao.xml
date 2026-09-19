@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.user.dao.UserGroupDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加用户组信息 -->
+	<insert id="addUserGroup" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_user_group
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="groupName != null">group_name,</if>
+			<if test="discount != null">discount,</if>
+			<if test="minexp != null">minexp,</if>
+			<if test="maxexp != null">maxexp,</if>
+			<if test="messageIds != null">message_ids,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="groupName != null">#{groupName},</if>
+			<if test="discount != null">#{discount},</if>
+			<if test="minexp != null">#{minexp},</if>
+			<if test="maxexp != null">#{maxexp},</if>
+			<if test="messageIds != null">#{messageIds},</if>
+		</trim>
+	</insert>
+
+	<!-- 权限组id和权限id关联 -->
+	<insert id="addUserGroupPermission">
+		insert into fly_user_group_permission_merge
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="groupId != null">group_id,</if>
+			<if test="permissionId != null">permission_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="groupId != null">#{groupId},</if>
+			<if test="permissionId != null">#{permissionId},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按id删除角色信息 -->
+	<delete id="deleteUserGroup" parameterType="Integer">
+		delete from fly_user_group where id = #{id}
+	</delete>
+
+	<!-- 按id删除角色和权限关联信息 -->
+	<delete id="deleteUserGroupPermission" parameterType="Integer">
+		delete from fly_user_group_permission_merge
+		<where>
+			<if test="groupId != null and groupId !='' ">and group_id=#{groupId}</if>
+			<if test="permissionId != null and permissionId !=''">and permission_id=#{permissionId}</if>
+		</where>
+	</delete>
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<!-- 更新用户组信息 -->
+	<update id="updateUserGroup">
+		update fly_user_group
+		<set>
+			<if test="groupName != null">group_name=#{groupName},</if>
+			<if test="discount != null">discount=#{discount},</if>
+			<if test="minexp != null">minexp=#{minexp},</if>
+			<if test="maxexp != null">maxexp=#{maxexp},</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<!-- 更新用户组排序 -->
+	<update id="updateGroupSort">
+		update fly_user_group set sort=#{sort} where id = #{id}
+	</update>
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询用户组信息 -->
+	<select id="findUserGroupByid" resultType="com.flycms.module.user.model.UserGroup">
+		select * from fly_user_group where id=#{id}
+	</select>
+
+	<!-- 按用户userId查询所在的用户组信息 -->
+	<select id="findUuserGroupByUserId" resultType="com.flycms.module.user.model.UserGroup">
+		select g.* from fly_user_group g left join fly_user_group_merge r on g.id=r.group_id where r.user_id=#{userId} limit 1
+	</select>
+
+	<!-- 查询用户组名和用户session里的用户id查询用户当前权限 -->
+	<select id="checkUuserPower" resultType="Integer">
+		select count(*) from fly_user_group g left join fly_user_group_merge r on g.id=r.group_id where g.group_name=#{groupName} and r.user_id=#{userId} limit 1
+	</select>
+
+	<!-- 查询用户组名是否存在,如果id不为空或者null，排除当前id意外检查是否已存在！ -->
+	<select id="checkUuserGroupByName" resultType="Integer">
+		select count(*) from fly_user_group
+		<where>
+			<if test="id != null and id != ''">and id != #{id}</if>
+			and group_name=#{groupName}
+		</where>
+	</select>
+
+	<!-- 查询用户组总数 -->
+	<select id="getUserGroupCount" resultType="Integer">
+		select count(*) from fly_user_group
+	</select>
+
+	<!-- 查询用户组列表 -->
+	<select id="getUserGroupList" resultType="com.flycms.module.user.model.UserGroup">
+		select * from fly_user_group order by sort asc limit #{offset},#{rows}
+	</select>
+
+	<!-- 所有用户组列表 -->
+	<select id="getAllUserGroupList" resultType="com.flycms.module.user.model.UserGroup">
+		select * from fly_user_group order by sort asc
+	</select>
+</mapper>  

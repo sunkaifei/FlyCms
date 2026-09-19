@@ -3,7 +3,7 @@ package com.flycms.core.utils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 import java.io.IOException;
 
@@ -33,7 +33,7 @@ public class JsoupUtils {
      * strike,strong,sub,sup,u,ul,img
      * 以及a标签的href,img标签的src,align,alt,height,width,title属性
      */
-    private static final Whitelist whitelist = Whitelist.basicWithImages();
+    private static final Safelist whitelist = Safelist.basicWithImages();
     /** 配置过滤化参数,不对代码进行格式化 */
     private static final Document.OutputSettings outputSettings = new Document.OutputSettings().prettyPrint(false);
     static {

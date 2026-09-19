@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 /**
  * Open source house, All rights reserved
  * 开发公司：28844.com<br/>

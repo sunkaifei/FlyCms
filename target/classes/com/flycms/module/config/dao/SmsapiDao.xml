@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.config.dao.SmsapiDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<insert id="addSmsapi">
+		insert into fly_config_web
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="accessKeyId != null and accessKeyId != ''">access_key_id,</if>
+			<if test="accessKeySecret != null and accessKeySecret != ''">access_key_secret,</if>
+			<if test="signName != null and signName != ''">sign_name,</if>
+			<if test="regCode != null and regCode != ''">reg_code,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="accessKeyId != null and accessKeyId != ''">#{accessKeyId},</if>
+			<if test="accessKeySecret != null and accessKeySecret != ''">#{accessKeySecret},</if>
+			<if test="signName != null and signName != ''">#{signName},</if>
+			<if test="regCode != null and regCode != ''">#{regCode},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<!-- 按id更新手机短信API接口信息 -->
+	<update id="updagteSmsapiById">
+		update fly_config_smsaip
+		<set>
+			<if test="accessKeyId != null and accessKeyId != ''">access_key_id=#{accessKeyId},</if>
+			<if test="accessKeySecret != null and accessKeySecret != ''">access_key_secret=#{accessKeySecret},</if>
+			<if test="signName != null and signName != ''">sign_name=#{signName},</if>
+			<if test="templateCode != null and templateCode != ''">template_code=#{templateCode},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询手机短信API -->
+	<select id="findSmsapiByid" resultType="com.flycms.module.config.model.Smsapi">
+		select * from fly_config_smsaip where id=#{id}
+	</select>
+
+	<!-- 查询手机短信API总数量 -->
+	<select id="getSmsapiCount" resultType="Integer">
+		select count(*) from fly_config_smsaip
+	</select>
+
+	<!-- 查询手机短信API翻页列表 -->
+	<select id="getSmsapiList" resultType="com.flycms.module.config.model.Smsapi">
+		select * from fly_config_smsaip limit #{offset},#{rows}
+	</select>
+
+</mapper>  

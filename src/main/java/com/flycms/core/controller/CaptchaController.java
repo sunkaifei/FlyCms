@@ -1,8 +1,8 @@
 package com.flycms.core.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import com.flycms.core.utils.captcha.Captcha;
 import com.flycms.core.utils.captcha.GifCaptcha;

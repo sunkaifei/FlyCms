@@ -1,5 +1,6 @@
 package com.flycms.module.favorite.service;
 
+import com.flycms.core.utils.OrderbyUtils;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.SnowFlake;
@@ -14,8 +15,8 @@ import com.flycms.module.share.service.ShareService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -124,10 +125,12 @@ public class FavoriteService {
         List<Favorite> list = new ArrayList<Favorite>();
         if(orderby==null){
             orderby="a.score";
-        }
+            }
+        orderby = OrderbyUtils.check(orderby, "a.score");
         if(order==null){
             order="desc";
-        }
+            }
+        order = OrderbyUtils.check(order, "desc");
         pageVo.setList(favoriteDao.getFavoriteList(userId, infoType,createTime,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(favoriteDao.getFavoriteCount(userId, infoType,createTime));
         return pageVo;

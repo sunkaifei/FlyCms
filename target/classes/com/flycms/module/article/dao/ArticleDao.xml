@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.article.dao.ArticleDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加文章 -->
+	<insert id="addArticle" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_article
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+            <if test="shortUrl != null">short_url,</if>
+			<if test="userId != null">user_id,</if>
+			<if test="title != null">title,</if>
+			<if test="content != null">content,</if>
+			<if test="createTime != null">create_time,</if>
+			<if test="style != null">style,</if>
+			<if test="color != null">color,</if>
+			<if test="keywords != null">keywords,</if>
+			<if test="description != null">description,</if>
+			<if test="status != null">status,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+            <if test="shortUrl != null">#{shortUrl},</if>
+			<if test="userId != null">#{userId},</if>
+			<if test="title != null">#{title},</if>
+			<if test="content != null">#{content},</if>
+			<if test="createTime != null">#{createTime},</if>
+			<if test="style != null">#{style},</if>
+			<if test="color != null">#{color},</if>
+			<if test="keywords != null">#{keywords},</if>
+			<if test="description != null">#{description},</if>
+			<if test="status != null">#{status},</if>
+		</trim>
+	</insert>
+
+    <!-- 添加文章统计关联数据-->
+    <insert id="addArticleCount">
+        insert into fly_article_count
+        <!-- 添加表字段 -->
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="articleId != null and articleId!=''">article_id,</if>
+        </trim>
+        <!-- 注入控制层字段 -->
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="articleId != null and articleId!=''">#{articleId},</if>
+        </trim>
+    </insert>
+
+	<!-- 添加文章和分类关联-->
+	<insert id="addArticleAndCategory">
+		insert into fly_article_category_merge
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="articleId != null and articleId!=''">article_id,</if>
+			<if test="categoryId != null and categoryId!=''">category_id,</if>
+			<if test="typeId != null and typeId!=''">type_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="articleId != null and articleId!=''">#{articleId},</if>
+			<if test="categoryId != null and categoryId!=''">#{categoryId},</if>
+			<if test="typeId != null and typeId!=''">#{typeId},</if>
+		</trim>
+	</insert>
+
+	<!-- 添加文章评论内容-->
+	<insert id="addArticleComment" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_article_comment
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="articleId != null and articleId!=''">article_id,</if>
+			<if test="userId != null and userId!=''">user_id,</if>
+			<if test="content != null and content!=''">content,</if>
+			<if test="createTime != null">create_time,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="articleId != null and articleId!=''">#{articleId},</if>
+			<if test="userId != null and userId!=''">#{userId},</if>
+			<if test="content != null and content!=''">#{content},</if>
+			<if test="createTime != null">#{createTime},</if>
+		</trim>
+	</insert>
+
+	<!-- 添加文章顶与踩记录-->
+	<insert id="addArticleVotes">
+		insert into fly_article_votes
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userId != null and userId!=''">user_id,</if>
+			<if test="infoType != null and infoType!='' or infoType==0">info_type,</if>
+			<if test="infoId != null and infoId!=''">info_id,</if>
+			<if test="digg != null and digg!=''">digg,</if>
+			<if test="burys != null and burys!=''">burys,</if>
+			<if test="createTime != null">create_time,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="userId != null and userId!=''">#{userId},</if>
+			<if test="infoType != null and infoType!='' or infoType==0">#{infoType},</if>
+			<if test="infoId != null and infoId!=''">#{infoId},</if>
+			<if test="digg != null and digg!=''">#{digg},</if>
+			<if test="burys != null and burys!=''">#{burys},</if>
+			<if test="createTime != null">#{createTime},</if>
+		</trim>
+	</insert>
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按id删除文章信息 -->
+	<delete id="deleteArticleById" parameterType="java.lang.Long">
+		delete from fly_article where id=#{id}
+	</delete>
+
+    <!-- 按id删除文章统计关联 -->
+    <delete id="deleteArticleCountById" parameterType="java.lang.Long">
+		delete from fly_article_count where article_id=#{articleId}
+	</delete>
+
+    <!-- 按id删除文章评论内容 -->
+    <delete id="deleteArticleCommentById" parameterType="java.lang.Long">
+		delete from fly_article_comment where article_id=#{articleId}
+	</delete>
+
+	<!-- 按id删除文章和分类关联 -->
+	<delete id="deleteArticleAndCcategoryById" parameterType="java.lang.Long">
+		delete from fly_article_category_merge where article_id=#{articleId}
+	</delete>
+
+    <!-- 按文章id删除用户顶或者踩记录 -->
+    <delete id="deleteAllArticleVotesById" parameterType="java.lang.Long">
+		delete from fly_article_votes where article_id=#{articleId}
+	</delete>
+
+	<!-- 按信息类型id、文章id、用户id删除用户顶或者踩记录 -->
+	<delete id="deleteArticleVotesById" parameterType="java.lang.Long">
+		delete from fly_article_votes where info_type= #{infoType} and info_id=#{infoId} and user_id = #{userId}
+	</delete>
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<!-- 按id更新文章 -->
+	<update id="editArticleById">
+		update fly_article
+		<set>
+			<if test="title != null and title != ''">title=#{title},</if>
+			<if test="content != null and content != ''">content=#{content},</if>
+			<if test="updateTime != null">update_time=#{updateTime},</if>
+			<if test="status != null and status != ''">status=#{status},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 按id更新文章审核状态，status：0未审核 1正常状态 2审核未通过 3删除-->
+	<update id="updateArticleStatusById">
+		update fly_article
+		<set>
+			<if test="status != null and status !='' or status==0">status=#{status},</if>
+			<if test="recommend != null and recommend !='' or recommend==0">recommend=#{recommend},</if>
+		</set>
+		where id=#{id}
+	</update>
+	<!-- 按id更新文章分类 -->
+	<update id="editArticleAndCcategoryById">
+		update fly_article_category_merge
+		<set>
+			<if test="categoryId != null and categoryId != ''">category_id=#{categoryId},</if>
+			<if test="typeId != null and typeId != ''">type_id=#{typeId},</if>
+		</set>
+		where article_id=#{articleId}
+	</update>
+
+    <!-- 更新文章被评论的数量 -->
+    <update id="updateArticleCommentCount">
+		update fly_article_count set count_comment=(select count(*) from fly_article_comment where article_id=#{articleId} and status=1) where article_id=#{articleId}
+	</update>
+
+	<!-- 更新文章被顶的数量 -->
+	<update id="updateArticleDiggCount">
+		update fly_article_count set count_digg=(select count(*) from fly_article_votes where info_type= 0 and info_id=#{articleId} and digg=1) where article_id=#{articleId}
+	</update>
+
+	<!-- 更新文章被踩的数量 -->
+	<update id="updateArticleBurysCount">
+		update fly_article_count set count_burys=(select count(*) from fly_article_votes where info_type= 0 and info_id=#{articleId} and burys=1) where article_id=#{articleId}
+	</update>
+
+	<!-- 更新文章评论被顶的数量 -->
+	<update id="updateArticleCommentDiggCount">
+		update fly_article_comment set count_digg=(select count(*) from fly_article_votes where info_type= 1 and info_id=#{id} and digg=1) where id=#{id}
+	</update>
+
+	<!-- 更新文章评论被踩的数量 -->
+	<update id="updateArticleCommentBurysCount">
+		update fly_article_comment set count_burys=(select count(*) from fly_article_votes where info_type= 1 and info_id=#{id} and burys=1) where id=#{id}
+	</update>
+
+	<!-- 更新文章权重 -->
+	<update id="updateArticleWeight">
+		update fly_article_count set weight=#{weight} where article_id=#{articleId}
+	</update>
+
+	<!-- 按id更新文章浏览数量统计 -->
+	<update id="updateArticleViewCount">
+		update fly_article_count set count_view=count_view+1 where article_id=#{articleId}
+	</update>
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+    <!-- 按shortUrl查询文章信息 -->
+    <select id="findArticleByShorturl" resultType="com.flycms.module.article.model.Article">
+        select a.*,c.category_id,c.type_id from fly_article a inner join fly_article_category_merge c on a.id=c.article_id where a.short_url=#{shortUrl} and a.status = 1
+    </select>
+
+	<!-- 按id查询文章信息 -->
+	<select id="findArticleById" resultType="com.flycms.module.article.model.Article">
+		select a.*,c.category_id,c.type_id from fly_article a inner join fly_article_category_merge c on a.id=c.article_id
+		<where>
+			<if test="status == 0">and a.status &gt;= 0</if>
+			<if test="status == 1">and a.status = 0</if>
+			<if test="status == 2">and a.status = 1</if>
+			<if test="status == 3">and a.status = 2</if>
+			<if test="status == 4">and a.status = 3</if>
+			and  a.id=#{id}
+		</where>
+	</select>
+
+	<!-- 按id查询文章统计信息 -->
+	<select id="findArticleCountById" resultType="com.flycms.module.article.model.ArticleCount">
+		select * from fly_article_count where article_id=#{articleId}
+	</select>
+
+	<!-- 查询文章短域名是否被占用 -->
+	<select id="checkArticleByShorturl" resultType="Integer">
+		select count(1) from fly_article where short_url=#{shortUrl}
+	</select>
+
+	<!-- 查询文章标题是否存在 -->
+	<select id="checkArticleByTitle" resultType="Integer">
+		select count(1) from fly_article
+		<where>
+			<if test="title!=null and title!=''">and title= #{title}</if>
+			<if test="userId != null and userId !=''">and user_id = #{userId}</if>
+			<if test="id != null and id !=''">and id != #{id}</if>
+		</where>
+	</select>
+
+
+	<!-- 查询用户是否发布过同样内容 -->
+	<select id="checkArticleComment" resultType="Integer">
+		select count(1) from fly_article_comment
+		<where>
+			<if test="articleId!=null and articleId!=''">and article_id= #{articleId}</if>
+			<if test="userId != null and userId !=''">and user_id = #{userId}</if>
+			<if test="content != null and content !=''">and content = #{content}</if>
+		</where>
+	</select>
+
+	<!-- 按信息类型id、信息id、用户id查询用户顶或者踩记录是否发布过同样内容 -->
+	<select id="checkArticleVotes" resultType="Integer">
+		select count(1) from fly_article_votes where info_type=#{infoType} and info_id=#{infoId} and user_id=#{userId}
+	</select>
+
+	<!-- 文章总数 -->
+	<select id="getArticleCount" resultType="Integer">
+		select count(1) from fly_article a inner join fly_article_category_merge c on a.id=c.article_id
+		<where>
+			<if test="title!=null and title!='' ">and a.title LIKE CONCAT(CONCAT('%', #{title}),'%')</if>
+			<if test="userId != null and userId !=''">and a.user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and a.create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="status == 0">and a.status &gt;= 0</if>
+			<if test="status == 1">and a.status = 0</if>
+			<if test="status == 2">and a.status = 1</if>
+			<if test="status == 3">and a.status = 2</if>
+			<if test="status == 4">and a.status = 3</if>
+		</where>
+	</select>
+
+	<!-- 文章列表 -->
+	<select id="getArticleList" resultType="com.flycms.module.article.model.Article">
+		select a.* ,c.* from fly_article a inner join fly_article_category_merge c on a.id=c.article_id
+		<where>
+			<if test="title!=null and title!='' ">and a.title LIKE CONCAT(CONCAT('%', #{title}),'%')</if>
+			<if test="userId != null and userId !=''">and a.user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and a.create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="status == 0">and a.status &gt;= 0</if>
+			<if test="status == 1">and a.status = 0</if>
+			<if test="status == 2">and a.status = 1</if>
+			<if test="status == 3">and a.status = 2</if>
+			<if test="status == 4">and a.status = 3</if>
+		</where>
+		order by
+		<if test="orderby != null">a.${orderby}</if>
+		<if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+
+	<!-- 文章索引总数 -->
+	<select id="getArticleIndexCount" resultType="Integer">
+		select count(1) from fly_article where status = 1
+	</select>
+
+	<!-- 文章索引列表 -->
+	<select id="getArticleIndexList" resultType="com.flycms.module.article.model.Article">
+		select * from fly_article where status = 1 limit #{offset},#{rows}
+	</select>
+
+	<!-- 按id查询文章评论信息 -->
+	<select id="findArticleCommentById" resultType="com.flycms.module.article.model.ArticleComment">
+		select * from fly_article_comment
+		<where>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+			and id=#{id}
+		</where>
+	</select>
+
+	<!-- 文章评论总数 -->
+	<select id="getArticleCommentCount" resultType="Integer">
+		select count(1) from fly_article_comment
+		<where>
+			<if test="articleId != null and articleId !=''">and article_id=#{articleId}</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+		</where>
+	</select>
+
+	<!-- 文章评论列表 -->
+	<select id="getArticleCommentList" resultType="com.flycms.module.article.model.ArticleComment">
+		select * from fly_article_comment
+		<where>
+			<if test="articleId != null and articleId !=''">and article_id=#{articleId}</if>
+			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="status == 0">and status &gt;= 0</if>
+			<if test="status == 1">and status = 0</if>
+			<if test="status == 2">and status = 1</if>
+			<if test="status == 3">and status = 2</if>
+			<if test="status == 4">and status = 3</if>
+		</where>
+		order by
+		<if test="orderby != null">${orderby}</if>
+		<if test="order != null">${order}</if>
+		limit #{offset},#{rows}
+	</select>
+
+	<!-- 查询用户是否已添加顶或踩记录 -->
+	<select id="findArticleVotes" resultType="com.flycms.module.article.model.ArticleVotes">
+		select * from fly_article_votes where article_id= #{articleId} and user_id = #{userId}
+	</select>
+
+	<!-- 按问题id查询最新的第一条评论内容 -->
+	<select id="findNewestArticleById" resultType="com.flycms.module.article.model.ArticleComment">
+		select * from fly_article_comment
+		where article_id=#{articleId} and status = 1
+		order by create_time desc,id desc limit 1
+	</select>
+
+	<select id="getArticleCommentByArticleId" resultType="com.flycms.module.article.model.ArticleComment">
+		select * from fly_article_comment where article_id=#{articleId} and status = 1
+	</select>
+
+</mapper>  

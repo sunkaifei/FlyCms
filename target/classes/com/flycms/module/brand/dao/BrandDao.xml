@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.brand.dao.BrandDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<!-- 添加品牌分类 -->
+	<insert id="addBrandCategory">
+		insert into fly_brand_category
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="name != null and name != ''">name,</if>
+			<if test="goodsCategoryId != null and goodsCategoryId != ''">goods_category_id,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="name != null and name != ''">#{name},</if>
+			<if test="goodsCategoryId != null and goodsCategoryId != ''">#{goodsCategoryId},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 查询品牌分类是否存在 -->
+	<select id="checkCategoryByName" resultType="Integer">
+		select count(*) from fly_brand_category where name= #{name}
+	</select>
+
+	<!-- 按id查询品牌分类信息 -->
+	<select id="findCategoryById" resultType="com.flycms.module.brand.model.BrandCategory">
+		select * from fly_brand_category where id = #{id}
+	</select>
+
+	<!--所有品牌分类列表 -->
+	<select id="getAllCategoryList" resultType="com.flycms.module.brand.model.BrandCategory">
+		select * from fly_brand_category
+	</select>
+
+</mapper>  
