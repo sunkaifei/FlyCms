@@ -225,7 +225,7 @@ public class ApiModelController extends ApiBaseController {
         filters.remove("orderby");
         filters.remove("order");
         PageVo<Map<String, Object>> pageVo = modelDataService.selectPage(
-                modelId, title, categoryId, status, filters, orderby, order, pageNum, 20, false);
+                modelId, title, categoryId, status, filters, orderby, order, pageNum, 20, null, false);
         return DataVo.success("操作成功", pageVo);
     }
 

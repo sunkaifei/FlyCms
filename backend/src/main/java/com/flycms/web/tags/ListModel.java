@@ -77,7 +77,8 @@ public class ListModel extends AbstractTagPlugin {
 		}
 		try {
 			PageVo<Map<String, Object>> pageVo = modelDataService.selectPage(
-					model.getId(), title, categoryId, 1, filters, orderby, order, p, rows, true);
+					model.getId(), title, categoryId, 1, filters, orderby, order, p, rows, null, true);
+			modelDataService.expandAttachments(model.getId(), pageVo.getList());
 			env.setVariable("dataList", builder.build().wrap(pageVo.getList()));
 			env.setVariable("model_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {

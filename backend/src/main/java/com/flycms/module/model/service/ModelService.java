@@ -185,20 +185,20 @@ public class ModelService {
 
     private String defaultListTemplate(Model model) {
         return "<#-- " + model.getName() + " 列表页（自动生成，可自行定制） -->\n"
-                + "<@ListModel model=\"" + model.getCode() + "\" p=\"${p!1}\" rows=\"10\">\n"
+                + "<@fly_list_model model=\"" + model.getCode() + "\" p=\"${p!1}\" rows=\"10\">\n"
                 + "<ul>\n"
                 + "<#list dataList as item>\n"
                 + "  <li><a href=\"/" + model.getCode() + "/${item.shortUrl}.html\">${item.title}</a></li>\n"
                 + "</#list>\n"
                 + "</ul>\n"
-                + "</@ListModel>\n";
+                + "</@fly_list_model>\n";
     }
 
     private String defaultDetailTemplate(Model model) {
         return "<#-- " + model.getName() + " 详情页（自动生成，可自行定制） -->\n"
-                + "<@InfoModel model=\"" + model.getCode() + "\" shortUrl=\"${shortUrl!}\">\n"
+                + "<@fly_info_model model=\"" + model.getCode() + "\" shortUrl=\"${shortUrl!}\">\n"
                 + "<h1>${info.title}</h1>\n"
                 + "<div>${info.content!''}</div>\n"
-                + "</@InfoModel>\n";
+                + "</@fly_info_model>\n";
     }
 }

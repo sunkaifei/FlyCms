@@ -1,0 +1,36 @@
+<#-- 文章模型 列表页 -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>${model.name} - ${web_name!''}</title>
+<meta name="keywords" content="${seo_keywords!''}">
+</head>
+<body>
+<header><h1><a href="/">${web_name!''}</a> · ${model.name}</h1></header>
+<nav>
+<@fly_category_model model="${model.code}">
+<a href="/${model.code}/">全部</a>
+<#if categoryList??><#list categoryList as c> <a href="/${model.code}/c${c.id}">${c.name}</a></#list></#if>
+</@fly_category_model>
+</nav>
+<main>
+<@fly_page_model model="${model.code}" p="${p!1}" rows="10">
+<ul>
+<#if dataList?? && dataList?size gt 0><#list dataList as item>
+  <li>
+    <a href="/${model.code}/${item.shortUrl}.html">${item.title}</a>
+    <span class="meta">
+      <#if (item.author)?? && item.author != ''>${item.author}</#if>
+      <#if (item.source)?? && item.source != ''> · ${item.source}</#if>
+      · ${item.createTime?substring(0, 10)} · 阅读 ${item.countView}
+    </span>
+  </li>
+</#list><#else><li>暂无内容</li></#if>
+</ul>
+<#-- 分页条 -->
+<#if pageHtml?? && pageHtml != ''>${pageHtml}</#if>
+</@fly_page_model>
+</main>
+</body>
+</html>

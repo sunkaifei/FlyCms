@@ -57,7 +57,7 @@ public class ModelDataService {
      */
     public PageVo<Map<String, Object>> selectPage(Long modelId, String title, Long categoryId, Integer status,
                                                   Map<String, String> filters, String orderby, String order,
-                                                  int page, int rows, boolean front) {
+                                                  int page, int rows, Long notId, boolean front) {
         Model model = modelService.findModelById(modelId);
         PageVo<Map<String, Object>> pageVo = new PageVo<>(page);
         pageVo.setRows(rows);
@@ -88,6 +88,10 @@ public class ModelDataService {
         if (categoryId != null && categoryId > 0) {
             where.add("category_id = #{params.categoryId}");
             params.put("categoryId", categoryId);
+        }
+        if (notId != null && notId > 0) {
+            where.add("id != #{params.notId}");
+            params.put("notId", notId);
         }
         // 自定义字段筛选：仅 is_filter=1 且值非空
         for (ModelField f : fields) {
@@ -245,6 +249,97 @@ public class ModelDataService {
     public DataVo updateStatus(Long modelId, List<Long> ids, int status) {
         modelDataDao.updateStatus(String.valueOf(modelId), ids, status);
         return DataVo.success("状态已更新");
+    }
+
+    /**
+     * 附件字段展开：IMAGE/FILE → 字段名+"Url"（img_url 字符串）；
+     * IMAGES/FILES → 字段名+"Urls"（img_url 列表）。前台模板零二次查询（手册 §7.3）。
+     */
+    public void expandAttachments(Long modelId, List<Map<String, Object>> rows) {
+        if (rows == null || rows.isEmpty()) {
+            return;
+        }
+        normalizeKeys(rows);
+        List<ModelField> fields = modelFieldDao.findFieldsByModelId(modelId, 1);
+        java.util.Set<Long> ids = new java.util.LinkedHashSet<>();
+        for (Map<String, Object> row : rows) {
+            ids.addAll(collectAttachmentIds(fields, row));
+        }
+        Map<Long, String> urlMap = new HashMap<>();
+        Map<Long, String> nameMap = new HashMap<>();
+        if (!ids.isEmpty()) {
+            for (Map<String, Object> img : modelDataDao.findImageUrls(new ArrayList<>(ids))) {
+                long id = ((Number) img.get("id")).longValue();
+                Object url = img.get("imgUrl");
+                urlMap.put(id, url == null ? "" : String.valueOf(url));
+                Object name = img.get("imgName");
+                nameMap.put(id, name == null ? "" : String.valueOf(name));
+            }
+        }
+        for (Map<String, Object> row : rows) {
+            for (ModelField f : fields) {
+                FieldTypeEnum type;
+                try {
+                    type = FieldTypeEnum.of(f.getFieldType());
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+                if (!type.isAttachment()) {
+                    continue;
+                }
+                Object v = row.get(f.getFieldName());
+                if (v == null) {
+                    continue;
+                }
+                if (type == FieldTypeEnum.IMAGE || type == FieldTypeEnum.FILE) {
+                    long id = Long.parseLong(String.valueOf(v));
+                    row.put(f.getFieldName() + "Url", urlMap.getOrDefault(id, ""));
+                } else {
+                    List<String> urls = new ArrayList<>();
+                    for (String s : parseStringArray(String.valueOf(v))) {
+                        try {
+                            urls.add(urlMap.getOrDefault(Long.parseLong(s), ""));
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                    row.put(f.getFieldName() + "Urls", urls);
+                }
+            }
+        }
+    }
+
+    /**
+     * 行键名规范化：为含下划线的键（short_url/count_view/file_size/os_require…）
+     * 追加驼峰别名（shortUrl/countView/fileSize/osRequire…），原键保留——
+     * 模板统一用驼峰（与 Article 等 Java bean 一致），自定义字段原名不受影响。
+     */
+    private void normalizeKeys(List<Map<String, Object>> rows) {
+        for (Map<String, Object> row : rows) {
+            Map<String, Object> aliases = new HashMap<>();
+            for (Map.Entry<String, Object> e : row.entrySet()) {
+                String key = e.getKey();
+                if (key != null && key.indexOf('_') >= 0) {
+                    StringBuilder sb = new StringBuilder();
+                    boolean up = false;
+                    for (char c : key.toCharArray()) {
+                        if (c == '_') {
+                            up = true;
+                        } else {
+                            sb.append(up ? Character.toUpperCase(c) : c);
+                            up = false;
+                        }
+                    }
+                    Object aliasValue = e.getValue();
+                    if (key.endsWith("_time") && aliasValue instanceof String sv) {
+                        // datetime 列在 map 行里是 ISO 字符串，统一为 "yyyy-MM-dd HH:mm"
+                        String norm = sv.replace('T', ' ');
+                        aliasValue = norm.length() > 16 ? norm.substring(0, 16) : norm;
+                    }
+                    aliases.put(sb.toString(), aliasValue);
+                }
+            }
+            row.putAll(aliases);
+        }
     }
 
     // /////////////////// 内部：元数据驱动校验与值转换 ///////////////////

@@ -1,0 +1,24 @@
+<#-- 下载模型 详情页 -->
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><title>${(info.title)!'资源'} - ${web_name!''}</title></head>
+<body>
+<h1>${(info.title)!''}</h1>
+<table border="1" cellpadding="4" cellspacing="0">
+<tr><td>授权方式</td><td>${(info.auth)!'-'}</td><td>程序语言</td><td>${(info.language)!'-'}</td></tr>
+<tr><td>文件大小</td><td><#if (info.fileSize)??>${info.fileSize} KB<#else>-</#if></td><td>系统要求</td><td>${(info.osRequire)!'-'}</td></tr>
+<tr><td>运行环境</td><td>${(info.runEnv)!'-'}</td><td>演示地址</td>
+<td><#if (info.demoUrl)?? && info.demoUrl != ''><a href="${info.demoUrl}" target="_blank">${info.demoUrl}</a><#else>-</#if></td></tr>
+</table>
+<p>
+<#if (info.fileUrl)?? && info.fileUrl != ''><a class="btn" href="${info.fileUrl}">立即下载</a><#else><span>下载文件待上传</span></#if>
+</p>
+<div class="content">${(info.content)!''}</div>
+<h3>相关下载</h3>
+<@fly_rel_model model="${model.code}" category="${(info.categoryId)!0}" notid="${(info.id)!0}" rows="5">
+<ul><#if dataList?? && dataList?size gt 0><#list dataList as item>
+  <li><a href="/${model.code}/${item.shortUrl}.html">${item.title}</a>（${(item.auth)!''}）</li>
+</#list></#if></ul>
+</@fly_rel_model>
+</body>
+</html>

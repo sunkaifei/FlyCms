@@ -1,0 +1,33 @@
+<#-- 图片模型 列表页（缩略图网格） -->
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><title>${model.name} - ${web_name!''}</title>
+<style>.grid{display:flex;flex-wrap:wrap;gap:12px}.card{width:220px}.card img{width:220px;height:150px;object-fit:cover}</style>
+</head>
+<body>
+<header><h1>${model.name}</h1></header>
+<nav>
+<@fly_category_model model="${model.code}">
+<a href="/${model.code}/">全部</a>
+<#if categoryList??><#list categoryList as c> <a href="/${model.code}/c${c.id}">${c.name}</a></#list></#if>
+</@fly_category_model>
+</nav>
+<main>
+<@fly_page_model model="${model.code}" p="${p!1}" rows="12">
+<div class="grid">
+<#if dataList?? && dataList?size gt 0><#list dataList as item>
+  <div class="card">
+    <a href="/${model.code}/${item.shortUrl}.html">
+      <#assign urls = (item.imagesUrls)![]>
+      <#if urls?size gt 0><img src="${urls[0]}" alt="${item.title}"><#else><div style="height:150px;background:#eee"></div></#if>
+    </a>
+    <p><a href="/${model.code}/${item.shortUrl}.html">${item.title}</a></p>
+    <p class="meta">${item.createTime?substring(0, 10)} · 浏览 ${item.countView}</p>
+  </div>
+</#list><#else><p>暂无图集</p></#if>
+</div>
+<#if pageHtml?? && pageHtml != ''>${pageHtml}</#if>
+</@fly_page_model>
+</main>
+</body>
+</html>

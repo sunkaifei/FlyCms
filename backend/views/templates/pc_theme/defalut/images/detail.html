@@ -1,0 +1,25 @@
+<#-- 图片模型 详情页（图集轮播简化版：全部原图直出） -->
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><title>${(info.title)!'图集'} - ${web_name!''}</title></head>
+<body>
+<h1>${(info.title)!''}</h1>
+<p class="meta">
+<#if (info.author)?? && info.author != ''>作者：${info.author} </#if>
+<#if (info.location)?? && info.location != ''>地点：${info.location} </#if>
+<#if (info.shootTime)??>拍摄：${info.shootTime?substring(0, 10)} · 浏览 ${info.countView}</#if>
+</p>
+<div class="gallery">
+<@fly_fields_model model="${model.code}"><#-- 字段元数据可用于动态展示 --></@fly_fields_model>
+<#assign urls = (info.imagesUrls)![]>
+<#list urls as u><img src="${u}" style="max-width:800px;display:block;margin:8px 0" alt="${(info.title)!''}"></#list>
+</div>
+<div class="content">${(info.content)!''}</div>
+<h3>相关图集</h3>
+<@fly_rel_model model="${model.code}" category="${(info.categoryId)!0}" notid="${(info.id)!0}" rows="4">
+<ul><#if dataList?? && dataList?size gt 0><#list dataList as item>
+  <li><a href="/${model.code}/${item.shortUrl}.html">${item.title}</a></li>
+</#list></#if></ul>
+</@fly_rel_model>
+</body>
+</html>

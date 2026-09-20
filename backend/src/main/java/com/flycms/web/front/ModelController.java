@@ -96,13 +96,14 @@ public class ModelController extends BaseController {
     }
 
     /**
-     * 模板回退：模型自定义模板 → {code}/{type}.html → 通用 cmodel/{type}.html → 404
+     * 模板回退：模型自定义模板 → {code}/{type} → 通用 cmodel/{type} → 404。
+     * 候选名不带 .html 后缀（getPcTemplate 内部会追加），templateFileExists 检查时再补。
      */
     private String resolveTemplate(Model model, String type, String fallback) {
         String custom = "list".equals(type) ? model.getListTemplate() : model.getDetailTemplate();
         String[] candidates = {
-                StringUtils.isNotBlank(custom) ? custom : model.getCode() + "/" + type + ".html",
-                model.getCode() + "/" + type + ".html",
+                StringUtils.isNotBlank(custom) ? stripHtml(custom) : model.getCode() + "/" + type,
+                model.getCode() + "/" + type,
                 fallback
         };
         for (String candidate : candidates) {
@@ -113,12 +114,16 @@ public class ModelController extends BaseController {
         return theme.getPcTemplate("404");
     }
 
+    private String stripHtml(String name) {
+        return name.endsWith(".html") ? name.substring(0, name.length() - 5) : name;
+    }
+
     /**
-     * 校验模板物理文件存在（theme.getPcTemplate 只拼视图名，不校验存在性）
+     * 校验模板物理文件存在（getPcTemplate 只拼视图名，不校验存在性）
      */
     private boolean templateFileExists(String relative) {
         String skin = config.getStringByKey("pc_theme");
-        File f = new File("views/templates/pc_theme/" + skin + "/" + relative);
+        File f = new File("views/templates/pc_theme/" + skin + "/" + relative + ".html");
         return f.exists() && f.isFile();
     }
 }

@@ -77,13 +77,50 @@ public class PageModel extends AbstractTagPlugin {
 		}
 		try {
 			PageVo<Map<String, Object>> pageVo = modelDataService.selectPage(
-					model.getId(), title, categoryId, 1, filters, orderby, order, p, rows, true);
+					model.getId(), title, categoryId, 1, filters, orderby, order, p, rows, null, true);
+			modelDataService.expandAttachments(model.getId(), pageVo.getList());
 			env.setVariable("dataList", builder.build().wrap(pageVo.getList()));
 			env.setVariable("model_page", builder.build().wrap(pageVo));
+			env.setVariable("pageHtml", builder.build().wrap(buildPageBar(p, rows, pageVo.getCount())));
 		} catch (Exception e) {
 			env.setVariable("dataList", builder.build().wrap(null));
 			env.setVariable("model_page", builder.build().wrap(null));
+			env.setVariable("pageHtml", builder.build().wrap(""));
 		}
 		body.render(env.getOut());
+	}
+
+	/**
+	 * 帝国/Dede 式分页条：首页/上一页/页码窗口(±5)/下一页/末页，get 方式 ?p=N
+	 */
+	private String buildPageBar(int page, int rows, int count) {
+		if (count <= 0 || rows <= 0) {
+			return "";
+		}
+		int totalPage = (int) Math.ceil((double) count / rows);
+		if (totalPage <= 1) {
+			return "";
+		}
+		if (page < 1) {
+			page = 1;
+		}
+		if (page > totalPage) {
+			page = totalPage;
+		}
+		StringBuilder sb = new StringBuilder("<div class=\"fly-page\">");
+		sb.append("<span>共").append(count).append("条/").append(totalPage).append("页</span>");
+		sb.append(page > 1 ? "<a href='?p=" + (page - 1) + "'>上一页</a>" : "<span>上一页</span>");
+		int begin = Math.max(1, page - 5);
+		int end = Math.min(totalPage, page + 5);
+		for (int i = begin; i <= end; i++) {
+			if (i == page) {
+				sb.append("<span class='current'>").append(i).append("</span>");
+			} else {
+				sb.append("<a href='?p=").append(i).append("'>").append(i).append("</a>");
+			}
+		}
+		sb.append(page < totalPage ? "<a href='?p=" + (page + 1) + "'>下一页</a>" : "<span>下一页</span>");
+		sb.append("</div>");
+		return sb.toString();
 	}
 }

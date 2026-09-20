@@ -68,6 +68,8 @@ public interface ModelDataDao {
 
     public boolean existsImages(@Param("ids") List<Long> ids);
 
+    public java.util.List<Map<String, Object>> findImageUrls(@Param("ids") List<Long> ids);
+
     public void incrImagesRefCount(@Param("ids") List<Long> ids);
 
     public void decrImagesRefCount(@Param("ids") List<Long> ids);

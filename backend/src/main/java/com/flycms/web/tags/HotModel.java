@@ -14,10 +14,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 自定义模型详情标签。params: model(code) + id 或 shortUrl；输出变量 info。
+ * 热门内容标签（对应 DedeCMS arclist orderby=hot）：按浏览量倒序。
+ * 模板用法：
+ * <@fly_hot_model model="downloads" rows="10">
+ *   <#list dataList as item>${item.title}（${item.countView}）</#list>
+ * </@fly_hot_model>
+ * params: model(code), rows(默认10), category(可选)；输出变量 dataList
  */
 @Service
-public class InfoModel extends AbstractTagPlugin {
+public class HotModel extends AbstractTagPlugin {
 
 	@Autowired
 	private ModelDataService modelDataService;
@@ -30,35 +35,32 @@ public class InfoModel extends AbstractTagPlugin {
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		String modelCode = null;
-		Long id = null;
-		String shortUrl = null;
+		Long categoryId = null;
+		int rows = 10;
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for (String str : paramWrap.keySet()) {
 			if ("model".equals(str)) {
 				modelCode = paramWrap.get(str).toString();
 			}
-			if ("id".equals(str)) {
-				id = Long.parseLong(paramWrap.get(str).toString());
+			if ("category".equals(str)) {
+				categoryId = Long.parseLong(paramWrap.get(str).toString());
 			}
-			if ("shortUrl".equals(str)) {
-				shortUrl = paramWrap.get(str).toString();
+			if ("rows".equals(str)) {
+				rows = Integer.parseInt(paramWrap.get(str).toString());
 			}
 		}
 		Model model = modelService.findModelByCode(modelCode);
-		Map<String, Object> info = null;
+		java.util.List<Map<String, Object>> dataList = null;
 		if (model != null) {
-			if (id != null) {
-				info = modelDataService.findDataById(model.getId(), id);
-			} else if (shortUrl != null) {
-				info = modelDataService.findByShortUrl(model.getId(), shortUrl);
+			try {
+				dataList = modelDataService
+						.selectPage(model.getId(), null, categoryId, 1, null, "count_view", "desc", 1, rows, null, true)
+						.getList();
+				modelDataService.expandAttachments(model.getId(), dataList);
+			} catch (Exception ignored) {
 			}
 		}
-		if (info != null) {
-			java.util.ArrayList<Map<String, Object>> one = new java.util.ArrayList<>();
-			one.add(info);
-			modelDataService.expandAttachments(model.getId(), one);
-		}
-		env.setVariable("info", builder.build().wrap(info));
+		env.setVariable("dataList", builder.build().wrap(dataList));
 		body.render(env.getOut());
 	}
 }

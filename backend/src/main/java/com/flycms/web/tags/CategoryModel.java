@@ -2,7 +2,8 @@ package com.flycms.web.tags;
 
 import com.flycms.core.base.AbstractTagPlugin;
 import com.flycms.module.model.model.Model;
-import com.flycms.module.model.service.ModelDataService;
+import com.flycms.module.model.model.ModelCategory;
+import com.flycms.module.model.service.ModelCategoryService;
 import com.flycms.module.model.service.ModelService;
 import freemarker.core.Environment;
 import freemarker.template.*;
@@ -14,13 +15,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 自定义模型详情标签。params: model(code) + id 或 shortUrl；输出变量 info。
+ * 自定义模型分类列表标签（对应 DedeCMS channel/type）。
+ * 模板用法：
+ * <@fly_category_model model="downloads">
+ *   <#list categoryList as c>${c.name}</#list>
+ * </@fly_category_model>
+ * params: model(code)；输出变量 categoryList
  */
 @Service
-public class InfoModel extends AbstractTagPlugin {
+public class CategoryModel extends AbstractTagPlugin {
 
 	@Autowired
-	private ModelDataService modelDataService;
+	private ModelCategoryService modelCategoryService;
 	@Autowired
 	private ModelService modelService;
 
@@ -30,35 +36,17 @@ public class InfoModel extends AbstractTagPlugin {
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 		String modelCode = null;
-		Long id = null;
-		String shortUrl = null;
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for (String str : paramWrap.keySet()) {
 			if ("model".equals(str)) {
 				modelCode = paramWrap.get(str).toString();
 			}
-			if ("id".equals(str)) {
-				id = Long.parseLong(paramWrap.get(str).toString());
-			}
-			if ("shortUrl".equals(str)) {
-				shortUrl = paramWrap.get(str).toString();
-			}
 		}
 		Model model = modelService.findModelByCode(modelCode);
-		Map<String, Object> info = null;
-		if (model != null) {
-			if (id != null) {
-				info = modelDataService.findDataById(model.getId(), id);
-			} else if (shortUrl != null) {
-				info = modelDataService.findByShortUrl(model.getId(), shortUrl);
-			}
-		}
-		if (info != null) {
-			java.util.ArrayList<Map<String, Object>> one = new java.util.ArrayList<>();
-			one.add(info);
-			modelDataService.expandAttachments(model.getId(), one);
-		}
-		env.setVariable("info", builder.build().wrap(info));
+		java.util.List<ModelCategory> categoryList = model == null
+				? null
+				: modelCategoryService.findCategoriesByModelId(model.getId(), 1);
+		env.setVariable("categoryList", builder.build().wrap(categoryList));
 		body.render(env.getOut());
 	}
 }
