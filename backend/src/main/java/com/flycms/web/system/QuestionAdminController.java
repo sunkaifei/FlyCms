@@ -4,7 +4,7 @@ import com.flycms.core.base.BaseController;
 import com.flycms.core.entity.DataVo;
 import com.flycms.module.question.model.Question;
 import com.flycms.module.question.service.QuestionService;
-import com.flycms.module.search.service.SolrService;
+import com.flycms.module.search.service.SearchService;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class QuestionAdminController extends BaseController {
     @Autowired
     protected QuestionService questionService;
     @Autowired
-    private SolrService solrService;
+    private SearchService searchService;
 
     @GetMapping(value = "/list_question")
     public String questionList(@RequestParam(value = "p", defaultValue = "1") int p, ModelMap modelMap){
@@ -106,7 +106,7 @@ public class QuestionAdminController extends BaseController {
     public DataVo indexAllShare() {
         DataVo data = DataVo.failure("操作失败");
         try {
-            solrService.indexAllQuestion();
+            searchService.indexAllQuestion();
             data=DataVo.success("全部索引成功！");
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());

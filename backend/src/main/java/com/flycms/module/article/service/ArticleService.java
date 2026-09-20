@@ -12,7 +12,7 @@ import com.flycms.module.article.model.ArticleCount;
 import com.flycms.module.article.model.ArticleVotes;
 import com.flycms.module.config.service.ConfigService;
 import com.flycms.module.question.service.ImagesService;
-import com.flycms.module.search.service.SolrService;
+import com.flycms.module.search.service.SearchService;
 import com.flycms.module.topic.model.Topic;
 import com.flycms.module.topic.service.TopicService;
 import com.flycms.module.user.service.FeedService;
@@ -50,7 +50,7 @@ public class ArticleService {
     @Autowired
     private ConfigService configService;
     @Autowired
-    private SolrService solrService;
+    private SearchService searchService;
     @Autowired
     protected FeedService feedService;
     @Autowired
@@ -92,7 +92,7 @@ public class ArticleService {
         article=this.addArticle(article,tags);
         //索引本条信息
         if (article.getStatus() == 1) {
-            solrService.indexArticleId(article.getId());
+            searchService.indexArticleId(article.getId());
         }
         //更新
         //this.weight(article,null);
@@ -180,7 +180,7 @@ public class ArticleService {
         articleDao.deleteArticleAndCcategoryById(id);
         feedService.deleteUserFeed(article.getUserId(),1,article.getId());
         topicService.deleteTopicAndInfoUpCount(1,article.getId());
-        solrService.indexDeleteInfo(1,article.getId());
+        searchService.indexDeleteInfo(1,article.getId());
         userService.updateArticleCount(article.getUserId());
         data = DataVo.jump("删除成功！","/admin/article/article_list");
         return data;
@@ -227,9 +227,9 @@ public class ArticleService {
 
             //索引本条信息
             if(article.getStatus()==1){
-                solrService.indexArticleId(article.getId());
+                searchService.indexArticleId(article.getId());
             }else{
-                solrService.indexDeleteInfo(1,article.getId());
+                searchService.indexDeleteInfo(1,article.getId());
             }
             if (!StringUtils.isBlank(article.getTags())) {
                 topicService.deleteTopicAndInfoUpCount(1,article.getId());
@@ -282,7 +282,7 @@ public class ArticleService {
                 feedService.updateuUserFeedById(1,article.getId(),1);
             }
             userService.updateArticleCount(article.getUserId());
-            solrService.indexArticleId(article.getId());
+            searchService.indexArticleId(article.getId());
             //更新权重
             //this.weight(article,null);
         }else{
@@ -291,7 +291,7 @@ public class ArticleService {
             //更新用户问答数量
             userService.updateArticleCount(article.getUserId());
             //删除索引
-            solrService.indexDeleteInfo(1,article.getId());
+            searchService.indexDeleteInfo(1,article.getId());
         }
         data=DataVo.success("审核操作成功！");
         return data;

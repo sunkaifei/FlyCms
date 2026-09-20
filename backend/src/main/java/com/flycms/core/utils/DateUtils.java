@@ -140,25 +140,7 @@ public class DateUtils {
 		return sdf.format(date);
 	}
 	
-	/**
-	 * 将字符串日期转换为solr使用时间字符串 , 格式yyyy-MM-dd'T'HH:mm:ss'Z'
-	 * 
-	 * @param date
-	 *            要转换的日期
-	 * 
-	 * @return
-	 */
-	public static String fomatSolrDate(String date) {
-		DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); 
-		try {
-			Date d = sdf.parse(date);
-			return fmt.format(d);
-		} catch (ParseException e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-	}
+
 	/**
 	 * 将字符串日期转换为字符串 , 格式yyyy-MM-dd
 	 * 
@@ -462,19 +444,5 @@ public class DateUtils {
 		return date;
 	}
 
-	/**
-	 * 将java time格式转成Solr支持的时间
-	 * @param time
-	 * @return
-	 * @throws ParseException
-	 */
-	public static String getSolrDate(String time) throws ParseException {
-		//格式化成 时间成  年-月-日
-		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-		//格式化成 时间：分：秒
-		SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
-		Date date =sdfTime.parse(time);
-		String result = sdf1.format(date) + "T" + sdf2.format(date) + "Z";
-		return result;
-	}
+
 }

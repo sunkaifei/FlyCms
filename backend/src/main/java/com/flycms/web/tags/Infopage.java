@@ -5,7 +5,7 @@ import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.StringHelperUtils;
 import com.flycms.module.question.model.Answer;
 import com.flycms.module.search.model.Info;
-import com.flycms.module.search.service.SolrService;
+import com.flycms.module.search.service.SearchService;
 import freemarker.core.Environment;
 import freemarker.template.*;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,7 @@ import java.util.Map;
 public class Infopage extends AbstractTagPlugin {
 
 	@Autowired
-	private SolrService solrService;
+	private SearchService searchService;
 
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -94,7 +94,7 @@ public class Infopage extends AbstractTagPlugin {
 		}
 		// 获取文件的分页
 		try {
-			PageVo<Info> pageVo = solrService.searchInfo(title,userId,infoType,categoryId,notId,orderby,p,rows);
+			PageVo<Info> pageVo = searchService.searchInfo(title,userId,infoType,categoryId,notId,orderby,p,rows);
 			env.setVariable("info_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
 			env.setVariable("info_page", builder.build().wrap(null));

@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class Info {
-    //solrID
+    //搜索文档ID
     private String id;
     //短域名
     private String shortUrl;

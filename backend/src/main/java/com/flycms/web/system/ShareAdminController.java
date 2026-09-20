@@ -2,7 +2,7 @@ package com.flycms.web.system;
 
 import com.flycms.core.base.BaseController;
 import com.flycms.core.entity.DataVo;
-import com.flycms.module.search.service.SolrService;
+import com.flycms.module.search.service.SearchService;
 import com.flycms.module.share.model.Share;
 import com.flycms.module.share.model.ShareCategory;
 import com.flycms.module.share.service.ShareCategoryService;
@@ -40,7 +40,7 @@ public class ShareAdminController extends BaseController {
     @Autowired
     protected ShareCategoryService shareCategoryService;
     @Autowired
-    private SolrService solrService;
+    private SearchService searchService;
 
     @GetMapping(value = "/list_share")
     public String shareList(@RequestParam(value = "p", defaultValue = "1") int p, ModelMap modelMap){
@@ -54,7 +54,7 @@ public class ShareAdminController extends BaseController {
     public DataVo indexAllShare() {
         DataVo data = DataVo.failure("操作失败");
         try {
-            solrService.indexAllShare();
+            searchService.indexAllShare();
             data=DataVo.success("全部索引成功！");
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());

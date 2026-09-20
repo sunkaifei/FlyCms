@@ -11,7 +11,7 @@ import com.flycms.module.question.model.Answer;
 import com.flycms.module.question.model.Question;
 import com.flycms.module.question.model.QuestionCount;
 import com.flycms.module.question.model.QuestionFollow;
-import com.flycms.module.search.service.SolrService;
+import com.flycms.module.search.service.SearchService;
 import com.flycms.module.topic.model.Topic;
 import com.flycms.module.topic.service.TopicService;
 import com.flycms.module.user.service.FeedService;
@@ -45,7 +45,7 @@ public class QuestionService {
     @Autowired
     protected FeedService feedService;
     @Autowired
-    private SolrService solrService;
+    private SearchService searchService;
     // ///////////////////////////////
     // /////       增加       ////////
     // ///////////////////////////////
@@ -93,7 +93,7 @@ public class QuestionService {
                 //添加用户feed信息
                 feedService.addUserFeed(userId,0,question.getId());
                 userService.updateQuestionCount(userId);
-                solrService.indexQuestionId(question.getId());
+                searchService.indexQuestionId(question.getId());
                 data=DataVo.jump("已成功提交", "/q/" + question.getShortUrl());
             }else{
                 data=DataVo.jump("已成功提交,等待审核", "/search?s=" + question.getTitle());
@@ -155,7 +155,7 @@ public class QuestionService {
             //更新该问题用户的提问数量
             userService.updateQuestionCount(question.getUserId());
             //删除索引
-            solrService.indexDeleteInfo(0,question.getId());
+            searchService.indexDeleteInfo(0,question.getId());
             data=DataVo.success("已成功删除");
         }
         return data;
@@ -202,14 +202,14 @@ public class QuestionService {
                 feedService.updateuUserFeedById(0,question.getId(),1);
             }
             userService.updateQuestionCount(question.getUserId());
-            solrService.indexQuestionId(question.getId());
+            searchService.indexQuestionId(question.getId());
         }else{
             //删除用户feed信息
             feedService.updateuUserFeedById(0,question.getId(),0);
             //更新用户问答数量
             userService.updateQuestionCount(question.getUserId());
             //删除索引
-            solrService.indexDeleteInfo(0,question.getId());
+            searchService.indexDeleteInfo(0,question.getId());
         }
         data=DataVo.success("审核操作成功！");
         return data;

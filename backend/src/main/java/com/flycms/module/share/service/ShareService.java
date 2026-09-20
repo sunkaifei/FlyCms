@@ -5,7 +5,7 @@ import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.ShortUrlUtils;
 import com.flycms.core.utils.SnowFlake;
-import com.flycms.module.search.service.SolrService;
+import com.flycms.module.search.service.SearchService;
 import com.flycms.module.share.dao.ShareDao;
 import com.flycms.module.share.model.Share;
 import com.flycms.module.share.model.ShareCount;
@@ -48,7 +48,7 @@ public class ShareService {
     @Autowired
     protected UserService userService;
     @Autowired
-    private SolrService solrService;
+    private SearchService searchService;
     // ///////////////////////////////
     // /////       增加       ////////
     // ///////////////////////////////
@@ -93,7 +93,7 @@ public class ShareService {
                     }
                 }
             }
-            solrService.indexShareId(share.getId());
+            searchService.indexShareId(share.getId());
             data = DataVo.success("分享内容添加成功");
         }
         return data;
@@ -120,7 +120,7 @@ public class ShareService {
         shareDao.deleteShareCategoryMergeById(id);
         feedService.deleteUserFeed(share.getUserId(),2,share.getId());
         topicService.deleteTopicAndInfoUpCount(2,share.getId());
-        solrService.indexDeleteInfo(2,share.getId());
+        searchService.indexDeleteInfo(2,share.getId());
         userService.updateShareCount(share.getUserId());
         data = DataVo.jump("删除成功！","/system/share/share_list");
         return data;
@@ -150,7 +150,7 @@ public class ShareService {
         int totalCount=shareDao.updateShareById(share);
         if(totalCount > 0){
             //索引本条信息
-            solrService.indexArticleId(share.getId());
+            searchService.indexArticleId(share.getId());
             if (!StringUtils.isBlank(share.getTags())) {
                 topicService.deleteTopicAndInfoUpCount(2,share.getId());
                 for (String string : tags) {
@@ -213,14 +213,14 @@ public class ShareService {
                 feedService.updateuUserFeedById(2,share.getId(),1);
             }
             userService.updateShareCount(share.getUserId());
-            solrService.indexShareId(share.getId());
+            searchService.indexShareId(share.getId());
         }else{
             //删除用户feed信息
             feedService.updateuUserFeedById(2,share.getId(),0);
             //更新用户问答数量
             userService.updateShareCount(share.getUserId());
             //删除索引
-            solrService.indexDeleteInfo(2,share.getId());
+            searchService.indexDeleteInfo(2,share.getId());
         }
         data=DataVo.success("审核操作成功！");
         return data;

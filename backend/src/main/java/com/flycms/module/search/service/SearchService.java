@@ -13,14 +13,15 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 /**
- * 站内搜索服务
+ * 站内搜索服务（技术中立接缝）
  * <p>
- * 暂不接入 Solr：索引相关方法为空操作，searchInfo 返回空分页结果。
- * 方法签名与原 Solr 版本保持一致，后续重新接入搜索服务时无需修改调用方。
+ * 原 Solr 已整体移除（2026-09-21），规划改用 Elasticsearch。本类保留与原版本一致的
+ * 方法签名（全部空实现/空结果），调用方（文章/问答/分享的索引同步、前台搜索标签与页面）
+ * 无需改动；接入 Elasticsearch 时提供实现类替换本空壳即可。
  */
 @Service
-public class SolrService {
-	protected final Logger logger = LoggerFactory.getLogger(SolrService.class);
+public class SearchService {
+	protected final Logger logger = LoggerFactory.getLogger(SearchService.class);
 
     public boolean indexQuestionId(long id) throws ParseException {
         return true;
@@ -61,7 +62,7 @@ public class SolrService {
     }
 
     /**
-     * Solrj查询语句拼接处理，字符串是否以AND起始，如果有则去除，没有的直接返回
+     * 查询语句拼接处理，字符串是否以AND起始，如果有则去除，没有的直接返回
      * @param str
      * @return
      */
@@ -78,7 +79,7 @@ public class SolrService {
     }
 
 
-	//企业搜索翻页处理
+	//搜索结果翻页处理
 	public String labelPage(
 			String fullName,
 			String city,
@@ -181,8 +182,7 @@ public class SolrService {
 	        	if(pages<30){
 	        		link.append("<li class=\"next\"><a href=?"+buffer+"&p=" + (pages + 1) +" rel=\"next\">下一页</a></li>");
 	        	}
-            }//>显示下一页
-            //>显示分页信息
+            }//>显示分页信息
 		}
 		return link.append("").toString();
 	}

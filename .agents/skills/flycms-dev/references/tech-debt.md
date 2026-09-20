@@ -11,7 +11,7 @@
 | 3 | ~~前端 vben 完整 monorepo 未裁剪~~ | **已解决（2026-09-21）**：删除 apps/web-ele、web-naive、web-tdesign、web-antdv-next、playground、docs 及 vben 官方 deploy.yml，workspace/scripts/code-workspace 引用已清理 | 剩余 apps/web-antd（主力）与 apps/backend-mock（mock 契约参考，`VITE_NITRO_MOCK=false` 下不启动）；后续若确认不再需要 mock 参照可一并删除 |
 | 4 | 遗留表字段命名混用 | `fly_admin.createAt` 驼峰 vs `last_login_time` 下划线 | 新表统一下划线；存量不动（改表影响 Freemarker 模板与 XML，收益低） |
 | 5 | Session 认证的横向扩展局限 | 多实例部署需 session 共享（Spring Session + Redis） | 单实例部署下不是问题；上集群前解决，见决策 #1 |
-| 6 | Solr 移除残留 | 升级时已移除依赖，源码/配置可能仍有 SolrConst、search 模块残留分支 | 触碰相关代码时顺手清理并编译验证 |
+| 6 | ~~Solr 移除残留~~ **已解决（2026-09-21）** | SolrService/SolrAdminController/SolrConst 及 solr 日期工具已删除，调用方（article/question/share/SearchController/Infopage）切换到技术中立空壳 `SearchService`，编译通过 | 未来接入 **Elasticsearch**：实现 `SearchService` 同名方法即可，消费方零改动（见自定义模型手册 §8.2） |
 | 7 | 老管理端 Freemarker 与新 vben 并存 | 两套管理 UI 长期并存会造成权限/功能双维护 | 明确 vben 为目标形态；老模板只修 bug 不加新功能 |
 | 8 | `WebMvcConfig` 的 `excludePathPatterns("/*")` 语义模糊 | 单层通配，读者易误解为全豁免 | 新增豁免一律写完整路径并加注释 |
 | 9 | 开发机 node v25 超出 vben engines（^22.18 \|\| ^24.12） | 直接 `pnpm install` 的 postinstall 崩溃（rolldown 并发 abort/爆内存） | 已用便携 node 22（`~/node22/`，PATH 前置，未动系统）+ `--ignore-scripts` + 串行 stub 绕过，见手册 §6；系统 node 升级计划由用户决定。**补充（2026-09-21）**：`pnpm dev:antd` 的 vite 预构建也会触发 rolldown 原生层内存分配崩溃（两次复现，16GB 内存剩 4.8GB 时仍崩），疑似本机 rolldown 稳定性问题——重启机器或关闭大内存程序后重试；后端与数据库不受影响 |
@@ -39,3 +39,8 @@
 - 后端：Spring Boot 4.1.1 / JDK 25 / MyBatis XML / Freemarker / Ehcache / Druid，不新增 ORM、安全框架、缓存中间件。
 - 前端：vben v5 + apps/web-antd 单主力应用；不并存第二套 UI 技术栈。
 - 引入任何新依赖需先在对话中给出权衡（解决什么问题、有无既有能力替代、维护成本），达成一致再进 pom/package.json。
+
+### D6. 搜索：移除 Solr，规划接入 Elasticsearch（2026-09-21，用户定案）
+- Solr 依赖与代码已整体删除；`module/search/service/SearchService` 为技术中立空壳（原 SolrService 方法签名），文章/问答/分享的同步调用点原样保留。
+- 全文搜索整体延后至 Elasticsearch 接入专项；自定义模型系统第一期不含搜索（`is_search` 元数据位保留）。
+- 接入方式：实现 `SearchService` 同名方法替换空壳，消费方（Search.java、Infopage 标签、前台搜索页）零改动。

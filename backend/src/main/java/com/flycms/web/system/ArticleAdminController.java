@@ -6,7 +6,7 @@ import com.flycms.module.article.model.Article;
 import com.flycms.module.article.model.ArticleCategory;
 import com.flycms.module.article.service.ArticleCategoryService;
 import com.flycms.module.article.service.ArticleService;
-import com.flycms.module.search.service.SolrService;
+import com.flycms.module.search.service.SearchService;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class ArticleAdminController extends BaseController {
     @Autowired
     protected ArticleCategoryService articleCategoryService;
     @Autowired
-    private SolrService solrService;
+    private SearchService searchService;
 
     //文章列表
     @GetMapping(value = "/article_list")
@@ -268,7 +268,7 @@ public class ArticleAdminController extends BaseController {
     public DataVo indexAllArticle() {
         DataVo data = DataVo.failure("操作失败");
         try {
-            solrService.indexAllArticle();
+            searchService.indexAllArticle();
             data=DataVo.success("全部索引成功！");
         } catch (Exception e) {
             data = DataVo.failure(e.getMessage());
