@@ -43,3 +43,5 @@ node_modules/
 dist/
 .turbo/
 coverage/
+# ZCode 会话内部产物
+.zcode/

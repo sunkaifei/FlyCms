@@ -20,6 +20,8 @@ export const overridesPreferences = defineOverridesPreferences({
   // overrides
   app: {
     name: import.meta.env.VITE_APP_TITLE,
+    // 权限模式：后端无菜单表，菜单由前端静态路由定义、按角色组名过滤（见 docs/frontend-access-guide.md §2.3）
+    accessMode: 'frontend',
   },
   copyright: appCopyrightPreferences,
 });

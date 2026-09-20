@@ -3,11 +3,12 @@ import { baseRequestClient, requestClient } from '#/api/request';
 export namespace AuthApi {
   /** 登录接口参数 */
   export interface LoginParams {
+    captcha?: string;
     password?: string;
     username?: string;
   }
 
-  /** 登录接口返回值 */
+  /** 登录接口返回值（Session-Cookie 方案下为占位符，会话由 JSESSIONID 维持） */
   export interface LoginResult {
     accessToken: string;
   }
@@ -19,14 +20,20 @@ export namespace AuthApi {
 }
 
 /**
- * 登录
+ * 登录（对接 POST /api/auth/login，DataVo.data 返回 { accessToken }）
+ * 后端老接口一律读表单参数（@RequestParam），POST 统一走 form-urlencoded
  */
 export async function loginApi(data: AuthApi.LoginParams) {
-  return requestClient.post<AuthApi.LoginResult>('/auth/login', data);
+  const form = new URLSearchParams();
+  if (data.username) form.append('admin_name', data.username);
+  if (data.password) form.append('password', data.password);
+  if (data.captcha) form.append('captcha', data.captcha);
+  return requestClient.post<AuthApi.LoginResult>('/auth/login', form);
 }
 
 /**
- * 刷新accessToken
+ * 刷新accessToken —— Session-Cookie 方案无刷新概念；
+ * enableRefreshToken 默认 false，此函数不会被调用，保留以兼容 request.ts
  */
 export async function refreshTokenApi() {
   return baseRequestClient.post<AuthApi.RefreshTokenResult>(
@@ -48,7 +55,7 @@ export async function logoutApi() {
 }
 
 /**
- * 获取用户权限码
+ * 获取用户权限码（后端 /api/auth/codes，返回 action_key 列表）
  */
 export async function getAccessCodesApi() {
   return requestClient.get<string[]>('/auth/codes');

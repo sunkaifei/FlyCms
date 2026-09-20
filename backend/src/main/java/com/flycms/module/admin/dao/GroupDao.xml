@@ -103,4 +103,9 @@
 	<select id="findUserByGroup" resultType="com.flycms.module.admin.model.Group">
 		select g.* from fly_admin_group_merge ag left join fly_admin_group g on ag.group_id=g.id where ag.admin_id = #{adminId} limit 1
 	</select>
+
+	<!-- 按角色组id查询已勾选的权限节点id列表 -->
+	<select id="findPermissionIdsByGroupId" resultType="Long">
+		select permission_id from fly_admin_group_permission_merge where group_id = #{groupId}
+	</select>
 </mapper>  

@@ -65,4 +65,7 @@ public interface GroupDao {
 
     //按管理员id查询所在会员组信息
     public Group findUserByGroup(@Param("adminId") Long adminId);
+
+    //按角色组id查询已勾选的权限节点id列表
+    public List<Long> findPermissionIdsByGroupId(@Param("groupId") Long groupId);
 }

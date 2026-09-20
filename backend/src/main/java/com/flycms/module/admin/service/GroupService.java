@@ -64,6 +64,11 @@ public class GroupService {
         return totalCount > 0 ? true : false;
     }
 
+    //按角色组id查询已勾选的权限节点id列表
+    public List<Long> findGroupPermissionIds(Long groupId){
+        return groupDao.findPermissionIdsByGroupId(groupId);
+    }
+
     // ///////////////////////////////
     // /////       修改       ////////
     // ///////////////////////////////
