@@ -63,8 +63,13 @@ const fileTree = computed<FileRow[]>(() => {
   for (const f of fileList.value) {
     const parts = f.file.split('/');
     const name = parts.pop() as string;
-    const dir = ensureDir(parts.join('/'));
-    (dir.children ??= []).push({ key: f.file, isLeaf: true, title: name });
+    const fileNode: FileRow = { key: f.file, isLeaf: true, title: name };
+    if (parts.length === 0) {
+      root.push(fileNode);
+    } else {
+      const dir = ensureDir(parts.join('/'));
+      (dir.children ??= []).push(fileNode);
+    }
   }
   return root;
 });
@@ -159,7 +164,7 @@ onMounted(load);
           default-expand-all
           :selected-keys="currentFile ? [currentFile] : []"
           size="small"
-          @select="({ node }: any) => onOpenFile(node.key, node.isLeaf)"
+          @select="(_keys: any, info: any) => onOpenFile(info?.node?.key, info?.node?.isLeaf)"
         >
           <template #title="{ title }">
             <span class="font-mono text-xs">{{ title }}</span>
