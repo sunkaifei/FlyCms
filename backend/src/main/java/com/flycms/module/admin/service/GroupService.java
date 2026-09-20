@@ -120,7 +120,7 @@ public class GroupService {
     };
 
     //按管理员id查询所在会员组id
-    public Integer findUserAndGroupById(Long adminId){
+    public Long findUserAndGroupById(Long adminId){
         return  groupDao.findUserAndGroupById(adminId);
     }
 

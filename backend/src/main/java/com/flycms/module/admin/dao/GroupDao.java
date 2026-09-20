@@ -60,8 +60,8 @@ public interface GroupDao {
     //所有权限小组列表
     public List<Group> getAllGroupList();
 
-    //按管理员id查询所在会员组id
-    public Integer findUserAndGroupById(@Param("adminId") Long adminId);
+    //按管理员id查询所在会员组id（group_id 为雪花 bigint，必须用 Long 接收，Integer 会溢出）
+    public Long findUserAndGroupById(@Param("adminId") Long adminId);
 
     //按管理员id查询所在会员组信息
     public Group findUserByGroup(@Param("adminId") Long adminId);

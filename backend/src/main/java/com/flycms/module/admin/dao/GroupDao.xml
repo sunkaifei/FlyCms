@@ -94,8 +94,8 @@
 		select * from fly_admin_group
 	</select>
 
-	<!-- 按用户id查询所在会员组id -->
-	<select id="findUserAndGroupById" resultType="Integer">
+	<!-- 按用户id查询所在会员组id（group_id 为雪花 bigint，必须用 Long 接收） -->
+	<select id="findUserAndGroupById" resultType="Long">
 		select group_id from fly_admin_group_merge where admin_id = #{adminId} limit 1
 	</select>
 

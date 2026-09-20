@@ -98,7 +98,7 @@ public class AdminController extends BaseController {
             modelMap.addAttribute("message", "用户不存在！");
             return theme.getAdminTemplate("common/message_tip");
         }
-        int roleId=groupService.findUserAndGroupById(adminId);
+        Long roleId=groupService.findUserAndGroupById(adminId);
         List<Group> role=groupService.getAllGroupList();
         modelMap.put("roleId", roleId);
         modelMap.put("role", role);

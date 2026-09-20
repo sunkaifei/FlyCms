@@ -106,8 +106,8 @@ public class ApiAuthController extends ApiBaseController {
         info.put("token", "session");
         info.put("homePath", "/dashboard");
 
-        Integer roleId = groupService.findUserAndGroupById(admin.getId());
-        Group group = roleId == null ? null : groupService.findGroupById(roleId.longValue());
+        Long roleId = groupService.findUserAndGroupById(admin.getId());
+        Group group = roleId == null ? null : groupService.findGroupById(roleId);
         info.put("roles", group == null
                 ? Collections.emptyList()
                 : Collections.singletonList(group.getName()));
