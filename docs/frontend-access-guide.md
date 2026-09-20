@@ -273,6 +273,8 @@ public class ApiAuthController extends BaseController {
 | 11 | API 函数双前缀 | baseURL 已含 `/api`，API 函数里再写 `/api/xxx` 会变成 `/api/api/xxx`（§3 勘误） |
 | 12 | 验证码代理 | 后端 `/captcha/default` 无 `/api` 前缀，必须独立代理规则，与 `/api` 共用会 404 |
 | 13 | node 版本 | vben engines 要求 `^22.18 \|\| ^24.12`，开发机 node v25 会导致 postinstall 崩溃——用便携 node 22（见 §6） |
+| 14 | 表单 POST 的 Content-Type | vben 的 axios 实例默认 `Content-Type: application/json`，会覆盖 URLSearchParams 的自动检测，后端 `@RequestParam` 全部读不到（症状：后端报第一个参数为空）。所有表单 POST 必须显式传 `headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' }`（见 `api/core/system.ts` 的 `postForm`） |
+| 15 | 自定义表单组件的 v-model 绑定 | 未注册进 adapter 的 `markRaw` 自定义组件，vben 表单内核走**默认 `modelValue`** 绑定（`resolveModelPropName` 只对字符串组件查 `componentBindEventMap`）——组件要用 `modelValue`/`update:modelValue`，并在 schema 字段上显式 `modelPropName: 'modelValue'`。症状：字段值恒空、提交报"请先完成验证" |
 
 ## 6. 环境与启动
 

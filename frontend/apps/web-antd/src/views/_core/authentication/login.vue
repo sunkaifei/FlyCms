@@ -45,6 +45,8 @@ const formSchema = computed((): VbenFormSchema[] => {
         captchaKey: captchaKey.value,
       },
       fieldName: 'captcha',
+      // 自定义组件走默认 modelValue 绑定，显式声明以防默认值变化
+      modelPropName: 'modelValue',
       rules: z
         .string()
         .min(1, { message: $t('authentication.verifyRequiredTip') }),

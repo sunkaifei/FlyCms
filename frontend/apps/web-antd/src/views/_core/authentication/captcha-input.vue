@@ -7,16 +7,18 @@ import { Input } from 'ant-design-vue';
 
 /**
  * 图形验证码输入框（对接后端 GET /captcha/default，码存 session key=kaptcha）。
- * 绑定契约遵循 vben 表单 adapter：baseModelPropName 为 value（v-model:value）。
+ * 绑定契约：作为未注册的自定义组件进 vben 表单时走默认 modelValue（form-field 的
+ * resolveModelPropName 对非字符串组件回退 DEFAULT_MODEL_PROP_NAME='modelValue'），
+ * 并在 schema 字段上显式声明 modelPropName: 'modelValue' 双保险。
  * 父组件递增 captchaKey 即可强制刷新图片（后端校验失败不销毁旧码，提交后必须刷新）。
  */
 const props = defineProps<{
   captchaKey: number;
-  value?: string;
+  modelValue?: string;
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:value', value: string): void;
+  (e: 'update:modelValue', value: string): void;
 }>();
 
 const placeholder = $t('authentication.verifyRequiredTip');
@@ -35,8 +37,8 @@ function refresh() {
     <Input
       :maxlength="4"
       :placeholder="placeholder"
-      :value="props.value"
-      @update:value="(v: string) => emit('update:value', v)"
+      :value="props.modelValue"
+      @update:value="(v: string) => emit('update:modelValue', v)"
     />
     <img
       :src="src"

@@ -45,6 +45,18 @@ function toForm(data: Record<string, unknown>): URLSearchParams {
   return form;
 }
 
+/**
+ * 表单 POST：vben axios 实例默认 Content-Type 是 application/json，会覆盖
+ * URLSearchParams 的自动检测，必须显式覆盖（见 docs/frontend-access-guide.md §5 坑 14）
+ */
+function postForm<T>(url: string, data: Record<string, unknown>) {
+  return requestClient.post<T>(url, toForm(data), {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    },
+  });
+}
+
 // ///////////////////////////////
 // /////       管理员       ////////
 // ///////////////////////////////
@@ -56,17 +68,17 @@ export async function getAdminListApi(params: { adminName?: string; p?: number }
 export async function saveAdminApi(
   data: Partial<AdminRow> & { password?: string; repassword?: string },
 ) {
-  return requestClient.post<void>('/system/admin/save', toForm(data));
+  return postForm<void>('/system/admin/save', data);
 }
 
 export async function updateAdminApi(
   data: Partial<AdminRow> & { password?: string; repassword?: string },
 ) {
-  return requestClient.post<void>('/system/admin/update', toForm(data));
+  return postForm<void>('/system/admin/update', data);
 }
 
 export async function deleteAdminApi(id: number) {
-  return requestClient.post<void>('/system/admin/delete', toForm({ id }));
+  return postForm<void>('/system/admin/delete', { id });
 }
 
 // ///////////////////////////////
@@ -78,11 +90,11 @@ export async function getGroupListApi() {
 }
 
 export async function saveGroupApi(data: { id?: number; name: string }) {
-  return requestClient.post<void>('/system/group/save', toForm(data));
+  return postForm<void>('/system/group/save', data);
 }
 
 export async function deleteGroupApi(id: number) {
-  return requestClient.post<void>('/system/group/delete', toForm({ id }));
+  return postForm<void>('/system/group/delete', { id });
 }
 
 export async function getGroupPermissionIdsApi(id: number) {
@@ -100,7 +112,11 @@ export async function assignGroupPermissionsApi(
   for (const id of permissionIds) {
     form.append('permissionIds', String(id));
   }
-  return requestClient.post<void>('/system/group/assignPermissions', form);
+  return requestClient.post<void>('/system/group/assignPermissions', form, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    },
+  });
 }
 
 // ///////////////////////////////
@@ -122,5 +138,5 @@ export async function syncPermissionsApi() {
 }
 
 export async function deletePermissionApi(id: number) {
-  return requestClient.post<void>('/system/permission/delete', toForm({ id }));
+  return postForm<void>('/system/permission/delete', { id });
 }

@@ -21,14 +21,18 @@ export namespace AuthApi {
 
 /**
  * 登录（对接 POST /api/auth/login，DataVo.data 返回 { accessToken }）
- * 后端老接口一律读表单参数（@RequestParam），POST 统一走 form-urlencoded
+ * 后端老接口一律读表单参数（@RequestParam），POST 统一走 form-urlencoded；
+ * vben 的 axios 实例默认 Content-Type 是 application/json，会覆盖 URLSearchParams
+ * 的自动检测，必须显式覆盖（见手册 §5 坑 14）
  */
 export async function loginApi(data: AuthApi.LoginParams) {
   const form = new URLSearchParams();
   if (data.username) form.append('admin_name', data.username);
   if (data.password) form.append('password', data.password);
   if (data.captcha) form.append('captcha', data.captcha);
-  return requestClient.post<AuthApi.LoginResult>('/auth/login', form);
+  return requestClient.post<AuthApi.LoginResult>('/auth/login', form, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+  });
 }
 
 /**
