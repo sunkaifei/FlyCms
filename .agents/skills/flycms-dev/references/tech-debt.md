@@ -14,7 +14,7 @@
 | 6 | Solr 移除残留 | 升级时已移除依赖，源码/配置可能仍有 SolrConst、search 模块残留分支 | 触碰相关代码时顺手清理并编译验证 |
 | 7 | 老管理端 Freemarker 与新 vben 并存 | 两套管理 UI 长期并存会造成权限/功能双维护 | 明确 vben 为目标形态；老模板只修 bug 不加新功能 |
 | 8 | `WebMvcConfig` 的 `excludePathPatterns("/*")` 语义模糊 | 单层通配，读者易误解为全豁免 | 新增豁免一律写完整路径并加注释 |
-| 9 | 开发机 node v25 超出 vben engines（^22.18 \|\| ^24.12） | 直接 `pnpm install` 的 postinstall 崩溃（rolldown 并发 abort/爆内存） | 已用便携 node 22（`~/node22/`，PATH 前置，未动系统）+ `--ignore-scripts` + 串行 stub 绕过，见手册 §6；系统 node 升级计划由用户决定 |
+| 9 | 开发机 node v25 超出 vben engines（^22.18 \|\| ^24.12） | 直接 `pnpm install` 的 postinstall 崩溃（rolldown 并发 abort/爆内存） | 已用便携 node 22（`~/node22/`，PATH 前置，未动系统）+ `--ignore-scripts` + 串行 stub 绕过，见手册 §6；系统 node 升级计划由用户决定。**补充（2026-09-21）**：`pnpm dev:antd` 的 vite 预构建也会触发 rolldown 原生层内存分配崩溃（两次复现，16GB 内存剩 4.8GB 时仍崩），疑似本机 rolldown 稳定性问题——重启机器或关闭大内存程序后重试；后端与数据库不受影响 |
 | 10 | `/api/system/**` 的 403 校验按老 action_key 映射 | `ApiSystemController.requirePermission` 用常量映射老权限节点，API 路径与权限节点无自动同步（新增 API 端点须记得加 requirePermission） | 可接受；若 API 面扩大，考虑把 `/api/**` 纳入 permission_sync 与统一拦截器 |
 
 ## 二、架构决策记录（ADR，翻案先读理由）
