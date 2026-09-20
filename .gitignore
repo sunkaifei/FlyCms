@@ -34,3 +34,6 @@ ehcache
 *.iml
 *.ipr
 uploadfiles/*
+
+# Git 目录本身永不被跟踪
+.git/
