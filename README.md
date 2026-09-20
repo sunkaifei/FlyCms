@@ -142,10 +142,10 @@ FlyCms/
   
   
 - IDEA打包  
-![image](doc/db.png)  
+![image](backend/doc/db.png)  
 - 打包后的的文件目录结构，`resources`目录里只要`application.yml`一个文件就可以了  
 
-![image](doc/dbhh.png)  
+![image](backend/doc/dbhh.png)  
 
 
 ## 注意事项
@@ -169,17 +169,17 @@ QQ群：`211378508`
 欢迎大家提 issues 及 pr 
 
 ## 页面部分演示截图
-![image](doc/首页.png)
-![image](doc/1.png)
-![image](doc/1.png)
-![image](doc/2.jpg)
-![image](doc/3.png)
-![image](doc/4.png)
+![image](backend/doc/首页.png)
+![image](backend/doc/1.png)
+![image](backend/doc/1.png)
+![image](backend/doc/2.jpg)
+![image](backend/doc/3.png)
+![image](backend/doc/4.png)
 
 ## 捐赠
 
-![image](doc/支付宝收款码.jpg)
-![image](doc/微信支付码.jpg)
+![image](backend/doc/支付宝收款码.jpg)
+![image](backend/doc/微信支付码.jpg)
 
 **如果觉得这个项目对你有帮助，欢迎捐赠！**
 
