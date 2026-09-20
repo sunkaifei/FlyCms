@@ -1,42 +1,60 @@
 <script lang="ts" setup>
-import type { GroupRow, PermissionRow } from '#/api/core/system';
+import type { MenuNode } from '#/api/core/menu-manage';
 
 import { computed, onMounted, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { Checkbox, message } from 'ant-design-vue';
+import { Empty, message, Spin, Tree } from 'ant-design-vue';
 
-import {
-  assignGroupPermissionsApi,
-  getAllPermissionsApi,
-  getGroupPermissionIdsApi,
-} from '#/api/core/system';
+import { assignGroupPermissionsApi, getGroupPermissionIdsApi } from '#/api/core/system';
+import { getMenuListApi } from '#/api/core/menu-manage';
 
 /**
- * 角色组分配权限弹窗：全量勾选提交，后端做增删差量。
+ * 角色组分配权限（若依式）：级联勾选菜单树（M/C/F）。
+ * 提交 = 勾选节点 + 半选父节点 的 permission id 全量保存，后端做增删差量。
  * 超级管理员组（id=1）后端硬编码保护，前端直接禁用提交。
  */
 const groupId = ref(0);
 const groupName = ref('');
-const permissions = ref<PermissionRow[]>([]);
-const checkedIds = ref<number[]>([]);
 const loading = ref(false);
+const expandedKeys = ref<number[]>([]);
+const checkedKeys = ref<number[]>([]);
+const halfCheckedKeys = ref<number[]>([]);
+let allNodes: MenuNode[] = [];
 let onSaved: (() => void) | undefined;
 
-const isSuperGroup = computed(() => groupId.value === 1);
+interface TreeRow extends MenuNode {
+  children?: TreeRow[];
+  key: number;
+  title: string;
+}
 
-/** 按后端 controller 字段分组展示（与老后台分配页一致） */
-const grouped = computed(() => {
-  const map = new Map<string, PermissionRow[]>();
-  for (const p of permissions.value) {
-    const key = p.controller || '其他';
-    const list = map.get(key) ?? [];
-    list.push(p);
-    map.set(key, list);
+const treeData = computed<TreeRow[]>(() => {
+  const map = new Map<number, TreeRow>();
+  for (const n of allNodes) {
+    map.set(n.id, {
+      ...n,
+      children: undefined,
+      key: n.id,
+      title:
+        (n.menuName || n.actionKey || n.id) +
+        (n.menuType === 'F' && n.actionKey ? `（${n.actionKey}）` : ''),
+    });
   }
-  return [...map.entries()];
+  const roots: TreeRow[] = [];
+  for (const row of map.values()) {
+    const parent = row.parentId ? map.get(row.parentId) : undefined;
+    if (parent) {
+      (parent.children ??= []).push(row);
+    } else {
+      roots.push(row);
+    }
+  }
+  return roots;
 });
+
+const isSuperGroup = computed(() => groupId.value === 1);
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
@@ -46,7 +64,8 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     try {
-      await assignGroupPermissionsApi(groupId.value, checkedIds.value);
+      const all = [...checkedKeys.value, ...halfCheckedKeys.value];
+      await assignGroupPermissionsApi(groupId.value, all);
       message.success('保存成功');
       onSaved?.();
       modalApi.close();
@@ -54,12 +73,18 @@ const [Modal, modalApi] = useVbenModal({
       modalApi.unlock();
     }
   },
-  title: '分配权限',
+  title: '分配权限（菜单树）',
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function onCheck(_checked: any, info: any) {
+  checkedKeys.value = (info.checked ?? []) as number[];
+  halfCheckedKeys.value = (info.halfChecked ?? []) as number[];
+}
 
 onMounted(async () => {
   const data = modalApi.getData() as
-    | { group: GroupRow; onSaved?: () => void }
+    | { group: { id: number; name: string }; onSaved?: () => void }
     | undefined;
   onSaved = data?.onSaved;
   groupId.value = data?.group?.id ?? 0;
@@ -67,12 +92,19 @@ onMounted(async () => {
 
   loading.value = true;
   try {
-    const [all, checked] = await Promise.all([
-      getAllPermissionsApi(),
+    const [nodes, ids] = await Promise.all([
+      getMenuListApi(),
       getGroupPermissionIdsApi(groupId.value),
     ]);
-    permissions.value = all ?? [];
-    checkedIds.value = checked ?? [];
+    allNodes = nodes ?? [];
+    const childIds = new Set(allNodes.map((n) => n.parentId));
+    expandedKeys.value = allNodes
+      .filter((n) => n.menuType === 'M' && n.visible === 1)
+      .map((n) => n.id);
+    // 初始只勾叶子（父节点状态由树级联推导）
+    checkedKeys.value = (ids ?? []).filter(
+      (id) => !childIds.has(id) && allNodes.some((n) => n.id === id),
+    );
   } finally {
     loading.value = false;
   }
@@ -81,28 +113,21 @@ onMounted(async () => {
 
 <template>
   <Modal>
-    <div class="max-h-[60vh] overflow-y-auto">
-      <p class="mb-3 text-sm">
-        为「{{ groupName }}」配置可访问的操作权限（未勾选的操作后端会返回 403）：
+    <Spin :spinning="loading">
+      <p class="mb-2 text-sm">
+        为「{{ groupName }}」勾选可用的菜单与操作（按钮节点即前端权限码，未勾选则接口 403）：
       </p>
-      <a-empty v-if="!loading && permissions.length === 0" description="暂无权限节点，请先在权限管理页执行「同步权限」" />
-      <div
-        v-for="[controller, list] in grouped"
-        :key="controller"
-        class="mb-4"
-      >
-        <div class="mb-2 text-sm font-semibold">{{ controller }}</div>
-        <Checkbox.Group v-model:value="checkedIds" class="flex flex-wrap gap-y-2">
-          <Checkbox
-            v-for="p in list"
-            :key="p.id"
-            :disabled="isSuperGroup"
-            :value="p.id"
-          >
-            {{ p.actionKey }}
-          </Checkbox>
-        </Checkbox.Group>
+      <Empty v-if="!loading && treeData.length === 0" description="暂无菜单节点" />
+      <div v-else class="max-h-[60vh] overflow-y-auto">
+        <Tree
+          v-model:checkedKeys="checkedKeys"
+          :expanded-keys="expandedKeys"
+          :tree-data="treeData"
+          checkable
+          default-expand-all
+          @check="onCheck"
+        />
       </div>
-    </div>
+    </Spin>
   </Modal>
 </template>

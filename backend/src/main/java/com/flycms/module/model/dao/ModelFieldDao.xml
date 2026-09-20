@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.model.dao.ModelFieldDao">
+
+	<sql id="base_column">id, model_id AS modelId, field_name AS fieldName, field_label AS fieldLabel, field_type AS fieldType,
+		column_type AS columnType, default_value AS defaultValue, maxlength, dict_type AS dictType, options,
+		is_required AS isRequired, is_list AS isList, is_search AS isSearch, is_filter AS isFilter,
+		regex, placeholder, tips, sort, status, create_time AS createTime, update_time AS updateTime</sql>
+
+	<insert id="addField">
+		insert into fly_model_field (id, model_id, field_name, field_label, field_type, column_type, default_value, maxlength,
+			dict_type, options, is_required, is_list, is_search, is_filter, regex, placeholder, tips, sort, status, create_time)
+		values (#{id}, #{modelId}, #{fieldName}, #{fieldLabel}, #{fieldType}, #{columnType}, #{defaultValue}, #{maxlength},
+			#{dictType}, #{options}, #{isRequired}, #{isList}, #{isSearch}, #{isFilter}, #{regex}, #{placeholder}, #{tips}, #{sort}, #{status}, now())
+	</insert>
+
+	<update id="updateField">
+		update fly_model_field
+		<set>
+			<if test="fieldLabel != null">field_label = #{fieldLabel},</if>
+			<if test="defaultValue != null">default_value = #{defaultValue},</if>
+			<if test="maxlength != null">maxlength = #{maxlength},</if>
+			<if test="options != null">options = #{options},</if>
+			is_required = #{isRequired},
+			is_list = #{isList},
+			is_search = #{isSearch},
+			is_filter = #{isFilter},
+			<if test="regex != null">regex = #{regex},</if>
+			<if test="placeholder != null">placeholder = #{placeholder},</if>
+			<if test="tips != null">tips = #{tips},</if>
+			sort = #{sort},
+			status = #{status},
+			update_time = now()
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="deleteFieldById">
+		delete from fly_model_field where id = #{id}
+	</delete>
+
+	<delete id="deleteFieldsByModelId">
+		delete from fly_model_field where model_id = #{modelId}
+	</delete>
+
+	<select id="findFieldById" resultType="com.flycms.module.model.model.ModelField">
+		select <include refid="base_column"/> from fly_model_field where id = #{id}
+	</select>
+
+	<select id="checkFieldName" resultType="boolean">
+		select count(*) > 0 from fly_model_field where model_id = #{modelId} and field_name = #{fieldName}
+	</select>
+
+	<select id="findFieldsByModelId" resultType="com.flycms.module.model.model.ModelField">
+		select <include refid="base_column"/> from fly_model_field where model_id = #{modelId}
+		<if test="status != null">and status = #{status}</if>
+		order by sort asc, id asc
+	</select>
+
+	<update id="updateFieldSort">
+		update fly_model_field set sort = #{sort}, update_time = now() where id = #{id}
+	</update>
+</mapper>

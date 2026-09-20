@@ -56,6 +56,10 @@ public class PermissionService {
                         if(s!=null){
                             if (!checkPermission(StringUtils.deleteWhitespace(s), per.getController())) {
                                 per.setActionKey(StringUtils.deleteWhitespace(s));
+                                // 菜单管理改造：sync 只登记旧后台 /system/** 的 F 型节点，归入"旧后台接口"目录（见 menu-management.sql 900130）
+                                per.setMenuType("F");
+                                per.setVisible(0);
+                                per.setParentId(900130L);
                                 SnowFlake snowFlake = new SnowFlake(2, 3);
                                 per.setId(snowFlake.nextId());
                                 int permissionId=permissionDao.addPermission(per);
@@ -72,10 +76,13 @@ public class PermissionService {
             }
         }
 
-        //处理数据库多余的权限路径数据
+        //处理数据库多余的权限路径数据——只比对旧后台 F 型节点，
+        //绝不能动 /api/** 权限行与 M/C 菜单行（否则一次 sync 清空手工配置）
         List<Permission> allList=this.getAllPermissions();
         for(Permission date : allList){
-            datalist.add(date.getActionKey());
+            if("F".equals(date.getMenuType()) && date.getActionKey()!=null && date.getActionKey().startsWith("/system/")){
+                datalist.add(date.getActionKey());
+            }
         }
         //检查并删除
         this.checkAndDeletePermission(newlist,datalist);

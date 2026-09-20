@@ -35,12 +35,32 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        name: 'SystemPermission',
-        path: 'permission',
-        component: () => import('#/views/system/permission/list.vue'),
+        name: 'SystemMenu',
+        path: 'menu',
+        component: () => import('#/views/system/menu/index.vue'),
         meta: {
-          icon: 'lucide:shield-check',
-          title: '权限管理',
+          icon: 'lucide:menu',
+          title: '菜单管理',
+        },
+      },
+      {
+        name: 'SystemModel',
+        path: 'model',
+        component: () => import('#/views/system/model/list.vue'),
+        meta: {
+          icon: 'lucide:box-select',
+          title: '模型管理',
+        },
+      },
+      {
+        // 字段管理：从模型列表行内进入，不出现在菜单
+        name: 'SystemModelField',
+        path: 'model/field/:modelId',
+        component: () => import('#/views/system/model/field.vue'),
+        meta: {
+          activePath: '/system/model',
+          hideInMenu: true,
+          title: '字段管理',
         },
       },
     ],

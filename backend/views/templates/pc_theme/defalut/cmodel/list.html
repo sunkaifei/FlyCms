@@ -1,0 +1,19 @@
+<#-- 自定义模型通用列表页骨架（模型专属模板缺失时的回退） -->
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><title>${model.name}</title></head>
+<body>
+<h1>${model.name}</h1>
+<@ListModel model="${model.code}" p="${p!1}" rows="10">
+<ul>
+<#if dataList?? && dataList?size gt 0>
+<#list dataList as item>
+  <li><a href="/${model.code}/${item.shortUrl}.html">${item.title}</a> <span>${(item.createTime)!''}</span></li>
+</#list>
+<#else>
+<li>暂无内容</li>
+</#if>
+</ul>
+</@ListModel>
+</body>
+</html>

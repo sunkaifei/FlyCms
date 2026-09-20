@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.model.dao.ModelDataDao">
+
+	<!-- ${modelId} 已过 SqlSafeUtil.safeNumber 白名单 -->
+	<update id="createTable">
+		CREATE TABLE IF NOT EXISTS `fly_cmodel_${modelId}` (
+		  `id` bigint(20) unsigned NOT NULL COMMENT '雪花ID',
+		  `short_url` varchar(10) NOT NULL COMMENT '短链接',
+		  `user_id` bigint(20) unsigned DEFAULT NULL COMMENT '发布用户',
+		  `category_id` bigint(20) DEFAULT '0' COMMENT '分类id',
+		  `title` varchar(250) DEFAULT NULL COMMENT '标题',
+		  `content` longtext COMMENT '正文(editor字段通道)',
+		  `keywords` varchar(255) DEFAULT NULL,
+		  `description` varchar(255) DEFAULT NULL,
+		  `thumbnail` bigint(20) unsigned DEFAULT NULL COMMENT '封面图(fly_images.id)',
+		  `recommend` int(5) DEFAULT '0' COMMENT '推荐权重，越大越靠前',
+		  `count_view` int(11) NOT NULL DEFAULT '0' COMMENT '浏览数',
+		  `count_comment` int(11) NOT NULL DEFAULT '0' COMMENT '评论数',
+		  `status` tinyint(2) DEFAULT '0' COMMENT '0未审核 1正常 2未通过 3删除',
+		  `create_time` datetime DEFAULT NULL,
+		  `update_time` datetime DEFAULT NULL,
+		  PRIMARY KEY (`id`,`short_url`),
+		  KEY `idx_category` (`category_id`,`status`),
+		  KEY `idx_short_url` (`short_url`),
+		  KEY `idx_user` (`user_id`,`status`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+	</update>
+
+	<update id="addColumn">
+		ALTER TABLE `fly_cmodel_${modelId}` ADD COLUMN `${columnName}` ${columnType} COMMENT '${comment}' DEFAULT NULL
+	</update>
+
+	<update id="modifyColumn">
+		ALTER TABLE `fly_cmodel_${modelId}` MODIFY COLUMN `${columnName}` ${columnType} DEFAULT NULL
+	</update>
+
+	<update id="dropColumn">
+		ALTER TABLE `fly_cmodel_${modelId}` DROP COLUMN `${columnName}`
+	</update>
+
+	<update id="dropTable">
+		DROP TABLE IF EXISTS `fly_cmodel_${modelId}`
+	</update>
+
+	<select id="tableExists" resultType="boolean">
+		SELECT COUNT(*) > 0 FROM information_schema.tables
+		WHERE table_schema = DATABASE() AND table_name = CONCAT('fly_cmodel_', #{modelId})
+	</select>
+
+	<!-- ${columnName} 已过 SqlSafeUtil.safeColumnName 白名单；值一律 #{} -->
+	<insert id="insertData">
+		INSERT INTO `fly_cmodel_${modelId}` (`id`, `short_url`, `create_time`
+		<foreach collection="columns" item="c" open="," separator="," close="">`${c}`</foreach>)
+		VALUES (#{values.id}, #{values.shortUrl}, now()
+		<foreach collection="columns" item="c" open="," separator="," close="">#{values.${c}}</foreach>)
+	</insert>
+
+	<update id="updateData">
+		UPDATE `fly_cmodel_${modelId}`
+		<set>
+			<foreach collection="columns" item="c" separator=",">`${c}` = #{values.${c}}</foreach>
+			, update_time = now()
+		</set>
+		WHERE `id` = #{id}
+	</update>
+
+	<select id="findDataById" resultType="map">
+		SELECT * FROM `fly_cmodel_${modelId}` WHERE `id` = #{id} LIMIT 1
+	</select>
+
+	<select id="findByShortUrl" resultType="map">
+		SELECT * FROM `fly_cmodel_${modelId}` WHERE `short_url` = #{shortUrl} AND `status` = 1 LIMIT 1
+	</select>
+
+	<select id="existsShortUrl" resultType="boolean">
+		SELECT COUNT(*) > 0 FROM `fly_cmodel_${modelId}` WHERE `short_url` = #{shortUrl}
+	</select>
+
+	<!-- whereSql/orderBySql 由 Service 依元数据白名单生成，参数占位 #{params.xxx} 预编译 -->
+	<select id="selectPage" resultType="map">
+		SELECT * FROM `fly_cmodel_${modelId}`
+		<where>${whereSql}</where>
+		ORDER BY ${orderBySql}
+		LIMIT #{params.offset}, #{params.rows}
+	</select>
+
+	<select id="countPage" resultType="int">
+		SELECT COUNT(*) FROM `fly_cmodel_${modelId}`
+		<where>${whereSql}</where>
+	</select>
+
+	<update id="updateStatus">
+		UPDATE `fly_cmodel_${modelId}` SET `status` = #{status}, update_time = now()
+		WHERE `id` IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</update>
+
+	<delete id="deleteData">
+		DELETE FROM `fly_cmodel_${modelId}` WHERE `id` IN
+		<foreach collection="ids" item="i" open="," separator="," close=")">#{i}</foreach>
+	</delete>
+
+	<!-- 附件：fly_images（AttachmentPicker 数据源与引用计数） -->
+	<select id="attachmentList" resultType="map">
+		SELECT id, info_id AS infoId, img_url AS imgUrl, img_name AS imgName, info_count AS infoCount
+		FROM fly_images ORDER BY id DESC LIMIT #{offset}, #{rows}
+	</select>
+
+	<select id="attachmentCount" resultType="int">
+		SELECT COUNT(*) FROM fly_images
+	</select>
+
+	<select id="existsImages" resultType="boolean">
+		SELECT COUNT(*) = #{ids.size()} FROM fly_images WHERE id IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</select>
+
+	<update id="incrImagesRefCount">
+		UPDATE fly_images SET info_count = info_count + 1 WHERE id IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</update>
+
+	<update id="decrImagesRefCount">
+		UPDATE fly_images SET info_count = GREATEST(info_count - 1, 0) WHERE id IN
+		<foreach collection="ids" item="i" open="," separator="," close=")">#{i}</foreach>
+	</update>
+</mapper>

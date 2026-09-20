@@ -1,0 +1,25 @@
+<#-- 自定义模型通用详情页骨架（模型专属模板缺失时的回退） -->
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><title>${(info.title)!'详情'}</title></head>
+<body>
+<@InfoModel model="${model.code}" shortUrl="${shortUrl!}">
+<#if info??>
+<h1>${info.title}</h1>
+<div class="content">${(info.content)!''}</div>
+<@FieldsModel model="${model.code}">
+<ul>
+<#list fieldsList as f>
+  <#assign v = (info[f.fieldName])!''>
+  <#if v != ''>
+  <li>${f.fieldLabel}：${v}</li>
+  </#if>
+</#list>
+</ul>
+</@FieldsModel>
+<#else>
+<p>内容不存在或未通过审核</p>
+</#if>
+</@InfoModel>
+</body>
+</html>

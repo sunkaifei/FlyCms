@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.model.dao.ModelCategoryDao">
+
+	<sql id="base_column">id, model_id AS modelId, father_id AS fatherId, name, keywords, description, sort, status</sql>
+
+	<insert id="addCategory" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_model_category (model_id, father_id, name, keywords, description, sort, status)
+		values (#{modelId}, #{fatherId}, #{name}, #{keywords}, #{description}, #{sort}, #{status})
+	</insert>
+
+	<update id="updateCategory">
+		update fly_model_category
+		<set>
+			<if test="name != null">name = #{name},</if>
+			<if test="keywords != null">keywords = #{keywords},</if>
+			<if test="description != null">description = #{description},</if>
+			<if test="sort != 0">sort = #{sort},</if>
+			<if test="status != 0">status = #{status},</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="deleteCategoryById">
+		delete from fly_model_category where id = #{id}
+	</delete>
+
+	<select id="findCategoryById" resultType="com.flycms.module.model.model.ModelCategory">
+		select <include refid="base_column"/> from fly_model_category where id = #{id}
+	</select>
+
+	<select id="findCategoriesByModelId" resultType="com.flycms.module.model.model.ModelCategory">
+		select <include refid="base_column"/> from fly_model_category where model_id = #{modelId}
+		<if test="status != null">and status = #{status}</if>
+		order by sort asc, id asc
+	</select>
+
+	<select id="hasChildren" resultType="boolean">
+		select count(*) > 0 from fly_model_category where father_id = #{id}
+	</select>
+</mapper>

@@ -19,6 +19,14 @@ import java.util.List;
 @Repository
 public interface PermissionDao {
 
+    public int updateMenuRow(com.flycms.module.admin.model.Permission permission);
+
+    public List<com.flycms.module.admin.model.Permission> getAllMenuNodes();
+
+    public List<com.flycms.module.admin.model.Permission> getMenuNodes();
+
+    public boolean hasMenuChildren(@Param("id") Long id);
+
     // ///////////////////////////////
     // /////      增加        ////////
     // ///////////////////////////////

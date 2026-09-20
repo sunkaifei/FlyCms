@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.model.dao.ModelDao">
+
+	<sql id="base_column">id, name, code, title_label AS titleLabel, is_system AS isSystem, list_template AS listTemplate,
+		detail_template AS detailTemplate, icon, description, sort, status, create_time AS createTime, update_time AS updateTime</sql>
+
+	<insert id="addModel">
+		insert into fly_model (id, name, code, title_label, is_system, list_template, detail_template, icon, description, sort, status, create_time)
+		values (#{id}, #{name}, #{code}, #{titleLabel}, #{isSystem}, #{listTemplate}, #{detailTemplate}, #{icon}, #{description}, #{sort}, #{status}, now())
+	</insert>
+
+	<update id="updateModel">
+		update fly_model
+		<set>
+			<if test="name != null">name = #{name},</if>
+			<if test="titleLabel != null">title_label = #{titleLabel},</if>
+			<if test="listTemplate != null">list_template = #{listTemplate},</if>
+			<if test="detailTemplate != null">detail_template = #{detailTemplate},</if>
+			<if test="icon != null">icon = #{icon},</if>
+			<if test="description != null">description = #{description},</if>
+			<if test="sort != 0">sort = #{sort},</if>
+			<if test="status != 0">status = #{status},</if>
+			update_time = now()
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="deleteModelById">
+		delete from fly_model where id = #{id}
+	</delete>
+
+	<select id="findModelById" resultType="com.flycms.module.model.model.Model">
+		select <include refid="base_column"/> from fly_model where id = #{id}
+	</select>
+
+	<select id="findModelByCode" resultType="com.flycms.module.model.model.Model">
+		select <include refid="base_column"/> from fly_model where code = #{code} limit 1
+	</select>
+
+	<select id="checkModelCode" resultType="boolean">
+		select count(*) > 0 from fly_model where code = #{code}
+	</select>
+
+	<select id="getModelList" resultType="com.flycms.module.model.model.Model">
+		select <include refid="base_column"/> from fly_model order by sort asc, id desc limit #{offset}, #{rows}
+	</select>
+
+	<select id="getModelCount" resultType="int">
+		select count(*) from fly_model
+	</select>
+
+	<select id="getAllModelList" resultType="com.flycms.module.model.model.Model">
+		select <include refid="base_column"/> from fly_model
+		<where>
+			<if test="status != null">status = #{status}</if>
+		</where>
+		order by sort asc, id desc
+	</select>
+</mapper>
