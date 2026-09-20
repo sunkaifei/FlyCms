@@ -10,8 +10,6 @@ packages:
   - packages/business/*
   - apps/*
   - scripts/*
-  - docs
-  - playground
 
 publicHoistPattern:
   - lefthook

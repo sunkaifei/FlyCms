@@ -8,7 +8,7 @@
 |---|---|---|---|
 | 1 | 无自动化测试 | `src/test` 不存在；回归全靠手工冒烟 | 不必补大而全单测；但 core/utils（BCryptUtils、CheckUrlUtils、SnowFlake）和权限链路值得先补 JUnit，改一处坏全局的风险最高 |
 | 2 | commons-lang 2.x 残留 | 如 `AdminController` 里 `org.apache.commons.lang.math.NumberUtils`（2.x，早已 EOL） | 遇到即替换为 commons-lang3 等价物，不专门立项 |
-| 3 | 前端 vben 完整 monorepo 未裁剪 | apps/web-ele、web-naive、web-tdesign、playground、docs 均未使用，拖慢 install/typecheck | 确定以 web-antd 为主力后，可删未用 apps（保留 backend-mock 可选）；删除前确认 turbo filter 无引用 |
+| 3 | ~~前端 vben 完整 monorepo 未裁剪~~ | **已解决（2026-09-21）**：删除 apps/web-ele、web-naive、web-tdesign、web-antdv-next、playground、docs 及 vben 官方 deploy.yml，workspace/scripts/code-workspace 引用已清理 | 剩余 apps/web-antd（主力）与 apps/backend-mock（mock 契约参考，`VITE_NITRO_MOCK=false` 下不启动）；后续若确认不再需要 mock 参照可一并删除 |
 | 4 | 遗留表字段命名混用 | `fly_admin.createAt` 驼峰 vs `last_login_time` 下划线 | 新表统一下划线；存量不动（改表影响 Freemarker 模板与 XML，收益低） |
 | 5 | Session 认证的横向扩展局限 | 多实例部署需 session 共享（Spring Session + Redis） | 单实例部署下不是问题；上集群前解决，见决策 #1 |
 | 6 | Solr 移除残留 | 升级时已移除依赖，源码/配置可能仍有 SolrConst、search 模块残留分支 | 触碰相关代码时顺手清理并编译验证 |
