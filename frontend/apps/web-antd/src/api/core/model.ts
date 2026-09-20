@@ -21,10 +21,12 @@ export interface ModelRow {
 
 export interface ModelFieldRow {
   columnType: string;
+  defaultValue?: string;
   fieldName: string;
   fieldLabel: string;
   fieldType: string;
   id: number;
+  tabName?: string;
   isFilter: number;
   isList: number;
   isRequired: number;
@@ -73,6 +75,10 @@ function postForm<T>(url: string, data: Record<string, unknown>) {
 
 export async function getModelListApi(params: { p?: number }) {
   return requestClient.get<PageData<ModelRow>>('/system/model/list', { params });
+}
+
+export async function getModelByCodeApi(code: string) {
+  return requestClient.get<ModelRow>(`/system/model/byCode/${code}`);
 }
 
 export async function saveModelApi(data: Record<string, unknown>) {

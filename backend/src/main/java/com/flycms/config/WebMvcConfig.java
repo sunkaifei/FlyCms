@@ -15,7 +15,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.SessionTrackingMode;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
+import org.springframework.http.converter.HttpMessageConverter;
 
 /**
  * Open source house, All rights reserved
@@ -77,6 +79,28 @@ public class WebMvcConfig extends WebMvcConfigurationSupport{
 						"/ucenter/mailcaptcha.json");
 		registry.addInterceptor(localeChangeInterceptor());
 	}
+
+    /**
+     * Long → String：雪花 ID 超出 JS Number.MAX_SAFE_INTEGER，以 number 下发前端会
+     * 丢失末位精度导致按 id 查询全部落空。统一替换 MVC 的 Jackson 转换器，
+     * 将 Long 序列化为字符串（同若依 JacksonConfig 做法；Boot 4 的
+     * JsonMapperBuilderCustomizer 实测不影响 MVC 默认转换器，故在此直接替换）。
+     */
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        tools.jackson.databind.module.SimpleModule module =
+                new tools.jackson.databind.module.SimpleModule("flycms-long-to-string");
+        module.addSerializer(Long.class, tools.jackson.databind.ser.std.ToStringSerializer.instance);
+        module.addSerializer(Long.TYPE, tools.jackson.databind.ser.std.ToStringSerializer.instance);
+        tools.jackson.databind.json.JsonMapper mapper =
+                tools.jackson.databind.json.JsonMapper.builder().addModule(module).build();
+        for (int i = 0; i < converters.size(); i++) {
+            if (converters.get(i) instanceof org.springframework.http.converter.json.JacksonJsonHttpMessageConverter) {
+                converters.set(i, new org.springframework.http.converter.json.JacksonJsonHttpMessageConverter(mapper));
+            }
+        }
+        super.extendMessageConverters(converters);
+    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

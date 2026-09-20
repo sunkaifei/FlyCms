@@ -32,6 +32,7 @@ const gridOptions: VxeTableGridOptions<ModelFieldRow> = {
     { field: 'fieldLabel', title: '显示名' },
     { field: 'fieldType', title: '类型', width: 100 },
     { field: 'columnType', title: '列定义' },
+    { field: 'tabName', title: '表单选项卡', width: 100 },
     {
       field: 'isRequired',
       formatter: ({ cellValue }) => (cellValue === 1 ? '是' : '否'),

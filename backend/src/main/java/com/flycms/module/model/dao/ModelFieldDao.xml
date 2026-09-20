@@ -5,13 +5,13 @@
 	<sql id="base_column">id, model_id AS modelId, field_name AS fieldName, field_label AS fieldLabel, field_type AS fieldType,
 		column_type AS columnType, default_value AS defaultValue, maxlength, dict_type AS dictType, options,
 		is_required AS isRequired, is_list AS isList, is_search AS isSearch, is_filter AS isFilter,
-		regex, placeholder, tips, sort, status, create_time AS createTime, update_time AS updateTime</sql>
+		regex, placeholder, tips, tab_name AS tabName, sort, status, create_time AS createTime, update_time AS updateTime</sql>
 
 	<insert id="addField">
 		insert into fly_model_field (id, model_id, field_name, field_label, field_type, column_type, default_value, maxlength,
-			dict_type, options, is_required, is_list, is_search, is_filter, regex, placeholder, tips, sort, status, create_time)
+			dict_type, options, is_required, is_list, is_search, is_filter, regex, placeholder, tips, tab_name, sort, status, create_time)
 		values (#{id}, #{modelId}, #{fieldName}, #{fieldLabel}, #{fieldType}, #{columnType}, #{defaultValue}, #{maxlength},
-			#{dictType}, #{options}, #{isRequired}, #{isList}, #{isSearch}, #{isFilter}, #{regex}, #{placeholder}, #{tips}, #{sort}, #{status}, now())
+			#{dictType}, #{options}, #{isRequired}, #{isList}, #{isSearch}, #{isFilter}, #{regex}, #{placeholder}, #{tips}, #{tabName}, #{sort}, #{status}, now())
 	</insert>
 
 	<update id="updateField">
@@ -28,6 +28,7 @@
 			<if test="regex != null">regex = #{regex},</if>
 			<if test="placeholder != null">placeholder = #{placeholder},</if>
 			<if test="tips != null">tips = #{tips},</if>
+			<if test="tabName != null">tab_name = #{tabName},</if>
 			sort = #{sort},
 			status = #{status},
 			update_time = now()

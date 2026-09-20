@@ -33,6 +33,8 @@ public class ModelField implements Serializable {
     private String regex;
     private String placeholder;
     private String tips;
+    /** 表单选项卡名（表单按此分组渲染，组内按 sort 排序） */
+    private String tabName;
     private int sort;
     private int status;
     private Date createTime;

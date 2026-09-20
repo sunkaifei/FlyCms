@@ -151,6 +151,7 @@ public class ApiModelController extends ApiBaseController {
         field.setRegex(params.get("regex"));
         field.setPlaceholder(params.get("placeholder"));
         field.setTips(params.get("tips"));
+        field.setTabName(StringUtils.defaultIfBlank(params.get("tabName"), "基础信息"));
         field.setSort(parseInt(params.get("sort"), 0));
         if (field.getModelId() == null) {
             return DataVo.failure("参数传递错误");
@@ -178,6 +179,7 @@ public class ApiModelController extends ApiBaseController {
         field.setRegex(params.get("regex"));
         field.setPlaceholder(params.get("placeholder"));
         field.setTips(params.get("tips"));
+        field.setTabName(StringUtils.defaultIfBlank(params.get("tabName"), "基础信息"));
         field.setSort(parseInt(params.get("sort"), 0));
         field.setStatus(parseInt(params.get("status"), 1));
         return modelFieldService.updateField(field);

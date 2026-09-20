@@ -6,7 +6,7 @@ import { computed, onMounted, ref } from 'vue';
 import { Page, useVbenModal } from '@vben/common-ui';
 import { useAccess } from '@vben/access';
 
-import { Button, message, Modal } from 'ant-design-vue';
+import { Button, message, Modal, Table } from 'ant-design-vue';
 
 import { deleteMenuApi, getMenuListApi } from '#/api/core/menu-manage';
 
@@ -56,17 +56,17 @@ async function load() {
 
 onMounted(load);
 
-function openAdd(row?: MenuNode) {
+function openAdd(row?: any) {
   menuModalApi
     .setData({ parentId: row?.id ?? 0, onSaved: load })
     .open();
 }
 
-function openEdit(row: MenuNode) {
+function openEdit(row: any) {
   menuModalApi.setData({ onSaved: load, record: row }).open();
 }
 
-function onDelete(row: MenuNode) {
+function onDelete(row: any) {
   Modal.confirm({
     content: `删除「${row.menuName || row.actionKey}」？其角色绑定会一并移除。`,
     onOk: async () => {
@@ -93,7 +93,7 @@ function onDelete(row: MenuNode) {
         M=目录 / C=菜单（挂授权锚点）/ F=按钮与接口（权限码）。F 节点由"同步权限"自动登记，可在此编排层级。
       </span>
     </div>
-    <a-table
+    <Table
       :columns="[
         { title: '名称', dataIndex: 'menuName', key: 'menuName' },
         { title: '类型', dataIndex: 'menuType', key: 'menuType', width: 80 },
@@ -145,10 +145,10 @@ function onDelete(row: MenuNode) {
           </Button>
         </template>
         <template v-else>
-          {{ record[column.key] || '-' }}
+          {{ record[column.key as string] || '-' }}
         </template>
       </template>
-    </a-table>
+    </Table>
     <MenuModalComp />
   </Page>
 </template>

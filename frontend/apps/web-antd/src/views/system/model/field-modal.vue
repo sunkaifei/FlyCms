@@ -100,6 +100,12 @@ const [Form, formApi] = useVbenForm({
     },
     {
       component: 'Input',
+      componentProps: { placeholder: '默认：基础信息' },
+      fieldName: 'tabName',
+      label: '表单选项卡',
+    },
+    {
+      component: 'Input',
       fieldName: 'placeholder',
       label: '占位提示',
     },
@@ -163,6 +169,7 @@ onMounted(() => {
       fieldLabel: editing.value.fieldLabel,
       fieldName: editing.value.fieldName,
       fieldType: editing.value.fieldType,
+      tabName: editing.value.tabName || '基础信息',
       isFilter: editing.value.isFilter === 1,
       isList: editing.value.isList === 1,
       isRequired: editing.value.isRequired === 1,
