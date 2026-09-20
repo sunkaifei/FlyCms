@@ -1,0 +1,836 @@
+import type { BaseFormComponentType } from '../src/types';
+
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { FormApi } from '../src/form-api';
+import { FormCodecError } from '../src/form-codec';
+
+describe('formApi', () => {
+  let formApi: FormApi;
+
+  beforeEach(() => {
+    formApi = new FormApi();
+  });
+
+  it('should initialize with default state', () => {
+    expect(formApi.state).toEqual(
+      expect.objectContaining({
+        actionWrapperClass: '',
+        collapsed: false,
+        collapsedRows: 1,
+        commonConfig: {},
+        handleReset: undefined,
+        handleSubmit: undefined,
+        layout: 'horizontal',
+        resetButtonOptions: {},
+        schema: [],
+        showCollapseButton: false,
+        showDefaultActions: true,
+        submitButtonOptions: {},
+        wrapperClass: 'grid-cols-1',
+      }),
+    );
+    expect(formApi.isMounted).toBe(false);
+  });
+
+  it('should mount form actions', async () => {
+    const formActions: any = {
+      meta: {},
+      resetForm: vi.fn(),
+      setFieldValue: vi.fn(),
+      setValues: vi.fn(),
+      submitForm: vi.fn(),
+      validate: vi.fn(),
+      values: { name: 'test' },
+    };
+
+    await formApi.mount(formActions);
+    expect(formApi.isMounted).toBe(true);
+    expect(formApi.form).toEqual(formActions);
+    expect(formApi.getFieldComponentRef('name')).toBeUndefined();
+  });
+
+  it('should get values from form', async () => {
+    const formActions: any = {
+      meta: {},
+      values: { name: 'test' },
+    };
+
+    await formApi.mount(formActions, new Map());
+    const values = await formApi.getValues();
+    expect(values).toEqual({ name: 'test' });
+  });
+
+  it('should set a field error through the public api', async () => {
+    const setFieldError = vi.fn();
+    const formActions: any = {
+      meta: {},
+      setFieldError,
+      values: {},
+    };
+
+    formApi.mount(formActions, new Map());
+    await formApi.setFieldError('password', 'Invalid password');
+
+    expect(setFieldError).toHaveBeenCalledWith('password', 'Invalid password');
+  });
+
+  it('should format schema values when getting values', async () => {
+    formApi.setState({
+      schema: [
+        {
+          component: 'range-picker',
+          fieldName: 'filters.range',
+          valueFormat: (value, setValue) => {
+            setValue('filters.startTime', value?.[0]);
+            setValue('filters.endTime', value?.[1]);
+          },
+        },
+      ],
+    });
+
+    const formActions: any = {
+      meta: {},
+      values: {
+        filters: {
+          range: [1_710_000_000_000, 1_720_000_000_000],
+        },
+      },
+    };
+    const originalValuesSnapshot = structuredClone(formActions.values);
+
+    await formApi.mount(formActions, new Map());
+
+    expect(formApi.getLatestSubmissionValues()).toEqual({
+      filters: {
+        endTime: 1_720_000_000_000,
+        startTime: 1_710_000_000_000,
+      },
+    });
+
+    const values = await formApi.getValues();
+    expect(values).toEqual({
+      filters: {
+        endTime: 1_720_000_000_000,
+        startTime: 1_710_000_000_000,
+      },
+    });
+    expect(await formApi.getRawValues()).toEqual(originalValuesSnapshot);
+    expect(await formApi.getValueSnapshot()).toEqual({
+      rawValues: originalValuesSnapshot,
+      values,
+    });
+    expect(formActions.values).toEqual(originalValuesSnapshot);
+  });
+
+  it('should encode submissions and decode complete values with a codec', async () => {
+    interface FilterFormValues {
+      period: [number, number];
+      tags: string[];
+    }
+
+    interface FilterSubmitValues {
+      endTime: number;
+      startTime: number;
+      tags: string;
+    }
+
+    const setValues = vi.fn();
+    const codecFormApi = new FormApi<
+      FilterFormValues,
+      BaseFormComponentType,
+      Record<never, never>,
+      FilterSubmitValues
+    >({
+      codec: {
+        decode(values) {
+          return {
+            period: [values.startTime, values.endTime],
+            tags: values.tags.split(','),
+          };
+        },
+        encode(values) {
+          return {
+            endTime: values.period[1],
+            startTime: values.period[0],
+            tags: values.tags.join(','),
+          };
+        },
+      },
+    });
+    const formActions: any = {
+      meta: {},
+      setValues,
+      values: { period: [1, 2], tags: ['admin', 'user'] },
+    };
+
+    await codecFormApi.mount(formActions, new Map());
+
+    expect(await codecFormApi.getValues()).toEqual({
+      endTime: 2,
+      startTime: 1,
+      tags: 'admin,user',
+    });
+    expect(await codecFormApi.getValueSnapshot()).toEqual({
+      rawValues: { period: [1, 2], tags: ['admin', 'user'] },
+      values: { endTime: 2, startTime: 1, tags: 'admin,user' },
+    });
+
+    await codecFormApi.setSubmitValues(
+      { endTime: 4, startTime: 3, tags: 'editor' },
+      false,
+    );
+    expect(setValues).toHaveBeenCalledWith(
+      { period: [3, 4], tags: ['editor'] },
+      false,
+    );
+  });
+
+  it('should isolate codec results from live form values', async () => {
+    interface ProfileFormValues {
+      profile: { name: string };
+      tags: string[];
+    }
+
+    const values: ProfileFormValues = {
+      profile: { name: 'Ada' },
+      tags: ['admin'],
+    };
+    const codecFormApi = new FormApi<ProfileFormValues>({
+      codec: {
+        decode: (submitValues) => submitValues,
+        encode: (formValues) => ({
+          profile: formValues.profile,
+          tags: formValues.tags,
+        }),
+      },
+    });
+    const formActions: any = { meta: {}, values };
+
+    codecFormApi.mount(formActions, new Map());
+    const initialSubmissionValues = codecFormApi.getLatestSubmissionValues();
+    values.profile.name = 'Grace';
+    values.tags.push('user');
+
+    expect(initialSubmissionValues).toEqual({
+      profile: { name: 'Ada' },
+      tags: ['admin'],
+    });
+    const submissionValues = await codecFormApi.getValues();
+    expect(submissionValues.profile).not.toBe(values.profile);
+    expect(submissionValues.tags).not.toBe(values.tags);
+  });
+
+  it('should fall back to raw values when the initial codec encode fails', async () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const codecFormApi = new FormApi<
+      { name?: string },
+      BaseFormComponentType,
+      Record<never, never>,
+      { normalizedName: string }
+    >({
+      codec: {
+        decode: (values) => ({ name: values.normalizedName }),
+        encode() {
+          throw new Error('incomplete initial values');
+        },
+      },
+    });
+    const formActions: any = { meta: {}, values: { name: 'Ada' } };
+
+    expect(() => codecFormApi.mount(formActions, new Map())).not.toThrow();
+
+    expect(codecFormApi.isMounted).toBe(true);
+    expect(codecFormApi.getLatestSubmissionValues()).toEqual({ name: 'Ada' });
+    expect(warning).toHaveBeenCalledWith(
+      '[Vben Form] Failed to encode initial values. Falling back to raw form values.',
+      expect.objectContaining({ phase: 'encode' }),
+    );
+    await expect(codecFormApi.getValues()).rejects.toBeInstanceOf(
+      FormCodecError,
+    );
+  });
+
+  it('should scan deprecated schema transforms once for unchanged state', async () => {
+    const getChildren = vi.fn(() => []);
+    const schema = {
+      component: 'text',
+      fieldName: 'name',
+      get children() {
+        return getChildren();
+      },
+    } as any;
+    const codecFormApi = new FormApi({
+      codec: {
+        decode: (values) => values,
+        encode: (values) => values,
+      },
+      schema: [schema],
+    });
+    const formActions: any = {
+      meta: {},
+      values: { name: 'Ada' },
+    };
+
+    await codecFormApi.mount(formActions, new Map());
+    expect(getChildren).toHaveBeenCalledTimes(1);
+
+    await codecFormApi.getValues();
+    await codecFormApi.getValues();
+
+    expect(getChildren).toHaveBeenCalledTimes(1);
+  });
+
+  it('should format child schema values inside array fields', async () => {
+    formApi.setState({
+      schema: [
+        {
+          children: [
+            {
+              component: 'text',
+              fieldName: 'name',
+              valueFormat: (
+                value: any,
+                setValue: any,
+                _values: any,
+                ctx: any,
+              ) => {
+                setValue('normalizedName', value?.trim());
+                setValue('$root.firstRow', ctx?.rowIndex);
+              },
+            },
+          ],
+          fieldName: 'contacts',
+          type: 'array',
+        } as any,
+      ],
+    });
+
+    const formActions: any = {
+      meta: {},
+      values: {
+        contacts: [{ name: ' Ada ' }, { name: ' Grace ' }],
+      },
+    };
+
+    await formApi.mount(formActions, new Map());
+
+    const values = await formApi.getValues();
+    expect(values).toEqual({
+      contacts: [{ normalizedName: 'Ada' }, { normalizedName: 'Grace' }],
+      firstRow: 1,
+    });
+  });
+
+  it('should set field value', async () => {
+    const setFieldValueMock = vi.fn();
+    const formActions: any = {
+      meta: {},
+      setFieldValue: setFieldValueMock,
+      values: { name: 'test' },
+    };
+
+    await formApi.mount(formActions, new Map());
+    await formApi.setFieldValue('name', 'new value');
+    expect(setFieldValueMock).toHaveBeenCalledWith(
+      'name',
+      'new value',
+      undefined,
+    );
+  });
+
+  it('should set only known fields without losing provided values', async () => {
+    const setValuesMock = vi.fn();
+    formApi.setState({
+      schema: [
+        { component: 'text', fieldName: 'name' },
+        { component: 'text', fieldName: 'profile.email' },
+      ],
+    });
+    const formActions: any = {
+      meta: {},
+      setValues: setValuesMock,
+      values: {},
+    };
+
+    await formApi.mount(formActions, new Map());
+    await formApi.setValues({
+      name: 'Ada',
+      profile: {
+        email: 'ada@example.com',
+        ignored: true,
+      },
+      unknown: 'ignored',
+    });
+
+    expect(setValuesMock).toHaveBeenCalledWith(
+      {
+        name: 'Ada',
+        profile: {
+          email: 'ada@example.com',
+        },
+      },
+      false,
+    );
+  });
+
+  it('should treat fields inside groups as known fields when filtering', async () => {
+    const setValuesMock = vi.fn();
+    formApi.setState({
+      schema: [
+        { component: 'text', fieldName: 'name' },
+        {
+          children: [{ component: 'text', fieldName: 'email' }],
+          title: 'Contact',
+          type: 'group',
+        },
+      ],
+    });
+    const formActions: any = {
+      meta: {},
+      setValues: setValuesMock,
+      values: {},
+    };
+
+    await formApi.mount(formActions, new Map());
+    await formApi.setValues({
+      email: 'ada@example.com',
+      name: 'Ada',
+      unknown: 'ignored',
+    });
+
+    expect(setValuesMock).toHaveBeenCalledWith(
+      { email: 'ada@example.com', name: 'Ada' },
+      false,
+    );
+  });
+
+  it('should clear values of fields removed from a group', async () => {
+    const setFieldValueMock = vi.fn();
+    formApi.setState({
+      schema: [
+        {
+          children: [
+            { component: 'text', fieldName: 'email' },
+            { component: 'text', fieldName: 'phone' },
+          ],
+          title: 'Contact',
+          type: 'group',
+        },
+      ],
+    });
+    const formActions: any = {
+      meta: {},
+      setFieldValue: setFieldValueMock,
+      values: { email: 'ada@example.com', phone: '123' },
+    };
+
+    await formApi.mount(formActions, new Map());
+    formApi.removeSchemaByFields(['phone']);
+
+    expect(formApi.state?.schema).toEqual([
+      {
+        children: [{ component: 'text', fieldName: 'email' }],
+        title: 'Contact',
+        type: 'group',
+      },
+    ]);
+    expect(setFieldValueMock).toHaveBeenCalledWith('phone', undefined);
+    expect(setFieldValueMock).not.toHaveBeenCalledWith('email', undefined);
+  });
+
+  it('should preserve nested schema siblings in touched branches', async () => {
+    const setValuesMock = vi.fn();
+    formApi.setState({
+      schema: [
+        { component: 'text', fieldName: 'profile.email' },
+        { component: 'text', fieldName: 'profile.nickname' },
+      ],
+    });
+    const formActions: any = {
+      meta: {},
+      setValues: setValuesMock,
+      values: {
+        profile: {
+          email: 'old@example.com',
+          ignored: true,
+          nickname: 'Ada',
+        },
+        untouched: 'keep',
+      },
+    };
+
+    await formApi.mount(formActions, new Map());
+    await formApi.setValues({
+      profile: { email: 'new@example.com' },
+    });
+
+    expect(setValuesMock).toHaveBeenCalledWith(
+      {
+        profile: {
+          email: 'new@example.com',
+          nickname: 'Ada',
+        },
+      },
+      false,
+    );
+  });
+
+  it('should patch object fields while replacing atomic values', async () => {
+    class AtomicValue {
+      constructor(readonly value: string) {}
+    }
+
+    const setValuesMock = vi.fn();
+    const atomicValue = new AtomicValue('new');
+    const updatedAt = new Date('2026-08-27T00:00:00.000Z');
+    const fields = {
+      atomicValue,
+      cleared: undefined,
+      contacts: [{ name: 'Grace' }],
+      nullable: null,
+      profile: { email: 'new@example.com' },
+      updatedAt,
+    };
+    formApi.setState({
+      schema: [
+        { component: 'text', fieldName: 'atomicValue' },
+        { component: 'text', fieldName: 'cleared' },
+        { component: 'text', fieldName: 'contacts' },
+        { component: 'text', fieldName: 'nullable' },
+        { component: 'text', fieldName: 'profile' },
+        { component: 'text', fieldName: 'updatedAt' },
+      ],
+    });
+    const formActions: any = {
+      meta: {},
+      setValues: setValuesMock,
+      values: {
+        atomicValue: new AtomicValue('old'),
+        cleared: 'remove',
+        contacts: [{ name: 'Ada' }],
+        nullable: 'remove',
+        profile: { bio: 'Mathematician', email: 'old@example.com' },
+        updatedAt: new Date('2026-08-26T00:00:00.000Z'),
+      },
+    };
+
+    await formApi.mount(formActions, new Map());
+    await formApi.setValues(fields, true, true);
+
+    expect(fields).toEqual({
+      atomicValue,
+      cleared: undefined,
+      contacts: [{ name: 'Grace' }],
+      nullable: null,
+      profile: { email: 'new@example.com' },
+      updatedAt,
+    });
+    expect(setValuesMock).toHaveBeenCalledWith(
+      {
+        atomicValue,
+        cleared: undefined,
+        contacts: [{ name: 'Grace' }],
+        nullable: null,
+        profile: {
+          bio: 'Mathematician',
+          email: 'new@example.com',
+        },
+        updatedAt,
+      },
+      true,
+    );
+    expect(setValuesMock.mock.calls[0]?.[0]?.atomicValue).toBeInstanceOf(
+      AtomicValue,
+    );
+  });
+
+  it('should handle cyclic plain-object patches without recursion overflow', async () => {
+    const setValuesMock = vi.fn();
+    const profile: Record<string, unknown> = { email: 'new@example.com' };
+    profile.self = profile;
+    formApi.setState({
+      schema: [{ component: 'text', fieldName: 'profile.email' }],
+    });
+    const formActions: any = {
+      meta: {},
+      setValues: setValuesMock,
+      values: { profile: { bio: 'Mathematician' } },
+    };
+
+    await formApi.mount(formActions, new Map());
+    await formApi.setValues({ profile });
+
+    expect(setValuesMock).toHaveBeenCalledTimes(1);
+    expect(setValuesMock).toHaveBeenCalledWith(
+      { profile: { email: 'new@example.com' } },
+      false,
+    );
+  });
+
+  it('should preserve raw-key fields during filtered updates', async () => {
+    const setValuesMock = vi.fn();
+    formApi.setState({
+      schema: [{ component: 'text', fieldName: '[profile.email]' }],
+    });
+    const formActions: any = {
+      meta: {},
+      setValues: setValuesMock,
+      values: { 'profile.email': 'old@example.com' },
+    };
+
+    await formApi.mount(formActions, new Map());
+    await formApi.setValues({ 'profile.email': 'new@example.com' });
+
+    expect(setValuesMock).toHaveBeenCalledWith(
+      { 'profile.email': 'new@example.com' },
+      false,
+    );
+  });
+
+  it('should reset form', async () => {
+    const resetMock = vi.fn();
+    const formActions: any = {
+      meta: {},
+      reset: resetMock,
+      values: { name: 'test' },
+    };
+
+    await formApi.mount(formActions, new Map());
+    await formApi.reset();
+    expect(resetMock).toHaveBeenCalled();
+  });
+
+  it('should call handleSubmit on submit', async () => {
+    const handleSubmitMock = vi.fn();
+    const formActions: any = {
+      meta: {},
+      submit: vi.fn().mockResolvedValue(true),
+      values: { name: 'test' },
+    };
+
+    const state = {
+      handleSubmit: handleSubmitMock,
+    };
+
+    formApi.setState(state);
+    await formApi.mount(formActions, new Map());
+
+    const result = await formApi.submit();
+    expect(formActions.submit).toHaveBeenCalled();
+    expect(handleSubmitMock).toHaveBeenCalledWith(
+      { name: 'test' },
+      { name: 'test' },
+    );
+    expect(result).toEqual({ name: 'test' });
+  });
+
+  it('should unmount form and reset state', () => {
+    formApi.unmount();
+    expect(formApi.isMounted).toBe(false);
+  });
+
+  it('should clear component refs on unmount before mounting again', async () => {
+    const formActions: any = {
+      meta: {},
+      resetForm: vi.fn(),
+      values: { name: 'test' },
+    };
+    const staleMap = new Map<string, unknown>([
+      [
+        'name',
+        {
+          $: {
+            type: { name: 'MockComponent' },
+          },
+          $el: {},
+        },
+      ],
+    ]);
+
+    await formApi.mount(formActions, staleMap);
+    expect(formApi.getFieldComponentRef('name')).toEqual({
+      $: {
+        type: { name: 'MockComponent' },
+      },
+      $el: {},
+    });
+
+    formApi.unmount();
+    expect(formApi.getFieldComponentRef('name')).toBeUndefined();
+
+    await formApi.mount(formActions);
+    expect(formApi.getFieldComponentRef('name')).toBeUndefined();
+  });
+
+  it('should validate form', async () => {
+    const validateMock = vi.fn().mockResolvedValue(true);
+    const formActions: any = {
+      meta: {},
+      validate: validateMock,
+    };
+
+    await formApi.mount(formActions, new Map());
+    const isValid = await formApi.validate();
+    expect(validateMock).toHaveBeenCalled();
+    expect(isValid).toBe(true);
+  });
+
+  it('should validate only once before submitting valid values', async () => {
+    const handleSubmit = vi.fn();
+    const formActions: any = {
+      meta: {},
+      submit: vi.fn(),
+      validate: vi.fn().mockResolvedValue({ errors: {}, valid: true }),
+      values: { name: 'Ada' },
+    };
+
+    formApi.setState({ handleSubmit });
+    await formApi.mount(formActions, new Map());
+
+    await expect(formApi.validateAndSubmit()).resolves.toEqual({ name: 'Ada' });
+    expect(formActions.validate).toHaveBeenCalledOnce();
+    expect(formActions.submit).not.toHaveBeenCalled();
+    expect(handleSubmit).toHaveBeenCalledOnce();
+  });
+
+  it('should not submit invalid values', async () => {
+    const handleSubmit = vi.fn();
+    const errors = { name: 'Name is required' };
+    const formActions: any = {
+      meta: {},
+      submit: vi.fn(),
+      validate: vi.fn().mockResolvedValue({ errors, valid: false }),
+      values: { name: '' },
+    };
+    const scrollToFirstError = vi
+      .spyOn(formApi as any, 'scrollToFirstError')
+      .mockImplementation(() => {});
+
+    formApi.setState({ handleSubmit, scrollToFirstError: true });
+    await formApi.mount(formActions, new Map());
+
+    await expect(formApi.validateAndSubmit()).resolves.toBeUndefined();
+    expect(formActions.validate).toHaveBeenCalledOnce();
+    expect(formActions.submit).not.toHaveBeenCalled();
+    expect(handleSubmit).not.toHaveBeenCalled();
+    expect(scrollToFirstError).toHaveBeenCalledOnce();
+    expect(scrollToFirstError).toHaveBeenCalledWith(errors);
+  });
+});
+
+describe('updateSchema', () => {
+  let instance: FormApi;
+
+  beforeEach(() => {
+    instance = new FormApi();
+    instance.state = {
+      schema: [
+        { component: 'text', fieldName: 'name' },
+        { component: 'number', fieldName: 'age', label: 'Age' },
+      ],
+    };
+  });
+
+  it('should update the schema correctly when fieldName matches', () => {
+    const newSchema = [
+      { component: 'text', fieldName: 'name' },
+      { component: 'number', fieldName: 'age', label: 'Age' },
+    ];
+
+    instance.updateSchema(newSchema);
+
+    expect(instance.state?.schema?.[0]?.component).toBe('text');
+    expect(instance.state?.schema?.[1]).toMatchObject({ label: 'Age' });
+  });
+
+  it('should update child schema by parent path', () => {
+    instance.state = {
+      schema: [
+        {
+          children: [
+            { component: 'text', fieldName: 'name', label: 'Name' },
+            { component: 'text', fieldName: 'phone', label: 'Phone' },
+          ],
+          fieldName: 'contacts',
+          type: 'array',
+        } as any,
+      ],
+    };
+
+    instance.updateSchema([
+      {
+        fieldName: 'contacts.name',
+        label: 'Full Name',
+      },
+    ]);
+
+    expect((instance.state?.schema?.[0] as any)?.children?.[0]?.label).toBe(
+      'Full Name',
+    );
+    expect((instance.state?.schema?.[0] as any)?.children?.[1]?.label).toBe(
+      'Phone',
+    );
+  });
+
+  it('should update fields nested inside groups', () => {
+    instance.state = {
+      schema: [
+        { component: 'text', fieldName: 'name' },
+        {
+          children: [
+            { component: 'text', fieldName: 'email', label: 'Email' },
+            { component: 'text', fieldName: 'phone', label: 'Phone' },
+          ],
+          title: 'Contact',
+          type: 'group',
+        },
+      ],
+    };
+
+    instance.updateSchema([{ fieldName: 'phone', label: 'Mobile' }]);
+
+    expect(instance.state?.schema?.[1]).toMatchObject({
+      children: [
+        { fieldName: 'email', label: 'Email' },
+        { fieldName: 'phone', label: 'Mobile' },
+      ],
+      type: 'group',
+    });
+  });
+
+  it('should log an error if fieldName is missing in some items', () => {
+    const newSchema: any[] = [
+      { component: 'textarea', fieldName: 'name' },
+      { component: 'number' },
+    ];
+
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    instance.updateSchema(newSchema);
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'All items in the schema array must have a valid `fieldName` property to be updated',
+    );
+  });
+
+  it('should not update schema if fieldName does not match', () => {
+    const newSchema = [{ component: 'textarea', fieldName: 'unknown' }];
+
+    instance.updateSchema(newSchema);
+
+    expect(instance.state?.schema?.[0]?.component).toBe('text');
+    expect(instance.state?.schema?.[1]?.component).toBe('number');
+  });
+
+  it('should not update schema if updatedMap is empty', () => {
+    const newSchema: any[] = [{ component: 'textarea' }];
+
+    instance.updateSchema(newSchema);
+
+    expect(instance.state?.schema?.[0]?.component).toBe('text');
+    expect(instance.state?.schema?.[1]?.component).toBe('number');
+  });
+});

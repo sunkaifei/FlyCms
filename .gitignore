@@ -37,3 +37,9 @@ uploadfiles/*
 
 # Git 目录本身永不被跟踪
 .git/
+
+# 前端（frontend/，Vue Vben Admin）
+node_modules/
+dist/
+.turbo/
+coverage/

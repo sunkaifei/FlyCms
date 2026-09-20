@@ -1,0 +1,91 @@
+.vben-json-viewer {
+  font-family: Consolas, Menlo, Courier, monospace;
+  font-size: 14px;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+
+  &.boxed {
+    padding: 10px;
+    border: 1px solid hsl(var(--border));
+    border-radius: 4px;
+  }
+
+  .vjs-key {
+    color: hsl(var(--heavy-foreground));
+  }
+
+  .vjs-value-null,
+  .vjs-value-undefined {
+    color: hsl(var(--secondary-foreground));
+  }
+
+  .vjs-value-boolean {
+    color: hsl(var(--red-400));
+  }
+
+  .vjs-value-number {
+    color: hsl(var(--info-foreground));
+  }
+
+  .vjs-value-string {
+    color: hsl(var(--primary));
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+
+  .vjs-tree-brackets {
+    color: hsl(var(--heavy-foreground));
+  }
+
+  .vjs-comment {
+    color: hsl(var(--secondary-foreground));
+  }
+
+  .vjs-tree-node {
+    &.is-highlight {
+      background-color: hsl(var(--accent));
+    }
+  }
+
+  .vjs-carets {
+    cursor: pointer;
+
+    &:hover {
+      color: hsl(var(--primary));
+    }
+  }
+
+  .vjs-indent-unit {
+    &.has-line {
+      border-left: 1px solid hsl(var(--border));
+    }
+  }
+
+  .vben-json-copy-btn {
+    display: inline-block;
+    padding: 0 6px;
+    margin-left: 8px;
+    font-size: 12px;
+    line-height: 20px;
+    color: hsl(var(--primary));
+    cursor: pointer;
+    user-select: none;
+    background-color: hsl(var(--secondary));
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.2s;
+
+    &:hover {
+      background-color: hsl(var(--accent));
+    }
+
+    &.is-copied {
+      color: hsl(var(--success-foreground, var(--primary)));
+      opacity: 1;
+    }
+  }
+
+  .vjs-tree-node:hover .vben-json-copy-btn {
+    opacity: 1;
+  }
+}

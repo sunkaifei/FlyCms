@@ -1,0 +1,240 @@
+import type { Component, DefineComponent } from 'vue';
+
+import type {
+  AccessModeType,
+  GenerateMenuAndRoutesOptions,
+  RouteRecordRaw,
+} from '@vben/types';
+
+import { defineComponent, h } from 'vue';
+
+import {
+  cloneDeep,
+  generateMenus,
+  generateRoutesByBackend,
+  generateRoutesByFrontend,
+  isFunction,
+  isString,
+  mapTree,
+} from '@vben/utils';
+
+async function generateAccessible(
+  mode: AccessModeType,
+  options: GenerateMenuAndRoutesOptions,
+) {
+  const { router } = options;
+
+  options.routes = cloneDeep(options.routes);
+
+  // 生成路由
+  const accessibleRoutes = await generateRoutes(mode, options);
+
+  const root = router.getRoutes().find((item) => item.path === '/');
+
+  // 获取已有的路由名称列表
+  const names = root?.children?.map((item) => item.name) ?? [];
+
+  // 动态添加到router实例内
+  accessibleRoutes.forEach((route) => {
+    if (root && !route.meta?.noBasicLayout) {
+      // 为了兼容之前的版本用法，如果包含子路由，则将component移除，以免出现多层BasicLayout
+      // 如果你的项目已经跟进了本次修改，移除了所有自定义菜单首级的BasicLayout，可以将这段if代码删除
+      if (route.children && route.children.length > 0) {
+        delete route.component;
+      }
+      // 根据router name判断，如果路由已经存在，则不再添加
+      if (names?.includes(route.name)) {
+        // 找到已存在的路由索引并更新，不更新会造成切换用户时，一级目录未更新，homePath 在二级目录导致的404问题
+        const index = root.children?.findIndex(
+          (item) => item.name === route.name,
+        );
+        if (index !== undefined && index !== -1 && root.children) {
+          root.children[index] = route;
+        }
+      } else {
+        root.children?.push(route);
+      }
+    } else {
+      router.addRoute(route);
+    }
+  });
+
+  if (root) {
+    if (root.name) {
+      router.removeRoute(root.name);
+    }
+    router.addRoute(root);
+  }
+
+  // 生成菜单
+  const accessibleMenus = generateMenus(accessibleRoutes, options.router);
+
+  return { accessibleMenus, accessibleRoutes };
+}
+
+/**
+ * Generate routes
+ * @param mode
+ * @param options
+ */
+async function generateRoutes(
+  mode: AccessModeType,
+  options: GenerateMenuAndRoutesOptions,
+) {
+  const { forbiddenComponent, roles, routes } = options;
+
+  let resultRoutes: RouteRecordRaw[] = routes;
+  switch (mode) {
+    case 'backend': {
+      resultRoutes = await generateRoutesByBackend(options);
+      break;
+    }
+    case 'frontend': {
+      resultRoutes = await generateRoutesByFrontend(
+        routes,
+        roles || [],
+        forbiddenComponent,
+      );
+      break;
+    }
+    case 'mixed': {
+      const [frontend_resultRoutes, backend_resultRoutes] = await Promise.all([
+        generateRoutesByFrontend(routes, roles || [], forbiddenComponent),
+        generateRoutesByBackend(options),
+      ]);
+      resultRoutes = mergeRoutesByName(
+        backend_resultRoutes,
+        frontend_resultRoutes,
+      );
+      break;
+    }
+  }
+
+  /**
+   * 调整路由树，做以下处理：
+   * 1. 对未添加redirect的路由添加redirect
+   * 2. 将懒加载的组件名称修改为当前路由的名称（如果启用了keep-alive的话）
+   */
+  resultRoutes = mapTree(resultRoutes, (route, parent) => {
+    // 重新包装component，使用与路由名称相同的name以支持keep-alive的条件缓存。
+    if (
+      route.meta?.keepAlive &&
+      isFunction(route.component) &&
+      route.name &&
+      isString(route.name)
+    ) {
+      const originalComponent = route.component as () => Promise<{
+        default: Component | DefineComponent;
+      }>;
+      route.component = async () => {
+        const component = await originalComponent();
+        if (!component.default) return component;
+        return defineComponent({
+          name: route.name as string,
+          setup(props, { attrs, slots }) {
+            return () => h(component.default, { ...props, ...attrs }, slots);
+          },
+        });
+      };
+    }
+
+    // 如果有redirect或者没有子路由，则直接返回
+    if (route.redirect || !route.children || route.children.length === 0) {
+      return route;
+    }
+    const firstChild = route.children[0];
+
+    if (!firstChild?.path || firstChild.path.startsWith('/')) {
+      return route;
+    }
+
+    // fork 定制：如果第一个子路由是动态路由（如 :id），说明当前路由本身是一个
+    // “列表+详情”页面（渲染自身组件），不应自动重定向到未填充的动态参数，
+    // 否则地址栏会出现字面量 ":id" 或匹配失败导致 404。
+    // 详见对上游重构 commit f00a8812 的修复。
+    if (firstChild.path.startsWith(':')) {
+      return route;
+    }
+
+    // 拼接子路由的重定向绝对路径。
+    // - 当 parent.redirect 为字符串时，它已经是累计好的绝对路径，直接替换最后一段
+    //   即可正确支持任意层级的深层嵌套（如 /demos/nested/menu2/menu2-1）。
+    // - fork 定制：后端菜单可能传入对象形式的 redirect（如 { name }），无法 split，
+    //   此时回退到使用 parent.path 拼接（这类 parent 为顶级路由，path 为绝对路径）。
+    if (parent && parent.redirect && isString(parent.redirect)) {
+      const parentSplit = parent.redirect.split('/');
+      parentSplit.splice(-1, 2, route.path, firstChild.path);
+      const redirectPath = parentSplit.join('/');
+      route.redirect = redirectPath;
+    } else if (parent && parent.redirect) {
+      route.redirect = `${parent.path}/${route.path}/${firstChild.path}`;
+    } else {
+      route.redirect = `${route.path}/${firstChild.path}`;
+    }
+
+    return route;
+  });
+
+  return resultRoutes;
+}
+
+/**
+ * 根据 name 合并前后端路由
+ * @param baseRoutes 后端路由
+ * @param extraRoutes 前端路由
+ */
+function mergeRoutesByName(
+  baseRoutes: RouteRecordRaw[],
+  extraRoutes: RouteRecordRaw[],
+): RouteRecordRaw[] {
+  const result: RouteRecordRaw[] = [];
+  const routeMap = new Map<string, RouteRecordRaw>();
+
+  for (const route of baseRoutes) {
+    const clone = { ...route } as RouteRecordRaw;
+    result.push(clone);
+    if (clone.name && isString(clone.name)) {
+      routeMap.set(clone.name as string, clone);
+    }
+  }
+
+  for (const route of extraRoutes) {
+    if (
+      route.name &&
+      isString(route.name) &&
+      routeMap.has(route.name as string)
+    ) {
+      const existing = routeMap.get(route.name as string);
+      if (!existing) {
+        continue;
+      }
+      const existingChildren = existing.children ?? [];
+      const routeChildren = route.children ?? [];
+
+      const merged = {
+        ...route,
+        ...existing, // keep backend as base
+        meta: {
+          ...route.meta,
+          ...existing.meta, // backend meta wins on conflicts
+        },
+      } as RouteRecordRaw;
+
+      if (existingChildren.length > 0 || routeChildren.length > 0) {
+        merged.children = mergeRoutesByName(existingChildren, routeChildren);
+      }
+
+      Object.assign(existing, merged);
+    } else {
+      const clone = { ...route } as RouteRecordRaw;
+      result.push(clone);
+      if (clone.name && isString(clone.name)) {
+        routeMap.set(clone.name as string, clone);
+      }
+    }
+  }
+
+  return result;
+}
+
+export { generateAccessible };

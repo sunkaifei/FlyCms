@@ -1,0 +1,148 @@
+import type { ZodType } from 'zod';
+
+import type { ComputedRef } from 'vue';
+
+import type { ExtendedFormApi, FormActions, VbenFormProps } from './types';
+
+import { computed, toRaw, unref, useSlots } from 'vue';
+
+import { createContext } from '@vben-core/shadcn-ui';
+import { isString, mergeWithArrayOverride, set } from '@vben-core/shared/utils';
+
+import {
+  object,
+  ZodIntersection,
+  ZodNumber,
+  ZodObject,
+  ZodString,
+  string as zodString,
+  ZodStringFormat,
+} from 'zod';
+import { getDefaultsForSchema } from 'zod-defaults';
+
+import { getFormFieldSchemas } from './form-render/schema';
+import { useFormRuntime } from './form-runtime';
+
+type ExtendFormProps = VbenFormProps & {
+  formApi?: ExtendedFormApi<any, any, any>;
+};
+
+export const [injectFormProps, provideFormProps] =
+  createContext<[ComputedRef<ExtendFormProps> | ExtendFormProps, FormActions]>(
+    'VbenFormProps',
+  );
+
+export const [injectComponentRefMap, provideComponentRefMap] =
+  createContext<Map<string, unknown>>('ComponentRefMap');
+
+/**
+ * Rebuild the schema used by zod-defaults, replacing native format nodes that
+ * zod-defaults does not recognise while retaining supported wrappers.
+ */
+function normalizeSchemaForDefaults(rule: ZodType): ZodType {
+  const rawRule = toRaw(rule) as any;
+
+  if (rawRule instanceof ZodStringFormat) {
+    return zodString();
+  }
+
+  if (rawRule instanceof ZodObject) {
+    const shape = Object.fromEntries(
+      Object.entries(rawRule.shape).map(([key, value]) => [
+        key,
+        normalizeSchemaForDefaults(value as ZodType),
+      ]),
+    );
+    return object(shape);
+  }
+
+  if (rawRule instanceof ZodIntersection) {
+    const { left, right } = (rawRule as any).def;
+    return normalizeSchemaForDefaults(left as ZodType).and(
+      normalizeSchemaForDefaults(right as ZodType),
+    );
+  }
+
+  if (rawRule.constructor.name === 'ZodDefault') {
+    const inner = normalizeSchemaForDefaults(rawRule.unwrap());
+    return inner.default(rawRule.def.defaultValue);
+  }
+
+  if (rawRule.constructor.name === 'ZodPipe') {
+    return normalizeSchemaForDefaults(rawRule.in).pipe(rawRule.out);
+  }
+
+  return rawRule;
+}
+
+export function useFormInitial(
+  props: ComputedRef<VbenFormProps> | VbenFormProps,
+) {
+  const slots = useSlots();
+  const initialValues = generateInitialValues();
+
+  const form = useFormRuntime(initialValues);
+
+  const delegatedSlots = computed(() => {
+    const resultSlots: string[] = [];
+
+    for (const key of Object.keys(slots)) {
+      if (key !== 'default') {
+        resultSlots.push(key);
+      }
+    }
+    return resultSlots;
+  });
+
+  function generateInitialValues() {
+    const initialValues: Record<string, any> = {};
+
+    const zodObject: Record<string, ZodType> = {};
+    getFormFieldSchemas(unref(props).schema ?? []).forEach((item) => {
+      if (Reflect.has(item, 'defaultValue')) {
+        set(initialValues, item.fieldName, item.defaultValue);
+      } else if (item.rules && !isString(item.rules)) {
+        // 检查规则是否适合提取默认值
+        const rawRules = toRaw(item.rules);
+        const customDefaultValue = getCustomDefaultValue(rawRules);
+        zodObject[item.fieldName] = normalizeSchemaForDefaults(rawRules);
+        if (customDefaultValue !== undefined) {
+          initialValues[item.fieldName] = customDefaultValue;
+        }
+      }
+    });
+
+    const schemaInitialValues = getDefaultsForSchema(object(zodObject));
+
+    const zodDefaults: Record<string, any> = {};
+    for (const key in schemaInitialValues) {
+      set(zodDefaults, key, schemaInitialValues[key]);
+    }
+    return mergeWithArrayOverride(initialValues, zodDefaults);
+  }
+  // 自定义默认值提取逻辑
+  function getCustomDefaultValue(rule: any): any {
+    rule = toRaw(rule);
+    if (rule instanceof ZodString || rule instanceof ZodStringFormat) {
+      return ''; // 字符串及其格式校验默认为空字符串
+    } else if (rule instanceof ZodNumber) {
+      return null; // 默认为 null（避免显示 0）
+    } else if (rule instanceof ZodObject) {
+      // 递归提取嵌套对象的默认值
+      const defaultValues: Record<string, any> = {};
+      for (const [key, valueSchema] of Object.entries(rule.shape)) {
+        defaultValues[key] = getCustomDefaultValue(valueSchema);
+      }
+      return defaultValues;
+    } else if (rule instanceof ZodIntersection) {
+      return getDefaultsForSchema(normalizeSchemaForDefaults(rule) as any);
+    } else {
+      return undefined; // 其他类型不提供默认值
+    }
+  }
+
+  return {
+    delegatedSlots,
+    form,
+  };
+}

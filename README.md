@@ -23,6 +23,14 @@ FlyCms比论坛更开放，比资讯网站更了解用户，以用户为中心�
 
 在线地址: [97560.com](http://www.97560.com)
 
+## 目录结构
+
+```
+FlyCms/
+├── backend/    # Java 后端（Spring Boot + MyBatis + Freemarker）
+└── frontend/   # Web 前端（Vue Vben Admin）
+```
+
 ## 技术栈
 
 - JDK8
