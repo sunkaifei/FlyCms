@@ -38,6 +38,7 @@ public class ApiWebsiteController extends ApiBaseController {
     private static final List<String> CONFIG_KEYS = Arrays.asList(
             "fly_title", "fly_url", "fly_logo", "fly_status",
             "fly_seo_title", "fly_seo_keywords", "fly_seo_description",
+            "fly_robots", "fly_sitemap_status", "fly_sitemap_limit",
             "master", "qq", "email", "mobile", "phone", "address",
             "pc_theme", "m_theme");
 

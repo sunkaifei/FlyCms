@@ -86,6 +86,10 @@ const [Modal, modalApi] = useVbenModal({
       message.warning(`${model.value?.titleLabel || '标题'}不能为空`);
       return;
     }
+    if (values.status === '4' && !values.publish_time) {
+      message.warning('定时发布必须填写发布时间');
+      return;
+    }
     for (const f of fields.value) {
       const v = values[f.fieldName];
       const blank =
@@ -123,6 +127,7 @@ const [Modal, modalApi] = useVbenModal({
         if (v === undefined || v === null || v === '') continue;
         payload[f.fieldName] = Array.isArray(v) ? JSON.stringify(v) : String(v);
       }
+      if (values.publish_time) payload.publish_time = values.publish_time;
       if (record.value) {
         await updateDataApi({ ...payload, id: record.value.id });
       } else {
@@ -234,12 +239,20 @@ onMounted(async () => {
                 { label: '待审核', value: '0' },
                 { label: '发布', value: '1' },
                 { label: '未通过', value: '2' },
+                { label: '定时发布', value: '4' },
               ]"
             />
           </div>
           <div class="col-span-2">
             <div class="mb-1 text-sm">封面图</div>
             <AttachmentInput v-model:model-value="values.thumbnail" />
+          </div>
+          <div class="col-span-2" v-if="values.status === '4'">
+            <div class="mb-1 text-sm">
+              <span class="text-red-500">*</span>
+              定时发布时间（到点自动发布）
+            </div>
+            <Input v-model:value="values.publish_time" placeholder="yyyy-MM-dd HH:mm:ss" />
           </div>
         </div>
       </TabPane>

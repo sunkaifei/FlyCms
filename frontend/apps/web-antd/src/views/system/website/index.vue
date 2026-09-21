@@ -94,6 +94,30 @@ onMounted(load);
       </div>
 
       <div class="bg-card mb-4 rounded-md border p-4">
+        <div class="mb-3 font-medium">SEO 与收录</div>
+        <div class="grid grid-cols-1 gap-y-3">
+          <div>
+            <div class="mb-1 text-sm text-gray-500">robots.txt 内容（即时生效，访问 /robots.txt）</div>
+            <Textarea v-model:value="config.fly_robots" :rows="4" class="font-mono" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex items-center gap-2">
+              <Switch
+                v-model:checked="config.fly_sitemap_status"
+                checked-value="1"
+                un-checked-value="0"
+              />
+              <span class="text-sm">开启 sitemap.xml</span>
+            </div>
+            <div>
+              <div class="mb-1 text-sm text-gray-500">每模型收录条数</div>
+              <Input v-model:value="config.fly_sitemap_limit" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-card mb-4 rounded-md border p-4">
         <div class="mb-3 font-medium">主题与状态</div>
         <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
           <div>

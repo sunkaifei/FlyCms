@@ -16,3 +16,5 @@
 </@fly_page_model>
 </body>
 </html>
+
+<@fly_block key="home_focus"><div class="focus"><#if block?? && block.items??><#list block.items as it><a href="${it.url}">${it.title}</a> </#list></#if></div></@fly_block>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.block.dao.BlockDao">
+
+	<sql id="block_column">id, block_key AS blockKey, block_name AS blockName, block_type AS blockType, content,
+		item_count AS itemCount, cache_seconds AS cacheSeconds, status, sort, create_time AS createTime, update_time AS updateTime</sql>
+	<sql id="item_column">id, block_id AS blockId, title, image, url, summary, start_time AS startTime, end_time AS endTime,
+		status, sort, create_time AS createTime</sql>
+
+	<insert id="insertBlock">
+		insert into fly_block (id, block_key, block_name, block_type, content, item_count, cache_seconds, status, sort, create_time)
+		values (#{id}, #{blockKey}, #{blockName}, #{blockType}, #{content}, #{itemCount}, #{cacheSeconds}, #{status}, #{sort}, now())
+	</insert>
+
+	<update id="updateBlock">
+		update fly_block
+		<set>
+			<if test="blockName != null">block_name = #{blockName},</if>
+			<if test="blockType != 0 or blockType == 0">block_type = #{blockType},</if>
+			<if test="content != null">content = #{content},</if>
+			item_count = #{itemCount},
+			cache_seconds = #{cacheSeconds},
+			status = #{status},
+			sort = #{sort},
+			update_time = now()
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="deleteBlockById">
+		delete from fly_block where id = #{id}
+	</delete>
+
+	<select id="findBlockById" resultType="com.flycms.module.block.model.Block">
+		select <include refid="block_column"/> from fly_block where id = #{id}
+	</select>
+
+	<select id="findBlockByKey" resultType="com.flycms.module.block.model.Block">
+		select <include refid="block_column"/> from fly_block where block_key = #{key} limit 1
+	</select>
+
+	<select id="checkBlockKey" resultType="boolean">
+		select count(*) > 0 from fly_block where block_key = #{key}
+	</select>
+
+	<select id="getBlockList" resultType="com.flycms.module.block.model.Block">
+		select <include refid="block_column"/> from fly_block order by sort asc, id desc limit #{offset}, #{rows}
+	</select>
+
+	<select id="getBlockCount" resultType="int">
+		select count(*) from fly_block
+	</select>
+
+	<insert id="insertItem">
+		insert into fly_block_item (id, block_id, title, image, url, summary, start_time, end_time, status, sort, create_time)
+		values (#{id}, #{blockId}, #{title}, #{image}, #{url}, #{summary}, #{startTime}, #{endTime}, #{status}, #{sort}, now())
+	</insert>
+
+	<delete id="deleteItemById">
+		delete from fly_block_item where id = #{id}
+	</delete>
+
+	<select id="findItemById" resultType="com.flycms.module.block.model.BlockItem">
+		select <include refid="item_column"/> from fly_block_item where id = #{id}
+	</select>
+
+	<select id="findItemsByBlockId" resultType="com.flycms.module.block.model.BlockItem">
+		select <include refid="item_column"/> from fly_block_item
+		where block_id = #{blockId}
+		<if test="visibleOnly">
+			and status = 1
+			and (start_time is null or start_time &lt;= now())
+			and (end_time is null or end_time &gt;= now())
+		</if>
+		order by sort asc, id desc
+	</select>
+</mapper>

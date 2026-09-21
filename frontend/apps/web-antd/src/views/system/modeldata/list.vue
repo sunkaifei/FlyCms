@@ -67,6 +67,7 @@ const STATUS_TEXT: Record<number, string> = {
   1: '已发布',
   2: '未通过',
   3: '已删除',
+  4: '待发布',
 };
 
 const [FormModalComp, formModalApi] = useVbenModal({
@@ -259,6 +260,7 @@ onMounted(async () => {
           { label: '待审核', value: '0' },
           { label: '已发布', value: '1' },
           { label: '未通过', value: '2' },
+          { label: '待发布', value: '4' },
         ]"
         placeholder="状态"
       />

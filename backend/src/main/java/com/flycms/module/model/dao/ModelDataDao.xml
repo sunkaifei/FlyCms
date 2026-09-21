@@ -20,6 +20,7 @@
 		  `status` tinyint(2) DEFAULT '0' COMMENT '0未审核 1正常 2未通过 3删除',
 		  `create_time` datetime DEFAULT NULL,
 		  `update_time` datetime DEFAULT NULL,
+		  `publish_time` datetime DEFAULT NULL COMMENT '定时发布时间(status=4)',
 		  PRIMARY KEY (`id`,`short_url`),
 		  KEY `idx_category` (`category_id`,`status`),
 		  KEY `idx_short_url` (`short_url`),

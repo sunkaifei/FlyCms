@@ -187,6 +187,10 @@ public class ModelDataService {
         }
         columns.add("status");
         values.put("status", StringUtils.defaultIfBlank(form.get("status"), "0"));
+        if (StringUtils.isNotBlank(form.get("publish_time"))) {
+            columns.add("publish_time");
+            values.put("publish_time", form.get("publish_time"));
+        }
 
         modelDataDao.insertData(String.valueOf(modelId), columns, values);
         if (!refIds.isEmpty()) {
@@ -221,6 +225,9 @@ public class ModelDataService {
         putColumn(columns, values, "thumbnail", form.get("thumbnail"));
         if (form.get("thumbnail") != null && StringUtils.isNotBlank(form.get("thumbnail"))) {
             newRefs.add(Long.parseLong(form.get("thumbnail")));
+        }
+        if (StringUtils.isNotBlank(form.get("publish_time"))) {
+            putColumn(columns, values, "publish_time", form.get("publish_time"));
         }
 
         modelDataDao.updateData(String.valueOf(modelId), id, columns, values);
