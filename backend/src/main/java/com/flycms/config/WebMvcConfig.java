@@ -36,6 +36,9 @@ public class WebMvcConfig extends WebMvcConfigurationSupport{
 	private AdminInterceptor interceptor;
 
 	@Resource
+	private com.flycms.interceptor.AdminLogInterceptor adminLogInterceptor;
+
+	@Resource
 	private UserInterceptor userInterceptor;
 
 	@Bean
@@ -78,6 +81,9 @@ public class WebMvcConfig extends WebMvcConfigurationSupport{
 						"/ucenter/logintip",
 						"/ucenter/mailcaptcha.json");
 		registry.addInterceptor(localeChangeInterceptor());
+
+		// 管理操作审计（阶段 A3）：/api/** 与 /system/** 的 POST，仅记录已登录管理员
+		registry.addInterceptor(adminLogInterceptor).addPathPatterns("/api/**", "/system/**");
 	}
 
     /**

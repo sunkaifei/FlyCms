@@ -5,3 +5,5 @@ export * from './model';
 export * from './system';
 export * from './user';
 export * from './website';
+export * from './adminlog';
+export * from './message';

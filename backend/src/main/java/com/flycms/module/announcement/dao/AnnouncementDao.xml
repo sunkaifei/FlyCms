@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.announcement.dao.AnnouncementDao">
+
+	<sql id="base_column">id, title, content, link_url AS linkUrl, start_time AS startTime, end_time AS endTime,
+		status, sort, create_time AS createTime</sql>
+
+	<insert id="insertAnnouncement">
+		insert into fly_announcement (id, title, content, link_url, start_time, end_time, status, sort, create_time)
+		values (#{id}, #{title}, #{content}, #{linkUrl}, #{startTime}, #{endTime}, #{status}, #{sort}, now())
+	</insert>
+
+	<update id="updateAnnouncement">
+		update fly_announcement
+		<set>
+			<if test="title != null">title = #{title},</if>
+			<if test="content != null">content = #{content},</if>
+			<if test="linkUrl != null">link_url = #{linkUrl},</if>
+			start_time = #{startTime},
+			end_time = #{endTime},
+			status = #{status},
+			sort = #{sort}
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="deleteAnnouncementById">
+		delete from fly_announcement where id = #{id}
+	</delete>
+
+	<select id="findAnnouncementById" resultType="com.flycms.module.announcement.model.Announcement">
+		select <include refid="base_column"/> from fly_announcement where id = #{id}
+	</select>
+
+	<select id="getAnnouncementPage" resultType="com.flycms.module.announcement.model.Announcement">
+		select <include refid="base_column"/> from fly_announcement order by sort asc, id desc limit #{offset}, #{rows}
+	</select>
+
+	<select id="getAnnouncementCount" resultType="int">
+		select count(*) from fly_announcement
+	</select>
+
+	<!-- 前台：启用且时间窗内（null 端视为不限） -->
+	<select id="getVisibleAnnouncements" resultType="com.flycms.module.announcement.model.Announcement">
+		select <include refid="base_column"/> from fly_announcement
+		where status = 1
+		  and (start_time is null or start_time &lt;= now())
+		  and (end_time is null or end_time &gt;= now())
+		order by sort asc, id desc
+		limit #{rows}
+	</select>
+</mapper>

@@ -37,6 +37,15 @@ public class EhCacheConfig {
                 .expireAfterAccess(120, TimeUnit.SECONDS)
                 .maximumSize(10000));
         for (String name : ETERNAL_CACHES) {
+            if ("user".equals(name)) {
+                // user 缓存必须带过期：findByUsername 会把"用户不存在"的 null 一并缓存，
+                // 永不过期会导致新注册用户对查询不可见直到重启（规划阶段 A 修复）
+                cacheManager.registerCustomCache(name, Caffeine.newBuilder()
+                        .expireAfterWrite(10, java.util.concurrent.TimeUnit.MINUTES)
+                        .maximumSize(20000)
+                        .build());
+                continue;
+            }
             cacheManager.registerCustomCache(name, Caffeine.newBuilder()
                     .maximumSize(20000)
                     .build());

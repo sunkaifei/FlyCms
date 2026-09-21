@@ -27,7 +27,7 @@ spring:
   servlet:
       session:
          cookie:
-           httpOnly: false
+           httpOnly: true
       multipart:
         max-file-size: 2MB
         max-request-size: 2MB

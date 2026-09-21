@@ -14,6 +14,7 @@ import com.flycms.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -122,22 +123,24 @@ public class MessageService {
 		List<Message> messagelist = messageDao.getMessageList(fromId,toId,subject,sendTime,writeTime,hasView,isAdmin,state,orderby,order,pageVo.getOffset(), pageVo.getRows());
 		
 				for (Message message:messagelist) {
-					//发件人信息
+					//发件人信息（发件人可能是管理员，不在 fly_user 中——空值防御，阶段 A 修复）
 					User fromuser=userService.findUserById(message.getFromId(),0);
-					String fromface=fromuser.getAvatar();
-					if("".equals(fromface) || fromface==null){
-						fromface="/assets/images/ava/default.png";
+					String fromface="/assets/images/ava/default.png";
+					String fromnickname = fromuser == null ? "系统" : StringUtils.defaultIfBlank(fromuser.getNickName(), "未知用户");
+					if(fromuser != null && StringUtils.isNotBlank(fromuser.getAvatar())){
+						fromface=fromuser.getAvatar();
 					}
 					//收件人信息
 					User touser=userService.findUserById(message.getToId(),0);
-					String toface=touser.getAvatar();
-					if("".equals(toface) || toface==null){
-						toface="/assets/images/ava/default.png";
+					String toface="/assets/images/ava/default.png";
+					String tonickname = touser == null ? "未知用户" : StringUtils.defaultIfBlank(touser.getNickName(), "未知用户");
+					if(touser != null && StringUtils.isNotBlank(touser.getAvatar())){
+						toface=touser.getAvatar();
 					}
 					message.setFromFace(fromface);
-					message.setFromNickname(fromuser.getNickName());
+					message.setFromNickname(fromnickname);
 					message.setToFace(toface);
-					message.setToNickname(touser.getNickName());
+					message.setToNickname(tonickname);
 				}
 		pageVo.setList(messagelist);
 		return pageVo;

@@ -18,7 +18,8 @@ defineOptions({ name: 'SystemModelField' });
 
 const { hasAccessByCodes } = useAccess();
 const route = useRoute();
-const modelId = Number(route.params.modelId);
+// 雪花 ID 必须保持字符串（Number 化会丢末位精度，导致字段列表查询落空）
+const modelId = route.params.modelId as string;
 
 const [FieldModalComp, fieldModalApi] = useVbenModal({
   connectedComponent: FieldModal,

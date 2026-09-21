@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.adminlog.dao.AdminLogDao">
+
+	<sql id="base_column">id, admin_id AS adminId, admin_name AS adminName, method, path, `query`, ip, status,
+		cost_ms AS costMs, create_time AS createTime</sql>
+
+	<insert id="insertLog">
+		insert into fly_admin_log (id, admin_id, admin_name, method, path, `query`, ip, status, cost_ms, create_time)
+		values (#{id}, #{adminId}, #{adminName}, #{method}, #{path}, #{query}, #{ip}, #{status}, #{costMs}, now())
+	</insert>
+
+	<select id="getLogPage" resultType="com.flycms.module.adminlog.model.AdminLog">
+		select <include refid="base_column"/> from fly_admin_log
+		<where>
+			<if test="adminName != null and adminName != ''">and admin_name like concat('%', #{adminName}, '%')</if>
+			<if test="path != null and path != ''">and path like concat('%', #{path}, '%')</if>
+			<if test="startTime != null and startTime != ''">and create_time &gt;= #{startTime}</if>
+			<if test="endTime != null and endTime != ''">and create_time &lt;= concat(#{endTime}, ' 23:59:59')</if>
+		</where>
+		order by id desc limit #{offset}, #{rows}
+	</select>
+
+	<select id="getLogCount" resultType="int">
+		select count(*) from fly_admin_log
+		<where>
+			<if test="adminName != null and adminName != ''">and admin_name like concat('%', #{adminName}, '%')</if>
+			<if test="path != null and path != ''">and path like concat('%', #{path}, '%')</if>
+			<if test="startTime != null and startTime != ''">and create_time &gt;= #{startTime}</if>
+			<if test="endTime != null and endTime != ''">and create_time &lt;= concat(#{endTime}, ' 23:59:59')</if>
+		</where>
+	</select>
+</mapper>
