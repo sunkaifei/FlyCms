@@ -1,0 +1,15 @@
+/*
+Theme Name: MyTheme Demo
+Theme URI: https://example.com/mytheme
+Author: Demo Author
+Author URI: https://example.com
+Description: 用于转换器自测的最小 WordPress 主题
+Version: 1.2.3
+License: GPLv2
+*/
+
+body { margin: 0; font-family: sans-serif; }
+.site-header { padding: 20px; background: #222; color: #fff; }
+.site-header a { color: #fff; text-decoration: none; }
+.post-list { max-width: 800px; margin: 0 auto; }
+.post-item { border-bottom: 1px solid #eee; padding: 16px 0; }

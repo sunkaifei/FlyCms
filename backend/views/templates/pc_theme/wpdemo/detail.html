@@ -1,0 +1,14 @@
+<@fly_info_model model="${model.code}" shortUrl="${shortUrl!}">
+<@fly_part name="header"/>
+<article class="single">
+    <h1>${(info.title)!''}</h1>
+    <div class="meta">${(info.createTime?substring(0,10))!''} · ${(info.author)!''}</div>
+    <!-- TODO[WP_PHP]: <?php if (has_post_thumbnail()) : ?> -->
+        <img src="${(info.image)!''}" alt="${(info.title)!''}">
+    <!-- TODO[WP_PHP]: <?php endif; ?> -->
+    <div class="content">${(info.content)!''}</div>
+</article>
+<!-- TODO[WP_PHP]: <?php comments_template(); ?> -->
+<@fly_part name="footer"/>
+
+</@fly_info_model>

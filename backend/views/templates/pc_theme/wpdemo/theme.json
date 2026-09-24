@@ -1,0 +1,32 @@
+{
+	"name":"MyTheme Demo",
+	"code":"wpdemo",
+	"version":"1.2.3",
+	"author":"Demo Author",
+	"parent":"",
+	"thumbnail":"",
+	"description":"用于转换器自测的最小 WordPress 主题",
+	"engine":"freemarker",
+	"origin":{
+		"source":"wordpress",
+		"themeName":"MyTheme Demo",
+		"themeUri":"https://example.com/mytheme",
+		"convertedAt":"2026-09-24 11:30:39"
+	},
+	"supports":{
+		"templates":[
+			"index.html",
+			"detail.html",
+			"parts/header.html",
+			"parts/footer.html"
+		],
+		"parts":[
+			"header",
+			"footer"
+		],
+		"device":[
+			"pc"
+		]
+	},
+	"customTemplates":[]
+}

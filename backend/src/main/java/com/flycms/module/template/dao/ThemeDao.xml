@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.template.dao.ThemeDao">
+
+	<sql id="theme_column">code, name, version, author, parent_code AS parentCode, thumbnail,
+		description, device, status, is_current AS isCurrent, config_json AS configJson, create_time AS createTime</sql>
+
+	<insert id="upsert">
+		insert into fly_theme (code, name, version, author, parent_code, thumbnail, description, device, status, is_current, config_json, create_time)
+		values (#{theme.code}, #{theme.name}, #{theme.version}, #{theme.author}, #{theme.parentCode},
+			#{theme.thumbnail}, #{theme.description}, #{theme.device}, #{theme.status}, #{theme.isCurrent},
+			#{theme.configJson}, now())
+		on duplicate key update
+			name = #{theme.name}, version = #{theme.version}, author = #{theme.author},
+			parent_code = #{theme.parentCode}, thumbnail = #{theme.thumbnail}, description = #{theme.description},
+			device = #{theme.device}, status = #{theme.status}, config_json = #{theme.configJson}
+	</insert>
+
+	<select id="listAll" resultType="com.flycms.module.template.model.Theme">
+		select <include refid="theme_column"/> from fly_theme order by code
+	</select>
+
+	<select id="selectByCode" resultType="com.flycms.module.template.model.Theme">
+		select <include refid="theme_column"/> from fly_theme where code = #{code} limit 1
+	</select>
+
+	<update id="clearCurrent">
+		update fly_theme set is_current = 0 where is_current = 1
+	</update>
+
+	<update id="updateCurrent">
+		update fly_theme set is_current = 0 where is_current = 1;
+		update fly_theme set is_current = 1 where code = #{code}
+	</update>
+</mapper>

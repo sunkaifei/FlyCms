@@ -47,6 +47,8 @@ public class ChannelRenderService {
     private ConfigService configService;
     @Autowired
     private TemplateCenterService templateCenterService;
+    @Autowired
+    private com.flycms.module.template.service.TemplateResolver templateResolver;
 
     /**
      * 渲染栏目页。
@@ -65,7 +67,7 @@ public class ChannelRenderService {
         putCommon(map, channel, p);
         map.addAttribute("children", channelService.offspring(channel.getId()));
         if (channel.getChannelType() == 1) {
-            return resolveTemplate(channel, null, new String[]{"channel/page"});
+            return templateResolver.resolveChannelPage(channel.getChannelDir());
         }
         if (channel.getChannelType() == 3) {
             return renderAggregate(channel, p, map);
@@ -93,7 +95,7 @@ public class ChannelRenderService {
             map.addAttribute("dataList", new ArrayList<>());
             map.addAttribute("model_page", new PageVo<>(p));
         }
-        return resolveTemplate(channel, model, new String[]{"channel/list", "cmodel/list"});
+        return templateResolver.resolveChannelList(channel.getChannelDir(), model != null ? model.getCode() : null);
     }
 
     /**
@@ -166,7 +168,7 @@ public class ChannelRenderService {
         pageVo.setList(merged.isEmpty() ? new ArrayList<>() : new ArrayList<>(merged.subList(from, to)));
         map.addAttribute("dataList", pageVo.getList());
         map.addAttribute("model_page", pageVo);
-        return resolveTemplate(channel, null, new String[]{"channel/list", "cmodel/list"});
+        return templateResolver.resolveChannelList(channel.getChannelDir(), null);
     }
 
     private long toLong(Object v) {
@@ -204,45 +206,7 @@ public class ChannelRenderService {
     }
 
     /**
-     * 模板回退：<b>栏目自定义 → 模型自定义/模型默认 → 通用模板</b>。
-     * 命中即渲染，全不命中走 404 模板而不是抛异常（永远不复现"白屏"）。
+     * 模板解析已收敛到 {@link com.flycms.module.template.service.TemplateResolver}（规划 D15）：
+     * 统一候选链 + 子主题回退，本服务只负责"取数 + 渲染上下文"，不再各自写回退逻辑。
      */
-    private String resolveTemplate(Channel channel, Model model, String[] fallbacks) {
-        List<String> candidates = new ArrayList<>();
-        addCandidate(candidates, channel.getListTemplate());
-        addCandidate(candidates, channel.getDetailTemplate());
-        addCandidate(candidates, channel.getChannelDir() + "/list");
-        if (model != null) {
-            addCandidate(candidates, model.getListTemplate());
-            addCandidate(candidates, model.getCode() + "/list");
-        }
-        for (String f : fallbacks) {
-            candidates.add(f);
-        }
-        for (String candidate : candidates) {
-            if (configFileExists(candidate)) {
-                return theme.getPcTemplate(candidate);
-            }
-        }
-        for (String f : fallbacks) {
-            return theme.getPcTemplate(f);
-        }
-        return theme.get404();
-    }
-
-    private void addCandidate(List<String> list, String raw) {
-        if (StringUtils.isBlank(raw)) {
-            return;
-        }
-        String name = raw.endsWith(".html") ? raw.substring(0, raw.length() - 5) : raw;
-        if (!list.contains(name)) {
-            list.add(name);
-        }
-    }
-
-    private boolean configFileExists(String relative) {
-        File f = new File(TemplateCenterService.THEME_ROOT + "/"
-                + templateCenterService.currentSkin() + "/" + relative + ".html");
-        return f.exists() && f.isFile();
-    }
 }

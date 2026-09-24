@@ -90,3 +90,42 @@
 - **理由**："关联引用"是内容建模刚需（文章→作者、商品→品牌、问题→答案），缺失会导致用户用 `input` 手填 id，既易错又无法做友好选择器。树形分类是栏目/多级分类刚需。
 - **实现代价**：需在 `fly_model_field` 增列 `relate_model`（被引用模型的 code），并配套前台选择器组件与动态表单渲染分支；存储层存被引用记录 `id`（多值逗号分隔，与现有 images/files 一致）。
 - **翻案条件**：无——这是能力补齐，只可能追加更高级类型。
+
+### D15. 模板解析收敛到唯一入口 TemplateResolver（2026-09-24，待实施）
+- **方案**：新增 `TemplateResolver` + `TemplateContext`，`ModelController.resolveTemplate`、
+  `ChannelRenderService.resolveTemplate`、`TemplateService.getPcTemplate` 三处逻辑全部废弃改调它。
+- **理由**：同一个"该用哪个模板"的问题现在有三份答案，新增页面类型（搜索/标签/错误）要改三处，
+  行为必然漂移。
+- **边界**：解析器只负责"上下文 → 模板路径"，不负责渲染。
+
+### D16. 引入 WordPress 式模板层级（2026-09-24，待实施）
+- **方案**：命名 `list-{channel}[-{model}].html` / `detail-{model}-{id}.html` / `page-{channel}.html`，
+  按"最具体优先、命中即停"查找，`index.html` 兜底。
+- **理由**：现状只有三级硬回退，做不了"某栏目专属模板""某条内容专属模板"，只能复制整个目录。
+- **兼容**：层末端保留 `articles/list.html`、`cmodel/list.html` 等旧路径候选，存量模板零改动。
+
+### D17. DB 不存模板正文，只存"模板指派关系"（2026-09-24，待实施）
+- **方案**：新增 `fly_template_assign`（target_type/target_id/page_type/template），
+  指派模板在层级中排最高优先级；模板正文仍在磁盘。
+- **理由**：WordPress 把站点编辑器的改动存 `wp_template` 后，站点结构依赖数据库完整性，
+  拿到编辑权限即可改写全站布局，攻击面比"只读文件"大。FlyCms 只借其"指派"能力，不借"存正文"。
+
+### D18. 子主题采用"同名覆盖 + 其余回退父主题"（2026-09-24，待实施）
+- **方案**：`theme.json` 声明 `parent`，定位先子后父；`createSkin` 从全量 `copyDir`
+  改为"建空目录 + 写 parent 声明"，另提供"复制父主题文件到子主题"按钮。
+- **理由**：现状复制即断链，父主题修了 XSS 子主题永远收不到。
+
+### D19. 主题切换必须走完整事务（2026-09-24，待实施）
+- **方案**：预检（缺模板/版本不兼容）→ 预览（`?__skin=` 只影响管理员会话）→ 原子切换
+  → 探活（自动请求首页/列表/详情）→ 失败自动回滚 + 后台告警。
+- **理由**：现状 `pc_theme` 只是个字符串配置，切换无任何保护，生产换主题是高风险操作。
+
+### D20. 可视化分三期，不一步到位（2026-09-24，待实施）
+- **方案**：V1 组件面板 + 模板部件；V2 区域编排（`<@fly_area name="home_main"/>` 占位，
+  后台往区域增删排序区块，布局成为数据）；V3 全拖拽（对标 Site Editor）。
+- **理由**：Gutenberg 级别工程投入巨大；"模板 + 组件面板 + 碎片"已覆盖约 70% 诉求且风险小。
+
+### D21. 主题元信息用 theme.json，旧皮肤自动兼容（2026-09-24，待实施）
+- **方案**：皮肤根目录放 `theme.json`（name/version/author/parent/thumbnail/supports/settings/
+  customTemplates）；无该文件的旧皮肤由 `ThemeRegistry` 扫描实际文件自动生成默认清单。
+- **理由**：现状 `listSkins()` 只返回目录名，后台看不到版本/作者/缩略图，也无法做切换预检。

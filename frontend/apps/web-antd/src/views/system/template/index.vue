@@ -15,8 +15,9 @@ import {
   readTemplateApi,
   saveTemplateApi,
 } from '#/api/core/website';
-import { checkTemplateApi, previewTemplateApi } from '#/api/core/template';
+import { checkTemplateApi, clearTemplateCacheApi, previewTemplateApi } from '#/api/core/template';
 
+import DebugChainModal from './debug-chain-modal.vue';
 import NewFileModal from './new-file-modal.vue';
 import SkinModal from './skin-modal.vue';
 import TagManualModal from './tag-manual-modal.vue';
@@ -69,6 +70,28 @@ const [TagManualModalComp, tagManualModalApi] = useEditDrawer({
   connectedComponent: TagManualModal,
   destroyOnClose: true,
 });
+
+const [DebugChainModalComp, debugChainModalApi] = useEditDrawer({
+  connectedComponent: DebugChainModal,
+  destroyOnClose: true,
+});
+
+/** P9 一键清空模板缓存："改了没生效"的最后手段 */
+async function onClearCache() {
+  Modal.confirm({
+    content: '清空全部模板缓存与主题注册表缓存？前台下次访问将按磁盘当前内容重新加载。',
+    onOk: async () => {
+      const res = await clearTemplateCacheApi();
+      const ok = Number((res as any)?.code ?? 200) === 200;
+      if (ok) {
+        message.success(((res as any)?.msg as string) || '模板缓存已清空');
+      } else {
+        message.error(((res as any)?.msg as string) || '清缓存失败');
+      }
+    },
+    title: '清空模板缓存',
+  });
+}
 
 /** 目录树（由扁平文件列表推导） */
 const fileTree = computed<FileRow[]>(() => {
@@ -280,6 +303,18 @@ onMounted(load);
           <div class="ml-auto flex flex-wrap gap-2">
             <Button size="small" @click="openSkins">皮肤管理</Button>
             <Button size="small" @click="openTagManual">标签手册</Button>
+            <Button
+              size="small"
+              @click="
+                () =>
+                  debugChainModalApi
+                    .setData({ model: undefined, pageType: 'LIST' })
+                    .open()
+              "
+            >
+              候选链调试
+            </Button>
+            <Button size="small" @click="onClearCache">清空缓存</Button>
             <Button size="small" @click="openVersions">版本历史</Button>
             <Button
               v-if="currentFile"
@@ -358,5 +393,6 @@ onMounted(load);
     <SkinModalComp />
     <VersionModalComp />
     <TagManualModalComp />
+    <DebugChainModalComp />
   </Page>
 </template>

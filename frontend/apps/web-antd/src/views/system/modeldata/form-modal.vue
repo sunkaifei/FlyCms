@@ -23,6 +23,12 @@ import {
   type ModelFieldRow,
   type ModelRow,
 } from '#/api/core/model';
+import {
+  assignTemplateApi,
+  getAssignListApi,
+  getDeriveTargetsApi,
+  unassignTemplateApi,
+} from '#/api/core/template';
 
 import AttachmentInput from './attachment-input.vue';
 import RichtextEditor from './richtext-editor.vue';
@@ -78,6 +84,56 @@ function pick(row: Record<string, any>, name: string) {
     .map((p, i) => (i === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1)))
     .join('');
   return row[camel];
+}
+
+// /////////// P7 内容模板指派（§8.3，对应 WP 后台 Page Template 下拉） ///////////
+
+/** 当前内容被指派的详情模板（undefined = 未指派，走层级默认） */
+const contentTemplate = ref<undefined | string>();
+/** 可选的 detail-* 模板槽位（来自派生清单） */
+const templateOptions = ref<{ label: string; value: string }[]>([]);
+
+async function loadTemplateAssign() {
+  if (!record.value || !model.value) return;
+  try {
+    const [assignRes, slotRes] = await Promise.all([
+      getAssignListApi('CONTENT'),
+      getDeriveTargetsApi(),
+    ]);
+    const mine = (assignRes.list ?? []).find(
+      (r) =>
+        r.pageType === 'DETAIL' &&
+        r.targetId === String(record.value?.id ?? ''),
+    );
+    contentTemplate.value = mine?.template;
+    const seen = new Set<string>();
+    const options: { label: string; value: string }[] = [];
+    for (const s of slotRes.slots ?? []) {
+      if (!s.target.startsWith('detail-') || seen.has(s.target)) continue;
+      seen.add(s.target);
+      options.push({ label: `${s.label} · ${s.target}`, value: s.target });
+    }
+    templateOptions.value = options;
+  } catch {
+    templateOptions.value = [];
+  }
+}
+
+async function onTemplateChange(value: unknown) {
+  if (!record.value) return;
+  const tpl = typeof value === 'string' && value ? value : undefined;
+  const targetId = String(record.value.id);
+  try {
+    if (tpl) {
+      await assignTemplateApi('CONTENT', targetId, 'DETAIL', tpl);
+      message.success(`已指派：该内容详情页使用 ${tpl}`);
+    } else {
+      await unassignTemplateApi('CONTENT', targetId, 'DETAIL');
+      message.success('已取消指派，恢复层级默认模板');
+    }
+  } catch {
+    message.error('指派失败，请重试');
+  }
 }
 
 const [Modal, modalApi] = useEditDrawer({
@@ -205,6 +261,7 @@ onMounted(async () => {
               : ''));
     }
   }
+  loadTemplateAssign();
 });
 </script>
 
@@ -246,6 +303,25 @@ onMounted(async () => {
           <div class="col-span-2">
             <div class="mb-1 text-sm">封面图</div>
             <AttachmentInput v-model:model-value="values.thumbnail" />
+          </div>
+          <div class="col-span-2">
+            <div class="mb-1 text-sm">内容模板（详情页版式）</div>
+            <Select
+              v-if="record"
+              v-model:value="contentTemplate"
+              allow-clear
+              class="w-full"
+              :loading="false"
+              :options="templateOptions"
+              placeholder="不选 = 按模板层级自动匹配"
+              @change="onTemplateChange"
+            />
+            <div v-else class="text-xs text-gray-400">
+              保存内容后可在这里指派专属模板（WP Page Template 式，立即生效）
+            </div>
+            <div class="mt-0.5 text-xs text-gray-400">
+              指派优先级最高；清空即恢复 list/detail 层级默认（§5）
+            </div>
           </div>
           <div class="col-span-2" v-if="values.status === '4'">
             <div class="mb-1 text-sm">

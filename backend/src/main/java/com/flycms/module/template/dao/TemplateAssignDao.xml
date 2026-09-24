@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.template.dao.TemplateAssignDao">
+
+	<sql id="assign_column">id, target_type AS targetType, target_id AS targetId, page_type AS pageType,
+		template, create_time AS createTime</sql>
+
+	<!-- 唯一键 (target_type, target_id, page_type) 冲突时更新 template -->
+	<insert id="upsert">
+		insert into fly_template_assign (target_type, target_id, page_type, template, create_time)
+		values (#{assign.targetType}, #{assign.targetId}, #{assign.pageType}, #{assign.template}, now())
+		on duplicate key update template = #{assign.template}, create_time = now()
+	</insert>
+
+	<select id="findByTarget" resultType="com.flycms.module.template.model.TemplateAssign">
+		select <include refid="assign_column"/>
+		from fly_template_assign
+		where target_type = #{targetType} and target_id = #{targetId} and page_type = #{pageType}
+		limit 1
+	</select>
+
+	<delete id="deleteByTarget">
+		delete from fly_template_assign
+		where target_type = #{targetType} and target_id = #{targetId} and page_type = #{pageType}
+	</delete>
+
+	<select id="listByTargetType" resultType="com.flycms.module.template.model.TemplateAssign">
+		select <include refid="assign_column"/>
+		from fly_template_assign
+		where target_type = #{targetType}
+		order by create_time desc
+	</select>
+</mapper>

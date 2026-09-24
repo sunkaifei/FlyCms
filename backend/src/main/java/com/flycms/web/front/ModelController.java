@@ -43,6 +43,8 @@ public class ModelController extends BaseController {
     private com.flycms.module.config.service.ConfigService config;
     @Autowired
     private com.flycms.module.channel.service.ChannelRenderService channelRenderService;
+    @Autowired
+    private com.flycms.module.template.service.TemplateResolver templateResolver;
 
     /**
      * /{x}/ 与 /{x}/p{n} 两种 URL 形态在阶段 C 后由模型与栏目共用：
@@ -64,7 +66,7 @@ public class ModelController extends BaseController {
         }
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("p", p);
-        return resolveTemplate(model, "list", "cmodel/list");
+        return templateResolver.resolveModelList(model.getCode(), null);
     }
 
     @GetMapping(value = {"/{modelCode}/c{categoryId}", "/{modelCode}/c{categoryId}/p{page:\\d+}"})
@@ -79,7 +81,7 @@ public class ModelController extends BaseController {
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("p", page == null ? 1 : page);
         modelMap.addAttribute("categoryId", categoryId);
-        return resolveTemplate(model, "list", "cmodel/list");
+        return templateResolver.resolveModelList(model.getCode(), null);
     }
 
     @GetMapping(value = "/{modelCode}/{shortUrl}.html")
@@ -93,7 +95,7 @@ public class ModelController extends BaseController {
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("shortUrl", shortUrl);
         // 浏览计数在模板 InfoModel 取数时由 ModelDataService 处理（略，前台查询强制 status=1）
-        return resolveTemplate(model, "detail", "cmodel/detail");
+        return templateResolver.resolveModelDetail(model.getCode(), shortUrl, null, null);
     }
 
     private Model resolveModel(String modelCode) {
@@ -104,37 +106,5 @@ public class ModelController extends BaseController {
         }
         Model model = modelService.findModelByCode(modelCode);
         return (model == null || model.getStatus() != 1) ? null : model;
-    }
-
-    /**
-     * 模板回退：模型自定义模板 → {code}/{type} → 通用 cmodel/{type} → 404。
-     * 候选名不带 .html 后缀（getPcTemplate 内部会追加），templateFileExists 检查时再补。
-     */
-    private String resolveTemplate(Model model, String type, String fallback) {
-        String custom = "list".equals(type) ? model.getListTemplate() : model.getDetailTemplate();
-        String[] candidates = {
-                StringUtils.isNotBlank(custom) ? stripHtml(custom) : model.getCode() + "/" + type,
-                model.getCode() + "/" + type,
-                fallback
-        };
-        for (String candidate : candidates) {
-            if (templateFileExists(candidate)) {
-                return theme.getPcTemplate(candidate);
-            }
-        }
-        return theme.getPcTemplate("404");
-    }
-
-    private String stripHtml(String name) {
-        return name.endsWith(".html") ? name.substring(0, name.length() - 5) : name;
-    }
-
-    /**
-     * 校验模板物理文件存在（getPcTemplate 只拼视图名，不校验存在性）
-     */
-    private boolean templateFileExists(String relative) {
-        String skin = config.getStringByKey("pc_theme");
-        File f = new File("views/templates/pc_theme/" + skin + "/" + relative + ".html");
-        return f.exists() && f.isFile();
     }
 }

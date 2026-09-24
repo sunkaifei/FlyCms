@@ -1,0 +1,17 @@
+<#assign skinPath = "/assets/skin/pc_theme/wpdemo">
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${web_name!''} - ${seo_description!''}</title>
+<link rel="stylesheet" href="${skinPath}/css/style.css">
+<script src="${skinPath}/js/main.js"></script>
+<!-- WP: wp_head() 钩子，FlyCms 无需，样式/脚本直接在模板引入 -->
+</head>
+<body >
+<header class="site-header">
+    <a href="/">${web_name!''}</a>
+    <p>${seo_description!''}</p>
+</header>
+<main>

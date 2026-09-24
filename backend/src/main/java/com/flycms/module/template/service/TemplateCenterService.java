@@ -2,7 +2,9 @@ package com.flycms.module.template.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.utils.SnowFlake;
+import com.flycms.module.channel.dao.ChannelDao;
 import com.flycms.module.config.service.ConfigService;
+import com.flycms.module.model.dao.ModelDao;
 import com.flycms.module.template.dao.TemplateDao;
 import com.flycms.module.template.model.TemplateFile;
 import com.flycms.module.template.model.TemplateVersion;
@@ -10,6 +12,8 @@ import freemarker.core.ParseException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +56,8 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class TemplateCenterService {
 
+    private static final Logger logger = LoggerFactory.getLogger(TemplateCenterService.class);
+
     /** 模板根：views/templates/pc_theme */
     public static final String THEME_ROOT = "views/templates/pc_theme";
 
@@ -78,9 +84,15 @@ public class TemplateCenterService {
     @Autowired
     private TemplateDao templateDao;
     @Autowired
+    private ModelDao modelDao;
+    @Autowired
+    private ChannelDao channelDao;
+    @Autowired
     private ConfigService configService;
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
+    @Autowired(required = false)
+    private ThemeRegistry themeRegistry;
 
     // /////////////////// 皮肤 ///////////////////
 
@@ -420,6 +432,211 @@ public class TemplateCenterService {
                 + (skipped > 0 ? "，跳过 " + skipped + " 个非白名单文件" : ""));
     }
 
+    // /////////////////// D22 模板派生（另存为） ///////////////////
+
+    /**
+     * D22 模板派生：把已有模板<b>复制</b>成另一个层级槽位名，用户在此基础上改。
+     *
+     * <p>这是"上传 WP 主题 → 转成通用皮肤 → 派生出栏目/模型专属模板"链路的最后一环：
+     * 皮肤里只有 {@code list.html} / {@code detail.html}，派生出 {@code list-news.html}
+     * 后即可让新闻栏目单独换版式，其余栏目仍走 {@code list.html}——
+     * 配合模板层级（§5），"换版式"从"复制整个目录"变成"新建 1 个文件"。
+     *
+     * <p>复用 {@link #save} 全链路：语法校验 → 版本快照 → 落盘 → 失效缓存，
+     * 因此派生产物同样可回滚、改坏不会导致全站 500。
+     *
+     * @param skin      皮肤
+     * @param file      源模板相对路径
+     * @param target    目标模板名（须符合层级命名：{@code list-{channel}.html} / {@code detail-{model}.html} 等）
+     * @param editorId  操作人
+     * @param overwrite 目标已存在时是否覆盖
+     */
+    public DataVo derive(String skin, String file, String target, Long editorId, boolean overwrite) {
+        File src = resolve(skin, file);
+        if (src == null || !src.isFile()) {
+            return DataVo.failure("源模板不存在：" + file);
+        }
+        File dst = resolve(skin, target);
+        if (dst == null) {
+            return DataVo.failure("目标文件名非法：只允许字母/数字/下划线/中划线/斜杠，且以 .html 结尾");
+        }
+        if (dst.exists() && !overwrite) {
+            return DataVo.failure("目标模板已存在：" + target + "，请勾选覆盖");
+        }
+        String content = readContent(src);
+        if (content == null) {
+            return DataVo.failure("源模板读取失败：" + file);
+        }
+        return save(skin, target, content, "派生自 " + file, editorId);
+    }
+
+    /**
+     * D22 派生槽位清单：按模板层级（§5）枚举"当前可以派生成哪些文件名"，
+     * 并标出哪些已存在。后台 UI 用它渲染下拉，用户点一下就完成命名，不用背规则。
+     *
+     * <p>槽位来自两类真实数据：模型（{@code list-{code}} / {@code detail-{code}}）
+     * 与栏目（{@code list-{dir}} / {@code detail-{dir}}），因此"有的选"而不是"自己猜"。
+     *
+     * @param skin 皮肤（用于判断文件是否已存在）
+     */
+    public Map<String, Object> deriveTargets(String skin) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        List<Map<String, Object>> slots = new ArrayList<>();
+
+        List<com.flycms.module.model.model.Model> models = new ArrayList<>();
+        try {
+            models = modelDao.getAllModelList(1);
+        } catch (Exception ignored) {
+            // 模型表不可用时降级为空列表，不影响模板派生本身
+        }
+        if (models != null) {
+            for (com.flycms.module.model.model.Model m : models) {
+                if (m == null || StringUtils.isBlank(m.getCode())) {
+                    continue;
+                }
+                slots.add(slot(skin, "list-" + m.getCode() + ".html",
+                        "模型列表", defaultStr2(m.getName(), m.getCode()), "model", m.getCode()));
+                slots.add(slot(skin, "detail-" + m.getCode() + ".html",
+                        "模型详情", defaultStr2(m.getName(), m.getCode()), "model", m.getCode()));
+            }
+        }
+
+        List<com.flycms.module.channel.model.Channel> channels = new ArrayList<>();
+        try {
+            channels = channelDao.findAll();
+        } catch (Exception ignored) {
+        }
+        if (channels != null) {
+            for (com.flycms.module.channel.model.Channel c : channels) {
+                if (c == null || StringUtils.isBlank(c.getChannelDir())) {
+                    continue;
+                }
+                String dir = c.getChannelDir();
+                slots.add(slot(skin, "list-" + dir + ".html",
+                        "栏目列表", defaultStr2(c.getChannelName(), dir), "channel", dir));
+                slots.add(slot(skin, "detail-" + dir + ".html",
+                        "栏目详情", defaultStr2(c.getChannelName(), dir), "channel", dir));
+            }
+        }
+
+        data.put("skin", skin);
+        data.put("slots", slots);
+        data.put("total", slots.size());
+        return data;
+    }
+
+    private Map<String, Object> slot(String skin, String target, String kind,
+                                     String label, String scope, String key) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("target", target);
+        m.put("kind", kind);
+        m.put("label", label + "（" + target + "）");
+        m.put("scope", scope);
+        m.put("key", key);
+        File f = resolve(skin, target);
+        m.put("exists", f != null && f.isFile());
+        return m;
+    }
+
+    private String defaultStr2(String v, String def) {
+        return StringUtils.isBlank(v) ? def : v;
+    }
+
+    // /////////////////// P4 子主题（声明式 parent） ///////////////////
+
+    /**
+     * P4 基于父主题创建子主题：只建目录 + 写 {@code theme.json}（声明 parent），<b>不复制任何文件</b>。
+     * 子主题只放要改的文件，其余自动回退父主题（与 WordPress 同名覆盖一致，D18）。
+     *
+     * @param child  子主题目录名
+     * @param parent 父主题目录名（必须存在）
+     * @param name   子主题展示名（可空，默认=child）
+     */
+    public DataVo createChildSkin(String child, String parent, String name) {
+        if (StringUtils.isBlank(child) || !SKIN_NAME.matcher(child).matches()) {
+            return DataVo.failure("子主题名只允许字母/数字/下划线/中划线，1~50 位");
+        }
+        if (StringUtils.isBlank(parent) || !new File(THEME_ROOT, parent).isDirectory()) {
+            return DataVo.failure("父主题不存在：" + parent);
+        }
+        if (new File(THEME_ROOT, child).exists()) {
+            return DataVo.failure("子主题目录已存在：" + child);
+        }
+        File dir = new File(THEME_ROOT, child);
+        if (!dir.mkdirs()) {
+            return DataVo.failure("子主题目录创建失败");
+        }
+        writeThemeJson(dir, "{\n"
+                + "  \"name\": \"" + (StringUtils.isBlank(name) ? child : name) + "\",\n"
+                + "  \"code\": \"" + child + "\",\n"
+                + "  \"version\": \"1.0.0\",\n"
+                + "  \"author\": \"FlyCms\",\n"
+                + "  \"parent\": \"" + parent + "\",\n"
+                + "  \"engine\": \"freemarker\",\n"
+                + "  \"description\": \"基于 " + parent + " 的子主题\"\n"
+                + "}");
+        if (themeRegistry != null) {
+            themeRegistry.refresh();
+        }
+        return DataVo.success("子主题已创建：" + child + "（父主题 " + parent + "，现在只放要改的文件即可）");
+    }
+
+    /**
+     * P4 把父主题的若干文件复制到子主题（对应 WP 手工复制）。仍提示"只复制要改的"——
+     * 每个多复制的文件都会失去父主题后续的安全修复。
+     *
+     * @param child  子主题
+     * @param parent 父主题
+     * @param files  相对文件路径列表（如 parts/header.html、list.html）
+     */
+    public DataVo copyParentFiles(String child, String parent, List<String> files) {
+        if (StringUtils.isBlank(child) || StringUtils.isBlank(parent)) {
+            return DataVo.failure("子主题/父主题名不能为空");
+        }
+        File childDir = new File(THEME_ROOT, child);
+        File parentDir = new File(THEME_ROOT, parent);
+        if (!parentDir.isDirectory()) {
+            return DataVo.failure("父主题不存在：" + parent);
+        }
+        if (!childDir.isDirectory()) {
+            return DataVo.failure("子主题不存在：" + child + "，请先创建子主题");
+        }
+        if (files == null || files.isEmpty()) {
+            return DataVo.failure("请选择要复制的文件");
+        }
+        int n = 0;
+        for (String rel : files) {
+            if (StringUtils.isBlank(rel) || rel.contains("..") || !SAFE_TEMPLATE_PATH.matcher(rel).matches()) {
+                continue;
+            }
+            File src = new File(parentDir, rel);
+            if (!src.isFile()) {
+                continue;
+            }
+            try {
+                File dst = new File(childDir, rel);
+                Files.createDirectories(dst.getParentFile().toPath());
+                Files.copy(src.toPath(), dst.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                evictTemplate(child, rel);
+                n++;
+            } catch (IOException ignored) {
+            }
+        }
+        if (themeRegistry != null) {
+            themeRegistry.refresh();
+        }
+        return DataVo.success("已从父主题复制 " + n + " 个文件到子主题 " + child);
+    }
+
+    /** 写 theme.json（UTF-8） */
+    private void writeThemeJson(File dir, String json) {
+        try {
+            Files.write(new File(dir, "theme.json").toPath(), json.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            logger.warn("theme.json 写入失败：{}", e.getMessage());
+        }
+    }
+
     // /////////////////// D8 试渲染 ///////////////////
 
     /**
@@ -486,6 +703,21 @@ public class TemplateCenterService {
                     .removeTemplateFromCache("pc_theme/" + skin + "/" + file);
         } catch (Exception ignored) {
             // 模板从未被加载时移除会抛异常，忽略
+        }
+    }
+
+    /**
+     * P9 一键清空模板缓存（§10）：FreeMarker 全量模板缓存 + 主题注册表元信息缓存。
+     * 用于"改了没生效"的最后手段——清完下次访问按磁盘当前内容重新加载。
+     */
+    public void clearAllTemplateCache() {
+        try {
+            freeMarkerConfigurer.getConfiguration().clearTemplateCache();
+        } catch (Exception ignored) {
+            // 缓存为空时部分实现会抛异常，忽略
+        }
+        if (themeRegistry != null) {
+            themeRegistry.refresh();
         }
     }
 
