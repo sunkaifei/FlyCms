@@ -4,8 +4,8 @@
 > 既可以直接搭建「问答 + 文章 + 分享」的社区，也可以用**自定义内容模型**搭楼盘、商品、案例等任意结构化站点。
 
 ```
-后端 358 个 Java 文件 / 26 个业务模块 / 18 个 REST 控制器
-前端 Vue 3 + TypeScript + Ant Design Vue，69 个页面组件
+后端 346 个 Java 文件 / 25 个业务模块 / 21 个 REST 控制器
+前端 Vue 3 + TypeScript + Ant Design Vue，73 个页面组件
 ```
 
 ---
@@ -119,7 +119,6 @@ FlyCms/
 │   │   └── web/
 │   │       ├── api/               # /api/** REST（后台 SPA 用）
 │   │       ├── front/             # 前台页面控制器
-│   │       ├── system/            # 老后台控制器
 │   │       └── tags/              # Freemarker 自定义标签
 │   ├── src/main/resources/
 │   │   ├── application.yml
@@ -170,7 +169,7 @@ mvn clean compile        # 编译
 mvn spring-boot:run      # 运行
 ```
 
-默认监听 `http://localhost:80`。前台 `http://localhost/`；老后台 `http://localhost/system/login`，默认账号 `flycms` / `123456`；新版控制台走前端 5666 端口。
+默认监听 `http://localhost:80`，前台 `http://localhost/`；管理控制台是前端 Vue SPA（见下一步）。
 
 ### 3. 前端控制台
 
@@ -207,8 +206,8 @@ java -jar target/FlyCms.jar --spring.profiles.active=prod > FlyCms.log 2>&1 &
 - 模板目录：`./views/templates/`
 - 停止：`ps -ef | grep FlyCms.jar | grep -v grep | cut -c 9-15 | xargs kill -s 9`；看日志：`tail -200f FlyCms.log`
 
-> 老 README 提到的「阿里大于 jar 需手动装到本地仓库」已不存在：短信 SDK 已改为官方坐标 `com.aliyun`，Maven 可直接解析。
-> Solr 也不再需要——检索模块已改为技术中立接缝，不接ES 也能正常跑（搜索返回空结果）。
+> 短信 SDK 使用官方坐标 `com.aliyun`，Maven 可直接解析，无需手动安装 jar。
+> Solr 不再需要——检索模块已改为技术中立接缝，不接 ES 也能正常跑（搜索返回空结果）。
 
 ---
 
