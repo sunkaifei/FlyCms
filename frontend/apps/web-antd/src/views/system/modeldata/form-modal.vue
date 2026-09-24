@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 
 import {
   CheckboxGroup,
@@ -80,7 +80,7 @@ function pick(row: Record<string, any>, name: string) {
   return row[camel];
 }
 
-const [Modal, modalApi] = useVbenModal({
+const [Modal, modalApi] = useEditDrawer({
   async onConfirm() {
     if (!String(values.title ?? '').trim()) {
       message.warning(`${model.value?.titleLabel || '标题'}不能为空`);

@@ -112,7 +112,7 @@
 		<where>
             <if test="questionId!=null and questionId!='' ">and question_id=#{questionId}</if>
 			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
-			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="createTime != null and createTime != ''">and create_time like concat(#{createTime}, '%')</if>
 			<if test="status == 0">and status &gt;= 0</if>
 			<if test="status == 1">and status = 0</if>
 			<if test="status == 2">and status = 1</if>
@@ -127,7 +127,7 @@
 		<where>
 			<if test="questionId!=null and questionId!='' ">and question_id=#{questionId}</if>
 			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
-			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="createTime != null and createTime != ''">and create_time like concat(#{createTime}, '%')</if>
 			<if test="status == 0">and status &gt;= 0</if>
 			<if test="status == 1">and status = 0</if>
 			<if test="status == 2">and status = 1</if>

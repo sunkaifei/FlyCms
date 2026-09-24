@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.channel.dao.ChannelDao">
+
+	<sql id="ch_column">id, father_id AS fatherId, channel_name AS channelName, channel_dir AS channelDir,
+		model_id AS modelId, channel_type AS channelType, page_content AS pageContent, out_url AS outUrl,
+		list_template AS listTemplate, detail_template AS detailTemplate, seo_title AS seoTitle,
+		seo_keywords AS seoKeywords, seo_description AS seoDescription, page_size AS pageSize, status,
+		sort, create_time AS createTime, update_time AS updateTime</sql>
+
+	<insert id="insertChannel">
+		insert into fly_channel (id, father_id, channel_name, channel_dir, model_id, channel_type,
+		page_content, out_url, list_template, detail_template, seo_title, seo_keywords, seo_description,
+		page_size, status, sort, create_time, update_time)
+		values (#{id}, #{fatherId}, #{channelName}, #{channelDir}, #{modelId}, #{channelType},
+		#{pageContent}, #{outUrl}, #{listTemplate}, #{detailTemplate}, #{seoTitle}, #{seoKeywords},
+		#{seoDescription}, #{pageSize}, #{status}, #{sort}, now(), now())
+	</insert>
+
+	<update id="updateChannel">
+		update fly_channel set father_id = #{fatherId}, channel_name = #{channelName},
+		model_id = #{modelId}, channel_type = #{channelType}, page_content = #{pageContent},
+		out_url = #{outUrl}, list_template = #{listTemplate}, detail_template = #{detailTemplate},
+		seo_title = #{seoTitle}, seo_keywords = #{seoKeywords}, seo_description = #{seoDescription},
+		page_size = #{pageSize}, status = #{status}, sort = #{sort}, update_time = now()
+		where id = #{id}
+	</update>
+
+	<delete id="deleteChannelById">
+		delete from fly_channel where id = #{id}
+	</delete>
+
+	<select id="findById" resultType="com.flycms.module.channel.model.Channel">
+		select
+		<include refid="ch_column"/> from fly_channel where id = #{id} limit 1
+	</select>
+
+	<select id="findByDir" resultType="com.flycms.module.channel.model.Channel">
+		select
+		<include refid="ch_column"/> from fly_channel where channel_dir = #{dir} limit 1
+	</select>
+
+	<select id="existsDir" resultType="boolean">
+		select count(*) > 0 from fly_channel
+		where channel_dir = #{dir}
+		<if test="excludeId != null">
+			and id != #{excludeId}
+		</if>
+	</select>
+
+	<select id="findAll" resultType="com.flycms.module.channel.model.Channel">
+		select
+		<include refid="ch_column"/> from fly_channel
+		order by father_id asc, sort asc, id asc
+	</select>
+
+	<select id="findByFatherId" resultType="com.flycms.module.channel.model.Channel">
+		select
+		<include refid="ch_column"/> from fly_channel
+		where father_id = #{fatherId}
+		order by sort asc, id asc
+	</select>
+
+	<select id="countChildren" resultType="int">
+		select count(*) from fly_channel where father_id = #{fatherId}
+	</select>
+
+	<select id="findAllModelCodes" resultType="java.lang.String">
+		select model_code from fly_model order by model_code
+	</select>
+
+	<update id="updateStatus">
+		update fly_channel set status = #{status}, update_time = now() where id = #{id}
+	</update>
+
+	<update id="updateSort">
+		update fly_channel set sort = #{sort}, update_time = now() where id = #{id}
+	</update>
+
+	<update id="updateFatherId">
+		update fly_channel set father_id = #{fatherId}, update_time = now() where id = #{id}
+	</update>
+</mapper>

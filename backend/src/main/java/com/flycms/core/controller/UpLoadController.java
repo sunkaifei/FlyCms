@@ -8,6 +8,7 @@ import java.util.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.flycms.core.utils.ImageUtils;
+import com.flycms.core.utils.UploadSafeUtil;
 import com.flycms.constant.Const;
 import com.flycms.core.base.BaseController;
 import com.flycms.core.entity.CkeditorUp;
@@ -46,7 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Controller
 public class UpLoadController extends BaseController {
-    private static Logger logger = LoggerFactory.getLogger(CaptchaController.class);
+    private static Logger logger = LoggerFactory.getLogger(UpLoadController.class);
     @Autowired
     private ImagesService imagesService;
 
@@ -70,33 +71,14 @@ public class UpLoadController extends BaseController {
         if (!file.isEmpty()) {
             String proName = Const.UPLOAD_PATH;
             String path = proName + "/upload/usertmp/"+getUser().getUserId()+"/";
-            String fileName = file.getOriginalFilename();
-            String uploadContentType = file.getContentType();
-            String expandedName = "";
-            if ("image/jpeg".equals(uploadContentType)
-                    || uploadContentType.equals("image/jpeg")) {
-                // IE6上传jpg图片的headimageContentType是image/pjpeg，而IE9以及火狐上传的jpg图片是image/jpeg
-                expandedName = ".jpg";
-            } else if ("image/png".equals(uploadContentType) || "image/x-png".equals(uploadContentType)) {
-                // IE6上传的png图片的headimageContentType是"image/x-png"
-                expandedName = ".png";
-            } else if ("image/gif".equals(uploadContentType)) {
-                expandedName = ".gif";
-            } else if ("image/bmp".equals(uploadContentType)) {
-                expandedName = ".bmp";
-            } else {
+            // 阶段 A5：扩展名 + MIME + 文件头魔数三重白名单，通过后强制重命名（丢弃原始文件名）
+            UploadSafeUtil.ImageType type = UploadSafeUtil.safeImage(file, UploadSafeUtil.MAX_IMAGE_BYTES);
+            if (type == null) {
                 map.put("errno", 1);
-                map.put("desc", "文件格式不正确（必须为.jpg/.gif/.bmp/.png文件）");
+                map.put("desc", "文件不是合法图片（仅支持 .jpg/.png/.gif/.bmp/.webp，且不得超过 2MB）");
                 return map;
             }
-            if (file.getSize() > 1024 * 1024 * 2) {
-                map.put("errno", 1);
-                map.put("desc", "文件大小不得大于2M");
-                return map;
-            }
-
-            DateFormat df = new SimpleDateFormat(DEFAULT_SUB_FOLDER_FORMAT_AUTO);
-            fileName = df.format(new Date()) + expandedName;
+            String fileName = UploadSafeUtil.rename(type);
             File dirFile = new File(path + fileName);
             //判断文件父目录是否存在
             if(!dirFile.getParentFile().exists()){
@@ -127,33 +109,14 @@ public class UpLoadController extends BaseController {
         if (!file.isEmpty()) {
             String proName = Const.UPLOAD_PATH;
             String path = proName + "/upload/usertmp/"+getUser().getUserId()+"/";
-            String fileName = file.getOriginalFilename();
-            String uploadContentType = file.getContentType();
-            String expandedName = "";
-            if ("image/jpeg".equals(uploadContentType)
-                    || uploadContentType.equals("image/jpeg")) {
-                // IE6上传jpg图片的headimageContentType是image/pjpeg，而IE9以及火狐上传的jpg图片是image/jpeg
-                expandedName = ".jpg";
-            } else if ("image/png".equals(uploadContentType) || "image/x-png".equals(uploadContentType)) {
-                // IE6上传的png图片的headimageContentType是"image/x-png"
-                expandedName = ".png";
-            } else if ("image/gif".equals(uploadContentType)) {
-                expandedName = ".gif";
-            } else if ("image/bmp".equals(uploadContentType)) {
-                expandedName = ".bmp";
-            } else {
-                map.put("errno", 1);
-                map.put("message", "文件格式不正确（必须为.jpg/.gif/.bmp/.png文件）");
+            // 阶段 A5：三重白名单校验 + 强制重命名
+            UploadSafeUtil.ImageType type = UploadSafeUtil.safeImage(file, UploadSafeUtil.MAX_IMAGE_BYTES);
+            if (type == null) {
+                map.put("error", 1);
+                map.put("message", "文件不是合法图片（仅支持 .jpg/.png/.gif/.bmp/.webp，且不得超过 2MB）");
                 return map;
             }
-            if (file.getSize() > 1024 * 1024 * 2) {
-                map.put("errno", 1);
-                map.put("message", "文件大小不得大于2M");
-                return map;
-            }
-
-            DateFormat df = new SimpleDateFormat(DEFAULT_SUB_FOLDER_FORMAT_AUTO);
-            fileName = df.format(new Date()) + expandedName;
+            String fileName = UploadSafeUtil.rename(type);
             File dirFile = new File(path + fileName);
             //判断文件父目录是否存在
             if(!dirFile.getParentFile().exists()){
@@ -182,25 +145,27 @@ public class UpLoadController extends BaseController {
 		String filePath = UPLOAD_PATH;
         String filePathUrl="./uploadfiles"+filePath;
         try {
-        	UpImgMsg file = ImageUtils.uploadFile(request, filePath,filePathUrl);
-            if(file.getImgurl()==null){
-            	msg.setCode(-1);
-            	msg.setImgurl(null);
-            	msg.setFilesize(file.getFilesize());
-            	msg.setMsg("上传失败");
-            	return DataVo.success("上传失败", msg);
+            UpImgMsg file = ImageUtils.uploadFile(request, filePath,filePathUrl);
+            if(file == null || file.getImgurl()==null){
+                msg.setCode(-1);
+                msg.setImgurl(null);
+                msg.setFilesize(file == null ? 0 : file.getFilesize());
+                String failMsg = (file == null || file.getMsg() == null) ? "上传失败" : file.getMsg();
+                msg.setMsg(failMsg);
+                // 历史 Bug：此处曾返回 DataVo.success("上传失败")，状态码与文案矛盾，
+                // 前端无法据此判断成败，现统一按失败返回。
+                return DataVo.failure(failMsg, msg);
             }else{
-            	msg.setCode(0);
-            	msg.setImgurl("/"+file.getImgurl());
-            	msg.setFilesize(file.getFilesize());
-            	msg.setMsg("上传成功");
-            	return DataVo.success("上传成功", msg);
+                msg.setCode(0);
+                msg.setImgurl("/"+file.getImgurl());
+                msg.setFilesize(file.getFilesize());
+                msg.setMsg("上传成功");
+                return DataVo.success("上传成功", msg);
             }
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error("上传文件未找到", e);
         } catch(Exception ex){
-            ex.printStackTrace();
+            logger.error("上传文件失败", ex);
         }
         return data;
     }
@@ -215,29 +180,12 @@ public class UpLoadController extends BaseController {
         if (!file.isEmpty()) {
             String proName = Const.UPLOAD_PATH;
             String path = proName + "/upload/usertmp/"+getUser().getUserId()+"/";
-            String fileName = file.getOriginalFilename();
-            String uploadContentType = file.getContentType();
-            String expandedName = "";
-            if ("image/jpeg".equals(uploadContentType)
-                    || uploadContentType.equals("image/jpeg")) {
-                // IE6上传jpg图片的headimageContentType是image/pjpeg，而IE9以及火狐上传的jpg图片是image/jpeg
-                expandedName = ".jpg";
-            } else if ("image/png".equals(uploadContentType) || "image/x-png".equals(uploadContentType)) {
-                // IE6上传的png图片的headimageContentType是"image/x-png"
-                expandedName = ".png";
-            } else if ("image/gif".equals(uploadContentType)) {
-                expandedName = ".gif";
-            } else if ("image/bmp".equals(uploadContentType)) {
-                expandedName = ".bmp";
-            } else {
-                return CkeditorUp.failure("文件格式不正确（必须为.jpg/.gif/.bmp/.png文件）");
+            // 阶段 A5：三重白名单校验 + 强制重命名
+            UploadSafeUtil.ImageType type = UploadSafeUtil.safeImage(file, UploadSafeUtil.MAX_IMAGE_BYTES);
+            if (type == null) {
+                return CkeditorUp.failure("文件不是合法图片（仅支持 .jpg/.png/.gif/.bmp/.webp，且不得超过 2MB）");
             }
-            if (file.getSize() > 1024 * 1024 * 2) {
-                return CkeditorUp.failure("文件大小不得大于2M");
-            }
-
-            DateFormat df = new SimpleDateFormat(DEFAULT_SUB_FOLDER_FORMAT_AUTO);
-            fileName = df.format(new Date()) + expandedName;
+            String fileName = UploadSafeUtil.rename(type);
             File dirFile = new File(path + fileName);
             //判断文件父目录是否存在
             if(!dirFile.getParentFile().exists()){

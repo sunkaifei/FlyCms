@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.template.dao.TemplateDao">
+
+	<sql id="tpl_column">id, skin, file_path AS filePath, update_time AS updateTime, editor_id AS editorId</sql>
+	<sql id="ver_column">id, template_id AS templateId, version, content, remark, editor_id AS editorId,
+		create_time AS createTime</sql>
+
+	<!-- /////////////// 模板登记 /////////////// -->
+
+	<insert id="insertTemplate">
+		insert into fly_template (id, skin, file_path, update_time, editor_id)
+		values (#{id}, #{skin}, #{filePath}, now(), #{editorId})
+	</insert>
+
+	<update id="updateTemplateTime">
+		update fly_template set update_time = now(), editor_id = #{editorId}
+		where skin = #{skin} and file_path = #{filePath}
+	</update>
+
+	<delete id="deleteTemplate">
+		delete from fly_template where skin = #{skin} and file_path = #{filePath}
+	</delete>
+
+	<delete id="deleteTemplatesBySkin">
+		delete from fly_template where skin = #{skin}
+	</delete>
+
+	<delete id="deleteVersions">
+		delete from fly_template_version where template_id = #{templateId}
+	</delete>
+
+	<select id="findTemplate" resultType="com.flycms.module.template.model.TemplateFile">
+		select
+		<include refid="tpl_column"/> from fly_template
+		where skin = #{skin} and file_path = #{filePath} limit 1
+	</select>
+
+	<select id="findTemplatesBySkin" resultType="com.flycms.module.template.model.TemplateFile">
+		select
+		<include refid="tpl_column"/> from fly_template where skin = #{skin}
+	</select>
+
+	<!-- /////////////// 版本快照 /////////////// -->
+
+	<insert id="insertVersion">
+		insert into fly_template_version (template_id, version, content, remark, editor_id, create_time)
+		values (#{templateId}, #{version}, #{content}, #{remark}, #{editorId}, now())
+	</insert>
+
+	<select id="findVersion" resultType="com.flycms.module.template.model.TemplateVersion">
+		select
+		<include refid="ver_column"/> from fly_template_version
+		where template_id = #{templateId} and version = #{version} limit 1
+	</select>
+
+	<select id="findVersions" resultType="com.flycms.module.template.model.TemplateVersion">
+		select
+		<include refid="ver_column"/> from fly_template_version
+		where template_id = #{templateId}
+		order by version desc limit #{rows}
+	</select>
+
+	<select id="maxVersion" resultType="int">
+		select ifnull(max(version), 0) from fly_template_version where template_id = #{templateId}
+	</select>
+
+	<select id="countVersions" resultType="int">
+		select count(*) from fly_template_version where template_id = #{templateId}
+	</select>
+</mapper>

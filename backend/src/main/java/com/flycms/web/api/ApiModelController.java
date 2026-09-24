@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * 自定义模型系统 REST 接口（模型/字段/内容/分类/附件 + 混合菜单动态路由）。
  *
- * 权限码 = action_key 原样（/api/system/model/** 等，见 doc/sql/custom-model.sql）；
+ * 权限码 = action_key 原样（/api/system/model/** 等，见 sql/custom-model.sql）；
  * 未登录由 requireAdmin 抛 HTTP 401，无权限 requirePermission 抛 403。
  * 前端表单 POST 统一 form-urlencoded（@RequestParam 读取）。
  *

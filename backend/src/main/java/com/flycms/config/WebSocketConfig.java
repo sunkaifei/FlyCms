@@ -27,8 +27,21 @@ public class WebSocketConfig extends WebMvcConfigurationSupport implements WebSo
 	
 	@Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(WebSocketService(), "/webSocketServer.action").addInterceptors(new WebSocketInterceptor()).setAllowedOrigins("*");
-        registry.addHandler(WebSocketService(), "/ricky-websocket").addInterceptors(new WebSocketInterceptor()).withSockJS();
+        // 历史 Bug：setAllowedOrigins("*") 允许任意站点建立 WebSocket 连接。
+        // 改为按前缀匹配白名单：仅本机任意端口（开发联调）与生产域名可连。
+        String[] allowedOriginPatterns = {
+                "http://localhost:*", "https://localhost:*",
+                "http://127.0.0.1:*", "https://127.0.0.1:*",
+                "http://www.28844.com", "https://www.28844.com",
+                "http://28844.com", "https://28844.com"
+        };
+        registry.addHandler(WebSocketService(), "/webSocketServer.action")
+                .addInterceptors(new WebSocketInterceptor())
+                .setAllowedOriginPatterns(allowedOriginPatterns);
+        registry.addHandler(WebSocketService(), "/ricky-websocket")
+                .addInterceptors(new WebSocketInterceptor())
+                .setAllowedOriginPatterns(allowedOriginPatterns)
+                .withSockJS();
     }
 
     @Bean

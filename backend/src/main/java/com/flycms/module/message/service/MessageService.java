@@ -53,7 +53,7 @@ public class MessageService {
 	public DataVo addMessage(Message message) {
 		DataVo data = DataVo.failure("操作失败");
 		//格式化系统时间
-		SnowFlake snowFlake = new SnowFlake(2, 3);
+		SnowFlake snowFlake = SnowFlake.getInstance();
 		message.setId(snowFlake.nextId());
 		int totalCount = messageDao.addMessage(message);
 		if(totalCount > 0){

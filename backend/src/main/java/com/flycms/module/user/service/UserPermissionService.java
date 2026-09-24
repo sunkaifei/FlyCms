@@ -61,7 +61,7 @@ public class UserPermissionService {
                         if(s!=null){
                             if (!checkPermission(StringUtils.deleteWhitespace(s), per.getController())) {
                                 per.setActionKey(StringUtils.deleteWhitespace(s));
-                                SnowFlake snowFlake = new SnowFlake(2, 3);
+                                SnowFlake snowFlake = SnowFlake.getInstance();
                                 per.setId(snowFlake.nextId());
                                 int permissionId=userPermissionDao.addPermission(per);
                             }

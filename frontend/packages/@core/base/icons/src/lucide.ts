@@ -57,6 +57,7 @@ export {
   LogOut,
   MailCheck,
   Maximize,
+  Maximize2,
   ArrowRightFromLine as MdiMenuClose,
   ArrowLeftFromLine as MdiMenuOpen,
   Menu,

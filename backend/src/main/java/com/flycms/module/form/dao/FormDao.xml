@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 表单系统 Mapper（规划阶段 F） -->
+<mapper namespace="com.flycms.module.form.dao.FormDao">
+
+	<!-- ############## 表单 ############## -->
+	<sql id="formColumns">
+		id, form_code as formCode, form_name as formName, audit, submit_limit as submitLimit,
+		need_captcha as needCaptcha, success_tip as successTip, notify_email as notifyEmail,
+		status, create_time as createTime
+	</sql>
+
+	<insert id="addForm">
+		insert into fly_form
+		(id, form_code, form_name, audit, submit_limit, need_captcha, success_tip, notify_email, status, create_time)
+		values
+		(#{id}, #{formCode}, #{formName}, #{audit}, #{submitLimit}, #{needCaptcha}, #{successTip}, #{notifyEmail}, #{status}, #{createTime})
+	</insert>
+
+	<update id="updateForm">
+		update fly_form
+		<set>
+			<if test="formCode != null and formCode != ''">form_code=#{formCode},</if>
+			<if test="formName != null and formName != ''">form_name=#{formName},</if>
+			<if test="audit != null">audit=#{audit},</if>
+			<if test="submitLimit != null">submit_limit=#{submitLimit},</if>
+			<if test="needCaptcha != null">need_captcha=#{needCaptcha},</if>
+			<if test="successTip != null">success_tip=#{successTip},</if>
+			<if test="notifyEmail != null">notify_email=#{notifyEmail},</if>
+			<if test="status != null">status=#{status},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<delete id="deleteForm">
+		delete from fly_form where id=#{id}
+	</delete>
+
+	<select id="findFormById" resultType="com.flycms.module.form.model.Form">
+		select <include refid="formColumns"/> from fly_form where id=#{id}
+	</select>
+
+	<select id="findFormByCode" resultType="com.flycms.module.form.model.Form">
+		select <include refid="formColumns"/> from fly_form where form_code=#{formCode}
+	</select>
+
+	<!-- 编码唯一性校验：id 为空=新增查全表；id 非空=更新时排除自身 -->
+	<select id="checkFormCode" resultType="Integer">
+		select count(1) from fly_form
+		where form_code=#{formCode}
+		<if test="id != null">and id &lt;&gt; #{id}</if>
+	</select>
+
+	<sql id="formListWhere">
+		<where>
+			<if test="formName != null and formName != ''">and form_name like concat('%', #{formName}, '%')</if>
+			<if test="status != null">and status=#{status}</if>
+		</where>
+	</sql>
+
+	<select id="getFormList" resultType="com.flycms.module.form.model.Form">
+		select <include refid="formColumns"/> from fly_form
+		<include refid="formListWhere"/>
+		order by id desc
+		limit #{offset},#{rows}
+	</select>
+
+	<select id="getFormCount" resultType="Integer">
+		select count(1) from fly_form
+		<include refid="formListWhere"/>
+	</select>
+
+	<!-- ############## 表单字段 ############## -->
+	<sql id="formFieldColumns">
+		id, form_id as formId, field_code as fieldCode, field_name as fieldName,
+		field_type as fieldType, required, default_value as defaultValue, placeholder,
+		options, sort
+	</sql>
+
+	<insert id="addFormField">
+		insert into fly_form_field
+		(id, form_id, field_code, field_name, field_type, required, default_value, placeholder, options, sort)
+		values
+		(#{id}, #{formId}, #{fieldCode}, #{fieldName}, #{fieldType}, #{required}, #{defaultValue}, #{placeholder}, #{options}, #{sort})
+	</insert>
+
+	<update id="updateFormField">
+		update fly_form_field
+		<set>
+			<if test="fieldCode != null and fieldCode != ''">field_code=#{fieldCode},</if>
+			<if test="fieldName != null and fieldName != ''">field_name=#{fieldName},</if>
+			<if test="fieldType != null and fieldType != ''">field_type=#{fieldType},</if>
+			<if test="required != null">required=#{required},</if>
+			<if test="defaultValue != null">default_value=#{defaultValue},</if>
+			<if test="placeholder != null">placeholder=#{placeholder},</if>
+			<if test="options != null">options=#{options},</if>
+			<if test="sort != null">sort=#{sort},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<delete id="deleteFormField">
+		delete from fly_form_field where id=#{id}
+	</delete>
+
+	<delete id="deleteFormFieldByFormId">
+		delete from fly_form_field where form_id=#{formId}
+	</delete>
+
+	<select id="findFormFieldById" resultType="com.flycms.module.form.model.FormField">
+		select <include refid="formFieldColumns"/> from fly_form_field where id=#{id}
+	</select>
+
+	<select id="getFormFieldList" resultType="com.flycms.module.form.model.FormField">
+		select <include refid="formFieldColumns"/> from fly_form_field
+		where form_id=#{formId}
+		order by sort asc, id asc
+	</select>
+
+	<!-- ############## 表单数据 ############## -->
+	<sql id="formDataColumns">
+		d.id, d.form_id as formId, d.user_id as userId, d.ip, d.data_json as dataJson,
+		d.status, d.create_time as createTime,
+		f.form_code as formCode, f.form_name as formName
+	</sql>
+
+	<insert id="addFormData">
+		insert into fly_form_data
+		(id, form_id, user_id, ip, data_json, status, create_time)
+		values
+		(#{id}, #{formId}, #{userId}, #{ip}, #{dataJson}, #{status}, #{createTime})
+	</insert>
+
+	<delete id="deleteFormData">
+		delete from fly_form_data where id=#{id}
+	</delete>
+
+	<update id="updateFormDataStatus">
+		update fly_form_data set status=#{status} where id=#{id}
+	</update>
+
+	<select id="findFormDataById" resultType="com.flycms.module.form.model.FormData">
+		select <include refid="formDataColumns"/>
+		from fly_form_data d left join fly_form f on f.id = d.form_id
+		where d.id=#{id}
+	</select>
+
+	<sql id="formDataWhere">
+		<where>
+			<if test="formId != null">and d.form_id=#{formId}</if>
+			<if test="status != null">and d.status=#{status}</if>
+			<if test="createTime != null and createTime != ''">and d.create_time like concat(#{createTime}, '%')</if>
+		</where>
+	</sql>
+
+	<select id="getFormDataList" resultType="com.flycms.module.form.model.FormData">
+		select <include refid="formDataColumns"/>
+		from fly_form_data d left join fly_form f on f.id = d.form_id
+		<include refid="formDataWhere"/>
+		order by d.id desc
+		limit #{offset},#{rows}
+	</select>
+
+	<select id="getFormDataCount" resultType="Integer">
+		select count(1)
+		from fly_form_data d left join fly_form f on f.id = d.form_id
+		<include refid="formDataWhere"/>
+	</select>
+
+	<select id="countSubmitByIp" resultType="Integer">
+		select count(1) from fly_form_data
+		where form_id=#{formId} and ip=#{ip} and create_time &gt;= #{since}
+	</select>
+
+	<select id="countSubmitByUser" resultType="Integer">
+		select count(1) from fly_form_data
+		where form_id=#{formId} and user_id=#{userId} and create_time &gt;= #{since}
+	</select>
+
+</mapper>

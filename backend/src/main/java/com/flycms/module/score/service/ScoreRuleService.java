@@ -59,7 +59,7 @@ public class ScoreRuleService {
     @Transactional
 	public DataVo addScoreRule(ScoreRule scoreRule) {
         DataVo data = DataVo.failure("操作失败");
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         scoreRule.setId(snowFlake.nextId());
         scoreRule.setCreateTime(new Date());
         scoreRule.setUpdateTime(new Date());
@@ -213,8 +213,10 @@ public class ScoreRuleService {
            // userDao.updateScore("reduce",scoreDetail.getScore(), userId);
             scoreDetail.setType(scoreDetail.getType());
             scoreDetail.setUserId(userId);
-            scoreDetail.setForeignId(foreignId);;
-            scoreDetail.setScore(-scoreDetail.getScore());
+            scoreDetail.setForeignId(foreignId);
+            // 注意：SQL 中 "reduce" 分支为 score = score - #{score}，
+            // 必须传入正值才能扣回奖励；传负值会负负得正变成再加一次（历史 Bug）。
+            scoreDetail.setScore(Math.abs(scoreDetail.getScore()));
             scoreDetail.setRemark("撤销积分奖励");
             scoreDetail.setScoreRuleId(scoreRuleId);
             scoreDetailService.saveScoreDetail(scoreDetail,"reduce");

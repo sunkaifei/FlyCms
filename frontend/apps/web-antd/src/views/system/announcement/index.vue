@@ -3,7 +3,7 @@ import type { AnnouncementRow } from '#/api/core/message';
 
 import { onMounted, ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
 import { useAccess } from '@vben/access';
 
 import { Button, message, Modal, Pagination, Switch, Table, Textarea } from 'ant-design-vue';
@@ -24,13 +24,8 @@ const total = ref(0);
 const page = ref(1);
 const loading = ref(false);
 
-/** 行内编辑态（单行轻编辑：标题/排序/状态/时间），内容走编辑弹窗 */
+/** 行内编辑态（单行轻编辑：标题/排序） */
 const editing = ref<null | string>(null);
-const editForm = ref<{ sort: number; status: number; title: string }>({
-  sort: 0,
-  status: 1,
-  title: '',
-});
 
 // 复杂表单仍走简单弹窗（内容 Textarea + 时间输入）
 const editOpen = ref(false);
@@ -74,7 +69,7 @@ function openAdd() {
   editOpen.value = true;
 }
 
-function openEdit(row: AnnouncementRow) {
+function openEdit(row: any) {
   editId.value = String(row.id);
   editTitle.value = row.title;
   editContent.value = row.content || '';
@@ -110,7 +105,7 @@ async function onSave() {
   load();
 }
 
-function onDelete(row: AnnouncementRow) {
+function onDelete(row: any) {
   Modal.confirm({
     content: `删除公告「${row.title}」？`,
     onOk: async () => {
@@ -122,7 +117,7 @@ function onDelete(row: AnnouncementRow) {
   });
 }
 
-async function onToggle(row: AnnouncementRow, checked: boolean) {
+async function onToggle(row: any, checked: boolean) {
   await updateAnnouncementApi({
     endTime: row.endTime || '',
     id: row.id,

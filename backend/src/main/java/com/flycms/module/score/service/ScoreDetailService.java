@@ -54,7 +54,7 @@ public class ScoreDetailService{
     public int saveScoreDetail(ScoreDetail scoreDetail,String calculate) {
         //更新用户积分
         userDao.updateUserAccountScore(calculate,scoreDetail.getScore(), scoreDetail.getUserId());
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         scoreDetail.setId(snowFlake.nextId());
         scoreDetail.setCreateTime(new Date());
         return scoreDetailDao.saveScoreDetail(scoreDetail);

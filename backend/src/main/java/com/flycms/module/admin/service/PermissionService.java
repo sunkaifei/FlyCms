@@ -60,7 +60,7 @@ public class PermissionService {
                                 per.setMenuType("F");
                                 per.setVisible(0);
                                 per.setParentId(900130L);
-                                SnowFlake snowFlake = new SnowFlake(2, 3);
+                                SnowFlake snowFlake = SnowFlake.getInstance();
                                 per.setId(snowFlake.nextId());
                                 int permissionId=permissionDao.addPermission(per);
                                 if(!this.markAssignedPermissions(272835742965968896L,per.getId())){

@@ -12,7 +12,7 @@ public class Permission implements Serializable {
     private String actionKey;
     private String controller;
     private String remark;
-    // ---- 菜单管理扩展列（若依式 M目录/C菜单/F按钮，见 doc/sql/menu-management.sql）----
+    // ---- 菜单管理扩展列（若依式 M目录/C菜单/F按钮，见 sql/menu-management.sql）----
     private Long parentId;
     private String menuType;
     private String menuName;

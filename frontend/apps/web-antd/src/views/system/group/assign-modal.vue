@@ -3,7 +3,7 @@ import type { MenuNode } from '#/api/core/menu-manage';
 
 import { computed, onMounted, ref } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 
 import { Empty, message, Spin, Tree } from 'ant-design-vue';
 
@@ -56,7 +56,7 @@ const treeData = computed<TreeRow[]>(() => {
 
 const isSuperGroup = computed(() => groupId.value === 1);
 
-const [Modal, modalApi] = useVbenModal({
+const [Modal, modalApi] = useEditDrawer({
   async onConfirm() {
     if (isSuperGroup.value) {
       message.warning('超级管理员组权限不能修改');

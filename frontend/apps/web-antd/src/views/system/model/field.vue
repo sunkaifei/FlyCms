@@ -3,7 +3,8 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import type { ModelFieldRow } from '#/api/core/model';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 import { useAccess } from '@vben/access';
 
 import { Button, message } from 'ant-design-vue';
@@ -21,7 +22,7 @@ const route = useRoute();
 // 雪花 ID 必须保持字符串（Number 化会丢末位精度，导致字段列表查询落空）
 const modelId = route.params.modelId as string;
 
-const [FieldModalComp, fieldModalApi] = useVbenModal({
+const [FieldModalComp, fieldModalApi] = useEditDrawer({
   connectedComponent: FieldModal,
   destroyOnClose: true,
 });

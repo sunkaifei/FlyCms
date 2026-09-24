@@ -43,7 +43,7 @@ public class ShareCategoryService {
             return data = DataVo.failure("分类名称不得重复");
         }
         ShareCategory category=new ShareCategory();
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         category.setId(snowFlake.nextId());
         category.setFatherId(pid);
         category.setName(name);
@@ -69,7 +69,7 @@ public class ShareCategoryService {
         }
         //转换为数组
         String[] str = shareCategory.getCategoryId().split(",");
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         shareCategory.setId(snowFlake.nextId());
         shareCategory.setFatherId(Long.parseLong(str[str.length - 1]));
         shareCategoryDao.addShareCategory(shareCategory);

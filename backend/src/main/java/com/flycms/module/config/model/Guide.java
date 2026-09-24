@@ -19,7 +19,12 @@ import java.io.Serializable;
 @Getter
 public class Guide implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
+    /**
+     * 导航 id。
+     * fly_guide.id 是 bigint unsigned 且无自增，必须用雪花 ID；
+     * 原定义为 Integer，装不下雪花 long 值（阶段 B3 修正）。
+     */
+    private Long id;
     private String name;
     private String link;
     private Integer sort;

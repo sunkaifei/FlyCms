@@ -92,7 +92,7 @@
         select count(*) from fly_score_rule
         <where>
             <if test="name!=null and name!=''">and name LIKE CONCAT(CONCAT('%', #{name}),'%')</if>
-            <if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+            <if test="createTime != null and createTime != ''">and create_time like concat(#{createTime}, '%')</if>
             <if test="status == 0">and status &gt;= 0</if>
             <if test="status == 1">and status = 0</if>
             <if test="status == 2">and status = 1</if>
@@ -106,7 +106,7 @@
         select * from fly_score_rule
         <where>
             <if test="name!=null and name!=''">and name LIKE CONCAT(CONCAT('%', #{name}),'%')</if>
-            <if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+            <if test="createTime != null and createTime != ''">and create_time like concat(#{createTime}, '%')</if>
             <if test="status == 0">and status &gt;= 0</if>
             <if test="status == 1">and status = 0</if>
             <if test="status == 2">and status = 1</if>

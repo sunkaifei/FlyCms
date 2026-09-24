@@ -10,6 +10,7 @@ import com.flycms.module.links.dao.LinksDao;
 import com.flycms.module.links.model.Links;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Open source house, All rights reserved
@@ -45,7 +46,7 @@ public class LinksService {
 		if(this.checkLinksByLinkUrl(links.getLinkUrl())){
 			return DataVo.failure("网站连接已存在！");
 		}
-		SnowFlake snowFlake = new SnowFlake(2, 3);
+		SnowFlake snowFlake = SnowFlake.getInstance();
 		links.setId(snowFlake.nextId());
 		links.setCreateTime(new Date());
 		int totalCount=linksDao.addLinks(links);
@@ -66,7 +67,7 @@ public class LinksService {
 	 * @param id
 	 * @return
 	 */
-	public boolean deleteLinksById(Integer id) {
+	public boolean deleteLinksById(Long id) {
 		int totalCount=linksDao.deleteLinksById(id);
 		return totalCount > 0 ? true : false;
 	}
@@ -101,8 +102,50 @@ public class LinksService {
 	 * @param id
 	 * @return
 	 */
-	public Links findLinksById(Integer id){
+	public Links findLinksById(Long id){
 		return linksDao.findLinksById(id);
+	}
+
+	// ///////////////////////////////
+	// /////  友链管理（阶段 B4） /////
+	// ///////////////////////////////
+
+	/**
+	 * 友链分页列表（type/isShow 按真实值过滤）
+	 */
+	public PageVo<Links> getLinksLibraryPage(Integer type, Integer isShow, String keyword, int pageNum, int rows) {
+		PageVo<Links> pageVo = new PageVo<Links>(pageNum);
+		pageVo.setRows(rows);
+		pageVo.setList(linksDao.getLinksLibraryList(type, isShow, keyword, pageVo.getOffset(), pageVo.getRows()));
+		pageVo.setCount(linksDao.getLinksLibraryCount(type, isShow, keyword));
+		return pageVo;
+	}
+
+	/**
+	 * 切换友链显示状态
+	 */
+	@Transactional
+	public DataVo updateLinksStatus(Long id, Integer isShow) {
+		if (id == null || isShow == null) {
+			return DataVo.failure("参数不完整");
+		}
+		int rows = linksDao.updateLinksStatus(id, isShow);
+		return rows > 0 ? DataVo.success("操作成功") : DataVo.failure("友链不存在");
+	}
+
+	/**
+	 * 新增或更新友链（后台保存统一入口）
+	 */
+	@Transactional
+	public DataVo saveLinks(Links links) {
+		if (links == null) {
+			return DataVo.failure("参数不完整");
+		}
+		if (links.getId() == null || findLinksById(links.getId()) == null) {
+			return addLinks(links);
+		}
+		int rows = linksDao.updateLinksById(links);
+		return rows > 0 ? DataVo.success("操作成功") : DataVo.failure("友链不存在或内容未变化");
 	}
 
 	/**

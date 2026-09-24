@@ -42,6 +42,14 @@ public abstract class ApiBaseController extends BaseController {
     }
 
     /**
+     * 当前登录管理员 id，未登录返回 null（供审计/站内信等记录操作人）
+     */
+    protected Long getLoginUserId() {
+        Admin admin = AdminSessionUtils.getLoginMember(request);
+        return admin == null ? null : admin.getId();
+    }
+
+    /**
      * 校验当前管理员是否拥有指定权限节点（与老后台 action_key 同源）
      */
     protected void requirePermission(String actionKey) {

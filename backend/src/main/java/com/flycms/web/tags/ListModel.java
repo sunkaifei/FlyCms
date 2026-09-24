@@ -1,90 +1,68 @@
 package com.flycms.web.tags;
 
-import com.flycms.core.base.AbstractTagPlugin;
-import com.flycms.core.entity.PageVo;
 import com.flycms.module.model.model.Model;
 import com.flycms.module.model.service.ModelDataService;
-import com.flycms.module.model.service.ModelService;
 import freemarker.core.Environment;
-import freemarker.template.*;
+import freemarker.template.TemplateDirectiveBody;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * 自定义模型列表标签（手册 §7.3）。模板用法见模型默认模板骨架。
+ * 自定义模型列表标签（D12 收敛后）。
+ *
+ * <p><b>与 {@link PageModel} 的关系</b>：本标签是 PageModel 的轻量版，只输出 {@code dataList}，
+ * 不产出分页条与 PageVo。收敛决策（D12）保留了二者的**标签名**以兼容既有模板，
+ * 但内部实现同源——需要分页条时用 {@code fly_page_model}，只需数据时用 {@code fly_list_model}。
+ *
+ * <p>模板用法：
+ * <pre>
+ * &lt;@fly_list_model model="articles" rows="5" orderby="count_view" order="desc"&gt;
+ *   &lt;#list dataList as item&gt;&lt;li&gt;${item.title}&lt;/li&gt;&lt;/#list&gt;
+ * &lt;/@fly_list_model&gt;
+ * </pre>
+ *
+ * <p>输出变量：{@code dataList}（列表数据）。
  */
 @Service
-public class ListModel extends AbstractTagPlugin {
+public class ListModel extends AbstractModelTag {
 
-	@Autowired
-	private ModelDataService modelDataService;
-	@Autowired
-	private ModelService modelService;
+    @Autowired
+    private ModelDataService modelDataService;
 
-	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void execute(Environment env, Map params, TemplateModel[] loopVars,
-			TemplateDirectiveBody body) throws TemplateException, IOException {
-		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
-		String modelCode = null;
-		Long categoryId = null;
-		String title = null;
-		String orderby = null;
-		String order = null;
-		int p = 1;
-		int rows = 10;
-		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
-		for (String str : paramWrap.keySet()) {
-			if ("model".equals(str)) {
-				modelCode = paramWrap.get(str).toString();
-			}
-			if ("category".equals(str)) {
-				categoryId = Long.parseLong(paramWrap.get(str).toString());
-			}
-			if ("title".equals(str)) {
-				title = paramWrap.get(str).toString();
-			}
-			if ("orderby".equals(str)) {
-				orderby = paramWrap.get(str).toString();
-			}
-			if ("order".equals(str)) {
-				order = paramWrap.get(str).toString();
-			}
-			if ("p".equals(str)) {
-				p = Integer.parseInt(paramWrap.get(str).toString());
-			}
-			if ("rows".equals(str)) {
-				rows = Integer.parseInt(paramWrap.get(str).toString());
-			}
-		}
-		Model model = modelService.findModelByCode(modelCode);
-		Map<String, String> filters = new HashMap<String, String>();
-		for (String str : paramWrap.keySet()) {
-			if (!"model".equals(str) && !"category".equals(str) && !"title".equals(str)
-					&& !"orderby".equals(str) && !"order".equals(str) && !"p".equals(str) && !"rows".equals(str)) {
-				filters.put(str, paramWrap.get(str).toString());
-			}
-		}
-		if (model == null) {
-			env.setVariable("dataList", builder.build().wrap(null));
-			env.setVariable("model_page", builder.build().wrap(null));
-			body.render(env.getOut());
-			return;
-		}
-		try {
-			PageVo<Map<String, Object>> pageVo = modelDataService.selectPage(
-					model.getId(), title, categoryId, 1, filters, orderby, order, p, rows, null, true);
-			modelDataService.expandAttachments(model.getId(), pageVo.getList());
-			env.setVariable("dataList", builder.build().wrap(pageVo.getList()));
-			env.setVariable("model_page", builder.build().wrap(pageVo));
-		} catch (Exception e) {
-			env.setVariable("dataList", builder.build().wrap(null));
-			env.setVariable("model_page", builder.build().wrap(null));
-		}
-		body.render(env.getOut());
-	}
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void execute(Environment env, Map params, TemplateModel[] loopVars,
+                        TemplateDirectiveBody body) throws TemplateException, IOException {
+        Map<String, String> p = parseParams(params);
+        Model model = resolveModel(p);
+
+        List<Map<String, Object>> dataList = null;
+        if (model != null) {
+            try {
+                dataList = modelDataService.selectPage(
+                        model.getId(), str(p, "title", null), longVal(p, "category"), 1,
+                        extractFilters(p), str(p, "orderby", null), str(p, "order", null),
+                        intVal(p, "p", 1), intVal(p, "rows", 10), longVal(p, "notid"), true).getList();
+                modelDataService.expandAttachments(model.getId(), dataList);
+            } catch (Exception ignored) {
+            }
+        }
+
+        Map<String, Object> vars = new LinkedHashMap<>();
+        vars.put("dataList", dataList);
+        doRender(env, body, vars);
+    }
+
+    private void doRender(Environment env, TemplateDirectiveBody body, Map<String, Object> vars)
+            throws IOException, TemplateException, TemplateModelException {
+        renderWith(env, body, vars);
+    }
 }

@@ -3,7 +3,7 @@ import type { AdminRow, GroupRow } from '#/api/core/system';
 
 import { onMounted, ref } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 
 import { message } from 'ant-design-vue';
 
@@ -64,7 +64,7 @@ const [Form, formApi] = useVbenForm({
   showDefaultActions: false,
 });
 
-const [Modal, modalApi] = useVbenModal({
+const [Modal, modalApi] = useEditDrawer({
   async onConfirm() {
     const { valid } = await formApi.validate();
     if (!valid) return;

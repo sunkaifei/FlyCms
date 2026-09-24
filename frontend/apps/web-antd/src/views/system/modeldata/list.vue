@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 import { useAccessStore } from '@vben/stores';
-import { storeToRefs } from 'pinia';
 
 import {
   Button,
@@ -70,7 +70,7 @@ const STATUS_TEXT: Record<number, string> = {
   4: '待发布',
 };
 
-const [FormModalComp, formModalApi] = useVbenModal({
+const [FormModalComp, formModalApi] = useEditDrawer({
   connectedComponent: FormModal,
   destroyOnClose: true,
 });

@@ -81,6 +81,7 @@
 			<if test="userId != null and userId!=''">user_id,</if>
 			<if test="content != null and content!=''">content,</if>
 			<if test="createTime != null">create_time,</if>
+			<if test="status != null or status==0">status,</if>
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -88,6 +89,7 @@
 			<if test="userId != null and userId!=''">#{userId},</if>
 			<if test="content != null and content!=''">#{content},</if>
 			<if test="createTime != null">#{createTime},</if>
+			<if test="status != null or status==0">#{status},</if>
 		</trim>
 	</insert>
 
@@ -276,7 +278,7 @@
 		<where>
 			<if test="title!=null and title!='' ">and a.title LIKE CONCAT(CONCAT('%', #{title}),'%')</if>
 			<if test="userId != null and userId !=''">and a.user_id=#{userId}</if>
-			<if test="createTime != null and createTime != ''">and a.create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="createTime != null and createTime != ''">and a.create_time like concat(#{createTime}, '%')</if>
 			<if test="status == 0">and a.status &gt;= 0</if>
 			<if test="status == 1">and a.status = 0</if>
 			<if test="status == 2">and a.status = 1</if>
@@ -291,7 +293,7 @@
 		<where>
 			<if test="title!=null and title!='' ">and a.title LIKE CONCAT(CONCAT('%', #{title}),'%')</if>
 			<if test="userId != null and userId !=''">and a.user_id=#{userId}</if>
-			<if test="createTime != null and createTime != ''">and a.create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="createTime != null and createTime != ''">and a.create_time like concat(#{createTime}, '%')</if>
 			<if test="status == 0">and a.status &gt;= 0</if>
 			<if test="status == 1">and a.status = 0</if>
 			<if test="status == 2">and a.status = 1</if>
@@ -333,7 +335,7 @@
 		<where>
 			<if test="articleId != null and articleId !=''">and article_id=#{articleId}</if>
 			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
-			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="createTime != null and createTime != ''">and create_time like concat(#{createTime}, '%')</if>
 			<if test="status == 0">and status &gt;= 0</if>
 			<if test="status == 1">and status = 0</if>
 			<if test="status == 2">and status = 1</if>
@@ -348,7 +350,7 @@
 		<where>
 			<if test="articleId != null and articleId !=''">and article_id=#{articleId}</if>
 			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
-			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="createTime != null and createTime != ''">and create_time like concat(#{createTime}, '%')</if>
 			<if test="status == 0">and status &gt;= 0</if>
 			<if test="status == 1">and status = 0</if>
 			<if test="status == 2">and status = 1</if>
@@ -375,6 +377,93 @@
 
 	<select id="getArticleCommentByArticleId" resultType="com.flycms.module.article.model.ArticleComment">
 		select * from fly_article_comment where article_id=#{articleId} and status = 1
+	</select>
+
+	<!-- ############################## -->
+	<!-- ###### 评论审核（阶段 B1）###### -->
+	<!-- ############################## -->
+	<sql id="commentAuditWhere">
+		<where>
+			<if test="articleId != null">and c.article_id=#{articleId}</if>
+			<if test="userId != null">and c.user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and c.create_time like concat(#{createTime}, '%')</if>
+			<if test="keyword != null and keyword != ''">and c.content like concat('%', #{keyword}, '%')</if>
+			<if test="status != null">and c.status=#{status}</if>
+			<if test="status == null">and c.status &lt;&gt; 3</if>
+		</where>
+	</sql>
+
+	<select id="getCommentAuditList" resultType="com.flycms.module.article.model.ArticleCommentVo">
+		select c.*, a.title as article_title
+		from fly_article_comment c
+		left join fly_article a on a.id = c.article_id
+		<include refid="commentAuditWhere"/>
+		order by c.id desc
+		limit #{offset},#{rows}
+	</select>
+
+	<select id="getCommentAuditCount" resultType="Integer">
+		select count(1)
+		from fly_article_comment c
+		left join fly_article a on a.id = c.article_id
+		<include refid="commentAuditWhere"/>
+	</select>
+
+	<update id="updateCommentStatus">
+		update fly_article_comment set status=#{status} where id=#{id}
+	</update>
+
+	<update id="batchUpdateCommentStatus">
+		update fly_article_comment set status=#{status}
+		where id in
+		<foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</update>
+
+	<update id="deleteCommentById">
+		update fly_article_comment set status=3 where id=#{id}
+	</update>
+
+	<update id="batchDeleteComment">
+		update fly_article_comment set status=3
+		where id in
+		<foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</update>
+
+	<delete id="removeCommentById">
+		delete from fly_article_comment where id=#{id}
+	</delete>
+
+	<!-- //////////// 投稿审核（阶段 H） //////////// -->
+
+	<sql id="articleAuditWhere">
+		<where>
+			<if test="title != null and title != ''">and a.title like concat('%', #{title}, '%')</if>
+			<if test="userId != null">and a.user_id=#{userId}</if>
+			<if test="createTime != null and createTime != ''">and a.create_time like concat(#{createTime}, '%')</if>
+			<if test="status != null">and a.status=#{status}</if>
+		</where>
+	</sql>
+
+	<select id="getArticleAuditCount" resultType="Integer">
+		select count(1) from fly_article a
+		<include refid="articleAuditWhere"/>
+	</select>
+
+	<select id="getArticleAuditList" resultType="com.flycms.module.article.model.Article">
+		select a.* from fly_article a
+		<include refid="articleAuditWhere"/>
+		order by a.${orderby} ${order}
+		limit #{offset},#{rows}
+	</select>
+
+	<update id="batchUpdateArticleStatus">
+		update fly_article set status=#{status}
+		where id in
+		<foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</update>
+
+	<select id="findArticleByPK" resultType="com.flycms.module.article.model.Article">
+		select * from fly_article where id=#{id}
 	</select>
 
 </mapper>  

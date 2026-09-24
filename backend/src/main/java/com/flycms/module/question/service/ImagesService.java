@@ -66,8 +66,65 @@ public class ImagesService {
 	 * @return
 	 * @throws Exception
 	 */
+	// ///////////////////////////////
+	// /////  附件库（阶段 B2）  /////
+	// ///////////////////////////////
+
+	/**
+	 * 附件库分页列表
+	 *
+	 * @param keyword    文件名/路径模糊匹配
+	 * @param onlyOrphan true=只看孤儿（引用计数为 0 或已标记删除）
+	 */
+	public PageVo<Images> getImagesLibraryPage(String keyword, Boolean onlyOrphan, int pageNum, int rows) {
+		PageVo<Images> pageVo = new PageVo<Images>(pageNum);
+		pageVo.setRows(rows);
+		pageVo.setList(imagesDao.getImagesLibraryList(keyword, onlyOrphan, pageVo.getOffset(), pageVo.getRows()));
+		pageVo.setCount(imagesDao.getImagesLibraryCount(keyword, onlyOrphan));
+		return pageVo;
+	}
+
+	/**
+	 * 清理孤儿附件（无任何内容引用）。
+	 * ids 为空时清理全部孤儿；否则只清理传入 id 中确认为孤儿的那些。
+	 *
+	 * @return 删除条数
+	 */
+	public int deleteOrphanImages(List<Long> ids) {
+		List<Long> targets;
+		if (ids == null || ids.isEmpty()) {
+			// 清理全部孤儿：先查出孤儿 id 再删，避免误删有引用的记录
+			PageVo<Images> all = getImagesLibraryPage(null, true, 1, Integer.MAX_VALUE / 4);
+			targets = new ArrayList<Long>();
+			if (all.getList() != null) {
+				for (Images img : all.getList()) {
+					targets.add(img.getId());
+				}
+			}
+		} else {
+			// 只删传入集合中确认为孤儿的
+			List<Images> exists = imagesDao.getImagesByIds(ids);
+			targets = new ArrayList<Long>();
+			for (Images img : exists) {
+				Integer count = img.getInfoCount();
+				if (count == null || count <= 0) {
+					targets.add(img.getId());
+				}
+			}
+		}
+		if (targets.isEmpty()) {
+			return 0;
+		}
+		return imagesDao.deleteImagesByIds(targets);
+	}
+
+	/** 孤儿附件数量 */
+	public int countOrphanImages() {
+		return imagesDao.countOrphanImages();
+	}
+
 	public String replaceContent(Integer typeId,Long infoId,Long userId,String content) throws Exception {
-		SnowFlake snowFlake = new SnowFlake(2, 3);
+		SnowFlake snowFlake = SnowFlake.getInstance();
 		Pattern pRemoteFileurl = Pattern.compile("<img.*?src=\"?(.*?)(\"|>|\\s+)");
 		Matcher mRemoteFileurl = pRemoteFileurl.matcher(content);
 		StringBuffer sb = new StringBuffer();

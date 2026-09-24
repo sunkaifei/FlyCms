@@ -65,7 +65,7 @@ public class ShareService {
         if(this.checkShareByTitle(share.getTitle(),share.getUserId(),null)){
             return data = DataVo.failure("该分享标题已存在");
         }
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         share.setId(snowFlake.nextId());
         String code=this.shortUrl();
         share.setShortUrl(code);

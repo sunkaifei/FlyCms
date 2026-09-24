@@ -86,7 +86,10 @@ public class UserInterceptor implements HandlerInterceptor {
         }
         User user = UserSessionUtils.getLoginMember(request);
         //这里可以根据session的用户来判断角色的权限，根据权限来重定向不同的页面
-        if(null != user || isLoginRequest(request, response)){// && isEnabled()
+        // 历史 Bug：原写法为 (null != user || isLoginRequest(...))，
+        // 一旦右侧为真而 user 为 null，下一行 user.getUserId() 会 NPE。改为先判空。
+        // 注：isLoginRequest() 当前恒返回 false，短路后等价于 null != user。
+        if(null != user){
 			List<UserPermission> permissions = userPermissionService.findPermissionByUserId(user.getUserId());
 			for (UserPermission permission : permissions) {
 				if(CheckUrlUtils.match(permission.getActionKey(), contextPath)) {

@@ -45,8 +45,28 @@ public class SnowFlake {
 
     private long datacenterId;  //数据中心
     private long machineId;     //机器标识
-    private long sequence = 0L; //序列号
-    private long lastStmp = -1L;//上一次时间戳
+
+    /**
+     * 序列号与上次时间戳必须是「全局共享」状态。
+     * 历史 Bug：调用方在 38 处使用 new SnowFlake(2, 3) 临时建实例，
+     * 每个新实例的 sequence 都从 0 开始、lastStmp 为 -1，
+     * 导致同一毫秒内不同实例生成完全相同的 ID（主键冲突）。
+     * 现改为类级共享状态 + 静态同步，保证进程内唯一。
+     */
+    private static long sequence = 0L;      //序列号
+    private static long lastStmp = -1L;     //上一次时间戳
+
+    /**
+     * 进程内共享的生成器（数据中心 2、机器 3）
+     */
+    private static final SnowFlake INSTANCE = new SnowFlake(2, 3);
+
+    /**
+     * 获取进程内共享的雪花 ID 生成器，取代各处 new SnowFlake(2, 3)
+     */
+    public static SnowFlake getInstance() {
+        return INSTANCE;
+    }
 
     public SnowFlake(long datacenterId, long machineId) {
         if (datacenterId > MAX_DATACENTER_NUM || datacenterId < 0) {
@@ -64,7 +84,16 @@ public class SnowFlake {
      *
      * @return
      */
-    public synchronized long nextId() {
+    public long nextId() {
+        return nextId(datacenterId, machineId);
+    }
+
+    /**
+     * 生成下一个 ID。
+     * 必须是 static synchronized：sequence/lastStmp 是类级共享状态，
+     * 若只加在实例方法上，不同实例锁的是各自的 this，无法保证互斥。
+     */
+    private static synchronized long nextId(long datacenterId, long machineId) {
         long currStmp = getNewstmp();
         if (currStmp < lastStmp) {
             throw new RuntimeException("Clock moved backwards.  Refusing to generate id");
@@ -90,7 +119,7 @@ public class SnowFlake {
                 | sequence;                             //序列号部分
     }
 
-    private long getNextMill() {
+    private static long getNextMill() {
         long mill = getNewstmp();
         while (mill <= lastStmp) {
             mill = getNewstmp();
@@ -98,12 +127,12 @@ public class SnowFlake {
         return mill;
     }
 
-    private long getNewstmp() {
+    private static long getNewstmp() {
         return System.currentTimeMillis();
     }
 
     public static void main(String[] args) {
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
 
         long start = System.currentTimeMillis();
         System.out.println(snowFlake.nextId());

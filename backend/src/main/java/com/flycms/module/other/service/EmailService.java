@@ -36,6 +36,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class EmailService {
+	private static final org.slf4j.Logger log =
+			org.slf4j.LoggerFactory.getLogger(EmailService.class);
+
 	@Autowired
 	protected ConfigService configService;
     @Autowired
@@ -130,6 +133,56 @@ public class EmailService {
 
         // 发送邮件
         Transport.send(message);
+    }
+
+    /**
+     * 发送通用通知邮件（规划阶段 F：表单提交通知）
+     *
+     * 既有 sendEmail 只能套验证码模板，表单通知需要任意「标题 + 正文」，故单独提供。
+     * SMTP 参数同样取自 fly_smtp_* 配置键；发送失败只记日志，不影响主流程。
+     *
+     * @param toEmail 收件人
+     * @param subject 邮件标题
+     * @param content 正文（HTML 片段）
+     */
+    public boolean sendNotifyEmail(String toEmail, String subject, String content) {
+        if (toEmail == null || toEmail.trim().isEmpty()) {
+            return false;
+        }
+        try {
+            final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+            final Properties props = new Properties();
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.host", configService.getStringByKey("fly_smtp_server"));
+            props.put("mail.user", configService.getStringByKey("fly_smtp_usermail"));
+            props.put("mail.password", configService.getStringByKey("fly_smtp_password"));
+            props.put("mail.smtp.socketFactory.class", SSL_FACTORY);
+            props.put("mail.smtp.port", configService.getStringByKey("fly_smtp_port"));
+            props.put("mail.smtp.socketFactory.port", configService.getStringByKey("fly_smtp_port"));
+            props.put("mail.smtp.socketFactory.fallback", "false");
+            props.put("mail.smtp.starttls.enable", "true");
+
+            Authenticator authenticator = new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(
+                            props.getProperty("mail.user"), props.getProperty("mail.password"));
+                }
+            };
+            Session mailSession = Session.getInstance(props, authenticator);
+            MimeMessage message = new MimeMessage(mailSession);
+            message.setFrom(new InternetAddress(props.getProperty("mail.user")));
+            message.setRecipient(RecipientType.TO, new InternetAddress(toEmail));
+            message.setSubject(subject == null ? "系统通知" : subject, "UTF-8");
+            message.setText("<html><head><meta charset='utf-8'></head><body>" + content + "</body></html>",
+                    "UTF-8", "html");
+            message.setSentDate(new Date());
+            Transport.send(message);
+            return true;
+        } catch (Exception e) {
+            log.error("发送通知邮件失败, toEmail={}", toEmail, e);
+            return false;
+        }
     }
 
     // ///////////////////////////////

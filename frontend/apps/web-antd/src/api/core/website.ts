@@ -54,8 +54,16 @@ export async function readTemplateApi(file: string) {
   );
 }
 
-export async function saveTemplateApi(file: string, content: string) {
-  return postForm<void>('/system/template/save', { content, file });
+/**
+ * 保存模板：后端链路为「语法校验 → 版本快照 → 落盘 → 失效缓存」，
+ * 写坏的模板不会上线；remark 记入版本历史，便于回滚时辨认。
+ */
+export async function saveTemplateApi(
+  file: string,
+  content: string,
+  remark?: string,
+) {
+  return postForm<void>('/system/template/save', { content, file, remark });
 }
 
 export async function createTemplateApi(file: string) {

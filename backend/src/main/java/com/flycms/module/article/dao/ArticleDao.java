@@ -281,4 +281,83 @@ public interface ArticleDao {
 
     //文章所有评论列表
     public List<ArticleComment> getArticleCommentByArticleId(@Param("articleId") Long articleId);
+
+    // ///////////////////////////////
+    // /////  评论审核（阶段 B1） /////
+    // ///////////////////////////////
+
+    /**
+     * 评论审核列表（join 文章标题）。
+     * 与既有 getArticleCommentList 的区别：status 按「真实状态」过滤（语义直给），
+     * 旧方法用的是 1~4 的筛选器编码，两者不混用。
+     *
+     * @param status null=全部(排除已删除) 0未审 1正常 2未通过 3删除
+     */
+    public List<ArticleCommentVo> getCommentAuditList(@Param("articleId") Long articleId,
+                                                      @Param("userId") Long userId,
+                                                      @Param("createTime") String createTime,
+                                                      @Param("keyword") String keyword,
+                                                      @Param("status") Integer status,
+                                                      @Param("orderby") String orderby,
+                                                      @Param("order") String order,
+                                                      @Param("offset") int offset,
+                                                      @Param("rows") int rows);
+
+    public int getCommentAuditCount(@Param("articleId") Long articleId,
+                                    @Param("userId") Long userId,
+                                    @Param("createTime") String createTime,
+                                    @Param("keyword") String keyword,
+                                    @Param("status") Integer status);
+
+    /** 按评论主键更新审核状态 */
+    public int updateCommentStatus(@Param("id") Long id, @Param("status") Integer status);
+
+    /**
+     * 批量更新审核状态。
+     * 注意：既有 deleteArticleCommentById 实际是按 article_id 删（会误删整篇评论），
+     * 这里按主键精确操作。
+     */
+    public int batchUpdateCommentStatus(@Param("ids") java.util.List<Long> ids, @Param("status") Integer status);
+
+    /** 按评论主键删除（逻辑删除：置 status=3） */
+    public int deleteCommentById(@Param("id") Long id);
+
+    /** 按评论主键批量逻辑删除 */
+    public int batchDeleteComment(@Param("ids") java.util.List<Long> ids);
+
+    /** 按评论主键物理删除 */
+    public int removeCommentById(@Param("id") Long id);
+
+    // ///////////////////////////////
+    // /////  投稿审核（阶段 H） /////
+    // ///////////////////////////////
+
+    /**
+     * 待审/已审文章列表。
+     * 与既有 getArticleList 的区别：status 按「真实状态」精确过滤，
+     * 旧方法用的是 0~4 的筛选器编码（status=1 对应 a.status=0），两者不混用。
+     *
+     * @param status 真实状态：0未审核 1正常 2审核未通过 3删除；null=全部
+     */
+    public List<Article> getArticleAuditList(@Param("title") String title,
+                                             @Param("userId") Long userId,
+                                             @Param("createTime") String createTime,
+                                             @Param("status") Integer status,
+                                             @Param("orderby") String orderby,
+                                             @Param("order") String order,
+                                             @Param("offset") Integer offset,
+                                             @Param("rows") Integer rows);
+
+    public int getArticleAuditCount(@Param("title") String title,
+                                    @Param("userId") Long userId,
+                                    @Param("createTime") String createTime,
+                                    @Param("status") Integer status);
+
+    /**
+     * 批量更新文章审核状态（只改 status，不动 recommend）
+     */
+    public int batchUpdateArticleStatus(@Param("ids") java.util.List<Long> ids, @Param("status") Integer status);
+
+    /** 按主键查询文章（不区分状态，供审核取作者/标题用） */
+    public Article findArticleByPK(@Param("id") Long id);
 }

@@ -41,7 +41,7 @@ public class ArticleCategoryService {
             return data = DataVo.failure("分类名称不得重复");
         }
         ArticleCategory category=new ArticleCategory();
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         category.setId(snowFlake.nextId());
         category.setFatherId(pid);
         category.setName(name);

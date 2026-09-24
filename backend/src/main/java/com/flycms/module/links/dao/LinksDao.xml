@@ -96,4 +96,33 @@
 		</where>
 		limit #{offset},#{rows}
 	</select>
+
+	<!-- ############################## -->
+	<!-- ###### 友链管理（阶段 B4）###### -->
+	<!-- ############################## -->
+	<sql id="linksLibraryWhere">
+		<where>
+			<if test="type != null">and type=#{type}</if>
+			<if test="isShow != null">and is_show=#{isShow}</if>
+			<if test="keyword != null and keyword != ''">
+				and (link_name like concat('%', #{keyword}, '%') or link_url like concat('%', #{keyword}, '%'))
+			</if>
+		</where>
+	</sql>
+
+	<select id="getLinksLibraryList" resultType="com.flycms.module.links.model.Links">
+		select * from fly_links
+		<include refid="linksLibraryWhere"/>
+		order by sort asc, id desc
+		limit #{offset},#{rows}
+	</select>
+
+	<select id="getLinksLibraryCount" resultType="Integer">
+		select count(1) from fly_links
+		<include refid="linksLibraryWhere"/>
+	</select>
+
+	<update id="updateLinksStatus">
+		update fly_links set is_show=#{isShow} where id=#{id}
+	</update>
 </mapper>  

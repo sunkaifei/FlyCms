@@ -145,11 +145,30 @@ public class ConfigService {
 	 * @return
 	 */
 	public int getIntKey(String key) {
+		return getIntKey(key, 0);
+	}
+
+	/**
+	 * 读取整型配置值
+	 *
+	 * 修复说明：原实现恒返回 {@code Integer.parseInt("1")}，即任何已存在的配置都返回 1，
+	 * 配置值本身被丢弃，属于明显逻辑错误。现改为真正解析 keyvalue，并在缺失/非法值时返回默认值。
+	 *
+	 * @param key
+	 *         配置键
+	 * @param def
+	 *         配置不存在或不可解析时的默认值
+	 * @return 解析后的整数
+	 */
+	public int getIntKey(String key, int def) {
 		Config config = configDao.getConfigByKey(key);
-		if (config == null) {
-			return 0;
-		} else {
-			return Integer.parseInt("1");
+		if (config == null || config.getKeyvalue() == null) {
+			return def;
+		}
+		try {
+			return Integer.parseInt(config.getKeyvalue().trim());
+		} catch (NumberFormatException e) {
+			return def;
 		}
 	}
 	

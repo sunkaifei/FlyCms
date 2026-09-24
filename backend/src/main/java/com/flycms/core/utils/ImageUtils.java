@@ -247,19 +247,40 @@ public class ImageUtils {
      * @throws FileNotFoundException
      */
     public static UpImgMsg uploadFile(HttpServletRequest request, String filePath, String filePathUrl) throws FileNotFoundException {
-        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         UpImgMsg msg=new UpImgMsg();
+        // 非 multipart 请求：返回 imgurl 为空的结果，由调用方按失败处理
+        // （历史 Bug：曾直接强转，非 multipart 时抛 ClassCastException）
+        if (!(request instanceof MultipartHttpServletRequest)) {
+            msg.setCode(-1);
+            msg.setMsg("请求不是合法的上传请求");
+            return msg;
+        }
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
-        String fileName = null;
         for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
             MultipartFile mf = entity.getValue();
-            fileName = UUID.randomUUID().toString().replaceAll("-", "")+getFileExt(mf.getOriginalFilename());
+            if (mf == null || mf.isEmpty()) {
+                continue;
+            }
+            // 阶段 A5：扩展名 + MIME + 魔数三重白名单，通过后强制重命名（不再信任原始文件名）
+            UploadSafeUtil.ImageType safeType = UploadSafeUtil.safeImage(mf, UploadSafeUtil.MAX_IMAGE_BYTES);
+            if (safeType == null) {
+                // 历史 Bug：此处曾直接 return null，调用方 file.getImgurl() 触发 NPE
+                msg.setCode(-1);
+                msg.setImgurl(null);
+                msg.setFilesize(mf.getSize()/1024);
+                msg.setMsg("文件不是合法图片或超过大小限制");
+                return msg;
+            }
+            String fileName = UploadSafeUtil.rename(safeType);
             String newfilepath = filePathUrl + File.separatorChar + fileName;
 
-            System.out.println("文件大小=" + mf.getSize()/1024);
+            // 只创建父目录：历史 Bug 中对「含文件名的完整路径」执行 mkdirs()，
+            // 会先建出一个名为 xxx.jpg 的目录再删除，属于错误写法。
             File dest = new File(newfilepath);
-            if (!dest.exists()) {
-                dest.mkdirs();
+            File parentDir = dest.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
             }
             File uploadFile = new File(newfilepath);
             if (uploadFile.exists()) {
@@ -268,13 +289,15 @@ public class ImageUtils {
             try {
                 FileCopyUtils.copy(mf.getBytes(), uploadFile);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                // e.printStackTrace();
-                return null;
+                msg.setCode(-1);
+                msg.setImgurl(null);
+                msg.setMsg("文件写入失败");
+                return msg;
             }
+            msg.setCode(0);
             msg.setImgurl(filePath+"/"+fileName);
             msg.setFilesize(mf.getSize()/1024);
-            
+            msg.setMsg("上传成功");
         }
         return msg;
     }

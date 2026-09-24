@@ -3,7 +3,8 @@ import type { MenuNode } from '#/api/core/menu-manage';
 
 import { computed, onMounted, ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 import { useAccess } from '@vben/access';
 
 import { Button, message, Modal, Table } from 'ant-design-vue';
@@ -16,7 +17,7 @@ defineOptions({ name: 'SystemMenu' });
 
 const { hasAccessByCodes } = useAccess();
 
-const [MenuModalComp, menuModalApi] = useVbenModal({
+const [MenuModalComp, menuModalApi] = useEditDrawer({
   connectedComponent: MenuModal,
   destroyOnClose: true,
 });

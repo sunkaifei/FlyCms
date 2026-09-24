@@ -7,10 +7,11 @@
 		is_required AS isRequired, is_list AS isList, is_search AS isSearch, is_filter AS isFilter,
 		regex, placeholder, tips, tab_name AS tabName, sort, status, create_time AS createTime, update_time AS updateTime</sql>
 
-	<insert id="addField">
-		insert into fly_model_field (id, model_id, field_name, field_label, field_type, column_type, default_value, maxlength,
+	<!-- 主键策略（D8）：fly_model_field.id 为 AUTO_INCREMENT，插入不带 id，由 useGeneratedKeys 回填 -->
+	<insert id="addField" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_model_field (model_id, field_name, field_label, field_type, column_type, default_value, maxlength,
 			dict_type, options, is_required, is_list, is_search, is_filter, regex, placeholder, tips, tab_name, sort, status, create_time)
-		values (#{id}, #{modelId}, #{fieldName}, #{fieldLabel}, #{fieldType}, #{columnType}, #{defaultValue}, #{maxlength},
+		values (#{modelId}, #{fieldName}, #{fieldLabel}, #{fieldType}, #{columnType}, #{defaultValue}, #{maxlength},
 			#{dictType}, #{options}, #{isRequired}, #{isList}, #{isSearch}, #{isFilter}, #{regex}, #{placeholder}, #{tips}, #{tabName}, #{sort}, #{status}, now())
 	</insert>
 

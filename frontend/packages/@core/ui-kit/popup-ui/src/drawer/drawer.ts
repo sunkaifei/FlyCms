@@ -34,6 +34,16 @@ export interface DrawerProps {
    */
   closeOnClickModal?: boolean;
   /**
+   * 是否全屏显示抽屉
+   * @default false
+   */
+  fullscreen?: boolean;
+  /**
+   * 是否显示最大化按钮（点击在 75%/全屏间切换）
+   * @default true
+   */
+  fullscreenButton?: boolean;
+  /**
    * 按下 ESC 键是否关闭弹窗
    * @default true
    */

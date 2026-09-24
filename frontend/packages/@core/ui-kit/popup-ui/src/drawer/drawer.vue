@@ -16,7 +16,7 @@ import {
   usePriorityValues,
   useSimpleLocale,
 } from '@vben-core/composables';
-import { X } from '@vben-core/icons';
+import { Maximize2, Minimize2, X } from '@vben-core/icons';
 import {
   Separator,
   Sheet,
@@ -76,6 +76,8 @@ const {
   destroyOnClose,
   footer: showFooter,
   footerClass,
+  fullscreen,
+  fullscreenButton,
   header: showHeader,
   headerClass,
   loading: showLoading,
@@ -112,6 +114,12 @@ onDeactivated(() => {
     props.drawerApi?.close();
   }
 });
+
+const shouldFullscreen = computed(() => fullscreen.value || isMobile.value);
+
+function toggleFullscreen() {
+  props.drawerApi?.setState({ fullscreen: !fullscreen.value });
+}
 
 function interactOutside(e: Event) {
   if (!closeOnClickModal.value || submitting.value) {
@@ -187,7 +195,7 @@ const getForceMount = computed(() => {
         cn(
           'flex w-130 flex-col',
           {
-            'w-full!':
+            'w-full':
               isMobile || placement === 'bottom' || placement === 'top',
             'max-h-screen': placement === 'bottom' || placement === 'top',
             hidden: isClosed,
@@ -264,6 +272,14 @@ const getForceMount = computed(() => {
         </VisuallyHidden>
 
         <div class="flex-center">
+          <VbenIconButton
+            v-if="fullscreenButton"
+            class="ml-0.5 cursor-pointer rounded-full opacity-80 transition-opacity hover:opacity-100 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary"
+            @click="toggleFullscreen"
+          >
+            <Minimize2 v-if="shouldFullscreen" class="size-4" />
+            <Maximize2 v-else class="size-4" />
+          </VbenIconButton>
           <slot name="extra"></slot>
           <SheetClose
             v-if="closable && closeIconPlacement === 'right'"

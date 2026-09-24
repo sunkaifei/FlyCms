@@ -154,7 +154,7 @@ public class SmsapiService {
                 System.out.println("SendStatus=" + smsSendDetailDTO.getSendStatus());
                 if(smsSendDetailDTO.getSendStatus()==1) {
                     UserActivation activation=new UserActivation();
-                    SnowFlake snowFlake = new SnowFlake(2, 3);
+                    SnowFlake snowFlake = SnowFlake.getInstance();
                     activation.setId(snowFlake.nextId());
                     activation.setUserName(PhoneNumber);
                     activation.setCode(code);

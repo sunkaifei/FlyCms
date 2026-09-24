@@ -50,6 +50,9 @@ public class ApiWebsiteController extends ApiBaseController {
     @Autowired
     private ConfigService configService;
 
+    @Autowired
+    private com.flycms.module.template.service.TemplateCenterService templateCenterService;
+
     // /////////////////// 网站管理 ///////////////////
 
     /** 站点设置 + 可选皮肤列表 */
@@ -126,26 +129,26 @@ public class ApiWebsiteController extends ApiBaseController {
         }
     }
 
-    /** 保存模板内容（在线编辑） */
+    /**
+     * 保存模板内容（在线编辑）。
+     *
+     * 阶段 D：整条保存链路下沉到 TemplateCenterService ——
+     * 语法 parse 校验（写坏不上线）→ 版本快照 → 落盘 → 失效模板缓存（改了立即生效）。
+     * 这是"敢把模板编辑交给运营"的前提，也是 §6.2/§6.3 的规避落地。
+     */
     @ResponseBody
     @PostMapping("/system/template/save")
     public DataVo save(@RequestParam("file") String file,
-                       @RequestParam(value = "content", required = false) String content) {
+                       @RequestParam(value = "content", required = false) String content,
+                       @RequestParam(value = "remark", required = false) String remark) {
         requirePermission("/api/system/template/save");
-        File f = resolve(file);
-        if (f == null) {
-            return DataVo.failure("非法模板路径");
+        Long adminId = null;
+        com.flycms.module.admin.model.Admin admin =
+                com.flycms.core.utils.AdminSessionUtils.getLoginMember(request);
+        if (admin != null) {
+            adminId = admin.getId();
         }
-        byte[] bytes = (content == null ? "" : content).getBytes(StandardCharsets.UTF_8);
-        if (bytes.length > MAX_TEMPLATE_BYTES) {
-            return DataVo.failure("模板内容超过 512KB 上限");
-        }
-        try {
-            Files.write(f.toPath(), bytes);
-            return DataVo.success("模板已保存");
-        } catch (IOException e) {
-            return DataVo.failure("保存失败：" + e.getMessage());
-        }
+        return templateCenterService.save(currentSkin(), file, content, remark, adminId);
     }
 
     /** 新建模板（可带子目录，自动创建） */
@@ -163,28 +166,27 @@ public class ApiWebsiteController extends ApiBaseController {
         try {
             Files.createDirectories(f.toPath().getParent());
             Files.write(f.toPath(), defaultTemplateBody(file).getBytes(StandardCharsets.UTF_8));
+            templateCenterService.evictTemplate(currentSkin(), file);
             return DataVo.success("模板已创建");
         } catch (IOException e) {
             return DataVo.failure("创建失败：" + e.getMessage());
         }
     }
 
-    /** 删除模板 */
+    /** 删除模板（连同登记与版本历史） */
     @ResponseBody
     @PostMapping("/system/template/delete")
     public DataVo delete(@RequestParam("file") String file) {
         requirePermission("/api/system/template/delete");
-        File f = resolve(file);
-        if (f == null || !f.isFile()) {
-            return DataVo.failure("模板文件不存在");
-        }
-        if (!f.delete()) {
-            return DataVo.failure("删除失败");
-        }
-        return DataVo.success("模板已删除");
+        return templateCenterService.delete(currentSkin(), file);
     }
 
     // /////////////////// 内部 ///////////////////
+
+    /** 当前启用皮肤名（历史默认值拼写为 defalut，保留兼容） */
+    private String currentSkin() {
+        return StringUtils.defaultIfBlank(configService.getStringByKey("pc_theme"), "defalut");
+    }
 
     /** 当前皮肤模板根目录 */
     private File templateRoot() {

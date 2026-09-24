@@ -18,18 +18,14 @@ public class WebSocketService extends TextWebSocketHandler  {
     // 用户进入系统监听
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        System.out.println(session.getAttributes().get("accountId")+"监听页面登录用户==============="+session.getId());
-    	
-    	System.out.println("成功进入了系统。。。");
+        logger.debug("websocket 建立连接, accountId={}, sessionId={}",
+                session.getAttributes().get("accountId"), session.getId());
         users.add(session);
     }
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception  {
-    	for (WebSocketSession user : users) {
-    		System.out.println(user.getAttributes().get("accountId")+"====2====发送消息给指定的用户=========");
-        }
-    	System.out.println("======当前在线用户========="+users.size());
+        logger.debug("当前在线用户数={}", users.size());
         super.handleTextMessage(session, message);
         session.sendMessage(message);
     }
@@ -51,8 +47,7 @@ public class WebSocketService extends TextWebSocketHandler  {
             session.close();
         }
         users.remove(session);
-        System.out.println("安全退出了系统");
-        System.out.println("======当前剩余在线用户========="+users.size());
+        logger.debug("websocket 连接关闭，当前剩余在线用户={}", users.size());
     }
 
     @Override
@@ -81,17 +76,25 @@ public class WebSocketService extends TextWebSocketHandler  {
      * 发送消息给指定的用户
      */
     public void sendMessageToUser(String userId, TextMessage message) {
+        if (userId == null) {
+            return;
+        }
     	for (WebSocketSession user : users) {
-    		System.out.println(user.getAttributes().get("accountId")+"========发送消息给指定的用户========="+userId);
-    		if (user.getAttributes().get("accountId").equals(userId)) {
-                try {
-                    // isOpen()在线就发送
-                    if (user.isOpen()) {
-                        user.sendMessage(message);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+            // accountId 存的是 Long 型 userId，必须与字符串形式比较：
+            // 历史 Bug 为 Long.equals(String)，恒为 false 导致定向推送永远发不出去；
+            // 属性缺失时直接 .equals 会 NPE，故先判空再统一转成字符串。
+            Object accountId = user.getAttributes().get("accountId");
+            if (accountId == null || !userId.equals(String.valueOf(accountId))) {
+                continue;
+            }
+            logger.debug("发送消息给指定的用户 accountId={}", accountId);
+            try {
+                // isOpen()在线就发送
+                if (user.isOpen()) {
+                    user.sendMessage(message);
                 }
+            } catch (IOException e) {
+                logger.error("websocket 消息发送失败, accountId={}", accountId, e);
             }
         }
     }

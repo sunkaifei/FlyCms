@@ -71,7 +71,7 @@ public class FavoriteService {
             data = DataVo.failure("已成功收藏！");
         }else{
             Favorite favorite=new Favorite();
-            SnowFlake snowFlake = new SnowFlake(2, 3);
+            SnowFlake snowFlake = SnowFlake.getInstance();
             favorite.setId(snowFlake.nextId());
             favorite.setUserId(userId);
             favorite.setInfoType(infoType);

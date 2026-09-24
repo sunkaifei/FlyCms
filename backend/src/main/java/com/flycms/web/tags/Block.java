@@ -40,15 +40,10 @@ public class Block extends AbstractTagPlugin {
 				key = paramWrap.get(str).toString();
 			}
 		}
-		com.flycms.module.block.model.Block block = blockService.findBlockByKey(key);
-		if (block != null && block.getStatus() == 1) {
-			java.util.List<com.flycms.module.block.model.BlockItem> items =
-					blockService.findItems(block.getId(), true);
-			if (items != null && items.size() > block.getItemCount()) {
-				items = items.subList(0, block.getItemCount());
-			}
-			block.setItems(items);
-		} else {
+		// 渲染走 BlockService.findRenderBlock：命中 cache_seconds（0=不缓存），
+		// 条目任何变更会立即失效缓存（§6.4 发布即生效红线）。
+		com.flycms.module.block.model.Block block = blockService.findRenderBlock(key);
+		if (block != null && block.getItems() == null) {
 			block = null;
 		}
 		env.setVariable("block", builder.build().wrap(block));

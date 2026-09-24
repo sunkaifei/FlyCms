@@ -36,7 +36,7 @@ public class GroupService {
             return DataVo.failure("该用户组名已存在");
         }
         Group group =new Group();
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         group.setId(snowFlake.nextId());
         group.setName(name);
         group.setCreateAt(new Date());

@@ -3,7 +3,7 @@ import type { BlockRow } from '#/api/core/block';
 
 import { onMounted, ref } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 
 import { Input, InputNumber, message, Select, Textarea } from 'ant-design-vue';
 
@@ -31,7 +31,7 @@ const cacheSeconds = ref(0);
 const sort = ref(0);
 const status = ref(true);
 
-const [Modal, modalApi] = useVbenModal({
+const [Modal, modalApi] = useEditDrawer({
   async onConfirm() {
     if (!blockName.value.trim()) {
       message.warning('名称不能为空');

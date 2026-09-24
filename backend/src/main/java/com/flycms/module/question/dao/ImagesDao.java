@@ -151,6 +151,32 @@ public interface ImagesDao {
      *        查询记录条数
      * @return
      */
+    // ///////////////////////////////
+    // /////  附件库（阶段 B2）  /////
+    // ///////////////////////////////
+
+    /**
+     * 附件库分页列表
+     *
+     * @param keyword    文件名/路径模糊匹配
+     * @param onlyOrphan true=只看孤儿（引用计数为 0 或已标记删除）
+     */
+    public List<Images> getImagesLibraryList(@Param("keyword") String keyword,
+                                             @Param("onlyOrphan") Boolean onlyOrphan,
+                                             @Param("offset") int offset,
+                                             @Param("rows") int rows);
+
+    public int getImagesLibraryCount(@Param("keyword") String keyword,
+                                     @Param("onlyOrphan") Boolean onlyOrphan);
+
+    /** 按 id 批量物理删除附件记录（仅用于孤儿清理） */
+    public int deleteImagesByIds(@Param("ids") java.util.List<Long> ids);
+
+    /** 统计孤儿附件数量 */
+    public int countOrphanImages();
+
+    public List<Images> getImagesByIds(@Param("ids") java.util.List<Long> ids);
+
     public List<Question> getImagesByTidList(
             @Param("channelId") Integer channelId,
             @Param("imgWidth") Integer imgWidth,

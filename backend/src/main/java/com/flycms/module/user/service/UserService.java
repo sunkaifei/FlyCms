@@ -118,7 +118,7 @@ public class UserService {
         }else{
             return data;
         }
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         user.setUserId(snowFlake.nextId());
         String urlCode=this.shortUrl();
         user.setShortUrl(urlCode);
@@ -239,7 +239,7 @@ public class UserService {
             return data=DataVo.failure(2,"已取消关注");
         }else{
             UserFans fans=new UserFans();
-            SnowFlake snowFlake = new SnowFlake(2, 3);
+            SnowFlake snowFlake = SnowFlake.getInstance();
             fans.setId(snowFlake.nextId());
             fans.setUserFollow(userFollow);
             fans.setUserFans(userFans);

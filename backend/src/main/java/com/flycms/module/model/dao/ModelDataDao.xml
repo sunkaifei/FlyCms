@@ -2,9 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.flycms.module.model.dao.ModelDataDao">
 
-	<!-- ${modelId} 已过 SqlSafeUtil.safeNumber 白名单 -->
+	<!--
+	  ${suffix} = 模型 code，已过 SqlSafeUtil.safeTableSuffix 标识符白名单（D7/D10）。
+	  物理表名 = fly_cmodel_{suffix}，如 fly_cmodel_articles。
+	-->
 	<update id="createTable">
-		CREATE TABLE IF NOT EXISTS `fly_cmodel_${modelId}` (
+		CREATE TABLE IF NOT EXISTS `fly_cmodel_${suffix}` (
 		  `id` bigint(20) unsigned NOT NULL COMMENT '雪花ID',
 		  `short_url` varchar(10) NOT NULL COMMENT '短链接',
 		  `user_id` bigint(20) unsigned DEFAULT NULL COMMENT '发布用户',
@@ -29,36 +32,45 @@
 	</update>
 
 	<update id="addColumn">
-		ALTER TABLE `fly_cmodel_${modelId}` ADD COLUMN `${columnName}` ${columnType} COMMENT '${comment}' DEFAULT NULL
+		ALTER TABLE `fly_cmodel_${suffix}` ADD COLUMN `${columnName}` ${columnType} COMMENT '${comment}' DEFAULT NULL
 	</update>
 
 	<update id="modifyColumn">
-		ALTER TABLE `fly_cmodel_${modelId}` MODIFY COLUMN `${columnName}` ${columnType} DEFAULT NULL
+		ALTER TABLE `fly_cmodel_${suffix}` MODIFY COLUMN `${columnName}` ${columnType} DEFAULT NULL
 	</update>
 
 	<update id="dropColumn">
-		ALTER TABLE `fly_cmodel_${modelId}` DROP COLUMN `${columnName}`
+		ALTER TABLE `fly_cmodel_${suffix}` DROP COLUMN `${columnName}`
 	</update>
 
 	<update id="dropTable">
-		DROP TABLE IF EXISTS `fly_cmodel_${modelId}`
+		DROP TABLE IF EXISTS `fly_cmodel_${suffix}`
 	</update>
 
 	<select id="tableExists" resultType="boolean">
 		SELECT COUNT(*) > 0 FROM information_schema.tables
-		WHERE table_schema = DATABASE() AND table_name = CONCAT('fly_cmodel_', #{modelId})
+		WHERE table_schema = DATABASE() AND table_name = CONCAT('fly_cmodel_', #{suffix})
+	</select>
+
+	<!--
+	  表名冲突预检（D7）：判断 fly_cmodel_{suffix} 是否已被占用。
+	  在「新建模型写入元数据之前」调用，纯粹检查物理表名是否撞车。
+	-->
+	<select id="tableExistsBySuffix" resultType="boolean">
+		SELECT COUNT(*) > 0 FROM information_schema.tables
+		WHERE table_schema = DATABASE() AND table_name = CONCAT('fly_cmodel_', #{suffix})
 	</select>
 
 	<!-- ${columnName} 已过 SqlSafeUtil.safeColumnName 白名单；值一律 #{} -->
 	<insert id="insertData">
-		INSERT INTO `fly_cmodel_${modelId}` (`id`, `short_url`, `create_time`
+		INSERT INTO `fly_cmodel_${suffix}` (`id`, `short_url`, `create_time`
 		<foreach collection="columns" item="c" open="," separator="," close="">`${c}`</foreach>)
 		VALUES (#{values.id}, #{values.shortUrl}, now()
 		<foreach collection="columns" item="c" open="," separator="," close="">#{values.${c}}</foreach>)
 	</insert>
 
 	<update id="updateData">
-		UPDATE `fly_cmodel_${modelId}`
+		UPDATE `fly_cmodel_${suffix}`
 		<set>
 			<foreach collection="columns" item="c" separator=",">`${c}` = #{values.${c}}</foreach>
 			, update_time = now()
@@ -67,38 +79,38 @@
 	</update>
 
 	<select id="findDataById" resultType="map">
-		SELECT * FROM `fly_cmodel_${modelId}` WHERE `id` = #{id} LIMIT 1
+		SELECT * FROM `fly_cmodel_${suffix}` WHERE `id` = #{id} LIMIT 1
 	</select>
 
 	<select id="findByShortUrl" resultType="map">
-		SELECT * FROM `fly_cmodel_${modelId}` WHERE `short_url` = #{shortUrl} AND `status` = 1 LIMIT 1
+		SELECT * FROM `fly_cmodel_${suffix}` WHERE `short_url` = #{shortUrl} AND `status` = 1 LIMIT 1
 	</select>
 
 	<select id="existsShortUrl" resultType="boolean">
-		SELECT COUNT(*) > 0 FROM `fly_cmodel_${modelId}` WHERE `short_url` = #{shortUrl}
+		SELECT COUNT(*) > 0 FROM `fly_cmodel_${suffix}` WHERE `short_url` = #{shortUrl}
 	</select>
 
 	<!-- whereSql/orderBySql 由 Service 依元数据白名单生成，参数占位 #{params.xxx} 预编译 -->
 	<select id="selectPage" resultType="map">
-		SELECT * FROM `fly_cmodel_${modelId}`
+		SELECT * FROM `fly_cmodel_${suffix}`
 		<where>${whereSql}</where>
 		ORDER BY ${orderBySql}
 		LIMIT #{params.offset}, #{params.rows}
 	</select>
 
 	<select id="countPage" resultType="int">
-		SELECT COUNT(*) FROM `fly_cmodel_${modelId}`
+		SELECT COUNT(*) FROM `fly_cmodel_${suffix}`
 		<where>${whereSql}</where>
 	</select>
 
 	<update id="updateStatus">
-		UPDATE `fly_cmodel_${modelId}` SET `status` = #{status}, update_time = now()
+		UPDATE `fly_cmodel_${suffix}` SET `status` = #{status}, update_time = now()
 		WHERE `id` IN
 		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
 	</update>
 
 	<delete id="deleteData">
-		DELETE FROM `fly_cmodel_${modelId}` WHERE `id` IN
+		DELETE FROM `fly_cmodel_${suffix}` WHERE `id` IN
 		<foreach collection="ids" item="i" open="," separator="," close=")">#{i}</foreach>
 	</delete>
 

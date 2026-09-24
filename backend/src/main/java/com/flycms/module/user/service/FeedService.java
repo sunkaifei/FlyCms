@@ -46,7 +46,7 @@ public class FeedService {
             return DataVo.failure("该feed已存在");
         }
         Feed feed=new Feed();
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         feed.setId(snowFlake.nextId());
         feed.setUserId(userId);
         feed.setInfoType(infoType);

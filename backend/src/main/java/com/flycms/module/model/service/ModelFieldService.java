@@ -1,7 +1,6 @@
 package com.flycms.module.model.service;
 
 import com.flycms.core.entity.DataVo;
-import com.flycms.core.utils.SnowFlake;
 import com.flycms.core.utils.SqlSafeUtil;
 import com.flycms.module.model.dao.ModelFieldDao;
 import com.flycms.module.model.enums.FieldTypeEnum;
@@ -65,11 +64,10 @@ public class ModelFieldService {
             return DataVo.failure("字段名已存在");
         }
         field.setColumnType(type.resolveColumnType(field.getMaxlength()));
-        field.setId(new SnowFlake(2, 3).nextId());
         field.setStatus(1);
         field.setCreateTime(new Date());
         if (modelFieldDao.addField(field) > 0) {
-            modelTableService.addColumn(field.getModelId(), field);
+            modelTableService.addColumn(model.getCode(), field);
             modelService.evictCache(model.getCode(), field.getModelId());
             return DataVo.success("字段已添加，数据列已生成");
         }
@@ -100,9 +98,13 @@ public class ModelFieldService {
         form.setFieldName(old.getFieldName());
         form.setFieldType(old.getFieldType());
         form.setColumnType(newColType);
+        Model owner = modelService.findModelById(old.getModelId());
+        if (owner == null) {
+            return DataVo.failure("模型不存在");
+        }
         if (modelFieldDao.updateField(form) > 0) {
             if (!newColType.equals(oldColType)) {
-                modelTableService.modifyColumn(old.getModelId(), old.getFieldName(), newColType);
+                modelTableService.modifyColumn(owner.getCode(), old.getFieldName(), newColType);
             }
             modelService.evictCache(null, old.getModelId());
             return DataVo.success("字段已更新");
@@ -118,7 +120,11 @@ public class ModelFieldService {
         if (field == null) {
             return DataVo.failure("字段不存在或已删除");
         }
-        modelTableService.dropColumn(field.getModelId(), field.getFieldName());
+        Model owner = modelService.findModelById(field.getModelId());
+        if (owner == null) {
+            return DataVo.failure("模型不存在");
+        }
+        modelTableService.dropColumn(owner.getCode(), field.getFieldName());
         modelFieldDao.deleteFieldById(id);
         modelService.evictCache(null, field.getModelId());
         return DataVo.success("字段已删除，数据列已移除");

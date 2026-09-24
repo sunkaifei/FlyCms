@@ -68,8 +68,8 @@
             <if test="fromId != null">and from_id = #{fromId}</if>
             <if test="toId != null">and to_id = #{toId}</if>
             <if test="subject != null">and subject LIKE CONCAT(CONCAT('%', #{subject}),'%')</if>
-            <if test="sendTime != null">and send_time BETWEEN STR_TO_DATE(#{sendTime}, '%Y-%m-%d %H')</if>
-            <if test="writeTime != null">and write_time BETWEEN STR_TO_DATE(#{writeTime}, '%Y-%m-%d %H')</if>
+            <if test="sendTime != null">and send_time like concat(#{sendTime}, '%')</if>
+            <if test="writeTime != null">and write_time like concat(#{writeTime}, '%')</if>
             <if test="hasView == 0">and has_view &gt;= 0</if>
             <if test="hasView == 1">and has_view = 0</if>
             <if test="hasView == 2">and has_view = 1</if>
@@ -89,8 +89,8 @@
             <if test="fromId != null">and from_id = #{fromId}</if>
             <if test="toId != null">and to_id = #{toId}</if>
             <if test="subject != null">and subject LIKE CONCAT(CONCAT('%', #{subject}),'%')</if>
-            <if test="sendTime != null">and send_time BETWEEN STR_TO_DATE(#{sendTime}, '%Y-%m-%d %H')</if>
-            <if test="writeTime != null">and write_time BETWEEN STR_TO_DATE(#{writeTime}, '%Y-%m-%d %H')</if>
+            <if test="sendTime != null">and send_time like concat(#{sendTime}, '%')</if>
+            <if test="writeTime != null">and write_time like concat(#{writeTime}, '%')</if>
             <if test="hasView == 0">and has_view &gt;= 0</if>
             <if test="hasView == 1">and has_view = 0</if>
             <if test="hasView == 2">and has_view = 1</if>

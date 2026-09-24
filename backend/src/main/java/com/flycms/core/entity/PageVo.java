@@ -92,7 +92,12 @@ public class PageVo<T> implements Serializable {
 	}
 
 	public int getPageCount() {
-		//this.pageCount = ((this.getCount() - 1) / this.getRows()) + 1;
+		// 历史 Bug：rows 为 0 时除零抛 ArithmeticException。
+		// 其余分支保持原有语义（总数为 0 时仍返回 1 页，避免改动既有分页渲染行为）。
+		if (this.getRows() <= 0) {
+			this.pageCount = 0;
+			return this.pageCount;
+		}
 		this.pageCount = (int) (((this.getCount() - 1) / this.getRows()) + 1);
 		return pageCount;
 	}

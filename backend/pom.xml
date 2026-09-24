@@ -180,12 +180,12 @@
         </dependency>
         <!-- 阿里大鱼短信群发接口（MNS接收SDK未被代码使用且已停更，不再引入） -->
         <dependency>
-            <groupId>com.alibaba.aliyun.dysmsapi</groupId>
+            <groupId>com.aliyun</groupId>
             <artifactId>aliyun-java-sdk-core</artifactId>
             <version>3.3.1</version>
         </dependency>
         <dependency>
-            <groupId>com.alibaba.aliyun.dysmsapi</groupId>
+            <groupId>com.aliyun</groupId>
             <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
             <version>1.0.0</version>
         </dependency>

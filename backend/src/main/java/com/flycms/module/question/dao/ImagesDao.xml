@@ -127,5 +127,54 @@
 		select count(1) from fly_images where img_url=#{imgUrl}
 	</select>
 
+	<!-- ############################## -->
+	<!-- ###### 附件库（阶段 B2） ###### -->
+	<!-- ############################## -->
+	<sql id="imagesLibraryWhere">
+		<where>
+			<if test="keyword != null and keyword != ''">
+				and (img_name like concat('%', #{keyword}, '%') or img_url like concat('%', #{keyword}, '%'))
+			</if>
+			<if test="onlyOrphan != null and onlyOrphan == true">
+				and (ifnull(info_count, 0) &lt;= 0 or ifnull(img_delete, 0) = 1)
+			</if>
+		</where>
+	</sql>
+
+	<select id="getImagesLibraryList" resultType="com.flycms.module.question.model.Images">
+		select id, img_url as imgUrl, img_name as imgName, description, file_size as fileSize,
+		       img_width as imgWidth, img_height as imgHeight, signature, create_time as createTime,
+		       img_delete as imgDelete, sort, picflag, info_count as infoCount
+		from fly_images
+		<include refid="imagesLibraryWhere"/>
+		order by id desc
+		limit #{offset},#{rows}
+	</select>
+
+	<select id="getImagesLibraryCount" resultType="Integer">
+		select count(1) from fly_images
+		<include refid="imagesLibraryWhere"/>
+	</select>
+
+	<delete id="deleteImagesByIds">
+		delete from fly_images
+		where id in
+		<foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</delete>
+
+	<select id="countOrphanImages" resultType="Integer">
+		select count(1) from fly_images
+		where ifnull(info_count, 0) &lt;= 0 or ifnull(img_delete, 0) = 1
+	</select>
+
+	<select id="getImagesByIds" resultType="com.flycms.module.question.model.Images">
+		select id, img_url as imgUrl, img_name as imgName, description, file_size as fileSize,
+		       img_width as imgWidth, img_height as imgHeight, signature, create_time as createTime,
+		       img_delete as imgDelete, sort, picflag, info_count as infoCount
+		from fly_images
+		where id in
+		<foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+	</select>
+
 
 </mapper>  

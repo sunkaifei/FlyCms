@@ -3,7 +3,7 @@ import type { BlockItemRow, BlockRow } from '#/api/core/block';
 
 import { onMounted, ref } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 
 import { Button, Input, message, Modal as AntModal, Textarea } from 'ant-design-vue';
 
@@ -80,7 +80,7 @@ async function onSave() {
 }
 
 function onDelete(row: BlockItemRow) {
-  Modal.confirm({
+  AntModal.confirm({
     content: `删除条目「${row.title}」？`,
     onOk: async () => {
       await deleteBlockItemApi(String(row.id));
@@ -91,7 +91,7 @@ function onDelete(row: BlockItemRow) {
   });
 }
 
-const [Modal] = useVbenModal({ title: '碎片条目' });
+const [Modal, modalApi] = useEditDrawer({ title: '碎片条目' });
 
 onMounted(async () => {
   const data = modalApi.getData() as

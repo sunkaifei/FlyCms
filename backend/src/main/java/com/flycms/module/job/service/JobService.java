@@ -60,7 +60,7 @@ public class JobService {
         if(this.checkJobByMethodName(job.getBeanName(),job.getMethodName())){
             return data=DataVo.failure("该任务已存在！");
         }
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         job.setId(snowFlake.nextId());
         job.setCreateTime(new Date());
         int totalCount=jobDao.insertJob(job);
@@ -81,7 +81,7 @@ public class JobService {
      * @param jobLog
      */
     public void insertJobLog(JobLog jobLog){
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         jobLog.setId(snowFlake.nextId());
         jobLog.setCreateTime(new Date());
         jobDao.insertJobLog(jobLog);

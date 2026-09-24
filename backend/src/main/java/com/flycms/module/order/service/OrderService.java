@@ -47,14 +47,19 @@ public class OrderService {
             return data = DataVo.failure("该分享未审核或者未审核");
         }
         UserAccount account=userService.findUserAccountById(userId);
+        if(account == null){
+            return DataVo.failure("账户不存在，请联系管理员");
+        }
         if(account.getScore() < share.getNeedmoney()){
             return data = DataVo.failure("账户积分不足，请充值或免费获取");
         }
         //积分操作记录
+        // 注意：SQL 中 "reduce" 分支为 score = score - #{score}，
+        // 此处必须传入正值，否则负负得正会变成给用户加积分（历史 Bug）。
         ScoreDetail scoreDetail = new ScoreDetail();
         scoreDetail.setType("unlimite");
         scoreDetail.setUserId(userId);
-        scoreDetail.setScore(-share.getNeedmoney());
+        scoreDetail.setScore(share.getNeedmoney());
         scoreDetail.setRemark("购买分享资源");
         //购买资源的id
         scoreDetail.setForeignId(shareId);
@@ -66,7 +71,6 @@ public class OrderService {
         order.setShareId(shareId);
         order.setStatus(1);
         order.setCreateTime(new Date());
-        System.out.println("====================================="+userId+"============="+shareId+"=============="+new Date());
         int totalCount=orderDao.addSharOrdere(order);
         if(totalCount > 0){
             data = DataVo.success("已购买成功");

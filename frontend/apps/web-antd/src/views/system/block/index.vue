@@ -1,27 +1,15 @@
 <script lang="ts" setup>
-import type { BlockItemRow, BlockRow } from '#/api/core/block';
+import type { BlockRow } from '#/api/core/block';
 
 import { onMounted, ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 import { useAccess } from '@vben/access';
 
-import {
-  Button,
-  message,
-  Modal,
-  Pagination,
-  Switch,
-  Table,
-  Textarea,
-} from 'ant-design-vue';
+import { Button, message, Modal, Pagination, Switch, Table } from 'ant-design-vue';
 
-import {
-  deleteBlockApi,
-  getBlockItemsApi,
-  getBlockListApi,
-  saveBlockApi,
-} from '#/api/core/block';
+import { deleteBlockApi, getBlockListApi, saveBlockApi } from '#/api/core/block';
 
 import BlockModal from './block-modal.vue';
 import ItemModal from './item-modal.vue';
@@ -35,12 +23,12 @@ const total = ref(0);
 const page = ref(1);
 const loading = ref(false);
 
-const [BlockModalComp, blockModalApi] = useVbenModal({
+const [BlockModalComp, blockModalApi] = useEditDrawer({
   connectedComponent: BlockModal,
   destroyOnClose: true,
 });
 
-const [ItemModalComp, itemModalApi] = useVbenModal({
+const [ItemModalComp, itemModalApi] = useEditDrawer({
   connectedComponent: ItemModal,
   destroyOnClose: true,
 });
@@ -82,15 +70,15 @@ function openAdd() {
   blockModalApi.setData({ onSaved: load }).open();
 }
 
-function openEdit(row: BlockRow) {
+function openEdit(row: any) {
   blockModalApi.setData({ onSaved: load, record: row }).open();
 }
 
-function openItems(row: BlockRow) {
+function openItems(row: any) {
   itemModalApi.setData({ block: row }).open();
 }
 
-function onDelete(row: BlockRow) {
+function onDelete(row: any) {
   Modal.confirm({
     content: `删除碎片位「${row.blockName}」及其全部条目？`,
     onOk: async () => {
@@ -102,7 +90,7 @@ function onDelete(row: BlockRow) {
   });
 }
 
-async function onToggle(row: BlockRow, checked: boolean) {
+async function onToggle(row: any, checked: boolean) {
   await saveBlockApi({ ...row, status: checked ? 1 : 0 });
   message.success(checked ? '已显示' : '已隐藏');
   load();

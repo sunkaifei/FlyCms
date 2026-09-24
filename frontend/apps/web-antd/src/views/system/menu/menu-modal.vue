@@ -3,7 +3,7 @@ import type { MenuNode } from '#/api/core/menu-manage';
 
 import { computed, onMounted, ref } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 
 import { Input, message, Select } from 'ant-design-vue';
 
@@ -67,7 +67,7 @@ const parentOptions = computed(() => {
   return opts;
 });
 
-const [Modal, modalApi] = useVbenModal({
+const [Modal, modalApi] = useEditDrawer({
   async onConfirm() {
     if (!form.value.menuName.trim()) {
       message.warning('菜单名称不能为空');

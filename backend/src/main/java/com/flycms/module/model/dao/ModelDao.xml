@@ -5,9 +5,13 @@
 	<sql id="base_column">id, name, code, title_label AS titleLabel, is_system AS isSystem, list_template AS listTemplate,
 		detail_template AS detailTemplate, icon, description, sort, status, create_time AS createTime, update_time AS updateTime</sql>
 
-	<insert id="addModel">
-		insert into fly_model (id, name, code, title_label, is_system, list_template, detail_template, icon, description, sort, status, create_time)
-		values (#{id}, #{name}, #{code}, #{titleLabel}, #{isSystem}, #{listTemplate}, #{detailTemplate}, #{icon}, #{description}, #{sort}, #{status}, now())
+	<!--
+	  主键策略（D8）：fly_model.id 为 AUTO_INCREMENT，插入时不带 id 列，
+	  由 useGeneratedKeys 回填到实体，供后续建表/缓存使用。
+	-->
+	<insert id="addModel" useGeneratedKeys="true" keyProperty="id">
+		insert into fly_model (name, code, title_label, is_system, list_template, detail_template, icon, description, sort, status, create_time)
+		values (#{name}, #{code}, #{titleLabel}, #{isSystem}, #{listTemplate}, #{detailTemplate}, #{icon}, #{description}, #{sort}, #{status}, now())
 	</insert>
 
 	<update id="updateModel">

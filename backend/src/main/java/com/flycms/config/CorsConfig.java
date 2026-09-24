@@ -8,19 +8,31 @@ import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 public class CorsConfig {
-    //配置允许跨域访问的ip--从这些url发过来的请求，都是允许支持的跨源请求
+    /**
+     * 允许跨域访问的域名白名单（不要带协议和端口）
+     * ip与域名会被当成两个不同的url，因此两者都要列出
+     */
     private static String[] orginVal=new String[]{
             "www.28844.com",
             "28844.com",
             "localhost",
-            "127.0.0.1"         //ip与域名会被当成两个不同的url
+            "127.0.0.1"
     };
 
+    /**
+     * 历史 Bug：仅用 addAllowedOrigin("http://localhost")，
+     * Origin 必须精确匹配 协议+域名+端口，而前端开发服务跑在 3000/8080 等端口，
+     * "http://localhost:3000" 与 "http://localhost" 不匹配，导致跨域被拦。
+     * 改用前缀模式匹配，放行白名单域名下的任意端口。
+     */
     private void addAllowedOrigins(CorsConfiguration corsConfiguration){
         for(String origin:orginVal){
-            //不同协议也是不同的url
-            corsConfiguration.addAllowedOrigin("http://"+origin);
-            corsConfiguration.addAllowedOrigin("https://"+origin);
+            //不同协议也是不同的url；:* 放行任意端口
+            corsConfiguration.addAllowedOriginPattern("http://"+origin+":*");
+            corsConfiguration.addAllowedOriginPattern("https://"+origin+":*");
+            //同时保留默认的 80/443 端口形式（无端口写法）
+            corsConfiguration.addAllowedOriginPattern("http://"+origin);
+            corsConfiguration.addAllowedOriginPattern("https://"+origin);
         }
     }
 

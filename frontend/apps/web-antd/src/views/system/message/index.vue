@@ -3,7 +3,8 @@ import type { MessageRow } from '#/api/core/message';
 
 import { onMounted, ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 import { useAccess } from '@vben/access';
 
 import { Button, Input, message, Modal, Pagination, Table } from 'ant-design-vue';
@@ -22,7 +23,7 @@ const page = ref(1);
 const loading = ref(false);
 const subject = ref('');
 
-const [SendModalComp, sendModalApi] = useVbenModal({
+const [SendModalComp, sendModalApi] = useEditDrawer({
   connectedComponent: SendModal,
   destroyOnClose: true,
 });
@@ -37,14 +38,14 @@ const columns = [
     dataIndex: 'isAdmin',
     key: 'isAdmin',
     width: 80,
-    customRender: ({ text }) => (Number(text) === 1 ? '系统信息' : '用户私信'),
+    customRender: ({ text }: any) => (Number(text) === 1 ? '系统信息' : '用户私信'),
   },
   {
     title: '已读',
     dataIndex: 'hasView',
     key: 'hasView',
     width: 70,
-    customRender: ({ text }) => (Number(text) === 1 ? '已读' : '未读'),
+    customRender: ({ text }: any) => (Number(text) === 1 ? '已读' : '未读'),
   },
   { title: '操作', key: 'action', width: 80 },
 ];
@@ -67,7 +68,7 @@ function openSend() {
   sendModalApi.setData({ onSaved: load }).open();
 }
 
-function onDelete(row: MessageRow) {
+function onDelete(row: any) {
   Modal.confirm({
     content: `删除站内信「${row.subject}」？`,
     onOk: async () => {

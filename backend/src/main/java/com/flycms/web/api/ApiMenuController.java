@@ -33,7 +33,7 @@ import java.util.Map;
 @RequestMapping("/api")
 public class ApiMenuController extends ApiBaseController {
 
-    /** 旧后台接口容器节点（见 doc/sql/menu-management.sql），sync 新增的 F 行归入其下 */
+    /** 旧后台接口容器节点（见 sql/menu-management.sql），sync 新增的 F 行归入其下 */
     private static final long LEGACY_PARENT_ID = 900130L;
 
     @Autowired

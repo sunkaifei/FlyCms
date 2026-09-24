@@ -89,7 +89,7 @@ public class LinksAdminController extends BaseController {
 
 	@ResponseBody
 	@PostMapping(value = "/delete_link")
-	public DataVo deleteLinks(@RequestParam(value = "id") Integer id) throws  Exception {
+	public DataVo deleteLinks(@RequestParam(value = "id") Long id) throws  Exception {
 		DataVo data = DataVo.failure("操作失败");
 		try {
             Links friendLink = linksService.findLinksById(id);
@@ -108,7 +108,7 @@ public class LinksAdminController extends BaseController {
 	}
 	
 	@GetMapping(value = "/update/{id}")
-	public String UpdateFriendLink(@PathVariable(value = "id", required = false) Integer id,ModelMap modelMap) throws Exception {
+	public String UpdateFriendLink(@PathVariable(value = "id", required = false) Long id,ModelMap modelMap) throws Exception {
         Links link = linksService.findLinksById(id);
 		if(link==null){
             return theme.getPcTemplate("404");

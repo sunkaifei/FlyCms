@@ -41,16 +41,27 @@ public class ModelController extends BaseController {
     private TemplateService theme;
     @Autowired
     private com.flycms.module.config.service.ConfigService config;
+    @Autowired
+    private com.flycms.module.channel.service.ChannelRenderService channelRenderService;
 
+    /**
+     * /{x}/ 与 /{x}/p{n} 两种 URL 形态在阶段 C 后由模型与栏目共用：
+     * 先按栏目命中，命中则交给栏目渲染（含外链 redirect），未命中才走原有模型逻辑。
+     * 之所以不新增 pattern，是因为完全相同的 pattern 会触发 Spring Ambiguous mapping 启动失败。
+     */
     @GetMapping(value = {"/{modelCode}/", "/{modelCode}/index", "/{modelCode}/p{page:\\d+}"})
     public String list(@PathVariable String modelCode,
                        @PathVariable(value = "page", required = false) Integer page,
                        ModelMap modelMap) {
+        int p = page == null ? 1 : page;
+        String channelView = channelRenderService.render(modelCode, p, modelMap);
+        if (channelView != null) {
+            return channelView;
+        }
         Model model = resolveModel(modelCode);
         if (model == null) {
             return theme.getPcTemplate("404");
         }
-        int p = page == null ? 1 : page;
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("p", p);
         return resolveTemplate(model, "list", "cmodel/list");

@@ -41,6 +41,8 @@ export class DrawerApi<TData = unknown> {
       closeIconPlacement: 'right',
       closeOnClickModal: true,
       closeOnPressEscape: true,
+      fullscreen: false,
+      fullscreenButton: true,
       confirmLoading: false,
       contentClass: '',
       footer: true,

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 
-import { Input, message, Textarea } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { sendMessageApi } from '#/api/core/message';
@@ -39,7 +39,7 @@ const [Form, formApi] = useVbenForm({
   showDefaultActions: false,
 });
 
-const [Modal, modalApi] = useVbenModal({
+const [Modal, modalApi] = useEditDrawer({
   async onConfirm() {
     const { valid } = await formApi.validate();
     if (!valid) return;

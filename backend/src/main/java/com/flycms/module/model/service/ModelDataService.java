@@ -65,7 +65,7 @@ public class ModelDataService {
             pageVo.setList(new ArrayList<>());
             return pageVo;
         }
-        modelTableService.ensureTable(modelId, modelFieldDao.findFieldsByModelId(modelId, 1));
+        modelTableService.ensureTable(model.getCode(), modelFieldDao.findFieldsByModelId(modelId, 1));
 
         List<ModelField> fields = modelFieldDao.findFieldsByModelId(modelId, 1);
         Map<String, ModelField> fieldMap = new HashMap<>();
@@ -118,18 +118,18 @@ public class ModelDataService {
         params.put("offset", pageVo.getOffset());
         params.put("rows", pageVo.getRows());
         String whereSql = String.join(" AND ", where);
-        pageVo.setList(modelDataDao.selectPage(String.valueOf(modelId), whereSql, orderBySql, params));
-        pageVo.setCount(modelDataDao.countPage(String.valueOf(modelId), whereSql, params));
+        pageVo.setList(modelDataDao.selectPage(tableSuffixOf(modelId), whereSql, orderBySql, params));
+        pageVo.setCount(modelDataDao.countPage(tableSuffixOf(modelId), whereSql, params));
         return pageVo;
     }
 
     public Map<String, Object> findDataById(Long modelId, Long id) {
-        return modelDataDao.findDataById(String.valueOf(modelId), id);
+        return modelDataDao.findDataById(tableSuffixOf(modelId), id);
     }
 
     /** 前台详情：shortUrl 精确查询，强制 status=1 */
     public Map<String, Object> findByShortUrl(Long modelId, String shortUrl) {
-        return modelDataDao.findByShortUrl(String.valueOf(modelId), shortUrl);
+        return modelDataDao.findByShortUrl(tableSuffixOf(modelId), shortUrl);
     }
 
     /**
@@ -168,7 +168,7 @@ public class ModelDataService {
             return check;
         }
 
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         long id = snowFlake.nextId();
         values.put("id", id);
         values.put("shortUrl", genShortUrl(modelId));
@@ -192,7 +192,7 @@ public class ModelDataService {
             values.put("publish_time", form.get("publish_time"));
         }
 
-        modelDataDao.insertData(String.valueOf(modelId), columns, values);
+        modelDataDao.insertData(tableSuffixOf(modelId), columns, values);
         if (!refIds.isEmpty()) {
             modelDataDao.incrImagesRefCount(distinct(refIds));
         }
@@ -200,7 +200,7 @@ public class ModelDataService {
     }
 
     public DataVo updateData(Long modelId, Long id, Map<String, String> form) {
-        Map<String, Object> old = modelDataDao.findDataById(String.valueOf(modelId), id);
+        Map<String, Object> old = modelDataDao.findDataById(tableSuffixOf(modelId), id);
         if (old == null) {
             return DataVo.failure("内容不存在");
         }
@@ -230,7 +230,7 @@ public class ModelDataService {
             putColumn(columns, values, "publish_time", form.get("publish_time"));
         }
 
-        modelDataDao.updateData(String.valueOf(modelId), id, columns, values);
+        modelDataDao.updateData(tableSuffixOf(modelId), id, columns, values);
         adjustRefCounts(oldRefs, distinct(newRefs));
         return DataVo.success("更新成功");
     }
@@ -240,7 +240,7 @@ public class ModelDataService {
      */
     public DataVo deleteData(Long modelId, List<Long> ids) {
         for (Long id : ids) {
-            Map<String, Object> row = modelDataDao.findDataById(String.valueOf(modelId), id);
+            Map<String, Object> row = modelDataDao.findDataById(tableSuffixOf(modelId), id);
             if (row != null) {
                 List<ModelField> fields = modelFieldDao.findFieldsByModelId(modelId, 1);
                 List<Long> refs = collectAttachmentIds(fields, row);
@@ -249,12 +249,12 @@ public class ModelDataService {
                 }
             }
         }
-        modelDataDao.deleteData(String.valueOf(modelId), ids);
+        modelDataDao.deleteData(tableSuffixOf(modelId), ids);
         return DataVo.success("删除成功");
     }
 
     public DataVo updateStatus(Long modelId, List<Long> ids, int status) {
-        modelDataDao.updateStatus(String.valueOf(modelId), ids, status);
+        modelDataDao.updateStatus(tableSuffixOf(modelId), ids, status);
         return DataVo.success("状态已更新");
     }
 
@@ -527,11 +527,33 @@ public class ModelDataService {
         }
     }
 
+    /**
+     * 表名后缀解析：modelId → model.code（D7）。
+     *
+     * <p>对外所有方法仍接收 {@code Long modelId}（已上线的 vben 前端契约
+     * {@code /system/modelData/list/{modelId}} 不便变动），内部统一经此方法解析为
+     * 物理表名后缀 {@code fly_cmodel_{code}}。表名不再是雪花 ID。
+     *
+     * <p>额外走一次 {@link SqlSafeUtil#safeTableSuffix(String)}：模型 code 在创建时已校验，
+     * 但缓存/直连库的脏数据仍可能绕过，动态 SQL 入口再校验一次是纵深防御（D10）。
+     *
+     * @param modelId 模型主键
+     * @return 模型 code（物理表名后缀）
+     * @throws IllegalArgumentException 模型不存在或 code 非法
+     */
+    private String tableSuffixOf(Long modelId) {
+        Model model = modelService.findModelById(modelId);
+        if (model == null || StringUtils.isBlank(model.getCode())) {
+            throw new IllegalArgumentException("模型不存在：" + modelId);
+        }
+        return SqlSafeUtil.safeTableSuffix(model.getCode());
+    }
+
     private String genShortUrl(Long modelId) {
         String code;
         for (String s : ShortUrlUtils.shortUrl(null)) {
             code = s;
-            if (!modelDataDao.existsShortUrl(String.valueOf(modelId), code)) {
+            if (!modelDataDao.existsShortUrl(tableSuffixOf(modelId), code)) {
                 return code;
             }
         }

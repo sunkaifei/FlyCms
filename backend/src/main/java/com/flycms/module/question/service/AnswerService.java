@@ -61,7 +61,7 @@ public class AnswerService {
             return data= DataVo.failure("请勿重复发表相同内容");
         }
         Answer answer=new Answer();
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         answer.setId(snowFlake.nextId());
         answer.setQuestionId(questionId);
         answer.setUserId(userId);

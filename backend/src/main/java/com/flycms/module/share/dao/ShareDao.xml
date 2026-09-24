@@ -156,7 +156,7 @@
 		<where>
 			<if test="title!=null and title!=''">and title LIKE CONCAT(CONCAT('%', #{title}),'%')</if>
 			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
-			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="createTime != null and createTime != ''">and create_time like concat(#{createTime}, '%')</if>
 			<if test="status == 0">and status &gt;= 0</if>
 			<if test="status == 1">and status = 0</if>
 			<if test="status == 2">and status = 1</if>
@@ -171,7 +171,7 @@
 		<where>
 			<if test="title!=null and title!='' ">and title LIKE CONCAT(CONCAT('%', #{title}),'%')</if>
 			<if test="userId != null and userId !=''">and user_id=#{userId}</if>
-			<if test="createTime != null and createTime != ''">and create_time BETWEEN STR_TO_DATE(#{createTime}, '%Y-%m-%d %H')</if>
+			<if test="createTime != null and createTime != ''">and create_time like concat(#{createTime}, '%')</if>
 			<if test="status == 0">and status &gt;= 0</if>
 			<if test="status == 1">and status = 0</if>
 			<if test="status == 2">and status = 1</if>

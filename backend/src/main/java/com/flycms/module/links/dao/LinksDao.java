@@ -57,7 +57,7 @@ public interface LinksDao {
 		 * @param id
 		 * @return
 		 */
-		public int deleteLinksById(@Param("id") Integer id);
+		public int deleteLinksById(@Param("id") Long id);
 		
 		
 		// ///////////////////////////////
@@ -81,7 +81,31 @@ public interface LinksDao {
 		 * @param id
 		 * @return
 		 */
-		public Links findLinksById(@Param("id") Integer id);
+		public Links findLinksById(@Param("id") Long id);
+
+	// ///////////////////////////////
+	// /////  友链管理（阶段 B4） /////
+	// ///////////////////////////////
+
+	/**
+	 * 友链分页列表（直接按 type/isShow 真实值过滤，不使用旧后台 1~2 的筛选器编码）
+	 */
+	public List<Links> getLinksLibraryList(@Param("type") Integer type,
+											@Param("isShow") Integer isShow,
+											@Param("keyword") String keyword,
+											@Param("offset") int offset,
+											@Param("rows") int rows);
+
+	public int getLinksLibraryCount(@Param("type") Integer type,
+									@Param("isShow") Integer isShow,
+									@Param("keyword") String keyword);
+
+	/**
+	 * 单独更新显示状态。
+	 * 不走 updateLinksById：那条语句对 isShow 用了 != '' 判断，
+	 * OGNL 下 Integer 0 与空串比较结果不可靠，会把「设为不显示」吞掉。
+	 */
+	public int updateLinksStatus(@Param("id") Long id, @Param("isShow") Integer isShow);
 
 	/**
 	 * 查询网站链接是否存在

@@ -34,7 +34,7 @@ public class UserGroupService {
         if(this.checkUuserGroupByName(group.getGroupName(),null)){
             return data=DataVo.failure("该用户组名已存在！");
         }
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         group.setId(snowFlake.nextId());
         int total = userGroupDao.addUserGroup(group);
         if(total>0){

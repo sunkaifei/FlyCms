@@ -53,7 +53,7 @@ public class TopicService {
 		if(this.checkTopicByTopic(topic.getTopic())){
 			return data=DataVo.failure("该话题已存在");
 		}
-		SnowFlake snowFlake = new SnowFlake(2, 3);
+		SnowFlake snowFlake = SnowFlake.getInstance();
 		topic.setId(snowFlake.nextId());
 		if(topic.getShortUrl()==null){
 			String code=this.shortUrl();
@@ -82,7 +82,7 @@ public class TopicService {
 	@Transactional
 	public Topic addTopic(String topics, String content, Integer countView, Integer countNum, Integer isgood, Integer status) {
 		Topic topic = new Topic();
-		SnowFlake snowFlake = new SnowFlake(2, 3);
+		SnowFlake snowFlake = SnowFlake.getInstance();
 		topic.setId(snowFlake.nextId());
 		String code=this.shortUrl();
 		topic.setShortUrl(code);
@@ -112,7 +112,7 @@ public class TopicService {
      */
 	@Transactional
 	public int addTopicAndInfo(Long infoId,Long topicId,Integer infoType,Integer status){
-		SnowFlake snowFlake = new SnowFlake(2, 3);
+		SnowFlake snowFlake = SnowFlake.getInstance();
 		return topicDao.addTopicAndInfo(snowFlake.nextId(),infoId,topicId,infoType,status);
 	}
 	

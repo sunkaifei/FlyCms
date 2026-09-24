@@ -29,6 +29,9 @@ logs/
 ### IntelliJ IDEA ###
 .idea/
 FlyCms.iml
+
+# VS Code 编辑器配置（由 IDE 自动生成，不入库）
+.vscode/
 ehcache
 *.iws
 *.iml
@@ -45,3 +48,6 @@ dist/
 coverage/
 # ZCode 会话内部产物
 .zcode/
+
+# AI 助手工作记忆（本地私有，不入库）
+.workbuddy/

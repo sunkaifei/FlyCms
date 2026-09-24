@@ -3,7 +3,8 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
 import type { ModelRow } from '#/api/core/model';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 import { useAccess } from '@vben/access';
 
 import { Button, message, Modal } from 'ant-design-vue';
@@ -19,7 +20,7 @@ defineOptions({ name: 'SystemModel' });
 const { hasAccessByCodes } = useAccess();
 const router = useRouter();
 
-const [EditModalComp, editModalApi] = useVbenModal({
+const [EditModalComp, editModalApi] = useEditDrawer({
   connectedComponent: EditModal,
   destroyOnClose: true,
 });

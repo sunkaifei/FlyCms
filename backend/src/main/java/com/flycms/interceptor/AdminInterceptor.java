@@ -86,7 +86,10 @@ public class AdminInterceptor implements HandlerInterceptor {
         }
 		Admin admin = AdminSessionUtils.getLoginMember(request);
         //这里可以根据session的用户来判断角色的权限，根据权限来重定向不同的页面
-        if(null != admin || isLoginRequest(request, response)){// && isEnabled()
+        // 历史 Bug：原写法为 (null != admin || isLoginRequest(...))，
+        // 一旦右侧为真而 admin 为 null，下一行 admin.getId() 会 NPE。改为先判空。
+        // 注：isLoginRequest() 当前恒返回 false，短路后等价于 null != admin。
+        if(null != admin){
         	List<Permission> permissions = permissionService.findPermissionByUserId(admin.getId());
 			for (Permission permission : permissions) {
 				if(CheckUrlUtils.match(permission.getActionKey(), contextPath)) {

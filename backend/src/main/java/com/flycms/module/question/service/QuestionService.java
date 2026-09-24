@@ -58,7 +58,7 @@ public class QuestionService {
         }
 
         Question question=new Question();
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         question.setId(snowFlake.nextId());
         String code=this.shortUrl();
         question.setShortUrl(code);

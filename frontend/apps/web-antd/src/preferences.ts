@@ -20,7 +20,7 @@ export const overridesPreferences = defineOverridesPreferences({
   // overrides
   app: {
     name: import.meta.env.VITE_APP_TITLE,
-    // 权限模式 backend：导航完全由后端菜单表驱动（若依式，见 doc/sql/menu-management.sql），
+    // 权限模式 backend：导航完全由后端菜单表驱动（若依式，见 sql/menu-management.sql），
     // GET /api/menu/all 返回 M/C 树 + 模型动态入口
     accessMode: 'backend',
   },

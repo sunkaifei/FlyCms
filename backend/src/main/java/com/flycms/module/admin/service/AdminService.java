@@ -40,7 +40,7 @@ public class AdminService {
         if(this.checkAdminByName(admin.getAdminName())){
             return data=DataVo.success("用户名已被占用！");
         }
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         admin.setId(snowFlake.nextId());
         admin.setPassword(BCryptUtils.hashpw(admin.getPassword(), BCryptUtils.gensalt()));
         admin.setCreateAt(new Date());

@@ -43,6 +43,25 @@ public interface GuideDao {
                                 @Param("status") Integer status);
 
     //导航列表
+    // ///////////////////////////////
+    // /////  导航管理（阶段 B3） /////
+    // ///////////////////////////////
+
+    /** 按 id 查询导航 */
+    public Guide findGuideById(@Param("id") Long id);
+
+    /** 更新导航 */
+    public int updateGuideById(Guide guide);
+
+    /** 删除导航 */
+    public int deleteGuideById(@Param("id") Long id);
+
+    /** 单独更新显示状态 */
+    public int updateGuideStatus(@Param("id") Long id, @Param("status") Integer status);
+
+    /** 查询全部导航（后台树/列表用，不分页） */
+    public List<Guide> getGuideAll(@Param("status") Integer status);
+
     public List<Guide> getGuideList(@Param("name") String name,
                                           @Param("status") Integer status,
                                           @Param("orderby") String orderby,

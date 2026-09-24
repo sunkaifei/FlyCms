@@ -31,7 +31,9 @@ public class DataVo implements Serializable {
 	}
 
 	public static final DataVo success(Object data) {
-		return new DataVo(CODE_SUCCESS,null, "操作成功", data);
+		// 历史 Bug：实参顺序写反（构造器签名为 code, message, url, data），
+		// 导致 message 为 null、"操作成功" 被塞进 url 字段。
+		return new DataVo(CODE_SUCCESS, "操作成功", null, data);
 	}
 
 	public static final DataVo success(String message) {
@@ -52,6 +54,13 @@ public class DataVo implements Serializable {
 
 	public static final DataVo failure(String message) {
 		return failure(CODE_FAILURED, message);
+	}
+
+	/**
+	 * 失败并返回业务数据（与 success(String, Object) 对应）
+	 */
+	public static final DataVo failure(String message, Object data) {
+		return new DataVo(CODE_FAILURED, message, null, data);
 	}
 
 	public int getCode() {
@@ -87,7 +96,8 @@ public class DataVo implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "{code:\"" + this.code + "\", message:\"" + this.message + "\", url:\"" + this.url + "\", data:\"" + this.data.toString() + "\"}";
+		// 历史 Bug：data 为 null 时 toString() 直接 NPE
+		return "{code:\"" + this.code + "\", message:\"" + this.message + "\", url:\"" + this.url + "\", data:\"" + this.data + "\"}";
 	}
 
 

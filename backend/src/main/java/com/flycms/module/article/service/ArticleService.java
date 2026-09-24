@@ -8,15 +8,19 @@ import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.article.dao.ArticleDao;
 import com.flycms.module.article.model.Article;
 import com.flycms.module.article.model.ArticleComment;
+import com.flycms.module.article.model.ArticleCommentVo;
 import com.flycms.module.article.model.ArticleCount;
 import com.flycms.module.article.model.ArticleVotes;
 import com.flycms.module.config.service.ConfigService;
+import com.flycms.module.message.model.Message;
+import com.flycms.module.message.service.MessageService;
 import com.flycms.module.question.service.ImagesService;
 import com.flycms.module.search.service.SearchService;
 import com.flycms.module.topic.model.Topic;
 import com.flycms.module.topic.service.TopicService;
 import com.flycms.module.user.service.FeedService;
 import com.flycms.module.user.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +47,7 @@ import java.util.Optional;
  * @email 79678111@qq.com
  * @Date: 10:23 2018/7/13
  */
+@Slf4j
 @Service
 public class ArticleService {
     @Autowired
@@ -59,6 +64,8 @@ public class ArticleService {
     protected TopicService topicService;
     @Autowired
     protected ImagesService imagesService;
+    @Autowired
+    protected MessageService messageService;
     // ///////////////////////////////
     // /////      增加        ////////
     // ///////////////////////////////
@@ -105,13 +112,14 @@ public class ArticleService {
     public Article addArticle(Article article,String[] tags)   throws Exception {
         //转换为数组
         String[] str = article.getCategoryId().split(",");
-        SnowFlake snowFlake = new SnowFlake(2, 3);
+        SnowFlake snowFlake = SnowFlake.getInstance();
         article.setId(snowFlake.nextId());
         String code=this.shortUrl();
         article.setShortUrl(code);
         article.setTitle(StringEscapeUtils.escapeHtml4(article.getTitle()));
         article.setCreateTime(new Date());
-        article.setStatus(Integer.parseInt(configService.getStringByKey("user_article_verify")));
+        // 投稿审核开关（阶段 H）：fly_article_audit=1 先审后发（落 status=0），0 直接发布（落 status=1）
+        article.setStatus(this.resolveArticleStatusByAuditSwitch());
         article.setContent(imagesService.replaceContent(2,article.getId(),article.getUserId(),article.getContent()));
         int totalCount=articleDao.addArticle(article);
         if(totalCount > 0) {
@@ -148,11 +156,19 @@ public class ArticleService {
             return data=DataVo.failure("请勿重复替提交相同评论！");
         }
         articleComment.setCreateTime(new Date());
+        // 评论审核开关（阶段 B）：fly_comment_audit=1 先审后显示（落 status=0），0 免审直接显示（落 status=1）
+        if (articleComment.getStatus() == null) {
+            articleComment.setStatus(configService.getIntKey("fly_comment_audit", 1) == 1 ? 0 : 1);
+        }
         int totalCount=articleDao.addArticleComment(articleComment);
         if(totalCount > 0){
             //更新文章被评论的数量
             articleDao.updateArticleCommentCount(articleComment.getArticleId());
-            data = DataVo.success("评论内容成功提交", DataVo.NOOP);
+            if (articleComment.getStatus() != null && articleComment.getStatus() == 0) {
+                data = DataVo.success("评论已提交，等待审核", DataVo.NOOP);
+            } else {
+                data = DataVo.success("评论内容成功提交", DataVo.NOOP);
+            }
         }else{
             data=DataVo.failure("提交评论发生未知错误！");
         }
@@ -218,7 +234,8 @@ public class ArticleService {
             return DataVo.failure("话题数不能大于5个");
         }
         article.setUpdateTime(new Date());
-        article.setStatus(Integer.parseInt(configService.getStringByKey("user_article_verify")));
+        // 编辑后同样按投稿审核开关落状态（阶段 H）
+        article.setStatus(this.resolveArticleStatusByAuditSwitch());
         article.setContent(imagesService.replaceContent(2,article.getId(),article.getUserId(),article.getContent()));
         int totalCount=articleDao.editArticleById(article);
         if(totalCount > 0){
@@ -574,6 +591,87 @@ public class ArticleService {
         return pageVo;
     }
 
+    // ///////////////////////////////
+    // /////  评论审核（阶段 B1） /////
+    // ///////////////////////////////
+
+    /**
+     * 评论审核分页列表（join 文章标题，按真实 status 过滤）
+     *
+     * @param status null=全部(排除已删除) 0未审 1正常 2未通过 3删除
+     */
+    public PageVo<ArticleCommentVo> getCommentAuditPage(Long articleId, Long userId, String createTime,
+                                                        String keyword, Integer status, int pageNum, int rows) {
+        PageVo<ArticleCommentVo> pageVo = new PageVo<ArticleCommentVo>(pageNum);
+        pageVo.setRows(rows);
+        String orderby = OrderbyUtils.check("id", "id");
+        String order = OrderbyUtils.check("desc", "desc");
+        pageVo.setList(articleDao.getCommentAuditList(articleId, userId, createTime, keyword, status,
+                orderby, order, pageVo.getOffset(), pageVo.getRows()));
+        pageVo.setCount(articleDao.getCommentAuditCount(articleId, userId, createTime, keyword, status));
+        return pageVo;
+    }
+
+    /**
+     * 单条评论审核：0未审 1正常(通过) 2未通过(驳回) 3删除
+     */
+    @Transactional
+    public DataVo auditComment(Long id, Integer status) {
+        if (id == null || status == null) {
+            return DataVo.failure("参数不完整");
+        }
+        if (status < 0 || status > 3) {
+            return DataVo.failure("审核状态不合法");
+        }
+        ArticleComment comment = articleDao.findArticleCommentById(id, null);
+        if (comment == null) {
+            return DataVo.failure("评论不存在");
+        }
+        int rows = articleDao.updateCommentStatus(id, status);
+        // 评论数随审核结果变化，同步刷新文章评论计数
+        articleDao.updateArticleCommentCount(comment.getArticleId());
+        return rows > 0 ? DataVo.success("操作成功") : DataVo.failure("操作失败");
+    }
+
+    /**
+     * 批量审核（批量通过/驳回/删除）
+     */
+    @Transactional
+    public DataVo batchAuditComment(List<Long> ids, Integer status) {
+        if (ids == null || ids.isEmpty()) {
+            return DataVo.failure("请选择要操作的评论");
+        }
+        if (status == null || status < 0 || status > 3) {
+            return DataVo.failure("审核状态不合法");
+        }
+        int rows = articleDao.batchUpdateCommentStatus(ids, status);
+        return rows > 0 ? DataVo.success("已处理 " + rows + " 条") : DataVo.failure("操作失败");
+    }
+
+    /**
+     * 删除评论（逻辑删除 status=3）
+     */
+    @Transactional
+    public DataVo deleteComment(Long id) {
+        if (id == null) {
+            return DataVo.failure("参数不完整");
+        }
+        int rows = articleDao.deleteCommentById(id);
+        return rows > 0 ? DataVo.success("删除成功") : DataVo.failure("评论不存在");
+    }
+
+    /**
+     * 批量删除评论（逻辑删除 status=3）
+     */
+    @Transactional
+    public DataVo batchDeleteComment(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return DataVo.failure("请选择要删除的评论");
+        }
+        int rows = articleDao.batchDeleteComment(ids);
+        return rows > 0 ? DataVo.success("已删除 " + rows + " 条") : DataVo.failure("操作失败");
+    }
+
     /**
      * 按问题id查询最新的第一条评论内容
      *
@@ -588,5 +686,163 @@ public class ArticleService {
     //文章索引列表
     public List<ArticleComment> getArticleCommentByArticleId(Long articleId){
         return articleDao.getArticleCommentByArticleId(articleId);
+    }
+
+    // ///////////////////////////////////
+    // /////  投稿审核开关（阶段 H） /////
+    // ///////////////////////////////////
+
+    /**
+     * 投稿审核开关：config 键 {@code fly_article_audit}（0=直接发布，1=先审后发）。
+     *
+     * <p>兼容说明：老版本用的是 {@code user_article_verify}，其语义相反（1=直接发布、0=先审后发），
+     * 且 {@code Integer.parseInt(configService.getStringByKey(...))} 在配置缺失时会抛
+     * NumberFormatException（getStringByKey 返回空串），导致投稿直接 500。
+     * 这里统一收敛到 fly_article_audit，并对老键做反向映射，保证既有站点行为不变。</p>
+     *
+     * @return 1=先审后发；0=直接发布
+     */
+    public int getArticleAuditSwitch() {
+        String value = configService.getStringByKey("fly_article_audit");
+        if (StringUtils.isBlank(value)) {
+            // 老键兜底：语义相反
+            String legacy = configService.getStringByKey("user_article_verify");
+            if (StringUtils.isBlank(legacy)) {
+                return 0;
+            }
+            return "1".equals(legacy.trim()) ? 0 : 1;
+        }
+        return "1".equals(value.trim()) ? 1 : 0;
+    }
+
+    /**
+     * 按审核开关计算投稿落库状态
+     *
+     * @return 1=正常（直接发布）；0=待审核
+     */
+    public int resolveArticleStatusByAuditSwitch() {
+        return getArticleAuditSwitch() == 1 ? 0 : 1;
+    }
+
+    /**
+     * 待审/已审文章分页列表（status 为真实状态）
+     *
+     * @param status 0未审核 1正常 2审核未通过 3删除；null=全部
+     */
+    public PageVo<Article> getArticleAuditPage(String title, Long userId, String createTime,
+                                               Integer status, String orderby, String order,
+                                               int pageNum, int rows) {
+        PageVo<Article> pageVo = new PageVo<Article>(pageNum);
+        pageVo.setRows(rows);
+        if (StringUtils.isBlank(orderby)) {
+            orderby = "id";
+        }
+        orderby = OrderbyUtils.check(orderby, "id");
+        if (StringUtils.isBlank(order)) {
+            order = "desc";
+        }
+        order = OrderbyUtils.check(order, "desc");
+        pageVo.setList(articleDao.getArticleAuditList(title, userId, createTime, status,
+                orderby, order, pageVo.getOffset(), pageVo.getRows()));
+        pageVo.setCount(articleDao.getArticleAuditCount(title, userId, createTime, status));
+        return pageVo;
+    }
+
+    /**
+     * 单条审核
+     *
+     * @param status 1=通过 2=驳回
+     * @param reason 驳回原因（驳回时必填）
+     */
+    @CacheEvict(value = "article", allEntries = true)
+    @Transactional
+    public DataVo auditArticle(Long id, Integer status, String reason, Long adminId) {
+        if (id == null) {
+            return DataVo.failure("参数错误");
+        }
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(id);
+        return batchAuditArticle(ids, status, reason, adminId);
+    }
+
+    /**
+     * 批量审核：通过置 status=1 并重建索引/feed；驳回置 status=2 并发站内信通知作者。
+     *
+     * @param status 1=通过 2=驳回
+     * @param reason 驳回原因，驳回时必填（规划要求）
+     */
+    @CacheEvict(value = "article", allEntries = true)
+    @Transactional
+    public DataVo batchAuditArticle(List<Long> ids, Integer status, String reason, Long adminId) {
+        if (ids == null || ids.isEmpty()) {
+            return DataVo.failure("请选择要审核的内容");
+        }
+        if (status == null || (status != 1 && status != 2)) {
+            return DataVo.failure("审核状态错误");
+        }
+        if (status == 2 && StringUtils.isBlank(reason)) {
+            return DataVo.failure("驳回必须填写原因");
+        }
+        int rows = articleDao.batchUpdateArticleStatus(ids, status);
+        if (rows <= 0) {
+            return DataVo.failure("操作失败");
+        }
+        for (Long id : ids) {
+            Article article = articleDao.findArticleByPK(id);
+            if (article == null) {
+                continue;
+            }
+            try {
+                if (status == 1) {
+                    // 通过：feed、用户计数、索引
+                    if (!feedService.checkUserFeed(article.getUserId(), 1, article.getId())) {
+                        feedService.addUserFeed(article.getUserId(), 1, article.getId());
+                    } else {
+                        feedService.updateuUserFeedById(1, article.getId(), 1);
+                    }
+                    userService.updateArticleCount(article.getUserId());
+                    searchService.indexArticleId(article.getId());
+                } else {
+                    // 驳回：撤 feed、撤索引，并站内信通知作者
+                    feedService.updateuUserFeedById(1, article.getId(), 0);
+                    userService.updateArticleCount(article.getUserId());
+                    searchService.indexDeleteInfo(1, article.getId());
+                    sendAuditMessage(article, reason, adminId);
+                }
+            } catch (Exception e) {
+                // feed/索引/站内信属附属动作，失败不回滚已完成的审核状态
+                log.error("审核后续处理失败, articleId={}, err={}", id, e.getMessage());
+            }
+        }
+        return DataVo.success(status == 1 ? "已通过 " + rows + " 条" : "已驳回 " + rows + " 条");
+    }
+
+    /**
+     * 审核结果站内信通知作者
+     */
+    private void sendAuditMessage(Article article, String reason, Long adminId) {
+        try {
+            Message message = new Message();
+            long fromId = adminId == null ? 0L : adminId;
+            message.setFromId(fromId);
+            message.setFromNickname("系统");
+            message.setToId(article.getUserId());
+            message.setSubject("文章审核未通过");
+            message.setMessage("您投稿的文章《" + article.getTitle() + "》未通过审核。\n原因：" + reason);
+            message.setSendTime(new Date());
+            message.setWriteTime(new Date());
+            message.setHasView(0);
+            message.setIsAdmin(1);
+            message.setState(1);
+            messageService.addMessage(message);
+        } catch (Exception e) {
+            // 站内信失败不影响审核结果本身
+            log.warn("审核站内信发送失败, articleId={}, err={}", article.getId(), e.getMessage());
+        }
+    }
+
+    /** 待审文章数量（后台角标用） */
+    public int countPendingArticle() {
+        return articleDao.getArticleAuditCount(null, null, null, 0);
     }
 }

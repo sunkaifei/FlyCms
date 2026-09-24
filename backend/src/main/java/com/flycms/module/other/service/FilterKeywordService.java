@@ -61,7 +61,7 @@ public class FilterKeywordService {
         if(this.checkFilterKeyword(keyword)){
             return data=DataVo.failure("该关键词已存在！");
         }
-		SnowFlake snowFlake = new SnowFlake(2, 3);
+		SnowFlake snowFlake = SnowFlake.getInstance();
 		FilterKeyword keybaen=new FilterKeyword();
 		keybaen.setId(snowFlake.nextId());
 		keybaen.setKeyword(keyword);

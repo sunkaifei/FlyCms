@@ -89,13 +89,13 @@ export async function updateModelApi(data: Record<string, unknown>) {
   return postForm<void>('/system/model/update', data);
 }
 
-export async function deleteModelApi(id: number) {
+export async function deleteModelApi(id: number | string) {
   return postForm<void>('/system/model/del', { id });
 }
 
 // /////////////////// 字段 ///////////////////
 
-export async function getFieldListApi(modelId: number) {
+export async function getFieldListApi(modelId: number | string) {
   return requestClient.get<ModelFieldRow[]>('/system/modelField/list/' + modelId);
 }
 
@@ -107,7 +107,7 @@ export async function updateFieldApi(data: Record<string, unknown>) {
   return postForm<void>('/system/modelField/update', data);
 }
 
-export async function deleteFieldApi(id: number) {
+export async function deleteFieldApi(id: number | string) {
   return postForm<void>('/system/modelField/del', { id });
 }
 
@@ -125,7 +125,7 @@ export async function sortFieldApi(ids: number[], sorts: number[]) {
 // /////////////////// 动态内容 ///////////////////
 
 export async function getDataListApi(
-  modelId: number,
+  modelId: number | string,
   params: Record<string, unknown>,
 ) {
   return requestClient.get<PageData<Record<string, any>>>(
@@ -134,11 +134,11 @@ export async function getDataListApi(
   );
 }
 
-export async function getFormMetaApi(modelId: number) {
+export async function getFormMetaApi(modelId: number | string) {
   return requestClient.get<FormMeta>('/system/modelData/formMeta/' + modelId);
 }
 
-export async function getDataDetailApi(modelId: number, id: number) {
+export async function getDataDetailApi(modelId: number | string, id: number | string) {
   return requestClient.get<Record<string, any>>(
     `/system/modelData/detail/${modelId}/${id}`,
   );
@@ -152,12 +152,12 @@ export async function updateDataApi(data: Record<string, unknown>) {
   return postForm<void>('/system/modelData/update', data);
 }
 
-export async function deleteDataApi(modelId: number, ids: string) {
+export async function deleteDataApi(modelId: number | string, ids: string) {
   return postForm<void>('/system/modelData/del', { modelId, ids });
 }
 
 export async function updateDataStatusApi(
-  modelId: number,
+  modelId: number | string,
   ids: string,
   status: number,
 ) {

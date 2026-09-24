@@ -438,22 +438,22 @@ public class FileUtils {
 	 */
 	@SuppressWarnings({ "unused", "resource" })
 	public static void copyFile(String oldPathFile, String newPathFile) {
-		try {
+		File oldfile = new File(oldPathFile);
+		if (!oldfile.exists()) { // 文件存在时才复制
+			return;
+		}
+		// 历史 Bug：输出流在异常路径下未关闭，造成文件句柄泄漏；改用 try-with-resources
+		try (InputStream inStream = new FileInputStream(oldPathFile);
+			 FileOutputStream fs = new FileOutputStream(newPathFile)) {
 			int bytesum = 0;
 			int byteread = 0;
-			File oldfile = new File(oldPathFile);
-			if (oldfile.exists()) { // 文件存在时
-				InputStream inStream = new FileInputStream(oldPathFile); // 读入原文件
-				FileOutputStream fs = new FileOutputStream(newPathFile);
-				byte[] buffer = new byte[1444];
-				while ((byteread = inStream.read(buffer)) != -1) {
-					bytesum += byteread; // 字节数 文件大小
-					//System.out.println(bytesum);
-					fs.write(buffer, 0, byteread);
-				}
-				inStream.close();
+			byte[] buffer = new byte[1444];
+			while ((byteread = inStream.read(buffer)) != -1) {
+				bytesum += byteread; // 字节数 文件大小
+				fs.write(buffer, 0, byteread);
 			}
 		} catch (Exception e) {
+			log.error("复制单个文件操作出错", e);
 			message = ("复制单个文件操作出错");
 		}
 	}

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import { useEditDrawer } from '#/utils/edit-drawer';
 
 import { Input, message } from 'ant-design-vue';
 
@@ -13,7 +13,7 @@ import { createTemplateApi } from '#/api/core/website';
 const file = ref('');
 let onSaved: (() => void) | undefined;
 
-const [Modal, modalApi] = useVbenModal({
+const [Modal, modalApi] = useEditDrawer({
   async onConfirm() {
     const path = file.value.trim();
     if (!path || !path.endsWith('.html')) {

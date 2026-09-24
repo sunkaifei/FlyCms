@@ -47,7 +47,7 @@ public class AnnouncementService {
         if (StringUtils.isBlank(form.getTitle())) {
             return DataVo.failure("公告标题不能为空");
         }
-        form.setId(new SnowFlake(2, 3).nextId());
+        form.setId(SnowFlake.getInstance().nextId());
         form.setStatus(form.getStatus() == 0 ? 1 : form.getStatus());
         form.setCreateTime(new Date());
         announcementDao.insertAnnouncement(form);

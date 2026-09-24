@@ -5,6 +5,7 @@ import { requestClient } from '#/api/request';
  */
 
 export interface MessageRow {
+  id: string;
   fromId: string;
   fromNickname?: string;
   isAdmin: number;
