@@ -136,39 +136,9 @@ public class UpLoadController extends BaseController {
         }
         return map;
     }
-	
-	@ResponseBody
-	@PutMapping(value = "/system/upload")
-    public DataVo uploadFile(HttpServletRequest request, ModelMap modelMap){
-		DataVo data = DataVo.failure("操作失败");
-		UpImgMsg msg=new UpImgMsg();
-		String filePath = UPLOAD_PATH;
-        String filePathUrl="./uploadfiles"+filePath;
-        try {
-            UpImgMsg file = ImageUtils.uploadFile(request, filePath,filePathUrl);
-            if(file == null || file.getImgurl()==null){
-                msg.setCode(-1);
-                msg.setImgurl(null);
-                msg.setFilesize(file == null ? 0 : file.getFilesize());
-                String failMsg = (file == null || file.getMsg() == null) ? "上传失败" : file.getMsg();
-                msg.setMsg(failMsg);
-                // 历史 Bug：此处曾返回 DataVo.success("上传失败")，状态码与文案矛盾，
-                // 前端无法据此判断成败，现统一按失败返回。
-                return DataVo.failure(failMsg, msg);
-            }else{
-                msg.setCode(0);
-                msg.setImgurl("/"+file.getImgurl());
-                msg.setFilesize(file.getFilesize());
-                msg.setMsg("上传成功");
-                return DataVo.success("上传成功", msg);
-            }
-        } catch (FileNotFoundException e) {
-            logger.error("上传文件未找到", e);
-        } catch(Exception ex){
-            logger.error("上传文件失败", ex);
-        }
-        return data;
-    }
+
+    // 旧后台的 PUT /system/upload 已随旧后台下线移除（无鉴权且无调用方）；
+    // 前台上传走 /ucenter/upload* 系列，vben 后台上传走 /api/**。
 
     /**
      * 上传图片

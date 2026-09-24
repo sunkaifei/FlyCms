@@ -1,9 +1,6 @@
 package com.flycms.core.base;
 
-import com.flycms.core.utils.AdminSessionUtils;
 import com.flycms.module.user.utils.UserSessionUtils;
-import com.flycms.module.admin.model.Admin;
-import com.flycms.module.admin.service.AdminService;
 import com.flycms.module.template.service.TemplateService;
 import com.flycms.module.user.model.User;
 import com.flycms.module.user.service.UserService;
@@ -35,8 +32,6 @@ public class BaseController {
     @Resource
     protected HttpServletResponse response;
 	@Autowired
-	protected AdminService adminService;
-    @Autowired
 	protected UserService userService;
     @Resource
     protected HttpSession session;
@@ -56,18 +51,5 @@ public class BaseController {
 			return userService.findUserById(user.getUserId(),0);
 		}
 	}
-
-	/**
-	 * 获取用户信息
-	 *
-	 * @return
-	 */
-	protected Admin getAdminUser() {
-		Admin user = AdminSessionUtils.getLoginMember(request);
-		if (StringUtils.isEmpty(user)) {
-			return null;
-		} else {
-			return adminService.findAdminById(user.getId(),0);
-		}
-	}
+	// 旧后台的 getAdminUser() 已随旧后台下线移除；API 管理员会话统一走 ApiBaseController.requireAdmin()
 }

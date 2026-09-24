@@ -1,3 +1,4 @@
+-- 导入方式：mysql --default-character-set=utf8mb4 -uroot -p flycms < 本文件
 -- ============================================================
 -- FlyCms 主题市场菜单与权限补录（规划 P5）
 -- 说明：stage-j-theme-engine.sql 原打算占用 900180~900187，

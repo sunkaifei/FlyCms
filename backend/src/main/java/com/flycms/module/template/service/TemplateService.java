@@ -120,13 +120,4 @@ public class TemplateService {
 		return this.getTemplatePath("pc_theme/"+config.getStringByKey("pc_theme")+"/404");
 	}
 
-	public String getAdminTemplate(String template) {
-		String themePath = "system/"+template;
-		if (this.isExist(themePath)) {
-			return this.getTemplatePath(themePath);
-		}
-		logger.warn("模板文件不存在！！");
-		return this.getTemplatePath("pc_theme/"+config.getStringByKey("pc_theme")+"/404");
-	}
-	
 }

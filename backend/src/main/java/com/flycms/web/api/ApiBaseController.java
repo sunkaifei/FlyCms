@@ -15,8 +15,7 @@ import java.util.List;
 /**
  * vben 前端 REST 接口基类。
  *
- * /api/** 不在 AdminInterceptor 拦截范围内（它只拦 /system/**，且未登录时以 302/{login_status:300}
- * 响应，vben 只认 HTTP 401），因此这里统一做两道守卫：
+ * 旧 FreeMarker 后台的 AdminInterceptor 已随旧后台下线，API 鉴权统一由本基类做两道守卫：
  * 1. requireAdmin()：未登录抛 401，前端收到后走重新登录流程；
  * 2. requirePermission(actionKey)：已登录但角色组未勾选对应权限时抛 403。
  *    actionKey 直接复用老后台 /system/** 的同名权限节点（permission_sync 已注册），

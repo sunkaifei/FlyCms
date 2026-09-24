@@ -1,6 +1,5 @@
 package com.flycms.config;
 
-import com.flycms.interceptor.AdminInterceptor;
 import com.flycms.interceptor.UserInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,9 +32,6 @@ import org.springframework.http.converter.HttpMessageConverter;
 public class WebMvcConfig extends WebMvcConfigurationSupport{
 
 	@Resource
-	private AdminInterceptor interceptor;
-
-	@Resource
 	private com.flycms.interceptor.AdminLogInterceptor adminLogInterceptor;
 
 	@Resource
@@ -60,12 +56,8 @@ public class WebMvcConfig extends WebMvcConfigurationSupport{
 	//添加拦截器
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(interceptor).addPathPatterns("/system/**")
-				.excludePathPatterns("/*",
-						"/system/login",
-						"/system/logout",
-						"/system/login_act");
-
+	// 旧 FreeMarker 后台已下线（views/templates/system 与 web/system 旧 Controller 一并移除），
+	// 原 AdminInterceptor（/system/** 会话守卫）随之退役；API 鉴权由 ApiBaseController 统一承担。
 		registry.addInterceptor(userInterceptor).addPathPatterns("/ucenter/**","/question/add")
 				.excludePathPatterns("/*",
 						"/ucenter/login",
