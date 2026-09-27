@@ -76,6 +76,7 @@ public class Part extends AbstractTagPlugin {
             env.include(includeName, null, true);
         } catch (TemplateException | IOException e) {
             // 部件渲染失败（语法错误等）：不向上抛，渲染标签体兜底，避免整页 500
+            logger.warn("部件 fly_part 渲染失败（name={}）：{}", name, e.getMessage());
             Writer out = env.getOut();
             out.write("<!-- fly_part 渲染失败：" + name + " -->");
             if (body != null) {
@@ -100,8 +101,9 @@ public class Part extends AbstractTagPlugin {
                     }
                 }
             }
-        } catch (Exception ignored) {
-            // 非请求上下文忽略
+        } catch (Exception e) {
+            // 非请求上下文（如后台预编译、静态化子系统）无 __skin 参数可读，属预期情况，仅 DEBUG 留痕
+            logger.debug("无法读取预览主题参数，回退默认主题：{}", e.getMessage());
         }
         return StringUtils.defaultIfBlank(configService.getStringByKey("pc_theme"), "defalut");
     }

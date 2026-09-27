@@ -84,6 +84,7 @@ public class Sharepage extends AbstractTagPlugin {
 			PageVo<Share> pageVo = shareService.getShareListPage(title,userId,createTime,status,orderby,order,p,rows);
 			env.setVariable("share_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_sharepage", e);
 			env.setVariable("share_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

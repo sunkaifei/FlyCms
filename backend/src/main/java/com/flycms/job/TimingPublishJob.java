@@ -27,9 +27,16 @@ public class TimingPublishJob {
     public void publishDue() {
         try {
             List<Map<String, Object>> models = jdbcTemplate.queryForList(
-                    "select id from fly_model where status = 1");
+                    "select id, code from fly_model where status = 1");
             for (Map<String, Object> m : models) {
-                String table = "fly_cmodel_" + m.get("id");
+                Object code = m.get("code");
+                if (code == null || String.valueOf(code).isBlank()) {
+                    continue;
+                }
+                // 物理表名 = fly_cmodel_{模型 code}（见 ModelDataDao.xml / SqlSafeUtil）。
+                // 早期这里误用 m.get("id") → 拼出 fly_cmodel_3 这种不存在的表，
+                // 异常被 catch 吞掉，定时发布**静默失效**（到点不发布且无任何提示）。
+                String table = "fly_cmodel_" + code;
                 try {
                     int n = jdbcTemplate.update(
                             "update `" + table + "` set status = 1 " +
@@ -37,8 +44,9 @@ public class TimingPublishJob {
                     if (n > 0) {
                         log.info("定时发布 {}: {} 条", table, n);
                     }
-                } catch (Exception ignored) {
-                    // 表不存在（模型未建表）忽略
+                } catch (Exception e) {
+                    // 表不存在（模型未建表）忽略，仅 DEBUG 留痕
+                    log.debug("定时发布跳过 {}：{}", table, e.getMessage());
                 }
             }
             int n = jdbcTemplate.update(

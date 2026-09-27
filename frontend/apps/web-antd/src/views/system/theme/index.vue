@@ -16,10 +16,14 @@ import { Button, message, Modal, Tag } from 'ant-design-vue';
 import {
   checkThemeApi,
   createChildThemeApi,
+  deleteSkinApi,
   deriveTemplateApi,
+  downloadBlob,
   enableThemeApi,
+  exportSkinApi,
   getDeriveTargetsApi,
   getThemeListApi,
+  importSkinApi,
   previewThemeApi,
   rollbackThemeApi,
 } from '#/api/core/template';
@@ -32,10 +36,18 @@ const canManage = computed(() => hasAccessByCodes(['/api/system/theme/enable']))
 const canCreateChild = computed(() =>
   hasAccessByCodes(['/api/system/theme/createChild']),
 );
+/** 导入/导出/删除走皮肤管理接口（/api/system/skin/*），权限节点各自独立 */
+const canImport = computed(() => hasAccessByCodes(['/api/system/skin/import']));
+const canExport = computed(() => hasAccessByCodes(['/api/system/skin/export']));
+const canDelete = computed(() => hasAccessByCodes(['/api/system/skin/delete']));
 
 const loading = ref(false);
 const themes = ref<ThemeInfo[]>([]);
 const current = ref('');
+
+/** P2-1 主题包导入 */
+const importInput = ref<HTMLInputElement>();
+const importing = ref(false);
 
 // 派生弹窗
 const deriveVisible = ref(false);
@@ -125,6 +137,68 @@ async function handleCreateChild(parent: string) {
   });
 }
 
+/** P2-1 导出主题包（zip） */
+async function handleExport(code: string) {
+  try {
+    const blob = await exportSkinApi(code);
+    downloadBlob(blob, `${code}.zip`);
+    message.success(`已开始下载 ${code}.zip`);
+  } catch {
+    message.error('导出失败');
+  }
+}
+
+/** P2-1 触发文件选择 → 导入主题包 */
+function handleImportClick() {
+  importInput.value?.click();
+}
+
+async function onImportPicked(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file) {
+    return;
+  }
+  Modal.confirm({
+    content: `导入「${file.name}」？同名主题的文件会被覆盖（overwrite=1）。`,
+    onOk: async () => {
+      importing.value = true;
+      try {
+        const r = await importSkinApi(file, true);
+        if (r.code === 0) {
+          message.success('导入成功');
+          await load();
+        } else {
+          message.error(r.msg || '导入失败');
+        }
+      } finally {
+        importing.value = false;
+      }
+    },
+    title: '导入主题包',
+  });
+}
+
+/** P2-1 删除主题：有子主题时后端会拒绝（避免子主题失去父级） */
+function handleDelete(code: string, name: string) {
+  Modal.confirm({
+    content: `删除主题「${name || code}」（目录 ${code}）？该操作会删掉整个主题目录，不可撤销。`,
+    okButtonProps: { danger: true },
+    okText: '删除',
+    onOk: async () => {
+      const r = await deleteSkinApi(code);
+      if (r.code === 0) {
+        message.success('已删除');
+        await load();
+      } else {
+        message.error(r.msg || '删除失败');
+      }
+    },
+    title: '确认删除主题',
+  });
+}
+
 async function openDerive(code: string) {
   deriveSkin.value = code;
   deriveFile.value = 'list.html';
@@ -173,7 +247,23 @@ onMounted(load);
 <template>
   <Page title="主题市场" description="换主题 = 点一下；改模板 = 选一下；加页面 = 建一个文件">
     <template #extra>
-      <Button v-if="canManage" danger @click="handleRollback">回滚上一主题</Button>
+      <div class="flex items-center gap-2">
+        <input
+          ref="importInput"
+          accept=".zip"
+          class="hidden"
+          type="file"
+          @change="onImportPicked"
+        />
+        <Button
+          v-if="canImport"
+          :loading="importing"
+          @click="handleImportClick"
+        >
+          导入主题包
+        </Button>
+        <Button v-if="canManage" danger @click="handleRollback">回滚上一主题</Button>
+      </div>
     </template>
 
     <div v-if="loading" class="p-4 text-center text-gray-400">加载中…</div>
@@ -184,6 +274,22 @@ onMounted(load);
         :key="t.code"
         class="rounded-lg border border-gray-200 p-4 transition hover:shadow-md"
       >
+        <div class="mb-3 h-32 overflow-hidden rounded bg-gray-50">
+          <img
+            v-if="t.thumbnail"
+            :alt="t.name"
+            class="h-full w-full object-cover"
+            :src="t.thumbnail"
+            @error="(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')"
+          />
+          <div
+            v-else
+            class="flex h-full items-center justify-center text-xs text-gray-400"
+          >
+            无缩略图
+          </div>
+        </div>
+
         <div class="mb-2 flex items-center justify-between">
           <span class="text-base font-semibold">{{ t.name }}</span>
           <Tag v-if="t.code === current" color="green">使用中</Tag>
@@ -212,11 +318,26 @@ onMounted(load);
           <Button size="small" @click="handlePreview(t.code)">预览</Button>
           <Button size="small" @click="openDerive(t.code)">派生模板</Button>
           <Button
+            v-if="canExport"
+            size="small"
+            @click="handleExport(t.code)"
+          >
+            导出
+          </Button>
+          <Button
             v-if="canCreateChild"
             size="small"
             @click="handleCreateChild(t.code)"
           >
             创建子主题
+          </Button>
+          <Button
+            v-if="canDelete && t.code !== current"
+            danger
+            size="small"
+            @click="handleDelete(t.code, t.name)"
+          >
+            删除
           </Button>
         </div>
       </div>

@@ -82,6 +82,7 @@ public class Answerpage extends AbstractTagPlugin {
 			PageVo<Answer> pageVo = answerService.getAnswerListPage(questionId,userId,addTime,status,orderby,order,p,rows);
 			env.setVariable("answer_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_answerpage", e);
 			env.setVariable("answer_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

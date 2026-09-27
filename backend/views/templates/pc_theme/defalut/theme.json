@@ -1,0 +1,95 @@
+{
+	"name": "墨章",
+	"code": "defalut",
+	"version": "1.0.0",
+	"author": "FlyCms",
+	"parent": "",
+	"thumbnail": "/skin/pc_theme/defalut/screenshot.png",
+	"description": "FlyCms 默认门户主题「墨章」：墨青底 + 铜金强调色的中文门户设计系统，零 JS、零外部依赖、960px 响应式，适配列表/详情/单页/搜索/错误页全页面类型。",
+	"engine": "freemarker",
+	"minAppVersion": "2.0.0",
+	"supports": {
+		"templates": [
+			"index",
+			"list",
+			"list-articles",
+			"list-downloads",
+			"list-images",
+			"detail",
+			"detail-articles",
+			"detail-downloads",
+			"detail-images",
+			"page",
+			"search",
+			"403",
+			"404",
+			"500"
+		],
+		"parts": [
+			"header",
+			"footer"
+		],
+		"regions": [
+			"content_top",
+			"sidebar",
+			"content_bottom"
+		],
+		"device": [
+			"pc"
+		],
+		"capabilities": [
+			"theme-hierarchy",
+			"child-theme",
+			"template-assign",
+			"area-blocks",
+			"template-debug-bar"
+		]
+	},
+	"settings": {
+		"color": {
+			"palette": [
+				{ "slug": "ink", "color": "#16324A", "name": "墨青" },
+				{ "slug": "gold", "color": "#A97C2F", "name": "铜金" },
+				{ "slug": "paper", "color": "#FFFFFF", "name": "纸白" },
+				{ "slug": "mist", "color": "#F4F5F6", "name": "宣灰" },
+				{ "slug": "word", "color": "#252A31", "name": "墨字" },
+				{ "slug": "dust", "color": "#7A8492", "name": "青灰" },
+				{ "slug": "line", "color": "#E3E6EA", "name": "细线" }
+			]
+		},
+		"typography": {
+			"fontSizes": [
+				{ "slug": "small", "size": "13px" },
+				{ "slug": "normal", "size": "15px" },
+				{ "slug": "large", "size": "21px" },
+				{ "slug": "title", "size": "28px" }
+			]
+		},
+		"layout": {
+			"contentSize": "1200px",
+			"wideSize": "1200px"
+		}
+	},
+	"customTemplates": [
+		{
+			"file": "detail-articles.html",
+			"name": "文章详情",
+			"postTypes": ["articles", "article"]
+		},
+		{
+			"file": "detail-images.html",
+			"name": "图集详情",
+			"postTypes": ["images", "image"]
+		},
+		{
+			"file": "detail-downloads.html",
+			"name": "下载详情",
+			"postTypes": ["downloads", "download"]
+		},
+		{
+			"file": "page.html",
+			"name": "单页栏目",
+			"postTypes": ["page"]
+		}
+	]
+}

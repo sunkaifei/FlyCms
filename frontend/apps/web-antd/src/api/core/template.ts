@@ -34,8 +34,18 @@ export interface TagManualRow {
   name: string;
   output: string;
   params: TagParam[];
+  /** 作用域：global / list / detail / module */
+  scope: string;
+  scopeLabel: string;
   snippet: string;
   usage: string;
+}
+
+/** §9.2 作用域过滤后的手册数据（/system/tags/manual 的新返回结构） */
+export interface TagManualResult {
+  groups: Record<string, TagManualRow[]>;
+  scope: string;
+  scopeOptions: Record<string, string>;
 }
 
 function postForm<T>(url: string, data: Record<string, unknown>) {
@@ -121,10 +131,16 @@ export async function importSkinApi(file: File, overwrite: boolean) {
 
 // /////////////////// D7 在线标签手册 ///////////////////
 
-export async function getTagManualApi() {
-  return requestClient.get<Record<string, TagManualRow[]>>(
-    '/system/tags/manual',
-  );
+/**
+ * 标签手册（§9.2 支持按作用域过滤）。
+ *
+ * @param scope 作用域：global / list / detail / module；留空=全部。
+ *              「列表页模板」传 list 即可只看到 list + global 的标签。
+ */
+export async function getTagManualApi(scope?: string) {
+  return requestClient.get<TagManualResult>('/system/tags/manual', {
+    params: { scope },
+  });
 }
 
 /** 下载二进制包（导出皮肤） */
@@ -416,4 +432,107 @@ export async function tagSuggestApi(file: string, pageType?: string) {
   return requestClient.get<TagSuggestResult>('/system/template/tagSuggest', {
     params: { file, pageType },
   });
+}
+
+// /////////////////// P10 区域编排 V2（§7.3 / §8.4） ///////////////////
+
+/** 区块类型：碎片 / 标签聚落 / 自定义 HTML */
+export type AreaBlockType = 'BLOCK' | 'TAG' | 'HTML';
+
+export interface AreaBlockRow {
+  areaName: string;
+  blockRef: string;
+  blockTitle?: string;
+  blockType: AreaBlockType;
+  id?: string;
+  sort?: number;
+  status?: number;
+  themeCode?: string;
+}
+
+/** 区域声明项：declared=true 表示在 theme.json 的 supports.regions 里显式声明过 */
+export interface AreaRegion {
+  blockCount: number;
+  declared: boolean;
+  name: string;
+}
+
+export interface AreaListResult {
+  /** 各区域已编排的区块（key=区域名，按 sort 升序） */
+  blocks: Record<string, AreaBlockRow[]>;
+  /** 该主题可用的区域（theme.json 声明 ∪ 已使用） */
+  regions: AreaRegion[];
+  theme: string;
+}
+
+export async function getAreaListApi(theme?: string) {
+  return requestClient.get<AreaListResult>('/system/area/list', {
+    params: { theme },
+  });
+}
+
+export async function saveAreaBlockApi(data: AreaBlockRow) {
+  return postForm<{ code: number; msg: string }>('/system/area/save', {
+    areaName: data.areaName,
+    blockRef: data.blockRef,
+    blockTitle: data.blockTitle,
+    blockType: data.blockType,
+    id: data.id,
+    sort: data.sort,
+    status: data.status,
+    theme: data.themeCode,
+  });
+}
+
+export async function deleteAreaBlockApi(id: string) {
+  return postForm<{ code: number; msg: string }>('/system/area/delete', { id });
+}
+
+/** 拖拽后提交一次完整顺序 */
+export async function reorderAreaBlockApi(ids: string[]) {
+  return postForm<{ code: number; msg: string }>('/system/area/reorder', {
+    ids: ids.join(','),
+  });
+}
+
+export async function toggleAreaBlockApi(id: string, status: number) {
+  return postForm<{ code: number; msg: string }>('/system/area/status', {
+    id,
+    status,
+  });
+}
+
+/** 区域渲染预览（保存后立刻看效果） */
+export async function previewAreaApi(area: string, theme?: string) {
+  return requestClient.get<{
+    area: string;
+    blockCount: number;
+    html: string;
+  }>('/system/area/preview', { params: { area, theme } });
+}
+
+// /////////////////// P3-3 区块图案（§7.1 / §8.2 组件面板） ///////////////////
+
+export interface PatternRow {
+  desc?: string;
+  file: string;
+  name: string;
+  size?: number;
+}
+
+export async function getPatternListApi(skin?: string) {
+  return requestClient.get<{ patterns: PatternRow[]; skin: string }>(
+    '/system/pattern/list',
+    { params: { skin } },
+  );
+}
+
+export async function readPatternApi(file: string, skin?: string) {
+  return requestClient.get<{
+    content: string;
+    desc?: string;
+    file: string;
+    name: string;
+    skin: string;
+  }>('/system/pattern/read', { params: { file, skin } });
 }

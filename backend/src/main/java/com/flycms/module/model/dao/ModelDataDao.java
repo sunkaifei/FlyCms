@@ -64,6 +64,33 @@ public interface ModelDataDao {
 
     public int deleteData(@Param("suffix") String suffix, @Param("ids") List<Long> ids);
 
+    // /////////////////// 标签聚合（前台 /tag/{tag}/，§5.1 标签页） ///////////////////
+
+    /**
+     * 按关键词在单个模型表内做"标签式"检索：命中 {@code title} / {@code keywords}，
+     * 表内存在 {@code tags} 列时（见 {@code hasTags}）一并命中。
+     *
+     * <p>与 {@link #selectPage} 的区别：这里只做前台展示所需的固定列裁剪 + 按发布时间倒序 +
+     * 每表 LIMIT，供跨模型合并分页使用（前端标签页的语义就是"这个关键词下有哪些内容"）。
+     *
+     * @param suffix   模型 code（已过白名单）
+     * @param keyword  关键词（业务值，恒走 #{}）
+     * @param hasTags  该表是否存在 tags 列（由调用方用 information_schema 探测后缓存）
+     * @param limit    本表最多取多少行
+     */
+    public List<Map<String, Object>> searchByKeyword(@Param("suffix") String suffix,
+                                                     @Param("keyword") String keyword,
+                                                     @Param("hasTags") boolean hasTags,
+                                                     @Param("limit") int limit);
+
+    /** searchByKeyword 的总数（用于合并分页的准确总数） */
+    public int countByKeyword(@Param("suffix") String suffix,
+                              @Param("keyword") String keyword,
+                              @Param("hasTags") boolean hasTags);
+
+    /** 探测某表是否含指定列（information_schema，结果由调用方缓存） */
+    public boolean columnExists(@Param("suffix") String suffix, @Param("columnName") String columnName);
+
     // /////////////////// 附件（fly_images，AttachmentPicker 数据源） ///////////////////
 
     public List<Map<String, Object>> attachmentList(@Param("offset") int offset, @Param("rows") int rows);

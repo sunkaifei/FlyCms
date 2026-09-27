@@ -24,6 +24,9 @@ import java.util.Map;
 @RestController
 public class SeoController {
 
+    private static final org.slf4j.Logger logger =
+            org.slf4j.LoggerFactory.getLogger(SeoController.class);
+
     @Autowired
     private ConfigService configService;
 
@@ -65,18 +68,26 @@ public class SeoController {
         sb.append(urlEntry(base + "/", now));
         for (Model model : modelService.getEnabledModels()) {
             sb.append(urlEntry(base + "/" + model.getCode() + "/", now));
+            if (model.getCode() == null || model.getCode().isBlank()) {
+                continue;
+            }
             try {
+                // 物理表名 = fly_cmodel_{模型 code}（见 ModelDataDao.xml / SqlSafeUtil）。
+                // 早期这里误用了 model.getId() → 拼出 fly_cmodel_3 这种不存在的表，
+                // 异常又被 catch 吞掉，导致 sitemap 永远只有首页 + 栏目页、没有任何内容 URL。
                 List<Map<String, Object>> rows = jdbcTemplate.queryForList(
-                        "select short_url, update_time from `fly_cmodel_" + model.getId()
-                                + "` where status = 1 order by id desc limit " + limit);
+                        "select short_url, update_time from `fly_cmodel_" + model.getCode()
+                                + "` where status = 1 order by id desc limit ?",
+                        limit);
                 for (Map<String, Object> row : rows) {
                     Object ut = row.get("update_time");
                     String lastmod = ut == null ? now
                             : ut.toString().replace('T', ' ').substring(0, 10);
                     sb.append(urlEntry(base + "/" + model.getCode() + "/" + row.get("short_url") + ".html", lastmod));
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
                 // 动态表不存在时跳过该模型
+                logger.debug("sitemap 跳过模型 {}：{}", model.getCode(), e.getMessage());
             }
         }
         sb.append("</urlset>");

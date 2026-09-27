@@ -102,6 +102,7 @@ public class Userhotpage extends AbstractTagPlugin {
 			PageVo<User> pageVo = userService.getUserHotListPage(userName, nickName, mobile, email,province,city,area,status,orderby,order,p,rows);
 			env.setVariable("hot_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_userhotpage", e);
 			env.setVariable("hot_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

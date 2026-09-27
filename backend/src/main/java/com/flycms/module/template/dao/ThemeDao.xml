@@ -39,4 +39,9 @@
 	<update id="updateCurrent">
 		update fly_theme set is_current = 1 where code = #{code}
 	</update>
+
+	<!-- 启动期一致性校验用：清理"磁盘已删除、DB 仍登记"的脏主题（§16 风险3） -->
+	<delete id="deleteByCode">
+		delete from fly_theme where code = #{code}
+	</delete>
 </mapper>

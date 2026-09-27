@@ -51,7 +51,7 @@ public class Userpower extends AbstractTagPlugin {
 				body.render(env.getOut());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logTagFailure("fly_userpower", e);
 		}
 	}
 }

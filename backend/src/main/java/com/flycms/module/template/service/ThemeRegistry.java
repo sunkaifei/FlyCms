@@ -183,6 +183,11 @@ public class ThemeRegistry {
             File[] dirs = root.listFiles(File::isDirectory);
             if (dirs != null) {
                 for (File d : dirs) {
+                    // 跳过下划线/点开头的目录：约定为草稿、测试数据（如 _testdata_draft）与 VCS 目录，
+                    // 不登记为可切换主题，避免自测产物混进主题市场（§8.1）
+                    if (d.getName().startsWith("_") || d.getName().startsWith(".")) {
+                        continue;
+                    }
                     Theme t = parseTheme(d);
                     if (t != null) {
                         cache.put(t.getCode(), t);

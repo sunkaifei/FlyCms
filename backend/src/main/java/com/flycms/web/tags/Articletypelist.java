@@ -58,6 +58,7 @@ public class Articletypelist extends AbstractTagPlugin {
 			List<ArticleCategory> pageVo = articleCategoryService.getCategoryListByFatherId(fatherId);
 			env.setVariable("typelist", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_articletypelist", e);
 			env.setVariable("typelist", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

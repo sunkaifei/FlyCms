@@ -37,7 +37,7 @@ public class Login extends AbstractTagPlugin {
 			env.setVariable("status", builder.build().wrap(loginMember));
 			body.render(env.getOut());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logTagFailure("fly_login", e);
 		}
 	}
 

@@ -7,6 +7,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -37,31 +38,38 @@ public class IndexController extends BaseController {
     /**
      * 403
      *
-     * @return
+     * <p><b>为什么必须显式标 {@code @ResponseStatus}</b>：全站错误页都靠
+     * {@code return "forward:/404"} 转发进来（ChannelController / ModelController / TagController …）。
+     * forward 只是把请求内部转给本方法，<b>不会自动携带原始语义状态码</b>——
+     * 不加注解时整站"页面不存在"都会以 <b>HTTP 200</b> 返回，搜索引擎会把 404 页当正常页收录，
+     * 监控也无法区分健康与错误（2026-09-28 修复）。
      */
     @GetMapping(value = "/403")
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public String pageForbidden(ModelMap modelMap) {
         return templateResolver.resolveAndExpose(
                 com.flycms.module.template.model.TemplateContext.error(403), modelMap);
     }
 
     /**
-     * 404
+     * 404（状态码语义同上）
      *
      * @return
      */
     @GetMapping(value = "/404")
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String pageNotFound(ModelMap modelMap) {
         return templateResolver.resolveAndExpose(
                 com.flycms.module.template.model.TemplateContext.error(404), modelMap);
     }
 
     /**
-     * 500
+     * 500（状态码语义同上）
      *
      * @return
      */
     @GetMapping(value = "/500")
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String error(ModelMap modelMap) {
         return templateResolver.resolveAndExpose(
                 com.flycms.module.template.model.TemplateContext.error(500), modelMap);

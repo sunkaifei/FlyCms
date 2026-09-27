@@ -48,7 +48,8 @@ public class HotModel extends AbstractModelTag {
                         model.getId(), null, longVal(p, "category"), 1, null,
                         "count_view", "desc", 1, intVal(p, "rows", 10), null, true).getList();
                 modelDataService.expandAttachments(model.getId(), dataList);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+            logTagFailure("fly_hot_model", e);
             }
         }
 

@@ -1,0 +1,56 @@
+<#-- ============================================================
+     标签聚合页（/tag/{tag}/ 与 /tag/{tag}/p{n}，TagController 渲染）
+     上下文：tag=标签名 / dataList=当前页行（含 __modelCode）/ tag_total / pageRows / p
+             relatedTags（相关标签 Top20）/ modelHits（来源分布）
+     分页：路径式 /tag/{tag}/p{n} —— 故用 pager 宏，而非 ?p=N
+     ============================================================ -->
+<#include "common/macros.html">
+<#assign tg = (tag)!''>
+<#assign pageTitle = "「" + tg + "」标签 - " + (web_name)!''>
+<#include "common/header.html">
+
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i>标签
+  <#if tg != ''><i>/</i>${tg?html}</#if>
+</div></div>
+
+<div class="wrap lay">
+  <main>
+    <div class="list-hd">
+      <h1>「${tg?html}」</h1>
+      <small>PAGE <span class="num">${(p)!1}</span> · 共 <span class="num">${(tag_total)!0}</span> 篇</small>
+    </div>
+
+    <#-- 来源分布：跨模型命中数（>1 个模型时才展示，避免单模型时噪音） -->
+    <#if (modelHits)?? && modelHits?size gt 1>
+    <div class="tag-src">
+      <#list modelHits as h>
+      <span class="chip">${(h.name)!''} <b class="num">${(h.count)!0}</b></span>
+      </#list>
+    </div>
+    </#if>
+
+    <#if (dataList)?? && dataList?size gt 0>
+      <@mixRows rows=dataList />
+      <@pager base="/tag/" + tg count=(tag_total)!0 rows=(pageRows)!10 cur=(p)!1 />
+    <#else>
+      <div class="empty"><b>0</b>暂无与「${tg?html}」相关的内容，去<a href="/">首页</a>看看别的？</div>
+    </#if>
+  </main>
+
+  <aside class="rit">
+    <#if (relatedTags)?? && relatedTags?size gt 0>
+    <div class="side-hd"><h2>相关标签</h2></div>
+    <div class="tag-cloud">
+      <#list relatedTags as t>
+      <a href="/tag/${t.name?url('UTF-8')}">${t.name?html}<b class="num">${(t.count)!0}</b></a>
+      </#list>
+    </div>
+    <div style="margin-top:30px"><@hotRank model="articles" rows=8 /></div>
+    <#else>
+    <div><@hotRank model="articles" rows=8 /></div>
+    </#if>
+  </aside>
+</div>
+
+<#include "common/footer.html">

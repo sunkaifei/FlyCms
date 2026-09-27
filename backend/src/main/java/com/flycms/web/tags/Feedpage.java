@@ -63,6 +63,7 @@ public class Feedpage extends AbstractTagPlugin {
 			PageVo<Feed> pageVo = feedService.getUserListFeedPage(userId,status,p,rows);
 			env.setVariable("feed_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_feedpage", e);
 			env.setVariable("feed_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

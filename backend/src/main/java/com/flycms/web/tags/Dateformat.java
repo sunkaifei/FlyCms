@@ -31,8 +31,7 @@ public class Dateformat extends AbstractTagPlugin {
 			time = DateUtils.getDateTimeString(time);
 			env.getOut().write(time);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logTagFailure("fly_dateformat", e);
 		}
 
 	}

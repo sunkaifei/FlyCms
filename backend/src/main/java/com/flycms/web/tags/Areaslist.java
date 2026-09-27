@@ -63,6 +63,7 @@ public class Areaslist extends AbstractTagPlugin {
 			List<Areas> pageVo = areasService.selectAreasByPid(parentId);
 			env.setVariable("areaslist", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_areaslist", e);
 			env.setVariable("areaslist", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

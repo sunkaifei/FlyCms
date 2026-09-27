@@ -141,7 +141,9 @@ public class TemplateResolver {
         String assign = assignedTemplate(ctx);
         if (StringUtils.isNotBlank(assign)) {
             ThemeRegistry.Resolved r = registry.locate(skin, assign);
-            Candidate c = new Candidate(assign, "DB指派");
+            // Candidate.file 约定为无后缀短名（链上其余项都用 c.file + ".html" 还原），
+            // 指派值可能自带 .html，必须先剥掉，否则拼出 index.html.html 且命中判定恒为 false
+            Candidate c = new Candidate(stripHtmlSuffix(assign), "DB指派");
             if (r != null) {
                 c.exists = true;
                 c.view = r.view;
@@ -163,8 +165,30 @@ public class TemplateResolver {
     private void fill(TemplateContext ctx, ThemeRegistry.Resolved r, String file, String source) {
         ctx.setResolved(r.view);
         ctx.setResolvedTheme(r.skin);
-        ctx.setResolvedFile(file + ".html");
+        ctx.setResolvedFile(withHtmlSuffix(file));
         logger.debug("模板解析命中：{} (主题 {}, 来源 {})", r.view, r.skin, source);
+    }
+
+    /**
+     * 统一补 {@code .html} 后缀。
+     *
+     * <p>候选链里写的是无后缀短名（{@code list-news}），但 <b>DB 指派存的是用户在后台填写的值</b>，
+     * 可能自带 {@code .html}。早期实现对两者一视同仁地 {@code file + ".html"}，
+     * 于是指派 {@code index.html} 时调试条会显示 {@code index.html.html}，
+     * 且 {@code debugChain} 的"命中"判定（用 {@code c.file + ".html"} 与解析结果比对）永远为 false
+     * ——后台"候选链可视化"会把真正生效的那一项标成未命中（2026-09-28 修复）。
+     */
+    private static String withHtmlSuffix(String file) {
+        return stripHtmlSuffix(file) + ".html";
+    }
+
+    /** 去掉 {@code .html} 后缀，得到候选链约定的无后缀短名 */
+    private static String stripHtmlSuffix(String file) {
+        if (file == null) {
+            return null;
+        }
+        return file.regionMatches(true, file.length() - 5, ".html", 0, 5)
+                ? file.substring(0, file.length() - 5) : file;
     }
 
     // /////////////////// 候选链生成（§5） ///////////////////
@@ -243,40 +267,48 @@ public class TemplateResolver {
 
     /**
      * 查询该页面被指派的模板（相对路径）。按"内容 > 栏目 > 模型 > 站点"由具体到宽泛取第一个命中。
+     *
+     * <p><b>target_id 口径（§5.3，2026-09-28 统一）</b>：一律用<b>目录名/code 这类稳定标识</b>，
+     * 不用自增 ID——栏目重建、模型导出导入后数字 ID 会漂移，而目录名与前台路由一一对应：
+     * <ul>
+     *   <li>{@code CONTENT} → 内容数字 ID（内容不重建，ID 稳定）</li>
+     *   <li>{@code CHANNEL} → 栏目<b>目录名</b>（如 {@code news}），与前台 {@code /news/} 一致</li>
+     *   <li>{@code MODEL}   → 模型 <b>code</b>（如 {@code articles}）</li>
+     *   <li>{@code SITE}    → 固定字符串 {@code site}（站点级，承载首页/搜索/标签/错误页指派）</li>
+     * </ul>
+     *
+     * <p>页面类型覆盖 {@code DETAIL / LIST / INDEX / CHANNEL_PAGE / SEARCH / TAG / ERROR} 七种，
+     * 与 {@code fly_template_assign.page_type} 枚举一一对应。
      */
     private String assignedTemplate(TemplateContext ctx) {
-        if (assignDao == null) {
+        if (assignDao == null || ctx == null || ctx.getPageType() == null) {
             return null;
         }
-        String type = ctx.getPageType() == TemplateContext.PageType.DETAIL ? "DETAIL"
-                : ctx.getPageType() == TemplateContext.PageType.LIST ? "LIST"
-                : ctx.getPageType() == TemplateContext.PageType.INDEX ? "INDEX" : null;
-        if (type == null) {
-            return null;
-        }
-        // 内容级（仅详情页）
+        String pageType = ctx.getPageType().name();
+
+        // 1) 内容级（仅详情页有内容 ID）
         if (ctx.getPageType() == TemplateContext.PageType.DETAIL && ctx.getContentId() != null) {
-            TemplateAssign a = assignDao.findByTarget("CONTENT", String.valueOf(ctx.getContentId()), "DETAIL");
+            TemplateAssign a = assignDao.findByTarget("CONTENT", String.valueOf(ctx.getContentId()), pageType);
             if (a != null) {
                 return a.getTemplate();
             }
         }
-        // 栏目级
+        // 2) 栏目级（target_id = 栏目目录名）
         if (StringUtils.isNotBlank(ctx.getChannelDir())) {
-            TemplateAssign a = assignDao.findByTarget("CHANNEL", ctx.getChannelDir(), type);
+            TemplateAssign a = assignDao.findByTarget("CHANNEL", ctx.getChannelDir(), pageType);
             if (a != null) {
                 return a.getTemplate();
             }
         }
-        // 模型级
+        // 3) 模型级（target_id = 模型 code）
         if (StringUtils.isNotBlank(ctx.getModelCode())) {
-            TemplateAssign a = assignDao.findByTarget("MODEL", ctx.getModelCode(), type);
+            TemplateAssign a = assignDao.findByTarget("MODEL", ctx.getModelCode(), pageType);
             if (a != null) {
                 return a.getTemplate();
             }
         }
-        // 站点级（首页等）
-        TemplateAssign a = assignDao.findByTarget("SITE", "site", type);
+        // 4) 站点级（首页 / 搜索 / 标签 / 错误页）
+        TemplateAssign a = assignDao.findByTarget("SITE", "site", pageType);
         return a == null ? null : a.getTemplate();
     }
 
@@ -299,8 +331,9 @@ public class TemplateResolver {
                     }
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             // 非请求上下文（如启动期扫描）忽略
+            logger.debug("读取预览主题参数失败，回退当前主题：{}", e.getMessage());
         }
         return registry.currentSkin();
     }

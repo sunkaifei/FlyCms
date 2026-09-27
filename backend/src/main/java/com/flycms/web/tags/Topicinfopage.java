@@ -82,17 +82,13 @@ public class Topicinfopage extends AbstractTagPlugin {
 			}
 		}
 		// 获取文件的分页
-		System.out.println("===================1==============");
 		try {
-			System.out.println("===================2==============");
 			PageVo<TopicInfo> pageVo = topicService.getTopicAndInfoListPage(infoType,topicId,status,orderby,order,p,rows);
-			System.out.println("===================3==============");
 			env.setVariable("topic_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
-			System.out.println("===================4==============");
+			logTagFailure("fly_topicinfopage", e);
 			env.setVariable("topic_page", builder.build().wrap(null));
 		}
-		System.out.println("===================5==============");
 		body.render(env.getOut());
 	}
 }

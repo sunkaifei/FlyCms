@@ -31,6 +31,23 @@
 </#list>
 </#macro>
 
+<#-- 混排行卡片：每行自带 __modelCode（标签页 / 搜索页 / 聚合流），
+     链接与封面一律按"行内模型码"取——不能用统一 mc，否则跨模型时会指向错误栏目与错误题图 -->
+<#macro mixRows rows>
+<#list rows as r>
+<#assign rmc = (r['__modelCode'])!'articles'>
+<#assign rlink = "/" + rmc + "/" + r.shortUrl + ".html">
+<article class="card-x">
+  <a href="${rlink}"><@cover mc=rmc url=(r.thumbnailUrl)!'' /></a>
+  <div>
+    <h2><a href="${rlink}">${r.title?html}</a></h2>
+    <#if (r.description)?? && r.description != ''><p>${r.description?html}</p></#if>
+    <div class="meta"><time><@date10 (r.createTime)!'' /></time> · <span>${(r['__modelName'])!'内容'}</span> · 阅读 <b class="num">${(r.countView)!0}</b></div>
+  </div>
+</article>
+</#list>
+</#macro>
+
 <#-- 分页（路径式：{base}/p{n}；PageVo.pageCount 可直接用） -->
 <#macro pager base count rows cur>
 <#if count gt 0 && rows gt 0>

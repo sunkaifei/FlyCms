@@ -142,6 +142,10 @@ public class TemplateCenterService {
                 copied = copyDir(src.toPath(), target.toPath());
             }
         }
+        // 新目录立刻进注册表，否则主题市场 60s 内看不到它（§10）
+        if (themeRegistry != null) {
+            themeRegistry.refresh();
+        }
         return DataVo.success("皮肤已创建" + (copied > 0 ? "，已复制 " + copied + " 个文件" : ""));
     }
 
@@ -159,6 +163,11 @@ public class TemplateCenterService {
         if (!dir.isDirectory()) {
             return DataVo.failure("皮肤不存在：" + skin);
         }
+        // 子主题存在时拒绝删除（§6.3 卸载规则）：删了父主题，子主题的同名覆盖会全部失效
+        List<String> children = childThemesOf(skin);
+        if (!children.isEmpty()) {
+            return DataVo.failure("该主题存在子主题 " + children + "，请先删除或改指子主题的 parent 后再卸载");
+        }
         for (TemplateFile t : templateDao.findTemplatesBySkin(skin)) {
             templateDao.deleteVersions(t.getId());
         }
@@ -166,7 +175,45 @@ public class TemplateCenterService {
         if (!deleteDir(dir.toPath())) {
             return DataVo.failure("皮肤目录删除失败，请检查文件占用");
         }
+        // 目录没了，注册表缓存必须立即失效，否则主题市场还会列出它（§10 "改了不生效"最伤信心）
+        if (themeRegistry != null) {
+            themeRegistry.refresh();
+        }
         return DataVo.success("皮肤已删除");
+    }
+
+    /** 列出以 parent 为父主题的子主题 code（取自注册表，注册表不可用时退化为扫磁盘） */
+    private List<String> childThemesOf(String parent) {
+        List<String> out = new ArrayList<>();
+        if (themeRegistry != null) {
+            for (com.flycms.module.template.model.Theme t : themeRegistry.allThemes()) {
+                if (parent.equals(t.getParentCode())) {
+                    out.add(t.getCode());
+                }
+            }
+            return out;
+        }
+        File root = new File(THEME_ROOT);
+        File[] dirs = root.listFiles(File::isDirectory);
+        if (dirs != null) {
+            for (File d : dirs) {
+                File json = new File(d, "theme.json");
+                if (!json.isFile()) {
+                    continue;
+                }
+                try {
+                    String text = new String(java.nio.file.Files.readAllBytes(json.toPath()),
+                            java.nio.charset.StandardCharsets.UTF_8);
+                    com.alibaba.fastjson.JSONObject o = com.alibaba.fastjson.JSONObject.parseObject(text);
+                    if (o != null && parent.equals(o.getString("parent"))) {
+                        out.add(d.getName());
+                    }
+                } catch (Exception ignored) {
+                    logger.debug("读取 {} 的 theme.json 失败，跳过子主题判定", json.getPath());
+                }
+            }
+        }
+        return out;
     }
 
     // /////////////////// 模板读/写 ///////////////////
@@ -537,6 +584,10 @@ public class TemplateCenterService {
                 return DataVo.failure("写入失败：" + rel + " " + e.getMessage());
             }
         }
+        // 导入往往带来全新皮肤目录（或覆盖了 theme.json），注册表必须立即重建
+        if (themeRegistry != null) {
+            themeRegistry.refresh();
+        }
         return DataVo.success("皮肤「" + skin + "」已导入，写入 " + wrote + " 个文件"
                 + (skipped > 0 ? "，跳过 " + skipped + " 个非白名单文件" : ""));
     }
@@ -595,8 +646,9 @@ public class TemplateCenterService {
         List<com.flycms.module.model.model.Model> models = new ArrayList<>();
         try {
             models = modelDao.getAllModelList(1);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             // 模型表不可用时降级为空列表，不影响模板派生本身
+            logger.debug("读取模型列表失败，模板派生跳过模型槽位：{}", e.getMessage());
         }
         if (models != null) {
             for (com.flycms.module.model.model.Model m : models) {
@@ -613,7 +665,9 @@ public class TemplateCenterService {
         List<com.flycms.module.channel.model.Channel> channels = new ArrayList<>();
         try {
             channels = channelDao.findAll();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // 栏目表不可用时降级为空列表，不影响模板派生本身
+            logger.debug("读取栏目列表失败，模板派生跳过栏目槽位：{}", e.getMessage());
         }
         if (channels != null) {
             for (com.flycms.module.channel.model.Channel c : channels) {

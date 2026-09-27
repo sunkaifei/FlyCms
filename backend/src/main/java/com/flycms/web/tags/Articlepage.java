@@ -82,6 +82,7 @@ public class Articlepage extends AbstractTagPlugin {
 			PageVo<Article> pageVo = articleService.getArticleListPage(title,userId,createTime,status,orderby,order,p,rows);
 			env.setVariable("article_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_articlepage", e);
 			env.setVariable("article_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

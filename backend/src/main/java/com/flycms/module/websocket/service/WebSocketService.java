@@ -67,7 +67,8 @@ public class WebSocketService extends TextWebSocketHandler  {
                     user.sendMessage(message);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                // 单个会话发送失败不阻断广播，但需留痕（否则"消息没到"无从排查）
+                logger.warn("WebSocket 广播发送失败，已跳过该会话：{}", e.getMessage());
             }
         }
     }

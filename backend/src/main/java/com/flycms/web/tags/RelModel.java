@@ -49,7 +49,8 @@ public class RelModel extends AbstractModelTag {
                         str(p, "orderby", null), str(p, "order", null),
                         1, intVal(p, "rows", 5), longVal(p, "notid"), true).getList();
                 modelDataService.expandAttachments(model.getId(), dataList);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+            logTagFailure("fly_rel_model", e);
             }
         }
 

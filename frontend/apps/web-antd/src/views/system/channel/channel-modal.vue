@@ -14,6 +14,7 @@ import {
 } from '#/api/core/channel';
 
 import RichEditor from '../modeldata/richtext-editor.vue';
+import AssignSelect from '../template/assign-select.vue';
 
 /**
  * 新增/编辑栏目。
@@ -60,6 +61,21 @@ const dirMsg = ref<{ ok: boolean; text: string } | null>(null);
 const isSinglePage = computed(() => channelType.value === 1);
 const isOutLink = computed(() => channelType.value === 2);
 const needModel = computed(() => channelType.value === 0);
+
+/**
+ * P2-3 模板指派的页面类型与槽位前缀（按栏目类型切换）。
+ * 口径：CHANNEL 级 target_id = 栏目目录名（channelDir），与前台路由 /{channelDir} 一致。
+ */
+const assignPageType = computed(() =>
+  isSinglePage.value ? 'CHANNEL_PAGE' : 'LIST',
+);
+const assignSlotPrefix = computed(() =>
+  isSinglePage.value ? 'page-' : 'list-',
+);
+/** 外链栏目不渲染页面，无模板可指派 */
+const canAssignTemplate = computed(
+  () => !isOutLink.value && !!channelDir.value.trim(),
+);
 
 let dirTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -257,14 +273,17 @@ onMounted(async () => {
         <Textarea v-model:value="seoDescription" :rows="2" />
       </div>
 
-      <div class="col-span-2 mt-1 text-sm font-medium">模板覆盖（可选）</div>
-      <div>
-        <div class="mb-1 text-sm">列表模板</div>
-        <Input v-model:value="listTemplate" placeholder="留空=模型默认，如 channel/list.html" />
+      <div class="col-span-2 mt-1 text-sm font-medium">模板指派</div>
+      <div v-if="canAssignTemplate" class="col-span-2">
+        <AssignSelect
+          :page-type="assignPageType"
+          :slot-prefix="assignSlotPrefix"
+          :target-id="channelDir.trim()"
+          target-type="CHANNEL"
+        />
       </div>
-      <div>
-        <div class="mb-1 text-sm">详情模板</div>
-        <Input v-model:value="detailTemplate" placeholder="留空=模型默认" />
+      <div v-else class="col-span-2 text-xs text-gray-400">
+        外链栏目不渲染页面，或请先填写「栏目目录」后再指派模板。
       </div>
 
       <div>

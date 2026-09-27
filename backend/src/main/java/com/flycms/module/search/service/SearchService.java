@@ -21,7 +21,7 @@ import java.util.ArrayList;
  */
 @Service
 public class SearchService {
-	protected final Logger logger = LoggerFactory.getLogger(SearchService.class);
+	protected static final Logger logger = LoggerFactory.getLogger(SearchService.class);
 
     public boolean indexQuestionId(long id) throws ParseException {
         return true;
@@ -73,7 +73,7 @@ public class SearchService {
                 return str.substring(str.indexOf(" AND ")+5,str.length());
             }return str ;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn("检索关键词预处理失败（str={}）：{}", str, e.getMessage());
             return null;
         }
     }

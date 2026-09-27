@@ -68,6 +68,7 @@ public class PageModel extends AbstractModelTag {
             vars.put("model_page", pageVo);
             vars.put("pageHtml", buildPageBar(page, rows, pageVo.getCount()));
         } catch (Exception e) {
+            logTagFailure("fly_page_model", e);
             vars.put("dataList", null);
             vars.put("model_page", null);
             vars.put("pageHtml", "");

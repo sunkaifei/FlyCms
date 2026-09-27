@@ -19,6 +19,8 @@ spring:
     checkTemplateLocation: false
     template-loader-path:
     - file:./views/templates/
+    # 开发默认关闭（改完模板立刻生效，无需重启）；生产用 prod profile 覆盖为 true（§10）
+    # 生产启动：--spring.profiles.active=prod
     cache: false
     settings:
           auto_import: /spring.ftl as spring
@@ -102,3 +104,24 @@ site:
   #cookie所在的域，留空则 cookie 仅对当前主机生效（推荐）；
   #如需主域下多子站共享登录态，部署时改为实际域名，如 ".example.com"
   cookieDomain: ""
+
+---
+# ============================================================
+# 生产 profile（§10 缓存与性能）
+# 启用：java -jar ... --spring.profiles.active=prod
+# 或      mvn -o spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=prod"
+#
+# 开启 FreeMarker 模板编译缓存显著降低首字节时间；"改了不生效"由两条路径兜底：
+#   ① 保存模板 → TemplateCenterService.evictTemplate() 精确移除该模板缓存
+#   ② 切换主题 / 保存站点配置 → themeRegistry.refresh() + 后台「清空模板缓存」按钮
+# ============================================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+  freemarker:
+    cache: true
+    template_update_delay: 0
+  devtools:
+    # 生产必须关闭 devtools 自动重启（否则缓存与热重载相互打架）
+    enabled: false

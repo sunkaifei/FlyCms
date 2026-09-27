@@ -1,0 +1,11 @@
+<#-- name: 公告条 | desc: 单行公告，铜金竖线 + 可关闭文案；配合 fly_announcement_model 可做成动态公告 -->
+<div class="pt-notice">
+  <b>公告</b>
+  <@fly_announcement_model rows="1">
+  <#if noticeList?? && noticeList?size gt 0>
+    <#list noticeList as n><a href="${(n.url)!'/'}">${n.title?html}</a></#list>
+  <#else>
+    <span>在这里写一条本站公告。</span>
+  </#if>
+  </@fly_announcement_model>
+</div>

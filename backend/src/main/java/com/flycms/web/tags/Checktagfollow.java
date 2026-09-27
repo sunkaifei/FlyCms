@@ -57,7 +57,7 @@ public class Checktagfollow extends AbstractTagPlugin {
 				env.setVariable("result", builder.build().wrap(false));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logTagFailure("fly_checktagfollow", e);
 		}
 		body.render(env.getOut());
 	}

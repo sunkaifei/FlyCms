@@ -83,6 +83,7 @@ public class Articlecommentpage extends AbstractTagPlugin {
 			PageVo<ArticleComment> pageVo = articleService.getArticleCommentListPage(articleId,userId,createTime,status,orderby,order,p,rows);
 			env.setVariable("comment_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_articlecommentpage", e);
 			env.setVariable("comment_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

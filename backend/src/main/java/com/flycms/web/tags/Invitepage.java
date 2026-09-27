@@ -75,6 +75,7 @@ public class Invitepage extends AbstractTagPlugin {
             PageVo<UserInvite> pageVo = userInviteService.getUserInviteListPage(userId,status,orderby,order,p,rows);
             env.setVariable("invite_page", builder.build().wrap(pageVo));
         } catch (Exception e) {
+            logTagFailure("fly_invitepage", e);
             env.setVariable("invite_page", builder.build().wrap(null));
         }
         body.render(env.getOut());

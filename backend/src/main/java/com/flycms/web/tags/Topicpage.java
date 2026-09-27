@@ -90,6 +90,7 @@ public class Topicpage extends AbstractTagPlugin {
 			PageVo<Topic> pageVo = topicService.getTopicListPage(topic,type,isgood,status,orderby,order,p,rows);
 			env.setVariable("topic_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_topicpage", e);
 			env.setVariable("topic_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

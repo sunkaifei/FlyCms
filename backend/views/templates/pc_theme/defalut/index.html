@@ -40,6 +40,16 @@
   </aside>
 </div>
 
+<#-- 区域占位（P10 / §8.4 V2）：后台「布局管理」往 content_top 里编排区块
+     （碎片 / 列表标签 / 自定义 HTML）。没配区块时整段零输出，页面对比配置前后无差异。 -->
+<@fly_area name="content_top">
+<#if (area.blocks)?size gt 0>
+<section class="sec">
+  <div class="wrap area-sec">${area_html}</div>
+</section>
+</#if>
+</@fly_area>
+
 <section class="sec">
   <div class="wrap">
     <div class="boards">

@@ -52,7 +52,8 @@ public class ListModel extends AbstractModelTag {
                         extractFilters(p), str(p, "orderby", null), str(p, "order", null),
                         intVal(p, "p", 1), intVal(p, "rows", 10), longVal(p, "notid"), true).getList();
                 modelDataService.expandAttachments(model.getId(), dataList);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+            logTagFailure("fly_list_model", e);
             }
         }
 

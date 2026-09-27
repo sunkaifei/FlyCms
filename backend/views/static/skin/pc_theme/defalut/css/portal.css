@@ -210,6 +210,60 @@ ul, ol { list-style: none; }
 .err p { margin: 10px 0 22px; color: var(--dust); }
 .err a { color: var(--gold); border-bottom: 1px solid currentColor; }
 
+/* ---------- 标签页 / 搜索页 ---------- */
+/* 来源分布：跨模型命中数，铜金细边小签，刻意压低视觉权重 */
+.tag-src { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
+.tag-src .chip {
+  font-size: 12.5px; color: var(--dust);
+  border: 1px solid var(--line); border-radius: 3px; padding: 2px 10px;
+}
+.tag-src .chip b { color: var(--gold); font-family: var(--serif-num); font-weight: 400; margin-left: 2px; }
+/* 相关标签云：侧栏用，签内自带计数 */
+.tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-cloud a {
+  font-size: 13px; color: var(--word);
+  background: var(--mist); border: 1px solid var(--line); border-radius: 3px;
+  padding: 4px 10px; transition: all .15s;
+}
+.tag-cloud a:hover { color: var(--gold); border-color: var(--gold); background: #FFF; }
+.tag-cloud a b { font-family: var(--serif-num); font-weight: 400; color: var(--dust); margin-left: 4px; font-size: 12px; }
+
+/* ---------- 区域编排（<@fly_area>）与区块图案（patterns/*.html） ---------- */
+/* 区域容器：区块之间留呼吸，末块不留白 */
+.area-sec > * + * { margin-top: 22px; }
+/* 碎片型区块的条目列表 */
+.area-list { display: grid; gap: 8px 26px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.area-list li { border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
+.area-list a { font-size: 14.5px; }
+.area-list a:hover { color: var(--gold); }
+
+/* 图案：图文两栏 CTA */
+.pt-cta {
+  display: flex; align-items: center; justify-content: space-between; gap: 22px;
+  background: var(--mist); border-left: 3px solid var(--gold);
+  padding: 20px 24px; border-radius: 3px; flex-wrap: wrap;
+}
+.pt-cta-txt h3 { font-size: 18px; color: var(--ink); margin-bottom: 4px; }
+.pt-cta-txt p { color: var(--dust); font-size: 13.5px; }
+.pt-cta-btn {
+  flex: none; background: var(--ink); color: #FFF; padding: 9px 24px;
+  border-radius: 3px; font-size: 14px; transition: background .15s;
+}
+.pt-cta-btn:hover { background: var(--gold); color: #FFF; }
+
+/* 图案：公告条 */
+.pt-notice { display: flex; align-items: center; gap: 10px; font-size: 13.5px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.pt-notice b { flex: none; color: var(--gold); font-weight: 700; }
+.pt-notice a:hover { color: var(--gold); }
+
+/* 图案：三列图文卡 */
+.pt-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.pt-card { display: block; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; transition: border-color .15s; }
+.pt-card:hover { border-color: var(--gold); }
+.pt-card img { width: 100%; height: 132px; object-fit: cover; }
+.pt-card b { display: block; padding: 10px 12px 2px; font-size: 14.5px; font-weight: 600; }
+.pt-card time { display: block; padding: 0 12px 12px; font-size: 12px; color: var(--dust); font-family: var(--serif-num); }
+
 /* ---------- 响应式 ---------- */
 @media (max-width: 960px) {
   .hero, .lay, .art-lay { grid-template-columns: 1fr; }

@@ -95,6 +95,7 @@ public class Questionpage extends AbstractTagPlugin {
 			PageVo<Question> pageVo = questionService.getQuestionListPage(title,userId,createTime,status,orderby,order,p,rows);
 			env.setVariable("question_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_questionpage", e);
 			env.setVariable("question_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

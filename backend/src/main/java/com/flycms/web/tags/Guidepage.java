@@ -74,6 +74,7 @@ public class Guidepage extends AbstractTagPlugin {
             PageVo<Guide> pageVo = guideService.getGuideListPage(name,status,orderby,order,p,rows);
             env.setVariable("guide_page", builder.build().wrap(pageVo));
         } catch (Exception e) {
+            logTagFailure("fly_guidepage", e);
             env.setVariable("guide_page", builder.build().wrap(null));
         }
         body.render(env.getOut());

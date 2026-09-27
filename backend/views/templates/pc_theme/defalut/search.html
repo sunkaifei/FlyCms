@@ -1,0 +1,76 @@
+<#-- ============================================================
+     站内搜索页（SearchController → TemplateContext.search() 解析）
+     上下文：title=搜索词（同义 q）/ type / ct / p
+     结果：fly_search_page 标签（跨模型关键词聚合，与标签页同源）
+     分页：必须保留关键词 → 手工拼 /search?q=..&p=N，不要用 pager 宏（那是路径式）
+     ============================================================ -->
+<#include "common/macros.html">
+<#assign q = (title)!''>
+<#assign pageTitle>${(q != '')?string(q + ' - 搜索结果', '站内搜索')} - ${(web_name)!''}</#assign>
+<#include "common/header.html">
+
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i>站内搜索
+</div></div>
+
+<div class="wrap lay">
+  <main>
+    <div class="list-hd">
+      <h1><#if q != ''>「${q?html}」的搜索结果<#else>站内搜索</#if></h1>
+      <small><#if q != ''>共 <span class="num">${(search_total)!0}</span> 条<#else>输入关键词，检索站内全部内容</#if></small>
+    </div>
+
+    <form action="/search" method="get" style="display:flex;gap:10px;margin-bottom:22px">
+      <input type="text" name="q" value="${q?html}" placeholder="输入关键词"
+             style="flex:1;max-width:380px;padding:8px 12px;border:1px solid #E3E6EA;border-radius:3px;font-size:14px">
+      <button type="submit"
+              style="padding:8px 22px;background:#16324A;color:#FFF;border:0;border-radius:3px;font-size:14px;cursor:pointer">搜索</button>
+    </form>
+
+    <@fly_search_page q="${q!}" p="${(p)!1}" rows="10">
+      <#if (dataList)?? && dataList?size gt 0>
+        <@mixRows rows=dataList />
+        <#assign sp = (search_page.pageCount)!1>
+        <#if sp gt 1>
+        <nav class="pg">
+          <#list 1..sp as i>
+            <#if i == (p)!1><span class="cur">${i}</span><#else><a href="/search?q=${q?url('UTF-8')}&p=${i}">${i}</a></#if>
+          </#list>
+          <span class="tot">共 ${(search_total)!0} 条</span>
+        </nav>
+        </#if>
+      <#else>
+        <#if q != ''>
+        <div class="empty"><b>0</b>没有找到与「${q?html}」相关的内容，换个关键词试试？</div>
+        <#else>
+        <div class="empty"><b>?</b>输入关键词，检索站内全部内容</div>
+        </#if>
+      </#if>
+    </@fly_search_page>
+  </main>
+
+  <aside class="rit">
+    <#-- 站内规模下没有全局标签索引表，硬造"标签云"会变成假数据；此处只给真实的热门排行 -->
+    <div><@hotRank model="articles" rows=8 /></div>
+    <div style="margin-top:30px">
+      <div class="side-hd"><h2>浏览栏目</h2></div>
+      <ul class="rows">
+        <@fly_channel_tree>
+        <#if channelTree?? && channelTree?size gt 0>
+        <#list channelTree as ch>
+        <li>
+          <#if ch.channelType == 2>
+          <a href="${ch.outUrl!'/'}" target="_blank" rel="nofollow">${ch.channelName}</a>
+          <#else>
+          <a href="/${ch.channelDir}/">${ch.channelName}</a>
+          </#if>
+        </li>
+        </#list>
+        </#if>
+        </@fly_channel_tree>
+      </ul>
+    </div>
+  </aside>
+</div>
+
+<#include "common/footer.html">

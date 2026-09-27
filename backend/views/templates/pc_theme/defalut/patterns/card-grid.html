@@ -1,0 +1,17 @@
+<#-- name: 三列图文卡 | desc: 取某模型最新 3 条做等宽卡片，适合任意页面插入一块内容流 -->
+<div class="pt-grid">
+  <@fly_page_model model="articles" rows="3">
+  <#if dataList?? && dataList?size gt 0>
+    <#list dataList as r>
+    <a class="pt-card" href="/articles/${r.shortUrl}.html">
+      <img src="${(r.thumbnailUrl)!'/skin/pc_theme/defalut/images/cover-news.svg'}" alt="">
+      <b>${r.title?html}</b>
+      <#-- createTime 在 map 行里是 ISO 字符串：先整链兜底再 replace，不能写 r.createTime?xxx 或 a.b!x -->
+      <time>${(r.createTime!'')?replace('T',' ')}</time>
+    </a>
+    </#list>
+  <#else>
+    <div class="empty"><b>0</b>暂无内容</div>
+  </#if>
+  </@fly_page_model>
+</div>

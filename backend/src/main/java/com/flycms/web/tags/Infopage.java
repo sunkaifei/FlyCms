@@ -97,6 +97,7 @@ public class Infopage extends AbstractTagPlugin {
 			PageVo<Info> pageVo = searchService.searchInfo(title,userId,infoType,categoryId,notId,orderby,p,rows);
 			env.setVariable("info_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_infopage", e);
 			env.setVariable("info_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

@@ -53,7 +53,7 @@ public class Useractivation extends AbstractTagPlugin {
 			env.setVariable("status", builder.build().wrap(status));
 			body.render(env.getOut());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logTagFailure("fly_useractivation", e);
 		}
 	}
 

@@ -10,6 +10,8 @@ import { message } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { saveModelApi, updateModelApi } from '#/api/core/model';
 
+import AssignSelect from '../template/assign-select.vue';
+
 /**
  * 新增/编辑模型弹窗。code 创建后锁定（前台路由与动态表依赖）。
  */
@@ -114,5 +116,26 @@ onMounted(() => {
 <template>
   <Modal>
     <Form />
+
+    <!--
+      P2-3 模型级模板指派：modelData/form-modal.vue 已做「内容级(CONTENT/DETAIL)」，
+      这里补「模型级(MODEL)」——整模列表/详情默认版式。target_id = 模型 code。
+      仅编辑态可见：新增时模型尚未落库，指派无意义。
+    -->
+    <div v-if="editing" class="mt-4 space-y-3 border-t pt-3">
+      <div class="text-sm font-medium">模板指派</div>
+      <AssignSelect
+        page-type="LIST"
+        :target-id="editing.code"
+        target-type="MODEL"
+        slot-prefix="list-"
+      />
+      <AssignSelect
+        page-type="DETAIL"
+        :target-id="editing.code"
+        target-type="MODEL"
+        slot-prefix="detail-"
+      />
+    </div>
   </Modal>
 </template>

@@ -20,6 +20,7 @@ import { checkTemplateApi, clearTemplateCacheApi, previewTemplateApi } from '#/a
 import DebugChainModal from './debug-chain-modal.vue';
 import DiffModal from './diff-modal.vue';
 import NewFileModal from './new-file-modal.vue';
+import PatternModal from './pattern-modal.vue';
 import SkinModal from './skin-modal.vue';
 import TagManualModal from './tag-manual-modal.vue';
 import TagSuggestModal from './tag-suggest-modal.vue';
@@ -85,6 +86,11 @@ const [DiffModalComp, diffModalApi] = useEditDrawer({
 
 const [TagSuggestModalComp, tagSuggestModalApi] = useEditDrawer({
   connectedComponent: TagSuggestModal,
+  destroyOnClose: true,
+});
+
+const [PatternModalComp, patternModalApi] = useEditDrawer({
+  connectedComponent: PatternModal,
   destroyOnClose: true,
 });
 
@@ -247,7 +253,16 @@ function openVersions() {
 }
 
 function openTagManual() {
-  tagManualModalApi.setData({ onInsert: insertSnippet }).open();
+  tagManualModalApi
+    .setData({ file: currentFile.value, onInsert: insertSnippet })
+    .open();
+}
+
+/** P3-3 图案库：只读展示 patterns/*.html，一键插入当前位置 */
+function openPatterns() {
+  patternModalApi
+    .setData({ onInsert: insertSnippet, skin: skin.value })
+    .open();
 }
 
 /** P8 智能标签建议：由当前文件名反推模型与可用字段，给出可插入骨架 */
@@ -341,6 +356,7 @@ onMounted(load);
             <Button size="small" @click="openSkins">皮肤管理</Button>
             <Button size="small" @click="openTagManual">标签手册</Button>
             <Button size="small" @click="openTagSuggest">智能建议</Button>
+            <Button size="small" @click="openPatterns">图案库</Button>
             <Button
               size="small"
               @click="
@@ -435,5 +451,6 @@ onMounted(load);
     <DebugChainModalComp />
     <DiffModalComp />
     <TagSuggestModalComp />
+    <PatternModalComp />
   </Page>
 </template>

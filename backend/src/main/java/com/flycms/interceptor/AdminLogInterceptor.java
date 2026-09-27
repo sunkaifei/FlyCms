@@ -16,6 +16,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.util.Date;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +32,8 @@ import java.util.concurrent.Executors;
  */
 @Component
 public class AdminLogInterceptor implements HandlerInterceptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminLogInterceptor.class);
 
     private static final ExecutorService LOG_EXECUTOR =
             Executors.newSingleThreadExecutor(r -> {
@@ -80,11 +84,14 @@ public class AdminLogInterceptor implements HandlerInterceptor {
             LOG_EXECUTOR.execute(() -> {
                 try {
                     adminLogDao.insertLog(dao);
-                } catch (Exception ignored) {
-                    // 审计写失败不影响主流程
+                } catch (Exception e) {
+                    // 审计写失败不影响主流程，但必须留痕，否则"审计丢记录"无从发现
+                    logger.warn("后台审计日志写入失败（path={}）：{}", dao.getPath(), e.getMessage());
                 }
             });
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // 组装审计对象阶段异常（如 IP 解析、Session 读取）：不影响主流程，仅留痕
+            logger.warn("后台审计日志组装失败：{}", e.getMessage());
         } finally {
             START_TIME.remove();
         }

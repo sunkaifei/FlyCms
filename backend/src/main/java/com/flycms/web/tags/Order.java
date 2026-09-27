@@ -58,7 +58,7 @@ public class Order extends AbstractTagPlugin {
 			env.setVariable("order", builder.build().wrap(order));
 			body.render(env.getOut());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logTagFailure("fly_order", e);
 		}
 	}
 

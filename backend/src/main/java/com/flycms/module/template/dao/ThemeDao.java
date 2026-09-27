@@ -30,4 +30,7 @@ public interface ThemeDao {
 
     /** 清除全部 is_current 标记 */
     void clearCurrent();
+
+    /** 按 code 删除登记（启动期清理"磁盘已删、DB 还留着"的脏记录） */
+    void deleteByCode(@Param("code") String code);
 }

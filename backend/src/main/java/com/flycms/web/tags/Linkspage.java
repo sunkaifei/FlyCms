@@ -63,6 +63,7 @@ public class Linkspage extends AbstractTagPlugin {
 			PageVo<Links> pageVo = linksService.getLinksListPage(type,show,p,rows);
 			env.setVariable("link_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_linkspage", e);
 			env.setVariable("link_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

@@ -80,6 +80,7 @@ public class Fanspage extends AbstractTagPlugin {
 			PageVo<UserFans> pageVo = userService.getUserFansListPage(userFollow,userFans,createTime,orderby,order,p,rows);
 			env.setVariable("fans_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_fanspage", e);
 			env.setVariable("fans_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());

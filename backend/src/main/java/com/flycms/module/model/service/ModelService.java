@@ -27,6 +27,9 @@ import java.util.List;
 @Service
 public class ModelService {
 
+    private static final org.slf4j.Logger logger =
+            org.slf4j.LoggerFactory.getLogger(ModelService.class);
+
     private static final String CACHE_NAME = "model";
 
     @Autowired
@@ -207,7 +210,9 @@ public class ModelService {
         }
         try {
             java.nio.file.Files.write(file.toPath(), content.getBytes(StandardCharsets.UTF_8));
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // 模型骨架模板写入失败：不阻断建模型主流程，但必须留痕（否则用户只看到"模板文件不存在"）
+            logger.warn("写入模型默认模板失败（{}）：{}", file.getPath(), e.getMessage());
         }
     }
 

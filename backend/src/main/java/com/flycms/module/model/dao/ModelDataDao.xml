@@ -115,6 +115,47 @@
 		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
 	</delete>
 
+	<!--
+		前台标签页（/tag/{tag}/）的跨模型检索。
+		只裁剪展示所需列，避免 SELECT * 把 longtext 正文（content）也拉回来；
+		keyword 是业务值，恒走 #{}，绝不拼进 SQL 文本。
+		hasTags 由调用方用 information_schema 探测后缓存（仅 fly_cmodel_articles 有 tags 列）。
+	-->
+	<sql id="tagKeywordWhere">
+		`status` = 1
+		AND (
+			`title` LIKE CONCAT('%', #{keyword}, '%')
+			OR `keywords` LIKE CONCAT('%', #{keyword}, '%')
+			<if test="hasTags">OR `tags` LIKE CONCAT('%', #{keyword}, '%')</if>
+		)
+	</sql>
+
+	<select id="searchByKeyword" resultType="map">
+		SELECT `id`, `short_url`, `title`, `keywords`, `description`, `thumbnail`,
+		       `count_view`, `create_time`, `publish_time`
+		FROM `fly_cmodel_${suffix}`
+		<where>
+			<include refid="tagKeywordWhere"/>
+		</where>
+		<!-- 雪花 ID 单调递增，按 id 倒序即"最新优先"，与跨模型合并排序口径一致 -->
+		ORDER BY `id` DESC
+		LIMIT #{limit}
+	</select>
+
+	<select id="countByKeyword" resultType="int">
+		SELECT COUNT(*) FROM `fly_cmodel_${suffix}`
+		<where>
+			<include refid="tagKeywordWhere"/>
+		</where>
+	</select>
+
+	<select id="columnExists" resultType="boolean">
+		SELECT COUNT(*) &gt; 0 FROM information_schema.columns
+		WHERE table_schema = DATABASE()
+		  AND table_name = CONCAT('fly_cmodel_', #{suffix})
+		  AND column_name = #{columnName}
+	</select>
+
 	<!-- 附件：fly_images（AttachmentPicker 数据源与引用计数） -->
 	<select id="attachmentList" resultType="map">
 		SELECT id, info_id AS infoId, img_url AS imgUrl, img_name AS imgName, info_count AS infoCount

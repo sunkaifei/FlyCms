@@ -77,6 +77,7 @@ public class Favoritepage extends AbstractTagPlugin {
 			PageVo<Favorite> pageVo = favoriteService.getFavoriteListPage(userId,infoType,createTime,orderby,order,p,rows);
 			env.setVariable("favorite_page", builder.build().wrap(pageVo));
 		} catch (Exception e) {
+			logTagFailure("fly_favoritepage", e);
 			env.setVariable("favorite_page", builder.build().wrap(null));
 		}
 		body.render(env.getOut());
