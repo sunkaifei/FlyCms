@@ -14,19 +14,19 @@
 		insert into fly_config_web
 		<!-- 添加表字段 -->
 		<trim prefix="(" suffix=")" suffixOverrides=",">
-			<if test="typebase != null and typebase != ''">typebase,</if>
+			<if test="typebase != null">typebase,</if>
 			<if test="keycode != null and keycode != ''">keycode,</if>
-			<if test="keyvalue != null and keyvalue != ''">keyvalue,</if>
-			<if test="description != null and description != ''">description,</if>
-			<if test="sort != null and sort != ''">sort,</if>
+			<if test="keyvalue != null">keyvalue,</if>
+			<if test="description != null">description,</if>
+			<if test="sort != null">sort,</if>
 		</trim>
 		<!-- 注入控制层字段 -->
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
-			<if test="typebase != null and typebase != ''">#{typebase},</if>
+			<if test="typebase != null">#{typebase},</if>
 			<if test="keycode != null and keycode != ''">#{keycode},</if>
-			<if test="keyvalue != null and keyvalue != ''">#{keyvalue},</if>
-			<if test="description != null and description != ''">#{description},</if>
-			<if test="sort != null and sort != ''">#{sort},</if>
+			<if test="keyvalue != null">#{keyvalue},</if>
+			<if test="description != null">#{description},</if>
+			<if test="sort != null">#{sort},</if>
 		</trim>
 	</insert>
 
@@ -57,13 +57,27 @@
 	<!-- ############################## -->
 	<!-- ###### 修改 ###### -->
 	<!-- ############################## -->
+	<!--
+		按 keycode 更新配置。
+
+		【为什么不能写 != ''】
+		"把某个配置清空"是合法业务操作（清空页脚代码、关掉某个开关）。
+		若字段因空串被 <if> 跳过，当所有字段都被跳过时 SET 子句整体为空，
+		会生成 "update fly_config_web where keycode=?" —— 这是非法 SQL，直接报语法错误。
+		后台站点设置页（/api/system/website/save）会遍历提交所有配置项，
+		管理员只要清空任意一项再保存，整批保存就会 500。
+
+		末尾的 keycode=#{keycode} 是恒定兜底项（写回自身，值不变），
+		保证无论入参如何，SET 子句永不为空。
+	-->
 	<update id="updagteConfigByKey">
 		update fly_config_web
 		<set>
-			<if test="typebase != null and typebase != ''">typebase=#{typebase},</if>
-			<if test="keyvalue != null and keyvalue != ''">keyvalue=#{keyvalue},</if>
-			<if test="description != null and description != ''">description=#{description},</if>
-			<if test="sort != null and sort != ''">sort=#{sort},</if>
+			<if test="typebase != null">typebase=#{typebase},</if>
+			<if test="keyvalue != null">keyvalue=#{keyvalue},</if>
+			<if test="description != null">description=#{description},</if>
+			<if test="sort != null">sort=#{sort},</if>
+			keycode=#{keycode},
 		</set>
 		where keycode=#{keycode}
 	</update>

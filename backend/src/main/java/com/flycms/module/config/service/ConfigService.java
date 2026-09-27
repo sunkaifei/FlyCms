@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -44,6 +46,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ConfigService {
+
+	private static final Logger logger = LoggerFactory.getLogger(ConfigService.class);
 
 	@Autowired
 	private ConfigDao configDao;
@@ -91,17 +95,28 @@ public class ConfigService {
 	// ///// 修改 ////////
 	// ///////////////////////////////
     /**
-     * 更新配置（upsert：键不存在时自动插入，避免白名单新增键被静默丢弃）
+     * 更新配置（upsert：键不存在时自动插入，避免白名单新增键被静默丢弃）。
      *
-     * @param key
-     * @param value
-     * @return Integer
+     * <p>两点防御，都是为了"清空某个配置"这个合法操作：
+     * <ul>
+     *   <li>value 为 null 时归一为空串：既保证 SQL 里该字段会被写进去，
+     *       也避免把 NULL 存进库后读取方（如 {@link #getStringByKey}）拿到 null 引发 NPE。</li>
+     *   <li>key 为空直接忽略：否则 update 匹配不到任何行，会退化成插入一条 keycode 为空的脏数据。</li>
+     * </ul>
+     *
+     * @param key   配置键
+     * @param value 配置值，允许空串
+     * @return 受影响行数（0 表示键此前不存在，已改为插入）
      */
     @CacheEvict(value = "config", allEntries = true)
     public int updagteConfigByKey(String key, String value) {
+        if (key == null || key.isEmpty()) {
+            logger.warn("忽略配置更新请求：keycode 为空（value={}）", value);
+            return 0;
+        }
         Config config = new Config();
         config.setKeycode(key);
-        config.setKeyvalue(value);
+        config.setKeyvalue(value == null ? "" : value);
         int rows = configDao.updagteConfigByKey(config);
         if (rows == 0) {
             config.setTypebase(0);

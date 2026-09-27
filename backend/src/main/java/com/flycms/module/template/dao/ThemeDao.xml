@@ -28,8 +28,15 @@
 		update fly_theme set is_current = 0 where is_current = 1
 	</update>
 
+	<!--
+		只保留"置当前主题"这一条。
+		原先这里是两条语句用分号拼在一起（先清 0 再置 1）：
+		MySQL 驱动默认 allowMultiQueries=false、Druid wall 也禁止多语句，
+		该语句必然抛异常 —— 而调用方用 catch(Exception ignored) 静默吞掉，
+		导致 fly_theme.is_current 长期未被正确更新且无日志可查。
+		"先清 0"改由调用方显式调用 clearCurrent()（两条独立 SQL）。
+	-->
 	<update id="updateCurrent">
-		update fly_theme set is_current = 0 where is_current = 1;
 		update fly_theme set is_current = 1 where code = #{code}
 	</update>
 </mapper>
