@@ -1,0 +1,34 @@
+<#-- ============================================================
+     模板调试条（P8，规划 §8.2）
+     由 TemplateResolver.resolveAndExpose 写入 __tpl；开关：系统配置 template_debug=1
+     关闭时 __tpl 不存在 → 整个片段零输出，与线上完全一致
+     用法：在 footer.html 的 </body> 前 include
+     ============================================================ -->
+<#if (__tpl)??>
+<!-- template: ${(__tpl.file)!'(inline)'} (from ${(__tpl.theme)!'?'}) type=${(__tpl.type)!''} skin=${(__tpl.skin)!''} -->
+<div id="tpl-debug" style="position:fixed;left:12px;bottom:12px;z-index:99999;font:12px/1.6 -apple-system,Menlo,Consolas,monospace;color:#252A31">
+  <div onclick="(function(b){var p=b.nextElementSibling;p.style.display=p.style.display==='none'?'block':'none';})(this)"
+       style="cursor:pointer;display:inline-block;background:#16324A;color:#FFF;padding:5px 11px;border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,.18)">
+    TPL · ${(__tpl.file)!'(inline)'}<span style="color:#A97C2F"> · ${(__tpl.theme)!'?'}</span>
+  </div>
+  <div style="display:none;margin-top:6px;max-width:520px;max-height:60vh;overflow:auto;background:#FFF;border:1px solid #E3E6EA;border-radius:4px;box-shadow:0 4px 18px rgba(0,0,0,.16);padding:10px 12px">
+    <div style="border-bottom:1px solid #E3E6EA;padding-bottom:6px;margin-bottom:8px;color:#7A8492">
+      模板查找链（<b style="color:#16324A">加粗</b>=命中）
+    </div>
+    <ol style="margin:0;padding-left:18px">
+      <#list __tpl.chain as c>
+      <li style="margin:3px 0;<#if c.hit>font-weight:700;color:#16324A<#elseif !c.exists>color:#C4CAD2<#else>color:#7A8492</#if>">
+        ${c.file}
+        <span style="font-weight:400;color:#A6ADB6"> · ${c.source}<#if !c.exists> · 不存在</#if></span>
+      </li>
+      </#list>
+    </ol>
+    <div style="margin-top:8px;padding-top:6px;border-top:1px solid #E3E6EA;color:#A6ADB6">
+      type=${(__tpl.type)!''}
+      <#if (__tpl.model)?? && __tpl.model != ''> · model=${__tpl.model}</#if>
+      <#if (__tpl.channel)?? && __tpl.channel != ''> · channel=${__tpl.channel}</#if>
+      · skin=${(__tpl.skin)!''}
+    </div>
+  </div>
+</div>
+</#if>

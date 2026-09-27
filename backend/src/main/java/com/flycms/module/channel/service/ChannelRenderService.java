@@ -67,7 +67,8 @@ public class ChannelRenderService {
         putCommon(map, channel, p);
         map.addAttribute("children", channelService.offspring(channel.getId()));
         if (channel.getChannelType() == 1) {
-            return templateResolver.resolveChannelPage(channel.getChannelDir());
+            return templateResolver.resolveAndExpose(
+                com.flycms.module.template.model.TemplateContext.channelPage(channel.getChannelDir()), map);
         }
         if (channel.getChannelType() == 3) {
             return renderAggregate(channel, p, map);
@@ -95,7 +96,9 @@ public class ChannelRenderService {
             map.addAttribute("dataList", new ArrayList<>());
             map.addAttribute("model_page", new PageVo<>(p));
         }
-        return templateResolver.resolveChannelList(channel.getChannelDir(), model != null ? model.getCode() : null);
+        return templateResolver.resolveAndExpose(
+                com.flycms.module.template.model.TemplateContext.list(
+                        model != null ? model.getCode() : null, channel.getChannelDir()), map);
     }
 
     /**
@@ -168,7 +171,8 @@ public class ChannelRenderService {
         pageVo.setList(merged.isEmpty() ? new ArrayList<>() : new ArrayList<>(merged.subList(from, to)));
         map.addAttribute("dataList", pageVo.getList());
         map.addAttribute("model_page", pageVo);
-        return templateResolver.resolveChannelList(channel.getChannelDir(), null);
+        return templateResolver.resolveAndExpose(
+                com.flycms.module.template.model.TemplateContext.list(null, channel.getChannelDir()), map);
     }
 
     private long toLong(Object v) {

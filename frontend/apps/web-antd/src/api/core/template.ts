@@ -344,3 +344,76 @@ export async function getDebugChainApi(params: {
     { params },
   );
 }
+
+// /////////////////// P8 剩余：版本差异对比 ///////////////////
+
+/** 统一 diff 行：type ∈ same/add/del，oldNo/newNo 为两侧行号 */
+export interface TemplateDiffLine {
+  newNo: number | null;
+  oldNo: number | null;
+  text: string;
+  type: 'add' | 'del' | 'same';
+}
+
+export interface TemplateDiffResult {
+  added: number;
+  error?: string;
+  from: number;
+  leftCount: number;
+  leftLabel: string;
+  lines: TemplateDiffLine[];
+  removed: number;
+  rightCount: number;
+  rightLabel: string;
+  to: number;
+}
+
+/**
+ * 两个版本做行级 diff；from/to 传 0 表示「空文件」/「当前磁盘内容」。
+ * 默认对比：working（磁盘当前）vs 磁盘当前 → 请显式传 version 才有意义。
+ */
+export async function diffTemplateApi(
+  file: string,
+  from: number,
+  to: number,
+  skin?: string,
+) {
+  return requestClient.get<TemplateDiffResult>('/system/template/versions/diff', {
+    params: { file, from, skin, to },
+  });
+}
+
+// /////////////////// P8 剩余：智能标签建议 ///////////////////
+
+export interface TagSuggestField {
+  isFilter: boolean;
+  isList: boolean;
+  isSearch: boolean;
+  label: string;
+  name: string;
+  type: string;
+}
+
+export interface TagSuggestItem {
+  code: string;
+  note: string;
+  title: string;
+}
+
+export interface TagSuggestResult {
+  detected: boolean;
+  fields: TagSuggestField[];
+  file: string;
+  filters: TagSuggestField[];
+  model: string;
+  modelName: string;
+  pageType: string;
+  suggestions: TagSuggestItem[];
+}
+
+/** 按文件名推定模型，返回该模型字段与分析出的可复制标签骨架 */
+export async function tagSuggestApi(file: string, pageType?: string) {
+  return requestClient.get<TagSuggestResult>('/system/template/tagSuggest', {
+    params: { file, pageType },
+  });
+}

@@ -28,6 +28,8 @@ public class SearchController extends BaseController {
     protected final static Logger logger = LoggerFactory.getLogger(SearchController.class);
     @Autowired
     private SearchService searchService;
+    @Autowired
+    private com.flycms.module.template.service.TemplateResolver templateResolver;
 
     /**
      * 搜索列表
@@ -60,7 +62,8 @@ public class SearchController extends BaseController {
             modelMap.addAttribute("type", type);
             modelMap.addAttribute("ct", ct);
             modelMap.addAttribute("p", p);
-            return theme.getPcTemplate("search/detail");
+            return templateResolver.resolveAndExpose(
+                    com.flycms.module.template.model.TemplateContext.search(), modelMap);
         } catch (Exception e) {
             logger.error(e.getMessage());
             return theme.get404();

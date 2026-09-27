@@ -44,8 +44,8 @@
 	<!-- /////////////// 版本快照 /////////////// -->
 
 	<insert id="insertVersion">
-		insert into fly_template_version (template_id, version, content, remark, editor_id, create_time)
-		values (#{templateId}, #{version}, #{content}, #{remark}, #{editorId}, now())
+		insert into fly_template_version (id, template_id, version, content, remark, editor_id, create_time)
+		values (#{id}, #{templateId}, #{version}, #{content}, #{remark}, #{editorId}, now())
 	</insert>
 
 	<select id="findVersion" resultType="com.flycms.module.template.model.TemplateVersion">

@@ -18,9 +18,11 @@ import {
 import { checkTemplateApi, clearTemplateCacheApi, previewTemplateApi } from '#/api/core/template';
 
 import DebugChainModal from './debug-chain-modal.vue';
+import DiffModal from './diff-modal.vue';
 import NewFileModal from './new-file-modal.vue';
 import SkinModal from './skin-modal.vue';
 import TagManualModal from './tag-manual-modal.vue';
+import TagSuggestModal from './tag-suggest-modal.vue';
 import VersionModal from './version-modal.vue';
 
 defineOptions({ name: 'SystemTemplate' });
@@ -73,6 +75,16 @@ const [TagManualModalComp, tagManualModalApi] = useEditDrawer({
 
 const [DebugChainModalComp, debugChainModalApi] = useEditDrawer({
   connectedComponent: DebugChainModal,
+  destroyOnClose: true,
+});
+
+const [DiffModalComp, diffModalApi] = useEditDrawer({
+  connectedComponent: DiffModal,
+  destroyOnClose: true,
+});
+
+const [TagSuggestModalComp, tagSuggestModalApi] = useEditDrawer({
+  connectedComponent: TagSuggestModal,
   destroyOnClose: true,
 });
 
@@ -238,6 +250,31 @@ function openTagManual() {
   tagManualModalApi.setData({ onInsert: insertSnippet }).open();
 }
 
+/** P8 智能标签建议：由当前文件名反推模型与可用字段，给出可插入骨架 */
+function openTagSuggest() {
+  if (!currentFile.value) {
+    message.warning('请先选择一个模板文件');
+    return;
+  }
+  tagSuggestModalApi
+    .setData({ file: currentFile.value, onInsert: insertSnippet })
+    .open();
+}
+
+/** P8 版本差异对比：回滚前先看清改了什么 */
+function openDiff() {
+  if (!currentFile.value) {
+    message.warning('请先选择一个模板文件');
+    return;
+  }
+  diffModalApi
+    .setData({
+      file: currentFile.value,
+      onRestored: () => doOpen(currentFile.value),
+    })
+    .open();
+}
+
 function onDelete() {
   if (!currentFile.value) return;
   Modal.confirm({
@@ -303,6 +340,7 @@ onMounted(load);
           <div class="ml-auto flex flex-wrap gap-2">
             <Button size="small" @click="openSkins">皮肤管理</Button>
             <Button size="small" @click="openTagManual">标签手册</Button>
+            <Button size="small" @click="openTagSuggest">智能建议</Button>
             <Button
               size="small"
               @click="
@@ -316,6 +354,7 @@ onMounted(load);
             </Button>
             <Button size="small" @click="onClearCache">清空缓存</Button>
             <Button size="small" @click="openVersions">版本历史</Button>
+            <Button size="small" @click="openDiff">差异对比</Button>
             <Button
               v-if="currentFile"
               :loading="checking"
@@ -394,5 +433,7 @@ onMounted(load);
     <VersionModalComp />
     <TagManualModalComp />
     <DebugChainModalComp />
+    <DiffModalComp />
+    <TagSuggestModalComp />
   </Page>
 </template>

@@ -309,4 +309,59 @@ public class TemplateResolver {
     public String currentSkin() {
         return registry.currentSkin();
     }
+
+    // /////////////////// 前台调试条（P8） ///////////////////
+
+    /** ModelMap 中调试信息的键；模板 common/debug-bar.html 读取后输出 HTML 注释 */
+    public static final String TPL_ATTR = "__tpl";
+
+    /**
+     * 解析并同时把命中信息写入 ModelMap，供前台调试条输出。
+     * <p>与 {@link #resolve} 的唯一区别是额外暴露 {@code __tpl}；调试开关关闭时不写入，
+     * 模板自然不输出任何东西（零开销、零副作用）。
+     *
+     * @param ctx      解析上下文
+     * @param modelMap 视图模型（可为 null，此时退化为普通 resolve）
+     */
+    public String resolveAndExpose(TemplateContext ctx, org.springframework.ui.ModelMap modelMap) {
+        String view = resolve(ctx);
+        if (modelMap != null && debugEnabled()) {
+            java.util.Map<String, Object> tpl = new java.util.LinkedHashMap<>();
+            tpl.put("file", ctx.getResolvedFile());
+            tpl.put("theme", ctx.getResolvedTheme());
+            tpl.put("view", ctx.getResolved());
+            tpl.put("type", ctx.getPageType() == null ? "" : ctx.getPageType().name());
+            tpl.put("model", StringUtils.defaultString(ctx.getModelCode()));
+            tpl.put("channel", StringUtils.defaultString(ctx.getChannelDir()));
+            tpl.put("skin", activeSkin());
+            // 候选链（含每一项是否存在），供浮条展开查看
+            List<java.util.Map<String, Object>> chain = new ArrayList<>();
+            for (Candidate c : debugChain(ctx)) {
+                java.util.Map<String, Object> item = new java.util.LinkedHashMap<>();
+                item.put("file", c.file + ".html");
+                item.put("source", c.source);
+                item.put("exists", c.exists);
+                item.put("hit", c.exists && ctx.getResolvedFile() != null
+                        && ctx.getResolvedFile().equals(c.file + ".html")
+                        && ctx.getResolvedTheme() != null && ctx.getResolvedTheme().equals(c.theme));
+                chain.add(item);
+            }
+            tpl.put("chain", chain);
+            modelMap.addAttribute(TPL_ATTR, tpl);
+        }
+        return view;
+    }
+
+    /**
+     * 调试条总开关：系统配置 {@code template_debug}（1/true 开），默认关闭。
+     * 关闭时前台输出与线上完全一致，避免任何注入风险。
+     */
+    public boolean debugEnabled() {
+        try {
+            String v = configService.getStringByKey("template_debug");
+            return "1".equals(v) || "true".equalsIgnoreCase(v);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

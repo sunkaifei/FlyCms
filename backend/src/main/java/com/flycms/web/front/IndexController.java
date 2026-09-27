@@ -30,6 +30,8 @@ import java.util.Locale;
 public class IndexController extends BaseController {
     private static Logger logger = LoggerFactory.getLogger(IndexController.class);
     @Autowired
+    private com.flycms.module.template.service.TemplateResolver templateResolver;
+    @Autowired
     private LocaleMessageSourceUtils messageSourceUtil;
 
     /**
@@ -38,8 +40,9 @@ public class IndexController extends BaseController {
      * @return
      */
     @GetMapping(value = "/403")
-    public String pageForbidden() {
-        return theme.get403();
+    public String pageForbidden(ModelMap modelMap) {
+        return templateResolver.resolveAndExpose(
+                com.flycms.module.template.model.TemplateContext.error(403), modelMap);
     }
 
     /**
@@ -48,8 +51,9 @@ public class IndexController extends BaseController {
      * @return
      */
     @GetMapping(value = "/404")
-    public String pageNotFound() {
-        return theme.get404();
+    public String pageNotFound(ModelMap modelMap) {
+        return templateResolver.resolveAndExpose(
+                com.flycms.module.template.model.TemplateContext.error(404), modelMap);
     }
 
     /**
@@ -58,8 +62,9 @@ public class IndexController extends BaseController {
      * @return
      */
     @GetMapping(value = "/500")
-    public String error() {
-        return theme.get500();
+    public String error(ModelMap modelMap) {
+        return templateResolver.resolveAndExpose(
+                com.flycms.module.template.model.TemplateContext.error(500), modelMap);
     }
     /**
      * 中、英区域转换控制器
@@ -107,7 +112,8 @@ public class IndexController extends BaseController {
         modelMap.addAttribute("sort", sort);
         modelMap.addAttribute("p", p);
         modelMap.addAttribute("user", getUser());
-        return theme.getPcTemplate("index");
+        return templateResolver.resolveAndExpose(
+                com.flycms.module.template.model.TemplateContext.index(), modelMap);
     }
 
 

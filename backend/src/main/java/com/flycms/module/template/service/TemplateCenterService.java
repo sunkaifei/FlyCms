@@ -227,6 +227,7 @@ public class TemplateCenterService {
         }
         int version = templateDao.maxVersion(tpl.getId()) + 1;
         TemplateVersion ver = new TemplateVersion();
+        ver.setId(SnowFlake.getInstance().nextId());
         ver.setTemplateId(tpl.getId());
         ver.setVersion(version);
         ver.setContent(content);
@@ -292,6 +293,114 @@ public class TemplateCenterService {
         data.put("versions", templateDao.findVersions(tpl.getId(), VERSION_ROWS));
         data.put("total", templateDao.countVersions(tpl.getId()));
         return data;
+    }
+
+    /**
+     * 版本差异对比（P8，§8.2「差异对比」）：把两个版本做行级 diff，供后台并排/统一视图展示。
+     *
+     * <p>{@code to} 传 0 或省略表示「当前磁盘内容」；{@code from} 传 0 表示空文件（新增全量）。
+     * 返回统一 diff 行列表，每行 {@code {type, oldNo, newNo, text}}，type ∈ same/add/del。
+     */
+    public Map<String, Object> diffVersions(String skin, String file, int from, int to) {
+        TemplateFile tpl = templateDao.findTemplate(skin, file);
+        Map<String, Object> data = new LinkedHashMap<>();
+        if (tpl == null) {
+            data.put("error", "模板不存在：" + file);
+            data.put("lines", new ArrayList<>());
+            return data;
+        }
+        String left = readVersionContent(tpl, from, skin, file);
+        String right = readVersionContent(tpl, to, skin, file);
+        data.put("from", from);
+        data.put("to", to);
+        data.put("leftLabel", from <= 0 ? "（空 / 新增）" : "v" + from);
+        data.put("rightLabel", to <= 0 ? "当前磁盘内容" : "v" + to);
+        data.put("leftCount", left == null ? 0 : left.split("\n", -1).length);
+        data.put("rightCount", right == null ? 0 : right.split("\n", -1).length);
+        List<Map<String, Object>> lines = diffLines(left == null ? "" : left, right == null ? "" : right);
+        int added = 0, removed = 0;
+        for (Map<String, Object> l : lines) {
+            if ("add".equals(l.get("type"))) {
+                added++;
+            } else if ("del".equals(l.get("type"))) {
+                removed++;
+            }
+        }
+        data.put("lines", lines);
+        data.put("added", added);
+        data.put("removed", removed);
+        return data;
+    }
+
+    /** 取某版本内容；version<=0 时取当前磁盘文件 */
+    private String readVersionContent(TemplateFile tpl, int version, String skin, String file) {
+        if (version <= 0) {
+            try {
+                File f = resolve(skin, file);
+                return f != null && f.isFile() ? java.nio.file.Files.readString(f.toPath()) : "";
+            } catch (Exception e) {
+                return "";
+            }
+        }
+        TemplateVersion v = templateDao.findVersion(tpl.getId(), version);
+        return v == null ? "" : v.getContent();
+    }
+
+    /**
+     * 行级 LCS diff：先做最长公共子序列，再回溯生成 same/add/del 行。
+     * 模板文件通常几百行，O(n*m) 完全够用；超长文件截断保护避免内存风险。
+     */
+    private List<Map<String, Object>> diffLines(String a, String b) {
+        String[] x = a.split("\n", -1);
+        String[] y = b.split("\n", -1);
+        int n = x.length, m = y.length;
+        List<Map<String, Object>> out = new ArrayList<>();
+        if ((long) n * m > 4_000_000L) { // ~2000×2000 以上退化为整体替换
+            for (int i = 0; i < n; i++) {
+                out.add(diffLine("del", i + 1, null, x[i]));
+            }
+            for (int j = 0; j < m; j++) {
+                out.add(diffLine("add", null, j + 1, y[j]));
+            }
+            return out;
+        }
+        int[][] dp = new int[n + 1][m + 1];
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = m - 1; j >= 0; j--) {
+                dp[i][j] = x[i].equals(y[j]) ? dp[i + 1][j + 1] + 1
+                        : Math.max(dp[i + 1][j], dp[i][j + 1]);
+            }
+        }
+        int i = 0, j = 0;
+        while (i < n && j < m) {
+            if (x[i].equals(y[j])) {
+                out.add(diffLine("same", i + 1, j + 1, x[i]));
+                i++;
+                j++;
+            } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+                out.add(diffLine("del", i + 1, null, x[i]));
+                i++;
+            } else {
+                out.add(diffLine("add", null, j + 1, y[j]));
+                j++;
+            }
+        }
+        while (i < n) {
+            out.add(diffLine("del", i + 1, null, x[i++]));
+        }
+        while (j < m) {
+            out.add(diffLine("add", null, j + 1, y[j++]));
+        }
+        return out;
+    }
+
+    private Map<String, Object> diffLine(String type, Integer oldNo, Integer newNo, String text) {
+        Map<String, Object> l = new LinkedHashMap<>();
+        l.put("type", type);
+        l.put("oldNo", oldNo);
+        l.put("newNo", newNo);
+        l.put("text", text == null ? "" : text);
+        return l;
     }
 
     /**

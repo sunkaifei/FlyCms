@@ -51,6 +51,8 @@ public class ApiTemplateController extends ApiBaseController {
     @Autowired
     private TagManualService tagManualService;
     @Autowired
+    private com.flycms.module.template.service.TagSuggestService tagSuggestService;
+    @Autowired
     private WpThemeConverterService wpThemeConverterService;
     @Autowired
     private ThemeRegistry themeRegistry;
@@ -404,6 +406,35 @@ public class ApiTemplateController extends ApiBaseController {
     public DataVo manual() {
         requirePermission("/api/system/template/files");
         return DataVo.success("操作成功", tagManualService.manual());
+    }
+
+    // /////////////////// P8 剩余：diff / 智能标签建议 ///////////////////
+
+    /**
+     * 版本差异对比（§8.2「差异对比」）。
+     * {@code from}/{@code to} 为版本号，传 0 表示「当前磁盘内容」（to）或「空文件」（from）。
+     */
+    @ResponseBody
+    @GetMapping("/system/template/versions/diff")
+    public DataVo diff(@RequestParam("file") String file,
+                       @RequestParam(value = "skin", required = false) String skin,
+                       @RequestParam(value = "from", defaultValue = "0") int from,
+                       @RequestParam(value = "to", defaultValue = "0") int to) {
+        requirePermission("/api/system/template/files");
+        String s = StringUtils.isNotBlank(skin) ? skin : skin();
+        return DataVo.success("操作成功", templateCenterService.diffVersions(s, file, from, to));
+    }
+
+    /**
+     * 智能标签建议（§8.2）：按当前文件名推定模型，给出该模型的字段/筛选字段
+     * 与可复制的标签骨架（已带入模型 code 与筛选参数）。
+     */
+    @ResponseBody
+    @GetMapping("/system/template/tagSuggest")
+    public DataVo tagSuggest(@RequestParam("file") String file,
+                             @RequestParam(value = "pageType", required = false) String pageType) {
+        requirePermission("/api/system/template/files");
+        return DataVo.success("操作成功", tagSuggestService.suggest(file, pageType));
     }
 
     // /////////////////// 内部 ///////////////////

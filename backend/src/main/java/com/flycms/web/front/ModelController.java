@@ -66,7 +66,8 @@ public class ModelController extends BaseController {
         }
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("p", p);
-        return templateResolver.resolveModelList(model.getCode(), null);
+        return templateResolver.resolveAndExpose(
+                com.flycms.module.template.model.TemplateContext.list(model.getCode(), null), modelMap);
     }
 
     @GetMapping(value = {"/{modelCode}/c{categoryId}", "/{modelCode}/c{categoryId}/p{page:\\d+}"})
@@ -81,7 +82,8 @@ public class ModelController extends BaseController {
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("p", page == null ? 1 : page);
         modelMap.addAttribute("categoryId", categoryId);
-        return templateResolver.resolveModelList(model.getCode(), null);
+        return templateResolver.resolveAndExpose(
+                com.flycms.module.template.model.TemplateContext.list(model.getCode(), null), modelMap);
     }
 
     @GetMapping(value = "/{modelCode}/{shortUrl}.html")
@@ -95,7 +97,8 @@ public class ModelController extends BaseController {
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("shortUrl", shortUrl);
         // 浏览计数在模板 InfoModel 取数时由 ModelDataService 处理（略，前台查询强制 status=1）
-        return templateResolver.resolveModelDetail(model.getCode(), shortUrl, null, null);
+        return templateResolver.resolveAndExpose(
+                com.flycms.module.template.model.TemplateContext.detail(model.getCode(), shortUrl, null, null), modelMap);
     }
 
     private Model resolveModel(String modelCode) {
