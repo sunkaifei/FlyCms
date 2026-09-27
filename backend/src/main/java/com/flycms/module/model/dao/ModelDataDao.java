@@ -9,7 +9,8 @@ import java.util.Map;
 /**
  * 自定义模型动态数据表 DAO（fly_cmodel_{suffix}，suffix = 模型 code）。
  *
- * ${} 仅用于已过 SqlSafeUtil 白名单的标识符（suffix 走 safeTableSuffix、列名走 safeColumnName、
+ * ${} 仅用于已过 SqlSafeUtil 白名单的标识符（suffix 走 safeTableSuffix/safeTableSuffixForExisting、
+ * 列名走 safeColumnName、
  * whereSql/orderBySql 由 Service 依元数据生成且参数占位一律 #{params 内的 key}）；
  * 业务值永远 #{}。
  *
@@ -69,7 +70,12 @@ public interface ModelDataDao {
 
     public int attachmentCount();
 
-    public boolean existsImages(@Param("ids") List<Long> ids);
+    /**
+     * 统计 fly_images 中真实存在的附件 id 数（配合 ids.size() 在 Java 侧判断"全部存在"）。
+     * 不要在 #{} 占位符里写 ids.size() 这类方法调用——MyBatis 只支持属性导航，会抛
+     * ReflectionException（2026-09-27 修复：原写法被 Service 的 catch 吞成"处理失败"）。
+     */
+    public int countImages(@Param("ids") List<Long> ids);
 
     public java.util.List<Map<String, Object>> findImageUrls(@Param("ids") List<Long> ids);
 

@@ -1,9 +1,12 @@
-<#-- 下载模型 详情页 -->
+<#-- 下载模型 详情页
+     v1.1 修复：补上漏掉的 <@InfoModel> 标签包裹（原版 info 恒空，页面只剩相关下载）。 -->
+<@fly_info_model model="${model.code}" shortUrl="${shortUrl!}">
+<#if info??>
 <!DOCTYPE html>
 <html lang="zh">
-<head><meta charset="UTF-8"><title>${(info.title)!'资源'} - ${web_name!''}</title></head>
+<head><meta charset="UTF-8"><title>${info.title} - ${web_name!''}</title></head>
 <body>
-<h1>${(info.title)!''}</h1>
+<h1>${info.title}</h1>
 <table border="1" cellpadding="4" cellspacing="0">
 <tr><td>授权方式</td><td>${(info.auth)!'-'}</td><td>程序语言</td><td>${(info.language)!'-'}</td></tr>
 <tr><td>文件大小</td><td><#if (info.fileSize)??>${info.fileSize} KB<#else>-</#if></td><td>系统要求</td><td>${(info.osRequire)!'-'}</td></tr>
@@ -22,3 +25,9 @@
 </@fly_rel_model>
 </body>
 </html>
+<#else>
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><title>内容不存在 - ${web_name!''}</title></head>
+<body><p>内容不存在或未通过审核</p></body></html>
+</#if>
+</@fly_info_model>

@@ -1,18 +1,26 @@
-<#-- 文章模型 详情页 -->
+<#-- 文章模型 详情页
+     v1.1 修复：原版直接引用 info 变量但漏包 <@InfoModel> 标签（标签架构下 Controller 只传
+     shortUrl 参数，数据必须由标签取），导致标题/正文恒为空、只有相关阅读能渲染。
+     现按 cmodel/detail.html 的标准用法整页包裹，<title> 也能取到真实标题。 -->
+<@fly_info_model model="${model.code}" shortUrl="${shortUrl!}">
+<#if info??>
 <!DOCTYPE html>
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>${(info.title)!'文章'} - ${web_name!''}</title>
+<title>${info.title} - ${web_name!''}</title>
 <meta name="description" content="${(info.description)!''}">
 </head>
 <body>
 <article>
-<h1>${(info.title)!''}</h1>
+<h1>${info.title}</h1>
 <p class="meta">
 <#if (info.source)?? && info.source != ''>来源：${info.source} </#if>
 <#if (info.author)?? && info.author != ''>作者：${info.author} </#if>
-<#if (info.createTime)??>${info.createTime?substring(0, 16)} · 浏览 ${info.countView}</#if>
+<#if (info.createTime)??>
+<#-- 模型数据 map 里 DATETIME 是 ISO 字符串（带 T），replace 后截取显示；?string(pattern) 只能用于日期对象 -->
+<#if info.createTime?length gte 16>${info.createTime?replace("T", " ")?substring(0, 16)}<#else>${info.createTime}</#if> · 浏览 ${(info.countView)!0}
+</#if>
 </p>
 <#if (info.redirecturl)?? && info.redirecturl != ''>
 <p>原文链接：<a href="${info.redirecturl}" rel="nofollow">${info.redirecturl}</a></p>
@@ -33,3 +41,9 @@
 </aside>
 </body>
 </html>
+<#else>
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><title>内容不存在 - ${web_name!''}</title></head>
+<body><p>内容不存在或未通过审核</p></body></html>
+</#if>
+</@fly_info_model>

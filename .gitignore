@@ -51,3 +51,10 @@ coverage/
 
 # AI 助手工作记忆（本地私有，不入库）
 .workbuddy/
+
+# 本地辅助工具（WP 主题转换等，不入库）
+tools/
+
+# 运行时产物（不入库）：备份可由后台再生成、静态化输出可随时重建
+backend/backup/
+backend/html/

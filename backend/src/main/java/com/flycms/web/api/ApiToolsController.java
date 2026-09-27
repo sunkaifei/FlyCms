@@ -2,6 +2,7 @@ package com.flycms.web.api;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.module.other.service.DbBackupService;
+import com.flycms.module.other.service.StaticPageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -28,6 +29,8 @@ import java.util.List;
  *   900291 /api/system/tools/db/backup    执行备份
  *   900292 /api/system/tools/db/download  下载
  *   900293 /api/system/tools/db/delete    删除
+ * 静态化（stage-p-static.sql）：
+ *   900340 /api/system/tools/static/generate  生成静态页（挂 900160 模板管理下）
  *
  * @author sun-kaifei
  * @version 1.0
@@ -38,6 +41,9 @@ public class ApiToolsController extends ApiBaseController {
 
     @Autowired
     private DbBackupService dbBackupService;
+
+    @Autowired
+    private StaticPageService staticPageService;
 
     /** 备份文件列表（按时间倒序） */
     @ResponseBody
@@ -93,6 +99,31 @@ public class ApiToolsController extends ApiBaseController {
             return ok ? DataVo.success("删除成功", null) : DataVo.failure("文件不存在");
         } catch (IllegalArgumentException | IOException e) {
             return DataVo.failure(e.getMessage());
+        }
+    }
+
+    /**
+     * 生成静态页面（织梦式"生成 HTML"，产物在 ./html，前台访问路由 /html/**）。
+     *
+     * @param scope      all=全量（首页+栏目+详情）| home=仅首页 | channel=仅栏目 | detail=仅详情
+     * @param channelDir scope=channel 时必填（如 news）
+     * @param modelCode  scope=detail 时必填（如 articles）
+     */
+    @ResponseBody
+    @PostMapping("/static/generate")
+    public DataVo staticGenerate(@RequestParam(value = "scope", defaultValue = "all") String scope,
+                                 @RequestParam(value = "channelDir", required = false) String channelDir,
+                                 @RequestParam(value = "modelCode", required = false) String modelCode) {
+        requirePermission("/api/system/tools/static/generate");
+        switch (scope) {
+            case "home":
+                return staticPageService.generateHome();
+            case "channel":
+                return staticPageService.generateChannel(channelDir);
+            case "detail":
+                return staticPageService.generateModelDetails(modelCode);
+            default:
+                return staticPageService.generateAll();
         }
     }
 }

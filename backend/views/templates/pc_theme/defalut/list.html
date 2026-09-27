@@ -1,0 +1,10 @@
+<#-- 通用列表页（候选链兜底） -->
+<#include "common/macros.html">
+<#if channel??>
+  <#assign pageTitle = (title)!(channel.channelName)>
+<#else>
+  <#assign pageTitle = ((model.name)!'') + " - " + (web_name)!''>
+</#if>
+<#include "common/header.html">
+<#include "common/list-main.html">
+<#include "common/footer.html">

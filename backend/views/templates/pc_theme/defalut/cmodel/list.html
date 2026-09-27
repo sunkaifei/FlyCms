@@ -4,7 +4,7 @@
 <head><meta charset="UTF-8"><title>${model.name}</title></head>
 <body>
 <h1>${model.name}</h1>
-<@ListModel model="${model.code}" p="${p!1}" rows="10">
+<@fly_list_model model="${model.code}" p="${p!1}" rows="10">
 <ul>
 <#if dataList?? && dataList?size gt 0>
 <#list dataList as item>
@@ -14,6 +14,6 @@
 <li>暂无内容</li>
 </#if>
 </ul>
-</@ListModel>
+</@fly_list_model>
 </body>
 </html>

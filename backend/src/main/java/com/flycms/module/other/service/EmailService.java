@@ -5,10 +5,8 @@
  */
 package com.flycms.module.other.service;
 
-import java.security.Security;
 import java.util.*;
 
-import jakarta.mail.Address;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message.RecipientType;
 import jakarta.mail.MessagingException;
@@ -29,10 +27,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 发送邮件的测试程序
- * 
+ * 邮件服务（第三方 SMTP）
+ *
+ * SMTP 参数全部来自网站设置（fly_config_web）：
+ *   fly_smtp_server    SMTP 服务器地址，如 smtp.qq.com
+ *   fly_smtp_port      端口：SSL 465 / STARTTLS 587 / 不加密 25
+ *   fly_smtp_ssl       加密方式：1 SSL(默认) / 2 STARTTLS / 0 不加密
+ *   fly_smtp_usermail  发件邮箱账号
+ *   fly_smtp_password  授权码（QQ/163 等第三方邮箱用授权码而非登录密码）
+ *   fly_smtp_fromname  发件人昵称（可选）
+ *
+ * 业务调用方：UserService（safe_email 邮箱绑定验证码 / reset_email 找回密码）、
+ * FormService（表单提交通知）、本服务 sendTestEmail（网站设置里的连通性测试）。
+ *
  * @author lwq
- * 
  */
 @Service
 public class EmailService {
@@ -43,141 +51,43 @@ public class EmailService {
 	protected ConfigService configService;
     @Autowired
     protected EmailDao emailDao;
+
     // ///////////////////////////////
     // /////       增加       ////////
     // ///////////////////////////////
+
     /**
-     * 给指定用户邮箱发送重置密码邮件
+     * 给指定用户邮箱发送模板邮件（验证码类）
      *
-     * @param userEmail
-     *        需要发送的用户信息
-     * @param code
-     *        需要发送的验证码
-     * @param tpCode
-     *        后台设置的邮件模板key
-     * @return
-     * @throws MessagingException
+     * @param userEmail 收件邮箱
+     * @param code      验证码
+     * @param tpCode    后台设置的邮件模板key（safe_email / reset_email）
      */
-    @SuppressWarnings("restriction")
-    public void sendEmail(String userEmail,String code, String tpCode) throws MessagingException {
-        Email email=emailDao.findEmailTempletByTpCode(tpCode);
+    public void sendEmail(String userEmail, String code, String tpCode) throws MessagingException {
+        Email email = emailDao.findEmailTempletByTpCode(tpCode);
         Map<String, String> map = new HashMap<String, String>();
-        map.put("code",code);
-        map.put("userEmail",userEmail);
+        map.put("code", code);
+        map.put("userEmail", userEmail);
         map.put("createTime", DateUtils.getTime());
-        System.out.println(PlaceholderUtils.resolvePlaceholders(email.getContent(), map));
-        String mailBody =PlaceholderUtils.resolvePlaceholders(email.getContent(), map);
-        final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-        // 配置发送邮件的环境属性
-        final Properties props = new Properties();
-        /*
-         * 可用的属性： mail.store.protocol / mail.transport.protocol / mail.host /
-         * mail.user / mail.from
-         */
-        // 表示SMTP发送邮件，需要进行身份验证
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.host", configService.getStringByKey("fly_smtp_server"));
-        // 发件人的账号
-        props.put("mail.user", configService.getStringByKey("fly_smtp_usermail"));
-        // 访问SMTP服务时需要提供的密码
-        props.put("mail.password", configService.getStringByKey("fly_smtp_password"));
-        props.put("mail.smtp.socketFactory.class", SSL_FACTORY);
-        props.put("mail.smtp.port", configService.getStringByKey("fly_smtp_port"));
-        props.put("mail.smtp.socketFactory.port", configService.getStringByKey("fly_smtp_port"));
-        // 构建授权信息，用于进行SMTP进行身份验证
-        Authenticator authenticator = new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                // 用户名、密码
-                String userName = props.getProperty("mail.user");
-                String password = props.getProperty("mail.password");
-                return new PasswordAuthentication(userName, password);
-            }
-        };
-        // 使用环境属性和授权信息，创建邮件会话
-        Session mailSession = Session.getInstance(props, authenticator);
-        // JDK 9+ 已移除 Sun 内部 SSL Provider，JSSE 默认已注册，无需手动添加
-        props.put("mail.smtp.socketFactory.fallback", "false");
-        props.put("mail.smtp.starttls.enable", "true");
-        // 创建邮件消息
-        MimeMessage message = new MimeMessage(mailSession);
-        // 设置发件人
-        Address form = new InternetAddress(props.getProperty("mail.user"));
-        message.setFrom(form);
-
-        Address toAddress=null;
-        String[] mailTo=new String[]{userEmail};
-        for(int i =0; i<mailTo.length; i++){
-            toAddress = new InternetAddress(mailTo[i]);
-            message.setRecipient(RecipientType.TO, toAddress);
-        }
-        // 设置收件人
-
-
-        // 设置明抄送
-        //InternetAddress cc = new InternetAddress("79678111@qq.com");
-        // message.setRecipient(RecipientType.CC, cc);
-
-        // 设置密送，其他的收件人不能看到密送的邮件地址
-        InternetAddress bcc = new InternetAddress("79678111@qq.com");
-        message.setRecipient(RecipientType.BCC, bcc);
-
-        // 设置邮件标题
-        message.setSubject(email.getTitle() == null ? "开源之家测试邮件" : email.getTitle(), "GBK"); // 设置邮件主题
-
-        // 设置邮件的内容体
-        message.setText("<html><head><meta charset='utf-8'></head><body>" + mailBody + "</body></html>", "GBK", "html");
-
-        // 设置邮件发送日期
-        message.setSentDate(new Date());
-
-        // 发送邮件
-        Transport.send(message);
+        String mailBody = PlaceholderUtils.resolvePlaceholders(email.getContent(), map);
+        String subject = email.getTitle() == null ? "系统邮件" : email.getTitle();
+        doSend(userEmail, subject, mailBody);
     }
 
     /**
-     * 发送通用通知邮件（规划阶段 F：表单提交通知）
-     *
-     * 既有 sendEmail 只能套验证码模板，表单通知需要任意「标题 + 正文」，故单独提供。
-     * SMTP 参数同样取自 fly_smtp_* 配置键；发送失败只记日志，不影响主流程。
+     * 发送通用通知邮件（表单提交通知等）
      *
      * @param toEmail 收件人
      * @param subject 邮件标题
      * @param content 正文（HTML 片段）
+     * @return 是否发送成功
      */
     public boolean sendNotifyEmail(String toEmail, String subject, String content) {
         if (toEmail == null || toEmail.trim().isEmpty()) {
             return false;
         }
         try {
-            final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
-            final Properties props = new Properties();
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.host", configService.getStringByKey("fly_smtp_server"));
-            props.put("mail.user", configService.getStringByKey("fly_smtp_usermail"));
-            props.put("mail.password", configService.getStringByKey("fly_smtp_password"));
-            props.put("mail.smtp.socketFactory.class", SSL_FACTORY);
-            props.put("mail.smtp.port", configService.getStringByKey("fly_smtp_port"));
-            props.put("mail.smtp.socketFactory.port", configService.getStringByKey("fly_smtp_port"));
-            props.put("mail.smtp.socketFactory.fallback", "false");
-            props.put("mail.smtp.starttls.enable", "true");
-
-            Authenticator authenticator = new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(
-                            props.getProperty("mail.user"), props.getProperty("mail.password"));
-                }
-            };
-            Session mailSession = Session.getInstance(props, authenticator);
-            MimeMessage message = new MimeMessage(mailSession);
-            message.setFrom(new InternetAddress(props.getProperty("mail.user")));
-            message.setRecipient(RecipientType.TO, new InternetAddress(toEmail));
-            message.setSubject(subject == null ? "系统通知" : subject, "UTF-8");
-            message.setText("<html><head><meta charset='utf-8'></head><body>" + content + "</body></html>",
-                    "UTF-8", "html");
-            message.setSentDate(new Date());
-            Transport.send(message);
+            doSend(toEmail, subject == null ? "系统通知" : subject, content);
             return true;
         } catch (Exception e) {
             log.error("发送通知邮件失败, toEmail={}", toEmail, e);
@@ -185,9 +95,102 @@ public class EmailService {
         }
     }
 
+    /**
+     * 网站设置里的「发送测试邮件」：用当前保存的 SMTP 配置直发一封测试邮件。
+     *
+     * @param toEmail 测试收件地址
+     * @return null 表示成功；否则返回人类可读的错误信息
+     */
+    public String sendTestEmail(String toEmail) {
+        if (toEmail == null || toEmail.trim().isEmpty()) {
+            return "请填写测试收件邮箱";
+        }
+        String host = configService.getStringByKey("fly_smtp_server");
+        if (host == null || host.trim().isEmpty()) {
+            return "请先保存 SMTP 服务器地址";
+        }
+        try {
+            doSend(toEmail.trim(),
+                    "FlyCms SMTP 配置测试邮件",
+                    "这是一封测试邮件。收到即说明当前网站设置的第三方邮箱参数可用。<br/>"
+                            + "发送时间：" + DateUtils.getTime());
+            return null;
+        } catch (Exception e) {
+            log.error("SMTP 测试邮件发送失败, toEmail={}", toEmail, e);
+            String msg = e.getMessage();
+            return msg == null ? e.getClass().getName() : msg;
+        }
+    }
+
     // ///////////////////////////////
-    // /////        刪除      ////////
+    // /////       内部        ////////
     // ///////////////////////////////
+
+    /** 从网站设置读取 fly_smtp_* 组装会话并发送（统一 UTF-8） */
+    private void doSend(String toEmail, String subject, String htmlBody) throws MessagingException {
+        Properties props = buildSmtpProps();
+        Authenticator authenticator = new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(
+                        props.getProperty("mail.user"), props.getProperty("mail.password"));
+            }
+        };
+        Session mailSession = Session.getInstance(props, authenticator);
+        MimeMessage message = new MimeMessage(mailSession);
+        // 发件人（带昵称；昵称缺失时直接用邮箱地址）
+        String fromName = configService.getStringByKey("fly_smtp_fromname");
+        String fromAddr = props.getProperty("mail.user");
+        try {
+            if (fromName != null && !fromName.trim().isEmpty()) {
+                message.setFrom(new InternetAddress(fromAddr, fromName.trim(), "UTF-8"));
+            } else {
+                message.setFrom(new InternetAddress(fromAddr));
+            }
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new MessagingException("发件人昵称编码错误", e);
+        }
+        message.setRecipient(RecipientType.TO, new InternetAddress(toEmail));
+        message.setSubject(subject, "UTF-8");
+        message.setText("<html><head><meta charset='utf-8'></head><body>" + htmlBody
+                + "</body></html>", "UTF-8", "html");
+        message.setSentDate(new Date());
+        Transport.send(message);
+    }
+
+    /** 加密方式：1 SSL(默认) / 2 STARTTLS / 0 不加密 */
+    private Properties buildSmtpProps() {
+        Properties props = new Properties();
+        String host = configService.getStringByKey("fly_smtp_server");
+        String user = configService.getStringByKey("fly_smtp_usermail");
+        String password = configService.getStringByKey("fly_smtp_password");
+        String port = configService.getStringByKey("fly_smtp_port");
+        int sslMode = 1;
+        try {
+            sslMode = Integer.parseInt(configService.getStringByKey("fly_smtp_ssl"));
+        } catch (Exception ignore) {
+            // 未配置或非数字按默认 SSL 处理
+        }
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.host", host == null ? "" : host.trim());
+        props.put("mail.user", user == null ? "" : user.trim());
+        props.put("mail.password", password == null ? "" : password.trim());
+        props.put("mail.smtp.port", port == null || port.trim().isEmpty() ? "25" : port.trim());
+        if (sslMode == 2) {
+            // STARTTLS：587 端口常见
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.socketFactory.fallback", "true");
+        } else if (sslMode == 0) {
+            // 不加密：25 端口常见
+            props.put("mail.smtp.starttls.enable", "false");
+        } else {
+            // SSL：465 端口常见
+            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            props.put("mail.smtp.socketFactory.port", props.getProperty("mail.smtp.port"));
+            props.put("mail.smtp.socketFactory.fallback", "false");
+        }
+        return props;
+    }
 
     // ///////////////////////////////
     // /////        修改      ////////

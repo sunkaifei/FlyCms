@@ -39,13 +39,20 @@ public final class SqlSafeUtil {
      * 模型表名后缀保留字（D7/D10）。两部分：
      * 1. SQL 保留字（防语义歧义，与 RESERVED 同源但独立维护）；
      * 2. 项目既有表名后缀（防人为混淆：fly_cmodel_images 与 fly_images 并存时运维易误判）。
+     *
+     * <p>两部分安全边界不同，故意拆成两个集合（2026-09-27）：
+     * 项目表名黑名单只应在「新建模型」时拦截（anti-confusion，友好提示）；
+     * 存量模型的读写路径只能按 SQL 关键字层校验——否则像种子模型 images
+     * （fly_cmodel_images 早已存在）会被整条管理链路 500。
      */
-    private static final Set<String> RESERVED_TABLE_SUFFIX = Set.of(
+    private static final Set<String> RESERVED_SQL_SUFFIX = Set.of(
             // ---- SQL 保留字 ----
             "order", "group", "select", "insert", "update", "delete", "where", "index", "key",
             "table", "values", "limit", "union", "having", "distinct", "column", "database",
-            "schema", "create", "drop", "alter", "join", "left", "right", "desc", "asc",
-            // ---- 项目既有表名后缀（去 fly_ / fly_cmodel_ 前缀后的部分）----
+            "schema", "create", "drop", "alter", "join", "left", "right", "desc", "asc");
+
+    /** 项目既有表名后缀（仅新建模型时拦截，存量模型豁免） */
+    private static final Set<String> RESERVED_PROJECT_SUFFIX = Set.of(
             "admin", "admin_log", "admin_permission", "admin_group_permission_merge",
             "article", "article_category", "article_comment",
             "images", "model", "model_field", "model_category",
@@ -55,6 +62,15 @@ public final class SqlSafeUtil {
             "announcement", "share", "share_category", "share_comment",
             "question", "answer", "topic", "useraccount", "usergroup",
             "attachment", "captcha", "sms", "email", "log", "search");
+
+    /** 完整黑名单 = SQL 保留字 + 项目表名（新建模型用） */
+    private static final Set<String> RESERVED_TABLE_SUFFIX;
+
+    static {
+        Set<String> all = new java.util.HashSet<>(RESERVED_SQL_SUFFIX);
+        all.addAll(RESERVED_PROJECT_SUFFIX);
+        RESERVED_TABLE_SUFFIX = Set.copyOf(all);
+    }
 
     /** 模型数据表的固有列名，自定义字段不允许撞名 */
     private static final Set<String> RESERVED_COLUMNS = Set.of(
@@ -111,6 +127,27 @@ public final class SqlSafeUtil {
     public static String safeTableSuffix(String code) {
         if (code == null || !SAFE_TABLE_SUFFIX.matcher(code).matches()
                 || RESERVED_TABLE_SUFFIX.contains(code)) {
+            throw new IllegalArgumentException("非法模型标识（不能用作表名）：" + code);
+        }
+        return code;
+    }
+
+    /**
+     * 存量模型的表名后缀校验（读写 / DDL 维护路径专用）。
+     *
+     * <p>与 {@link #safeTableSuffix(String)} 的唯一区别：不校验项目表名黑名单
+     * （RESERVED_PROJECT_SUFFIX），只拦 SQL 保留字。理由：存量模型（如种子模型
+     * images → fly_cmodel_images）的物理表早已存在，若按全量黑名单拦截，
+     * 会让整条管理链路 500；且黑名单在黑名单建立之前允许创建的 code 无法追溯。
+     * 新建模型仍必须走 {@link #safeTableSuffix(String)} 全量校验。
+     *
+     * @param code 存量模型的 code
+     * @return 通过校验的 code
+     * @throws IllegalArgumentException code 为 null、格式非法或命中 SQL 保留字
+     */
+    public static String safeTableSuffixForExisting(String code) {
+        if (code == null || !SAFE_TABLE_SUFFIX.matcher(code).matches()
+                || RESERVED_SQL_SUFFIX.contains(code)) {
             throw new IllegalArgumentException("非法模型标识（不能用作表名）：" + code);
         }
         return code;

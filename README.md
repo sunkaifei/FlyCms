@@ -123,13 +123,12 @@ FlyCms/
 │   ├── src/main/resources/
 │   │   ├── application.yml
 │   │   └── i18n/                  # 国际化
-│   └── doc/                       # 开发规划、模型手册、改造方案
 ├── frontend/                      # pnpm workspace
 │   ├── apps/web-antd/             # 后台控制台（Vue 3）
 │   ├── packages/@core/            # 基础能力包
 │   └── internal/                  # 构建配置
-├── sql/                           # 建库与分阶段迁移脚本
-└── docs/                          # 审查报告、运维配置
+├── sql/                           # 数据库全量备份快照（最新一份，含结构+数据）
+└── docs/                          # 开发规划、模型手册、改造方案、审查报告、运维配置
 ```
 
 ---
@@ -144,20 +143,24 @@ FlyCms/
 
 ### 1. 数据库
 
+`sql/` 目录只保留一份**全量备份快照**（表结构 + 全部数据一体，含所有已上线功能与权限节点），无需再按阶段执行增量脚本：
+
 ```bash
 mysql -u root -p -e "CREATE DATABASE flycms DEFAULT CHARACTER SET utf8mb4;"
-mysql -u root -p --default-character-set=utf8mb4 flycms < sql/flycms_full.sql
+mysql -u root -p --default-character-set=utf8mb4 flycms < sql/flycms_20260928_012316.sql
 ```
 
-分阶段能力（评论审核 / 表单 / 投稿审核等）按需要执行增量脚本：
+> ⚠️ **必须加 `--default-character-set=utf8mb4`**：mysql 客户端在某些终端环境默认 latin1 连接，中文数据会真实乱码（写入即损坏，不是显示问题）。
+>
+> 备份快照由 MySQL 5.7.44 导出，兼容 MySQL 8 导入。导入后默认管理员：`flycms / admin123`（请登录后立即改密）。
+
+**备份与更新快照**：系统内置纯 Java 全库备份（不依赖 mysqldump），后台「系统工具 → 数据库备份」或直接调用：
 
 ```bash
-mysql -u root -p --default-character-set=utf8mb4 flycms < sql/stage-b.sql
-mysql -u root -p --default-character-set=utf8mb4 flycms < sql/stage-f.sql
-mysql -u root -p --default-character-set=utf8mb4 flycms < sql/stage-h-audit.sql
+curl -X POST http://localhost/api/system/tools/db/backup   # 需管理员会话
 ```
 
-> `stage-*.sql` 默认给超管组授权，`group_id` 请先用 `SELECT * FROM fly_admin_group;` 确认后替换。
+备份文件生成于 `backend/backup/flycms_*.sql`；需要刷新 `sql/` 快照时，将最新一份复制过去替换即可。
 
 ### 2. 后端
 
@@ -253,9 +256,9 @@ java -jar target/FlyCms.jar --spring.profiles.active=prod > FlyCms.log 2>&1 &
 
 | 文档 | 内容 |
 |------|------|
-| `backend/doc/全智能CMS对标分析与开发规划.md` | 阶段 A~J 的整体演进规划与设计决策 |
-| `backend/doc/自定义模型系统开发手册.md` | 内容模型建模、字段类型、数据表生成规则 |
-| `backend/doc/内容体系收敛与模型命名改造开发方案.md` | 表名 / 主键策略的 ADR 与迁移步骤 |
+| `docs/全智能CMS对标分析与开发规划.md` | 阶段 A~J 的整体演进规划与设计决策 |
+| `docs/自定义模型系统开发手册.md` | 内容模型建模、字段类型、数据表生成规则 |
+| `docs/内容体系收敛与模型命名改造开发方案.md` | 表名 / 主键策略的 ADR 与迁移步骤 |
 | `docs/backend-bug-review-2026-09-24.md` | 后端审查报告与已修 Bug 清单 |
 | `docs/stage-gap-fill-2026-09-24.md` | 规划对标后的漏开发补齐记录 |
 | `docs/frontend-access-guide.md` | 前端权限码与按钮显隐约定 |

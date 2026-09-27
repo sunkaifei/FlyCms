@@ -115,10 +115,15 @@ public class ApiMenuController extends ApiBaseController {
     }
 
     /**
-     * 组装 vben RouteRecordStringComponent 树：
-     * - M → BasicLayout + children；C → 页面组件（visible=0 输出 hideInMenu，仅注册路由）
+     * 组装 vben RouteRecordStringComponent 树（M/C 任意层级递归）：
+     * - M → BasicLayout；C → 页面组件（visible=0 输出 hideInMenu，仅注册路由）
      * - C/M 可见性：actionKey 为空登录即可见；否则授权码精确或通配命中
+     * - F 按钮节点不参与路由（getMenuNodes 已过滤，仅作权限锚点）
      * - /modelData 目录下追加启用模型的动态内容管理入口
+     *
+     * <p>2026-09-27 由「仅两级」改为递归：原实现只输出 M 的直接子节点，
+     * 挂在 C 菜单下的 C 孙子节点会被无声丢弃（stage-j2 的 900188 主题市场
+     * 挂在 900160 模板管理下即踩中此坑，页面始终不出现）。
      */
     private List<Map<String, Object>> buildRoutes(List<Permission> nodes, List<String> codes) {
         Map<Long, Permission> byId = new HashMap<>();
@@ -135,46 +140,56 @@ public class ApiMenuController extends ApiBaseController {
                 children.computeIfAbsent(parent.getId(), k -> new ArrayList<>()).add(n);
             }
         }
-
         List<Map<String, Object>> out = new ArrayList<>();
         for (Permission root : roots) {
-            List<Permission> kids = children.getOrDefault(root.getId(), new ArrayList<>());
-            // 目录可见性由可见子节点推导
-            List<Permission> visibleKids = new ArrayList<>();
-            for (Permission k : kids) {
-                if (nodeAllowed(k, codes)) {
-                    visibleKids.add(k);
-                }
-            }
-            Map<String, Object> route = toRoute(root);
-            List<Map<String, Object>> childRoutes = new ArrayList<>();
-            for (Permission k : visibleKids) {
-                childRoutes.add(toRoute(k));
-            }
-            // 模型动态菜单挂到 /modelData 目录
-            if ("/modelData".equals(root.getPath())) {
-                for (Model model : modelService.getEnabledModels()) {
-                    Map<String, Object> meta = new LinkedHashMap<>();
-                    meta.put("title", model.getName() + "管理");
-                    meta.put("icon", StringUtils.defaultIfBlank(model.getIcon(), "lucide:file-text"));
-                    Map<String, Object> child = new LinkedHashMap<>();
-                    child.put("name", "ModelData-" + model.getCode());
-                    child.put("path", "/modelData/" + model.getCode());
-                    child.put("component", "/system/modeldata/list");
-                    child.put("meta", meta);
-                    childRoutes.add(child);
-                }
-            }
-            if (!childRoutes.isEmpty()) {
-                route.put("children", childRoutes);
-                out.add(route);
-            } else if (StringUtils.isBlank(root.getActionKey())) {
-                // 无权限锚点又无子节点的空目录不输出
-            } else {
+            Map<String, Object> route = buildRouteTree(root, children, codes);
+            if (route != null) {
                 out.add(route);
             }
         }
         return out;
+    }
+
+    /**
+     * 递归组装单棵路由子树。返回 null 表示该子树整体不输出
+     * （空目录：M 无可见子节点且自身无权限锚点）。
+     */
+    private Map<String, Object> buildRouteTree(Permission node, Map<Long, List<Permission>> children,
+                                               List<String> codes) {
+        Map<String, Object> route = toRoute(node);
+        List<Map<String, Object>> childRoutes = new ArrayList<>();
+        for (Permission k : children.getOrDefault(node.getId(), new ArrayList<>())) {
+            if (!nodeAllowed(k, codes)) {
+                continue;
+            }
+            Map<String, Object> child = buildRouteTree(k, children, codes);
+            if (child != null) {
+                childRoutes.add(child);
+            }
+        }
+        // 模型动态菜单挂到 /modelData 目录
+        if ("/modelData".equals(node.getPath())) {
+            for (Model model : modelService.getEnabledModels()) {
+                Map<String, Object> meta = new LinkedHashMap<>();
+                meta.put("title", model.getName() + "管理");
+                meta.put("icon", StringUtils.defaultIfBlank(model.getIcon(), "lucide:file-text"));
+                Map<String, Object> child = new LinkedHashMap<>();
+                child.put("name", "ModelData-" + model.getCode());
+                child.put("path", "/modelData/" + model.getCode());
+                child.put("component", "/system/modeldata/list");
+                child.put("meta", meta);
+                childRoutes.add(child);
+            }
+        }
+        if (!childRoutes.isEmpty()) {
+            route.put("children", childRoutes);
+            return route;
+        }
+        // 叶子 M 目录：无权限锚点则不输出（与原「空目录不输出」行为一致）
+        if ("M".equals(node.getMenuType()) && StringUtils.isBlank(node.getActionKey())) {
+            return null;
+        }
+        return route;
     }
 
     private Map<String, Object> toRoute(Permission node) {

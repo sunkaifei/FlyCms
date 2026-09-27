@@ -3,7 +3,8 @@
 <mapper namespace="com.flycms.module.model.dao.ModelDataDao">
 
 	<!--
-	  ${suffix} = 模型 code，已过 SqlSafeUtil.safeTableSuffix 标识符白名单（D7/D10）。
+	  ${suffix} = 模型 code，已过 SqlSafeUtil 标识符白名单（新建模型 safeTableSuffix 全量黑名单；
+	  存量表维护路径 safeTableSuffixForExisting，仅拦 SQL 保留字）（D7/D10）。
 	  物理表名 = fly_cmodel_{suffix}，如 fly_cmodel_articles。
 	-->
 	<update id="createTable">
@@ -111,7 +112,7 @@
 
 	<delete id="deleteData">
 		DELETE FROM `fly_cmodel_${suffix}` WHERE `id` IN
-		<foreach collection="ids" item="i" open="," separator="," close=")">#{i}</foreach>
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
 	</delete>
 
 	<!-- 附件：fly_images（AttachmentPicker 数据源与引用计数） -->
@@ -124,8 +125,8 @@
 		SELECT COUNT(*) FROM fly_images
 	</select>
 
-	<select id="existsImages" resultType="boolean">
-		SELECT COUNT(*) = #{ids.size()} FROM fly_images WHERE id IN
+	<select id="countImages" resultType="int">
+		SELECT COUNT(*) FROM fly_images WHERE id IN
 		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
 	</select>
 
@@ -141,6 +142,6 @@
 
 	<update id="decrImagesRefCount">
 		UPDATE fly_images SET info_count = GREATEST(info_count - 1, 0) WHERE id IN
-		<foreach collection="ids" item="i" open="," separator="," close=")">#{i}</foreach>
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
 	</update>
 </mapper>

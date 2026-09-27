@@ -39,6 +39,11 @@ export async function saveWebsiteConfigApi(data: Record<string, string>) {
   return postForm<void>('/system/website/save', data);
 }
 
+/** 用当前已保存的 SMTP 配置发送测试邮件（后端返回失败原因在 message 里） */
+export async function testEmailApi(toEmail: string) {
+  return postForm<void>('/system/website/testEmail', { toEmail });
+}
+
 // /////////////////// 模板管理 ///////////////////
 
 export async function getTemplateFilesApi() {

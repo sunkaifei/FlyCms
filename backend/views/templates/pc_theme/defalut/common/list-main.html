@@ -1,0 +1,52 @@
+<#-- ============================================================
+     列表页主体（被 list.html / list-{model}.html include）
+     兼容两种上下文：
+     1) 栏目渲染（/news/ 等）：dataList/model_page/model/modelCode/children 已备
+     2) 模型直访（/articles/ 等）：仅 model，需 fly_page_model 自取数
+     ============================================================ -->
+<#assign mc = (modelCode)!(model.code)!''>
+<#assign base = "/" + ((channel.channelDir)!mc)>
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i>
+  <#if channel??><a href="/${channel.channelDir}/">${channel.channelName}</a><#else>${(model.name)!''}</#if>
+</div></div>
+<div class="wrap lay">
+  <main>
+    <div class="list-hd">
+      <h1><#if channel??>${channel.channelName}<#else>${(model.name)!''}</#if></h1>
+      <small>PAGE <span class="num">${(p)!1}</span> · 共 ${(model_page.count)!0} 条</small>
+    </div>
+    <#if (dataList)??>
+      <#-- 栏目渲染：直接用预取数据 -->
+      <#if dataList?size gt 0>
+        <@artRows rows=dataList mc=mc />
+        <@pager base=base count=(model_page.count)!0 rows=(model_page.rows)!10 cur=(p)!1 />
+      <#else>
+        <div class="empty"><b>0</b>该栏目暂无内容，欢迎先浏览<a href="/">首页</a>其他精彩内容</div>
+      </#if>
+    <#else>
+      <#-- 模型直访：标签取数（每页 10 条，路径式分页） -->
+      <@fly_page_model model=mc p="${p!1}" rows="10">
+      <#if dataList?? && dataList?size gt 0>
+        <@artRows rows=dataList mc=mc />
+        <@pager base=base count=(model_page.count)!0 rows=(model_page.rows)!10 cur=(p)!1 />
+      <#else>
+        <div class="empty"><b>0</b>暂无内容，欢迎先浏览<a href="/">首页</a>其他精彩内容</div>
+      </#if>
+      </@fly_page_model>
+    </#if>
+  </main>
+  <aside class="rit">
+    <div><@hotRank model=mc rows=8 /></div>
+    <#if (children)?? && children?size gt 0>
+    <div>
+      <div class="side-hd"><h2>子栏目</h2></div>
+      <ul class="rows">
+      <#list children as c>
+      <li><a href="/${c.channelDir}/">${c.channelName}</a><time>${(c.modelCode)!'栏目'}</time></li>
+      </#list>
+      </ul>
+    </div>
+    </#if>
+  </aside>
+</div>

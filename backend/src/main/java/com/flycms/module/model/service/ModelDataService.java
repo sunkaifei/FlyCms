@@ -13,6 +13,8 @@ import com.flycms.module.model.model.Model;
 import com.flycms.module.model.model.ModelCategory;
 import com.flycms.module.model.model.ModelField;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +37,8 @@ import java.util.Map;
  */
 @Service
 public class ModelDataService {
+
+    private static final Logger log = LoggerFactory.getLogger(ModelDataService.class);
 
     @Autowired
     private ModelDataDao modelDataDao;
@@ -406,7 +410,7 @@ public class ModelDataService {
                             for (String a : arr) {
                                 ids.add(Long.parseLong(a));
                             }
-                            if (!modelDataDao.existsImages(ids)) {
+                            if (modelDataDao.countImages(ids) < ids.size()) {
                                 return DataVo.failure(f.getFieldLabel() + "引用的附件不存在");
                             }
                             refIds.addAll(ids);
@@ -417,7 +421,7 @@ public class ModelDataService {
                     case IMAGE:
                     case FILE: {
                         long aid = Long.parseLong(raw.trim());
-                        if (!modelDataDao.existsImages(Arrays.asList(aid))) {
+                        if (modelDataDao.countImages(Arrays.asList(aid)) == 0) {
                             return DataVo.failure(f.getFieldLabel() + "引用的附件不存在");
                         }
                         refIds.add(aid);
@@ -447,6 +451,8 @@ public class ModelDataService {
             } catch (ParseException | IllegalArgumentException e) {
                 return DataVo.failure(f.getFieldLabel() + "格式不正确");
             } catch (Exception e) {
+                // 动态模型字段处理链路的异常必须留痕，否则只能看到笼统的"处理失败"
+                log.error("模型字段[{}]({})处理失败: {}", f.getFieldName(), f.getFieldType(), e.getMessage(), e);
                 return DataVo.failure(f.getFieldLabel() + "处理失败");
             }
             if (type != FieldTypeEnum.EDITOR) {
@@ -534,8 +540,10 @@ public class ModelDataService {
      * {@code /system/modelData/list/{modelId}} 不便变动），内部统一经此方法解析为
      * 物理表名后缀 {@code fly_cmodel_{code}}。表名不再是雪花 ID。
      *
-     * <p>额外走一次 {@link SqlSafeUtil#safeTableSuffix(String)}：模型 code 在创建时已校验，
+     * <p>额外走一次 {@link SqlSafeUtil#safeTableSuffixForExisting(String)}：模型 code 在创建时已校验，
      * 但缓存/直连库的脏数据仍可能绕过，动态 SQL 入口再校验一次是纵深防御（D10）。
+     * 读取/维护路径用存量豁免版本（只拦 SQL 保留字）：种子模型 images 命中项目表名黑名单，
+     * 若按全量黑名单校验会让整条管理链路 500（2026-09-27 修复）。
      *
      * @param modelId 模型主键
      * @return 模型 code（物理表名后缀）
@@ -546,7 +554,7 @@ public class ModelDataService {
         if (model == null || StringUtils.isBlank(model.getCode())) {
             throw new IllegalArgumentException("模型不存在：" + modelId);
         }
-        return SqlSafeUtil.safeTableSuffix(model.getCode());
+        return SqlSafeUtil.safeTableSuffixForExisting(model.getCode());
     }
 
     private String genShortUrl(Long modelId) {

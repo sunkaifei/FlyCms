@@ -1,0 +1,87 @@
+<#-- ============================================================
+     共享宏（include 于各页面头部）
+     ⚠ 模型数据 map 类型约定：DATETIME 列是 ISO 字符串（2026-09-21T05:55:28），
+        只能截取/替换，不能 ?string(pattern)；数字列判空不能与 '' 比较。
+     ============================================================ -->
+
+<#-- 日期部分：ISO 字符串取 yyyy-MM-dd -->
+<#macro date10 dt><#if dt?? && dt?length gte 10>${dt?substring(0, 10)}<#else>${(dt)!''}</#if></#macro>
+
+<#-- 日期时间：ISO 字符串转 yyyy-MM-dd HH:mm -->
+<#macro dt16 dt><#if dt?? && dt?length gte 16>${dt?replace("T", " ")?substring(0, 16)}<#else>${(dt)!''}</#if></#macro>
+
+<#-- 封面图：有真实附件图用真图，否则用模型几何题图（SVG 占位）
+     ⚠ 模型码 → SVG 文件映射：articles 模型用 news 题图，其余同码 -->
+<#macro cover mc url>
+<#if url?? && url != ''><img src="${url}" alt=""><#else><img src="/skin/pc_theme/defalut/images/cover-<#if mc == 'articles'>news<#else>${mc!'news'}</#if>.svg" alt=""></#if>
+</#macro>
+
+<#-- 列表行卡片（首页板块 / 列表页共用）：rows 为行集合，mc 为默认模型码 -->
+<#macro artRows rows mc>
+<#list rows as r>
+<#assign link = "/" + ((r['__modelCode'])!mc) + "/" + r.shortUrl + ".html">
+<article class="card-x">
+  <a href="${link}"><@cover mc=mc url=(r.thumbnailUrl)!'' /></a>
+  <div>
+    <h2><a href="${link}">${r.title}</a></h2>
+    <#if (r.description)?? && r.description != ''><p>${r.description}</p></#if>
+    <div class="meta"><time><@date10 (r.createTime)!'' /></time> · 阅读 <b class="num">${(r.countView)!0}</b></div>
+  </div>
+</article>
+</#list>
+</#macro>
+
+<#-- 分页（路径式：{base}/p{n}；PageVo.pageCount 可直接用） -->
+<#macro pager base count rows cur>
+<#if count gt 0 && rows gt 0>
+  <#assign pages = (count / rows)?ceiling>
+  <#if pages gt 1>
+  <nav class="pg">
+    <#list 1..pages as i>
+      <#if i == cur><span class="cur">${i}</span><#else><a href="${base}/p${i}">${i}</a></#if>
+    </#list>
+    <span class="tot">共 ${count} 篇</span>
+  </nav>
+  </#if>
+</#if>
+</#macro>
+
+<#-- 侧栏·相关阅读（fly_rel_model：同栏目同模型内容） -->
+<#macro relList mc catId notid>
+<div class="side-hd"><h2>相关阅读</h2></div>
+<ul class="rows">
+<@fly_rel_model model=mc category=catId notid=notid rows="6">
+<#if dataList?? && dataList?size gt 0>
+<#list dataList as it>
+<li><a href="/${mc}/${it.shortUrl}.html" title="${it.title}">${it.title}</a><time><@date10 (it.createTime)!'' /></time></li>
+</#list>
+<#else>
+<li>暂无相关内容</li>
+</#if>
+</@fly_rel_model>
+</ul>
+</#macro>
+
+<#-- 详情页侧栏（热点排行 + 相关阅读），detail 家族共用 -->
+<#macro detailAside mc catId notid>
+<aside class="rit">
+  <div><@hotRank model=mc rows=8 /></div>
+  <div style="margin-top:30px"><@relList mc=mc catId=catId notid=notid /></div>
+</aside>
+</#macro>
+
+<#-- 侧栏·热点排行 -->
+<#macro hotRank model rows>
+<div class="side-hd"><h2>热点排行</h2><small>TOP ${rows}</small></div>
+<ol class="rank">
+<@fly_hot_model model=model rows=rows>
+<#if dataList?? && dataList?size gt 0>
+<#list dataList as it>
+<li><i>${it?counter}</i><a href="/${model}/${it.shortUrl}.html" title="${it.title}">${it.title}</a><b>${(it.countView)!0}</b></li>
+</#list>
+<#else>
+<li>暂无数据</li>
+</#if>
+</@fly_hot_model>
+</ol>
+</#macro>

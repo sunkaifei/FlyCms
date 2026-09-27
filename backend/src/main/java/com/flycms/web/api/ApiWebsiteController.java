@@ -25,7 +25,8 @@ import java.util.regex.Pattern;
  * 1. 相对路径正则白名单（字母/数字/下划线/中划线/中文/斜杠，必须 .html 结尾，禁止 ..）；
  * 2. 解析后的绝对路径必须位于 views/templates/pc_theme/{当前皮肤}/ 规范路径内（防符号链/穿越）；
  * 3. 单文件大小上限 512KB；编码固定 UTF-8。
- * 网站配置只允许白名单键读写（绝不暴露 SMTP 密码等敏感键）。
+ * 网站配置只允许白名单键读写。SMTP 密码（授权码）特殊处理：读取时以 ****** 掩码返回，
+ * 保存时提交掩码或空串则跳过不更新，避免明文回传浏览器。
  *
  * @author sun-kaifei
  * @version 1.0
@@ -40,7 +41,13 @@ public class ApiWebsiteController extends ApiBaseController {
             "fly_seo_title", "fly_seo_keywords", "fly_seo_description",
             "fly_robots", "fly_sitemap_status", "fly_sitemap_limit",
             "master", "qq", "email", "mobile", "phone", "address",
-            "pc_theme", "m_theme");
+            "pc_theme", "m_theme",
+            // 第三方邮箱（SMTP）：注册邮箱验证、找回密码、表单通知等共用
+            "fly_smtp_server", "fly_smtp_port", "fly_smtp_ssl",
+            "fly_smtp_usermail", "fly_smtp_password", "fly_smtp_fromname");
+
+    /** SMTP 密码（授权码）掩码：GET 时用它替换真实值，保存时遇它跳过 */
+    private static final String SMTP_PASSWORD_MASK = "******";
 
     private static final Pattern SAFE_TEMPLATE_PATH =
             Pattern.compile("^[\\w\\-/\\u4e00-\\u9fa5]+\\.html$");
@@ -49,6 +56,9 @@ public class ApiWebsiteController extends ApiBaseController {
 
     @Autowired
     private ConfigService configService;
+
+    @Autowired
+    private com.flycms.module.other.service.EmailService emailService;
 
     @Autowired
     private com.flycms.module.template.service.TemplateCenterService templateCenterService;
@@ -64,6 +74,11 @@ public class ApiWebsiteController extends ApiBaseController {
         Map<String, String> config = new LinkedHashMap<>();
         for (String key : CONFIG_KEYS) {
             config.put(key, configService.getStringByKey(key));
+        }
+        // SMTP 授权码不回传明文
+        String smtpPassword = config.get("fly_smtp_password");
+        if (smtpPassword != null && !smtpPassword.isEmpty()) {
+            config.put("fly_smtp_password", SMTP_PASSWORD_MASK);
         }
         data.put("config", config);
         data.put("skins", listSkins());
@@ -81,6 +96,11 @@ public class ApiWebsiteController extends ApiBaseController {
             if (v == null) {
                 continue;
             }
+            // SMTP 授权码：提交掩码或空串都不动已保存的真实值
+            if (key.equals("fly_smtp_password")
+                    && (v.trim().isEmpty() || SMTP_PASSWORD_MASK.equals(v.trim()))) {
+                continue;
+            }
             // 主题目录必须真实存在，防切到无效皮肤
             if (key.equals("pc_theme") && listSkins().stream().noneMatch(s -> s.equals(v.trim()))) {
                 return DataVo.failure("PC 主题目录不存在：" + v);
@@ -89,6 +109,18 @@ public class ApiWebsiteController extends ApiBaseController {
             changed++;
         }
         return DataVo.success("已保存 " + changed + " 项站点设置");
+    }
+
+    /** 用当前已保存的 SMTP 配置发一封测试邮件，验证第三方邮箱参数是否可用 */
+    @ResponseBody
+    @PostMapping("/system/website/testEmail")
+    public DataVo testEmail(@RequestParam("toEmail") String toEmail) {
+        requirePermission("/api/system/website/testEmail");
+        String error = emailService.sendTestEmail(toEmail);
+        if (error == null) {
+            return DataVo.success("测试邮件已发送，请到 " + toEmail + " 收件箱（含垃圾邮件）查收");
+        }
+        return DataVo.failure("发送失败：" + error);
     }
 
     // /////////////////// 模板管理 ///////////////////

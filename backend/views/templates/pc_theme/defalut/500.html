@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>500 - ${seo_title!}</title>
-</head>
-<body>
-系统错误
-</body>
-</html>
+<#-- 500 服务器错误 -->
+<#assign pageTitle>500 - ${web_name!''}</#assign>
+<#include "common/header.html">
+<div class="wrap"><div class="err">
+  <b class="num">500</b>
+  <p>服务器开小差了，请稍后重试</p>
+  <a href="/">返回首页</a>
+</div></div>
+<#include "common/footer.html">

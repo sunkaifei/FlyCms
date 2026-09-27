@@ -91,7 +91,7 @@ public class ConfigService {
 	// ///// 修改 ////////
 	// ///////////////////////////////
     /**
-     * 更新配置
+     * 更新配置（upsert：键不存在时自动插入，避免白名单新增键被静默丢弃）
      *
      * @param key
      * @param value
@@ -102,7 +102,12 @@ public class ConfigService {
         Config config = new Config();
         config.setKeycode(key);
         config.setKeyvalue(value);
-        return configDao.updagteConfigByKey(config);
+        int rows = configDao.updagteConfigByKey(config);
+        if (rows == 0) {
+            config.setTypebase(0);
+            configDao.addConfig(config);
+        }
+        return rows;
     }
 
 	/**

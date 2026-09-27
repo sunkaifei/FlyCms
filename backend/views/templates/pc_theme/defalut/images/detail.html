@@ -1,18 +1,21 @@
-<#-- 图片模型 详情页（图集轮播简化版：全部原图直出） -->
+<#-- 图片模型 详情页（图集轮播简化版：全部原图直出）
+     v1.1 修复：补上漏掉的 <@InfoModel> 标签包裹（原版 info 恒空，页面只剩相关图集）。 -->
+<@fly_info_model model="${model.code}" shortUrl="${shortUrl!}">
+<#if info??>
 <!DOCTYPE html>
 <html lang="zh">
-<head><meta charset="UTF-8"><title>${(info.title)!'图集'} - ${web_name!''}</title></head>
+<head><meta charset="UTF-8"><title>${info.title} - ${web_name!''}</title></head>
 <body>
-<h1>${(info.title)!''}</h1>
+<h1>${info.title}</h1>
 <p class="meta">
 <#if (info.author)?? && info.author != ''>作者：${info.author} </#if>
 <#if (info.location)?? && info.location != ''>地点：${info.location} </#if>
-<#if (info.shootTime)??>拍摄：${info.shootTime?substring(0, 10)} · 浏览 ${info.countView}</#if>
+<#if (info.shootTime)??>拍摄：<#if info.shootTime?length gte 10>${info.shootTime?substring(0, 10)}<#else>${info.shootTime}</#if> · 浏览 ${(info.countView)!0}</#if>
 </p>
 <div class="gallery">
 <@fly_fields_model model="${model.code}"><#-- 字段元数据可用于动态展示 --></@fly_fields_model>
 <#assign urls = (info.imagesUrls)![]>
-<#list urls as u><img src="${u}" style="max-width:800px;display:block;margin:8px 0" alt="${(info.title)!''}"></#list>
+<#list urls as u><img src="${u}" style="max-width:800px;display:block;margin:8px 0" alt="${info.title}"></#list>
 </div>
 <div class="content">${(info.content)!''}</div>
 <h3>相关图集</h3>
@@ -23,3 +26,9 @@
 </@fly_rel_model>
 </body>
 </html>
+<#else>
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><title>内容不存在 - ${web_name!''}</title></head>
+<body><p>内容不存在或未通过审核</p></body></html>
+</#if>
+</@fly_info_model>

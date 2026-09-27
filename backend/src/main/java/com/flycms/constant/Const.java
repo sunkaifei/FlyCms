@@ -51,4 +51,7 @@ public class Const {
 
 	public static final String  UPLOAD_PATH = "./uploadfiles";  //结尾不要带/
 
+	/** 整页静态化输出目录（织梦式"生成 HTML"，访问路由 /html/**，StaticPageService） */
+	public static final String  STATIC_HTML_PATH = "./html";  //结尾不要带/
+
 }

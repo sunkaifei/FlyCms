@@ -1,72 +1,52 @@
-<div class="top-common-nav  mb-50">
-	<nav class="navbar navbar-inverse navbar-fixed-top">
-		<div class="container">
-			<!-- Brand and toggle get grouped for better mobile display -->
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-					<span class="sr-only">Toggle navigation</span> <span
-						class="icon-bar"></span> <span class="icon-bar"></span> <span
-						class="icon-bar"></span>
-				</button>
-				<div class="logo">
-					<a href="/">开源之家</a>
-				</div>
-			</div>
-			<div class="collapse navbar-collapse">
-				<ul class="nav navbar-nav">
-					<li class="active"><a href="/">首页 <span class="sr-only">(current)</span> </a></li>
-					<li><a href="/qc/">问答 </a></li>
-					<li><a href="/ac/">文章 </a></li>
-					<li><a href="/sc/">分享 </a></li>
-					<li><a href="/explore/">发现 </a></li>
-					<li><a href="/topics/">话题 </a></li>
-				</ul>
-				<form class="navbar-form navbar-left" role="search" id="top-search-form" action="/search/" method="get">
-					<div class="input-group">
-						<input type="text" name="q" id="searchBox" class="form-control" value="${title!}" placeholder="有问题，搜下先" />
-						<button class="input-group-addon btn" type="submit"><i class="fa fa-search"></i></button>
-					</div>
-				</form>
-				<button type="button" class="btn button-blue ask-button">提问</button>
-				<ul class="nav navbar-nav navbar-right">
-					<@fly_login>
-					<#if status??>
-					<li><a href="/" class="active" id="unread_notifications"><span class="fa fa-bell-o fa-lg"></span></a></li>
-					<li><a href="/ucenter/message" class="active" id="unread_messages"><i class="fa fa-envelope-o fa-lg"></i></a></li>
-					<li class="dropdown user-avatar">
-						<a href="/people/${user.shortUrl!}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-							<img class="avatar-32 mr-5" alt="${user.nickName!}" src="<#if user.avatar??><@fly_avatar avatarurl=user.avatar avatar="avatar1"/><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>?${.now?string("hhmmSSsss")}" >
-						<span>${user.nickName!}</span>
-						</a>
-						<ul class="dropdown-menu" role="menu">
-							<li class="divider"></li>
-							<li><a href="/people/${user.shortUrl!}">我的主页</a></li>
-							<li><a href="/ucenter/account_log">金币管理</a></li>
-							<li><a href="/ucenter/message">我的私信</a></li>
-							<li><a href="/ucenter/account">设置</a></li>
-							<@fly_userpower groupName="技术专家组">
-							<li><a href="/ucenter/share/add">写文章</a></li>
-							</@fly_userpower>
-							<li><a href="/ucenter/article/add">写文章</a></li>
-							<li class="divider"></li>
-							<li><a href="/logout">退出</a></li>
-						</ul>
-					</li>
-					<#else>
-					<li><a href="/login">登录</a></li>
-					<li><a href="/reg">注册</a></li>
-					</#if>
-			        </@fly_login>
-				</ul>
-			</div>
-		</div>
-	</nav>
-</div>
-
-<div class="top-alert mt-50 clearfix text-center">
-	<!--[if lt IE 9]>
-	<div class="alert alert-danger topframe" role="alert">你的浏览器实在<strong>太太太太太太旧了</strong>，放学别走，升级完浏览器再说
-		<a target="_blank" class="alert-link" href="http://browsehappy.com">立即升级</a>
-	</div>
-	<![endif]-->
-</div>
+<#-- ============================================================
+     全站头：head（title 由各页面 assign pageTitle 决定）+ 墨青顶栏
+     用法：<#assign pageTitle="xxx"> 后 <#include "common/header.html">
+     ============================================================ -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${(pageTitle)!seo_title!''}</title>
+<meta name="keywords" content="${(keywords)!seo_keywords!''}">
+<meta name="description" content="${(description)!seo_description!''}">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="/skin/pc_theme/defalut/css/portal.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="/">Fly<em>Cms</em></a>
+    <nav class="nav">
+      <a href="/">首页</a>
+      <@fly_channel_tree>
+      <#if channelTree?? && channelTree?size gt 0>
+      <#list channelTree as ch>
+      <#if ch.channelType == 2>
+        <a href="${ch.outUrl!'/'}" target="_blank" rel="nofollow">${ch.channelName}</a>
+      <#else>
+        <a href="/${ch.channelDir}/"<#if ((channel.channelDir)!'') == ch.channelDir> class="on"</#if>>${ch.channelName}</a>
+      </#if>
+      </#list>
+      </#if>
+      </@fly_channel_tree>
+      <a href="/articles/"<#if ((model.code)!'') == 'articles'> class="on"</#if>>文章</a>
+      <a href="/downloads/"<#if ((model.code)!'') == 'downloads'> class="on"</#if>>下载</a>
+      <a href="/images/"<#if ((model.code)!'') == 'images'> class="on"</#if>>图集</a>
+    </nav>
+    <form action="/search" method="get">
+      <input type="text" name="q" value="${(q)!''}" placeholder="搜索站内内容">
+      <button type="submit">搜索</button>
+    </form>
+    <div class="u">
+      <@fly_login>
+      <#if status??>
+        <a href="/logout">退出</a>
+      <#else>
+        <a href="/login">登录</a>
+        <a href="/reg">注册</a>
+      </#if>
+      </@fly_login>
+    </div>
+  </div>
+</header>
