@@ -266,7 +266,7 @@
 > - 新接口一律 `web/api/ApiXxxController`、`/api/system/**`、返回 `DataVo`、分页用 `PageVo<T>`、端点内 `requirePermission`；
 > - **上线检查单**：`sql/<阶段>.sql`（仓库根目录 `sql/`）建表/插权限行 → 执行 `GET /system/admin/permission_sync` 注册 action_key → 角色组勾选 → 冒烟（详见附录 C）；
 > - 新表一律 InnoDB + utf8mb4、bigint 主键 `SnowFlake.nextId()`（除注明自增的日志类表沿用 AUTO_INCREMENT 亦可，与所属模块既有风格一致）；
-> - 同步更新 `sql/flycms_20260928_012316.sql` 基线；前端页面落 `frontend/apps/web-antd/src/views/system/<域>/`，API 封装落 `src/api/core/<域>.ts`；
+> - 同步更新 `sql/flycms_20260928_093335.sql` 基线；前端页面落 `frontend/apps/web-antd/src/views/system/<域>/`，API 封装落 `src/api/core/<域>.ts`；
 > - 工作量为单人估计（人日），含联调与冒烟。
 
 ### 阶段 A：安全加固与操作审计（P0，先行，约 3~5 人日）
@@ -611,12 +611,12 @@ CREATE TABLE `fly_form_data` (
 
 ### 附录 B：数据库表现状
 
-基线 `sql/flycms_20260928_012316.sql` 含 59 张 `fly_` 表（admin 系 6、article 系 6、user 系 15、question/answer 系 6、topic 系 7、share 系 6、config/score/job/links/message/favorite/feed/filter/images/areas/templet 等）；自定义模型系 `fly_model`/`fly_model_field`/`fly_model_category`/`fly_cmodel_*` 见 `sql/custom-model.sql`；本规划新增表见各阶段 DDL（`fly_admin_log`、`fly_channel`、`fly_template`、`fly_template_version`、`fly_block`、`fly_block_item`、`fly_form`、`fly_form_field`、`fly_form_data`）。注意 `fly_templet` 为零引用遗留表，阶段 D 上线后评估废弃。
+基线 `sql/flycms_20260928_093335.sql` 含 59 张 `fly_` 表（admin 系 6、article 系 6、user 系 15、question/answer 系 6、topic 系 7、share 系 6、config/score/job/links/message/favorite/feed/filter/images/areas/templet 等）；自定义模型系 `fly_model`/`fly_model_field`/`fly_model_category`/`fly_cmodel_*` 见 `sql/custom-model.sql`；本规划新增表见各阶段 DDL（`fly_admin_log`、`fly_channel`、`fly_template`、`fly_template_version`、`fly_block`、`fly_block_item`、`fly_form`、`fly_form_field`、`fly_form_data`）。注意 `fly_templet` 为零引用遗留表，阶段 D 上线后评估废弃。
 
 ### 附录 C：每个阶段的上线检查单（固定动作）
 
 1. `sql/<阶段名>.sql`（仓库根目录 `sql/`）：建表 + `fly_admin_permission` 插菜单/按钮行 + 超管组授权关联；
-2. 更新 `sql/flycms_20260928_012316.sql` 基线；
+2. 更新 `sql/flycms_20260928_093335.sql` 基线；
 3. 执行 `GET /system/admin/permission_sync` 注册 action_key；
 4. 角色组勾选新权限（超管全勾、运营角色按需）；
 5. 后端 `mvn -q compile`；前端涉类型改动跑 `pnpm check:type`；

@@ -147,7 +147,7 @@ FlyCms/
 
 ```bash
 mysql -u root -p -e "CREATE DATABASE flycms DEFAULT CHARACTER SET utf8mb4;"
-mysql -u root -p --default-character-set=utf8mb4 flycms < sql/flycms_20260928_012316.sql
+mysql -u root -p --default-character-set=utf8mb4 flycms < sql/flycms_20260928_093335.sql
 ```
 
 > ⚠️ **必须加 `--default-character-set=utf8mb4`**：mysql 客户端在某些终端环境默认 latin1 连接，中文数据会真实乱码（写入即损坏，不是显示问题）。
