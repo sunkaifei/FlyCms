@@ -17,8 +17,8 @@ import com.flycms.module.user.model.UserActivation;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -245,7 +245,7 @@ public class SmsapiService {
                     .timeout(10000)
                     .execute()) {
                 JSONObject root = JSON.parseObject(resp.body());
-                com.alibaba.fastjson.JSONArray results = root.getJSONArray("result");
+                com.alibaba.fastjson2.JSONArray results = root.getJSONArray("result");
                 if (results == null || results.isEmpty()) {
                     return "华为云返回 HTTP " + resp.getStatus() + " " + resp.body();
                 }

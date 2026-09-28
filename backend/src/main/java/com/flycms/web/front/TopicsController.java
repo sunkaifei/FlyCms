@@ -5,7 +5,7 @@ import com.flycms.core.entity.DataVo;
 import com.flycms.module.topic.model.Topic;
 import com.flycms.module.topic.model.TopicEdit;
 import com.flycms.module.topic.service.TopicService;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +72,7 @@ public class TopicsController extends BaseController {
     public DataVo topicsFollow(@RequestParam(value = "id", required = false) String id) {
         DataVo data = DataVo.failure("操作失败");
         try {
-            if (!NumberUtils.isNumber(id)) {
+            if (!NumberUtils.isCreatable(id)) {
                 return data=DataVo.failure("话题id参数错误");
             }
             if(getUser()==null){
@@ -88,7 +88,7 @@ public class TopicsController extends BaseController {
     //编辑话题资源
     @GetMapping(value = "/ucenter/topics/edit-{id}")
     public String editTopics(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+        if (!NumberUtils.isCreatable(id)) {
             return theme.getPcTemplate("404");
         }
         Topic topic = topicService.findTopicById(Long.parseLong(id),2);

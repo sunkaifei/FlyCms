@@ -3,7 +3,7 @@ package com.flycms.web.front;
 import com.flycms.core.utils.LocaleMessageSourceUtils;
 import com.flycms.core.base.BaseController;
 import com.flycms.module.user.model.User;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

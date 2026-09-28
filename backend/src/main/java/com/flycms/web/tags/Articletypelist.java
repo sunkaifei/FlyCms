@@ -6,7 +6,7 @@ import com.flycms.module.article.model.ArticleCategory;
 import com.flycms.module.article.service.ArticleCategoryService;
 import freemarker.core.Environment;
 import freemarker.template.*;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

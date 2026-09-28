@@ -15,7 +15,7 @@ import com.flycms.module.config.service.ConfigService;
 import com.flycms.module.user.model.*;
 import com.flycms.module.user.utils.UserSessionUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -135,7 +135,7 @@ public class UserService {
             invite=CookieUtils.getCookie(request,"invite");
         }
         //添加邀请和被邀请用户关联信息
-        if (NumberUtils.isNumber(invite)) {
+        if (NumberUtils.isCreatable(invite)) {
             if(this.checkUserById(Long.parseLong(invite))){
                 userInviteService.addUserInvite(user.getUserId(),Long.parseLong(invite));
                 // 邀请奖励

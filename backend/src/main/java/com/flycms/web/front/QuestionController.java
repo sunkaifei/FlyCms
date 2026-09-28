@@ -8,7 +8,7 @@ import com.flycms.module.question.model.Question;
 import com.flycms.module.question.model.QuestionCount;
 import com.flycms.module.question.service.AnswerService;
 import com.flycms.module.question.service.QuestionService;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -69,7 +69,7 @@ public class QuestionController extends BaseController {
     @RequestMapping(value = "/findQuestionById/{id}")
     public DataVo findQuestionById(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
         DataVo data = DataVo.failure("操作失败");
-        if (!NumberUtils.isNumber(id)) {
+        if (!NumberUtils.isCreatable(id)) {
             return data = DataVo.failure("id参数错误");
         }
         Map<String, Object> map = new HashMap<>();
@@ -127,7 +127,7 @@ public class QuestionController extends BaseController {
     //编辑问题
     @GetMapping(value = "/ucenter/question/edit")
     public String editQuestion(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+        if (!NumberUtils.isCreatable(id)) {
             return theme.getPcTemplate("404");
         }
         Question question=questionService.findQuestionById(Long.parseLong(id),0);
@@ -146,7 +146,7 @@ public class QuestionController extends BaseController {
                               ModelMap modelMap) {
         DataVo data = DataVo.failure("操作失败");
         try {
-            if (!NumberUtils.isNumber(questionId)) {
+            if (!NumberUtils.isCreatable(questionId)) {
                 return data=DataVo.failure("话题参数错误");
             }
             Question question=questionService.findQuestionById(Long.parseLong(questionId),2);
@@ -167,7 +167,7 @@ public class QuestionController extends BaseController {
     //编辑问题
     @GetMapping(value = "/ucenter/answer/edit-{id}")
     public String editAnswer(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+        if (!NumberUtils.isCreatable(id)) {
             return theme.getPcTemplate("404");
         }
 
@@ -190,7 +190,7 @@ public class QuestionController extends BaseController {
                             ModelMap modelMap) {
         DataVo data = DataVo.failure("操作失败");
         try {
-            if (!NumberUtils.isNumber(id)) {
+            if (!NumberUtils.isCreatable(id)) {
                 return data=DataVo.failure("话题参数错误");
             }
             if (StringUtils.isBlank(content)) {
@@ -209,7 +209,7 @@ public class QuestionController extends BaseController {
     public DataVo questionFollow(@RequestParam(value = "questionId", required = false) String questionId) {
         DataVo data = DataVo.failure("操作失败");
         try {
-            if (!NumberUtils.isNumber(questionId)) {
+            if (!NumberUtils.isCreatable(questionId)) {
                 return data=DataVo.failure("问题参数错误");
             }
             if(getUser()==null){
@@ -227,7 +227,7 @@ public class QuestionController extends BaseController {
     public DataVo updateQuestionByViewCount(@RequestParam(value = "id", required = false) String id) {
         DataVo data = DataVo.failure("操作失败");
         try {
-            if (!NumberUtils.isNumber(id)) {
+            if (!NumberUtils.isCreatable(id)) {
                 return data=DataVo.failure("话题参数错误");
             }
             questionService.updateQuestionByViewCount(Long.parseLong(id));

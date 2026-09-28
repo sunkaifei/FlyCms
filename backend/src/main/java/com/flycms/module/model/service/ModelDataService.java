@@ -1,6 +1,6 @@
 package com.flycms.module.model.service;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.ShortUrlUtils;

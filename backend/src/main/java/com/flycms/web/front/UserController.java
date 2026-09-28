@@ -10,7 +10,7 @@ import com.flycms.core.entity.DataVo;
 import com.flycms.module.question.service.ImagesService;
 import com.flycms.module.user.model.User;
 import com.flycms.module.user.service.UserService;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -574,7 +574,7 @@ public class UserController extends BaseController {
     public DataVo userFollow(@RequestParam(value = "id", required = false) String id) {
         DataVo data = DataVo.failure("操作失败");
         try {
-            if (!NumberUtils.isNumber(id)) {
+            if (!NumberUtils.isCreatable(id)) {
                 return data=DataVo.failure("问题参数错误");
             }
             if(getUser()==null){

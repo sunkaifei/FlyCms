@@ -5,7 +5,7 @@ import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.user.dao.UserGroupDao;
 import com.flycms.module.user.model.UserGroup;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

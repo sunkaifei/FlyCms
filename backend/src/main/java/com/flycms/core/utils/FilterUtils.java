@@ -8,7 +8,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
-import net.sf.json.JSONObject;
+import com.alibaba.fastjson2.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +58,7 @@ public class FilterUtils {
 		try {
 			response.setCharacterEncoding("UTF-8");
 			out = response.getWriter();
-			out.println(JSONObject.fromObject(resultMap).toString());
+			out.println(JSON.toJSONString(resultMap));
 		} catch (Exception e) {
 			logger.error("输出JSON报错。" ,e);
 		}finally{

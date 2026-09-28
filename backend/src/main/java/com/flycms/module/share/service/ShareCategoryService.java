@@ -5,7 +5,7 @@ import com.flycms.core.utils.SnowFlake;
 import com.flycms.module.article.model.ArticleCategory;
 import com.flycms.module.share.dao.ShareCategoryDao;
 import com.flycms.module.share.model.ShareCategory;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -145,7 +145,7 @@ public class ShareCategoryService {
         if (StringUtils.isBlank(shareCategory.getId().toString())) {
             return data = DataVo.failure("分类id不能为空");
         }
-        if (!NumberUtils.isNumber(shareCategory.getId().toString())) {
+        if (!NumberUtils.isCreatable(shareCategory.getId().toString())) {
             return data = DataVo.failure("分类id错误！");
         }
         //转换为数组

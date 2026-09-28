@@ -1,13 +1,13 @@
 package com.flycms.web.front;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import com.flycms.core.base.BaseController;
 import com.flycms.core.entity.DataVo;
 import com.flycms.module.article.model.*;
 import com.flycms.module.article.service.ArticleCategoryService;
 import com.flycms.module.article.service.ArticleService;
 import com.flycms.module.other.service.FilterKeywordService;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class ArticleController extends BaseController {
     public String getArticleList(@PathVariable(value = "id", required = false) String id, @RequestParam(value = "p", defaultValue = "1") int p, ModelMap modelMap){
         ArticleCategory category=null;
         if(id != null){
-            if (!NumberUtils.isNumber(id)) {
+            if (!NumberUtils.isCreatable(id)) {
                 return theme.getPcTemplate("404");
             }
             category =articleCategoryService.findCategoryById(Long.parseLong(id),2);
@@ -96,7 +96,7 @@ public class ArticleController extends BaseController {
     @RequestMapping(value = "/findArticleById/{id}")
     public DataVo findArticleById(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
         DataVo data = DataVo.failure("操作失败");
-        if (!NumberUtils.isNumber(id)) {
+        if (!NumberUtils.isCreatable(id)) {
             return data = DataVo.failure("id参数错误");
         }
         Article article=articleService.findArticleById(Long.parseLong(id), 2);
@@ -160,7 +160,7 @@ public class ArticleController extends BaseController {
     //修改文章
     @GetMapping(value = "/ucenter/article/edit-{id}")
     public String getEditArticle(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+        if (!NumberUtils.isCreatable(id)) {
             return theme.getPcTemplate("404");
         }
         Article article=articleService.findArticleById(Long.parseLong(id), 0);
@@ -220,7 +220,7 @@ public class ArticleController extends BaseController {
     public DataVo updateArticleByViewCount(@RequestParam(value = "id", required = false) String id) {
         DataVo data = DataVo.failure("操作失败");
         try {
-            if (!NumberUtils.isNumber(id)) {
+            if (!NumberUtils.isCreatable(id)) {
                 return data=DataVo.failure("文章参数错误");
             }
             articleService.updateArticleViewCount(Long.parseLong(id));
@@ -237,14 +237,14 @@ public class ArticleController extends BaseController {
         DataVo data = DataVo.failure("操作失败");
         try {
             if(!StringUtils.isBlank(id)){
-                if (!NumberUtils.isNumber(id)) {
+                if (!NumberUtils.isCreatable(id)) {
                     return data=DataVo.failure("id参数错误");
                 }
             }else{
                 return data=DataVo.failure("ID不能为空！");
             }
             if(!StringUtils.isBlank(type)){
-                if (!NumberUtils.isNumber(type)) {
+                if (!NumberUtils.isCreatable(type)) {
                     return data=DataVo.failure("信息类型参数错误");
                 }
             }else{

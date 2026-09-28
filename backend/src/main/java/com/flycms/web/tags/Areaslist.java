@@ -9,7 +9,7 @@ import com.flycms.core.utils.StringHelperUtils;
 import com.flycms.core.base.AbstractTagPlugin;
 import com.flycms.module.config.model.Areas;
 import com.flycms.module.config.service.AreasService;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +47,7 @@ public class Areaslist extends AbstractTagPlugin {
 		Map<String, TemplateModel> paramWrap = new HashMap<String, TemplateModel>(params);
 		for(String str:paramWrap.keySet()){ 
 			if("parentId".equals(str)){
-				if(!NumberUtils.isNumber(paramWrap.get(str).toString())) {
+				if(!NumberUtils.isCreatable(paramWrap.get(str).toString())) {
 					parentId=0;
 				}else {
 					if(!StringHelperUtils.checkInteger(paramWrap.get(str).toString())) {

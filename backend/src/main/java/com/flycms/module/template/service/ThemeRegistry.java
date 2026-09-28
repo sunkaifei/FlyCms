@@ -1,7 +1,7 @@
 package com.flycms.module.template.service;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.flycms.module.config.service.ConfigService;
 import com.flycms.module.template.dao.ThemeDao;
 import com.flycms.module.template.model.Theme;

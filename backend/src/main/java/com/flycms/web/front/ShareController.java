@@ -5,7 +5,7 @@ import com.flycms.core.entity.DataVo;
 import com.flycms.module.order.service.OrderService;
 import com.flycms.module.share.model.Share;
 import com.flycms.module.share.service.ShareService;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -72,7 +72,7 @@ public class ShareController extends BaseController {
     @RequestMapping(value = "/findShareById/{id}")
     public DataVo findShareById(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
         DataVo data = DataVo.failure("操作失败");
-        if (!NumberUtils.isNumber(id)) {
+        if (!NumberUtils.isCreatable(id)) {
             return data = DataVo.failure("id参数错误");
         }
         Share share=shareService.findShareById(Long.parseLong(id),2);
@@ -116,7 +116,7 @@ public class ShareController extends BaseController {
     //编辑分享资源
     @GetMapping(value = "/ucenter/share/edit-{id}")
     public String editShare(@PathVariable(value = "id", required = false) String id,ModelMap modelMap){
-        if (!NumberUtils.isNumber(id)) {
+        if (!NumberUtils.isCreatable(id)) {
             return theme.getPcTemplate("404");
         }
         Share share=shareService.findShareById(Long.parseLong(id),0);
@@ -165,7 +165,7 @@ public class ShareController extends BaseController {
     public DataVo shareFollow(@RequestParam(value = "id", required = false) String id) {
         DataVo data = DataVo.failure("操作失败");
         try {
-            if (!NumberUtils.isNumber(id)) {
+            if (!NumberUtils.isCreatable(id)) {
                 return data=DataVo.failure("话题参数错误");
             }
             if(getUser()==null){
@@ -184,7 +184,7 @@ public class ShareController extends BaseController {
     public DataVo updateShareViewCount(@RequestParam(value = "id", required = false) String id) {
         DataVo data = DataVo.failure("操作失败");
         try {
-            if (!NumberUtils.isNumber(id)) {
+            if (!NumberUtils.isCreatable(id)) {
                 return data=DataVo.failure("分享参数错误");
             }
             shareService.updateShareViewCount(Long.parseLong(id));

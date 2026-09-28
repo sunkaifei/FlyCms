@@ -3,7 +3,7 @@ package com.flycms.web.front;
 import com.flycms.core.base.BaseController;
 import com.flycms.core.entity.DataVo;
 import com.flycms.module.favorite.service.FavoriteService;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,10 +33,10 @@ public class FavoriteController extends BaseController {
     public DataVo addFavorite(@RequestParam(value = "id", required = false) String id,@RequestParam(value = "type", required = false) String type) {
         DataVo data = DataVo.failure("操作失败");
         try {
-            if (!NumberUtils.isNumber(id)) {
+            if (!NumberUtils.isCreatable(id)) {
                 return data=DataVo.failure("话题id参数错误");
             }
-            if (!NumberUtils.isNumber(type)) {
+            if (!NumberUtils.isCreatable(type)) {
                 return data=DataVo.failure("话题id参数错误");
             }
             if(getUser()==null){

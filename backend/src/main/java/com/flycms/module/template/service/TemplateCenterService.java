@@ -221,7 +221,7 @@ public class TemplateCenterService {
                 try {
                     String text = new String(java.nio.file.Files.readAllBytes(json.toPath()),
                             java.nio.charset.StandardCharsets.UTF_8);
-                    com.alibaba.fastjson.JSONObject o = com.alibaba.fastjson.JSONObject.parseObject(text);
+                    com.alibaba.fastjson2.JSONObject o = com.alibaba.fastjson2.JSONObject.parseObject(text);
                     if (o != null && parent.equals(o.getString("parent"))) {
                         out.add(d.getName());
                     }
@@ -1037,7 +1037,7 @@ public class TemplateCenterService {
             return null;
         }
         try {
-            com.alibaba.fastjson.JSONObject o = com.alibaba.fastjson.JSONObject.parseObject(json);
+            com.alibaba.fastjson2.JSONObject o = com.alibaba.fastjson2.JSONObject.parseObject(json);
             if (o != null && StringUtils.isNotBlank(o.getString("name"))) {
                 return o.getString("name").trim();
             }
