@@ -33,6 +33,9 @@ import java.util.List;
 
 @Controller
 public class UserController extends BaseController {
+
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserController.class);
+
     @Autowired
     protected UserService userService;
 
@@ -555,7 +558,7 @@ public class UserController extends BaseController {
             String _avatar = avatar.substring(avatar.indexOf(",") + 1, avatar.length());
             bytes = Base64HelperUtils.decode(_avatar);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn("用户头像 Base64 解码失败，已按格式错误返回：{}", e.getMessage());
             return DataVo.failure("头像格式不正确");
         }
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);

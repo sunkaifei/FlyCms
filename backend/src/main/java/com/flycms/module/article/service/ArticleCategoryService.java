@@ -25,6 +25,8 @@ import java.util.*;
 @Service
 public class ArticleCategoryService {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ArticleCategoryService.class);
+
     @Autowired
     protected ArticleCategoryDao articleCategoryDao;
 
@@ -214,7 +216,7 @@ public class ArticleCategoryService {
             }
             return rusult;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn("构建分类树失败（node={}）：{}", node == null ? "null" : node.getId(), e.getMessage());
         }
         return null;
     }

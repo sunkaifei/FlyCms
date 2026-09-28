@@ -201,8 +201,8 @@ public class ThemeRegistry {
                     try {
                         t.setCreateTime(new Date());
                         themeDao.upsert(t);
-                    } catch (Exception ignored) {
-                        logger.debug("theme upsert skip: {}", t.getCode());
+                    } catch (Exception e) {
+                        logger.debug("theme upsert skip: {} - {}", t.getCode(), e.getMessage());
                     }
                 }
             }

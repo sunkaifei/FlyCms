@@ -354,7 +354,8 @@ public class TagManualService {
                 params(p("id", true, "分类 id"),
                         p("status", false, "状态过滤")),
                 "<@fly_articletypeinfo id=\"${(typeId)!0}\">\n"
-                        + "  <h1>${type.name!''}</h1>\n"
+                        // (a.b)!x 整链兜底：id 无匹配时 type 本身为 null，type.name!'' 仍会报错
+                        + "  <h1>${(type.name)!''}</h1>\n"
                         + "</@fly_articletypeinfo>");
 
         add(data, "文章", "fly_articletypelist", "文章分类树",
@@ -487,7 +488,7 @@ public class TagManualService {
                         p("rows", false, "每页条数")),
                 "<@fly_topicpage rows=\"10\">\n"
                         + "  <#if (topic_page.list)??>\n"
-                        + "    <#list topic_page.list as t><li>${t.topicName}</li></#list>\n"
+                        + "    <#list topic_page.list as t><li>${t.topic!''}</li></#list>\n"
                         + "  </#if>\n"
                         + "</@fly_topicpage>");
 
@@ -538,7 +539,7 @@ public class TagManualService {
                 "avatar",
                 params(p("avatar", false, "头像字段值"),
                         p("avatarurl", false, "已有完整地址")),
-                "<@fly_avatar avatar=\"${(userinfo.avatar)!''}\"><img src=\"${avatar!''}\"/></@fly_avatar>");
+                "<@fly_avatar avatarurl=\"${(userinfo.avatarurl)!''}\" avatar=\"${(userinfo.avatar)!''}\"><img src=\"${avatar!''}\"/></@fly_avatar>");
 
         add(data, "用户", "fly_userhotpage", "活跃用户榜",
                 "按昵称/地区等条件筛选用户，做「达人墙」。",
@@ -654,7 +655,8 @@ public class TagManualService {
                 "status",
                 params(p("userId", true, "用户 id")),
                 "<@fly_useractivation userId=\"${(userId)!0}\">\n"
-                        + "  <#if (status!0) == 1>已激活</#if>\n"
+                        // status 是 boolean（userService.checkUserByActivation 返回值），直接判真假
+                        + "  <#if status!false>已激活</#if>\n"
                         + "</@fly_useractivation>");
 
         add(data, "用户", "fly_checkfollow", "是否关注",
@@ -672,7 +674,8 @@ public class TagManualService {
                 params(p("userId", true, "用户 id"),
                         p("topicId", true, "话题 id")),
                 "<@fly_checktagfollow userId=\"${(userId)!0}\" topicId=\"${(topicId)!0}\">\n"
-                        + "  <#if (result!0) == 1>已关注</#if>\n"
+                        // result 是 boolean（false 兜底分支同样输出 boolean），直接判真假
+                        + "  <#if result!false>已关注</#if>\n"
                         + "</@fly_checktagfollow>");
 
         // /////////////////// 检索（标签页 / 搜索页，§5.1 / §9.4） ///////////////////
@@ -748,7 +751,7 @@ public class TagManualService {
                         p("rows", false, "条数，默认 10")),
                 "<@fly_linkspage rows=\"20\">\n"
                         + "  <#if (link_page.list)??>\n"
-                        + "    <#list link_page.list as l><a href=\"${l.url}\">${l.name}</a></#list>\n"
+                        + "    <#list link_page.list as l><a href=\"${l.linkUrl!''}\">${l.linkName!''}</a></#list>\n"
                         + "  </#if>\n"
                         + "</@fly_linkspage>");
 
@@ -773,13 +776,14 @@ public class TagManualService {
                         + "</@fly_form>");
 
         add(data, "通用", "fly_order", "分享订单",
-                "按 (shareId, userId, createTime) 查询分享产生的订单。",
-                "order",
+                "判断 (shareId, userId, createTime) 是否已产生订单（布尔结果，不返回订单实体）。",
+                "order（boolean，true=已下单）",
                 params(p("shareId", false, "分享 id"),
                         p("userId", false, "用户 id"),
                         p("createTime", false, "按下单时间筛选")),
-                "<@fly_order userId=\"${(userId)!0}\">\n"
-                        + "  <#if order??>${order.orderNo!''}</#if>\n"
+                "<@fly_order shareId=\"${(shareId)!0}\" userId=\"${(userId)!0}\">\n"
+                        // order 是 boolean（orderService.checkShareOrder 返回值），直接判真假
+                        + "  <#if order!false>已下单</#if>\n"
                         + "</@fly_order>");
 
         add(data, "通用", "fly_scoredetailpage", "积分明细分页",
@@ -834,7 +838,7 @@ public class TagManualService {
                 "areaslist",
                 params(p("parentId", false, "父地区 id，0=省，默认 0")),
                 "<@fly_areaslist parentId=\"0\">\n"
-                        + "  <#list areaslist as a><option value=\"${a.id}\">${a.name}</option></#list>\n"
+                        + "  <#list areaslist as a><option value=\"${a.areaId!''}\">${a.areaName!''}</option></#list>\n"
                         + "</@fly_areaslist>");
 
         return data;

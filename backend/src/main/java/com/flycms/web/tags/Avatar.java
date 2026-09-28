@@ -25,9 +25,11 @@ public class Avatar extends AbstractTagPlugin {
 	public void execute(Environment env, Map params, TemplateModel[] loopVars,
 			TemplateDirectiveBody body) throws TemplateException, IOException {
 		DefaultObjectWrapperBuilder builder = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
-		// 获取页面的参数
-		String avatarurl = params.get("avatarurl").toString();
-		String avatar = params.get("avatar").toString();
+		// 缺参降级为空串，不再 NPE（P4-4：原实现 params.get(...).toString() 在缺参时直接抛 Cannot invoke）
+		Object rawUrl = params.get("avatarurl");
+		Object rawAvatar = params.get("avatar");
+		String avatarurl = rawUrl == null ? "" : rawUrl.toString();
+		String avatar = rawAvatar == null ? "" : rawAvatar.toString();
 		avatar = StringHelperUtils.TextReplace(avatarurl,avatar);
 		env.setVariable("avatar", builder.build().wrap(avatar));
 		env.getOut().write(avatar);

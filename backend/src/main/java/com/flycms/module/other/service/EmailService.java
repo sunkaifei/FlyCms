@@ -168,8 +168,9 @@ public class EmailService {
         int sslMode = 1;
         try {
             sslMode = Integer.parseInt(configService.getStringByKey("fly_smtp_ssl"));
-        } catch (Exception ignore) {
-            // 未配置或非数字按默认 SSL 处理
+        } catch (Exception e) {
+            // 未配置或非数字按默认 SSL 处理，debug 留痕
+            log.debug("fly_smtp_ssl 配置解析失败，按默认 SSL 处理：{}", e.getMessage());
         }
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.host", host == null ? "" : host.trim());

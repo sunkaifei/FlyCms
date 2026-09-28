@@ -6,6 +6,7 @@ import com.flycms.module.channel.dao.ChannelDao;
 import com.flycms.module.config.service.ConfigService;
 import com.flycms.module.model.dao.ModelDao;
 import com.flycms.module.template.dao.TemplateDao;
+import com.flycms.module.template.dao.ThemeDao;
 import com.flycms.module.template.model.TemplateFile;
 import com.flycms.module.template.model.TemplateVersion;
 import freemarker.core.ParseException;
@@ -81,12 +82,19 @@ public class TemplateCenterService {
     /** 版本历史默认返回条数 */
     private static final int VERSION_ROWS = 100;
 
+    /** 保留皮肤名：与主题根目录（{@link #THEME_ROOT} 末段）同名，导入会生成 pc_theme/pc_theme/ 同名嵌套（P4-2） */
+    private static final java.util.Set<String> RESERVED_SKINS = new java.util.HashSet<>(
+            java.util.Arrays.asList(THEME_ROOT.substring(THEME_ROOT.lastIndexOf('/') + 1)));
+
     @Autowired
     private TemplateDao templateDao;
     @Autowired
     private ModelDao modelDao;
     @Autowired
     private ChannelDao channelDao;
+    /** 仅用于 deleteSkin 时同步清理 fly_theme 登记（P4-8）；不可用时由 ThemeBootstrap 重启自愈兜底 */
+    @Autowired(required = false)
+    private ThemeDao themeDao;
     @Autowired
     private ConfigService configService;
     @Autowired
@@ -175,6 +183,15 @@ public class TemplateCenterService {
         if (!deleteDir(dir.toPath())) {
             return DataVo.failure("皮肤目录删除失败，请检查文件占用");
         }
+        // 同步清理 fly_theme 登记（P4-8）：只清磁盘不删登记会留孤儿行，
+        // 主题市场在下次 refresh 前仍会列出它；dao 不可用时由 ThemeBootstrap 重启自愈兜底
+        if (themeDao != null) {
+            try {
+                themeDao.deleteByCode(skin);
+            } catch (Exception e) {
+                logger.warn("清理主题登记失败（{}）：{}，将在下次启动时由自愈流程清理", skin, e.getMessage());
+            }
+        }
         // 目录没了，注册表缓存必须立即失效，否则主题市场还会列出它（§10 "改了不生效"最伤信心）
         if (themeRegistry != null) {
             themeRegistry.refresh();
@@ -208,8 +225,8 @@ public class TemplateCenterService {
                     if (o != null && parent.equals(o.getString("parent"))) {
                         out.add(d.getName());
                     }
-                } catch (Exception ignored) {
-                    logger.debug("读取 {} 的 theme.json 失败，跳过子主题判定", json.getPath());
+                } catch (Exception e) {
+                    logger.debug("读取 {} 的 theme.json 失败，跳过子主题判定：{}", json.getPath(), e.getMessage());
                 }
             }
         }
@@ -519,6 +536,9 @@ public class TemplateCenterService {
         List<String[]> entries = new ArrayList<>();
         try (ZipInputStream zis = new ZipInputStream(zip.getInputStream(), StandardCharsets.UTF_8)) {
             ZipEntry entry;
+            List<String[]> rawEntries = new ArrayList<>();
+            // FlyCms 导出包（exportSkin）的首条目是根级 manifest.json，皮肤名以它的 name 字段为准
+            String manifestName = null;
             while ((entry = zis.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
@@ -528,23 +548,49 @@ public class TemplateCenterService {
                 if (rel.isEmpty()) {
                     continue;
                 }
-                if (skin == null) {
-                    int i = rel.indexOf('/');
-                    skin = i > 0 ? rel.substring(0, i) : null;
+                // 根级清单：只读皮肤名，不参与文件写入（P4-1：否则导出的包会因首个条目无 '/' 而被拒）
+                if (!rel.contains("/") && "manifest.json".equalsIgnoreCase(rel)) {
+                    manifestName = manifestSkinName(readAll(zis));
+                    continue;
                 }
-                if (StringUtils.isBlank(skin) || !SKIN_NAME.matcher(skin).matches()) {
-                    return DataVo.failure("皮肤包首层目录名非法：" + skin);
+                rawEntries.add(new String[]{rel, readAll(zis)});
+            }
+            if (rawEntries.isEmpty()) {
+                return DataVo.failure("皮肤包为空");
+            }
+            // 皮肤名推导优先级：根级 manifest.json 的 name > 首个文件路径首段。
+            // 早期实现只认后者，导致「导出的包导不回」，且 pc_theme/xxx/ 结构会把
+            // 主题根目录名 pc_theme 当皮肤名（2026-09-28 P4-1/P4-2 修复）。
+            if (StringUtils.isNotBlank(manifestName)) {
+                if (!SKIN_NAME.matcher(manifestName).matches()) {
+                    return DataVo.failure("皮肤包 manifest.json 的 name 字段非法：" + manifestName);
                 }
-                if (!rel.startsWith(skin + "/")) {
-                    return DataVo.failure("皮肤包结构非法，所有文件必须位于皮肤目录内");
+                skin = manifestName;
+            } else {
+                int i = rawEntries.get(0)[0].indexOf('/');
+                skin = i > 0 ? rawEntries.get(0)[0].substring(0, i) : null;
+            }
+            if (StringUtils.isBlank(skin) || !SKIN_NAME.matcher(skin).matches()) {
+                return DataVo.failure("皮肤包首层目录名非法：" + skin);
+            }
+            if (RESERVED_SKINS.contains(skin)) {
+                return DataVo.failure("皮肤名「" + skin + "」是系统保留名（与主题根目录同名），请修改包内目录结构后重试");
+            }
+            // 归一化到目标皮肤名：条目首段与 manifest 声明不一致时（如导出后手工改名目录），按声明名重写首段
+            for (String[] pair : rawEntries) {
+                String rel = pair[0];
+                if (rel.startsWith(skin + "/")) {
+                    entries.add(pair);
+                    continue;
                 }
-                entries.add(new String[]{rel, readAll(zis)});
+                int i = rel.indexOf('/');
+                if (i <= 0) {
+                    return DataVo.failure("皮肤包结构非法，所有文件必须位于皮肤目录内：" + rel);
+                }
+                entries.add(new String[]{skin + rel.substring(i), pair[1]});
             }
         } catch (IOException e) {
             return DataVo.failure("皮肤包解析失败：" + e.getMessage());
-        }
-        if (skin == null) {
-            return DataVo.failure("皮肤包为空");
         }
         if (skin.equals(currentSkin()) && !overwrite) {
             return DataVo.failure("皮肤名与正在使用的皮肤相同，请勾选覆盖或使用改名后的包");
@@ -816,12 +862,36 @@ public class TemplateCenterService {
             Template tpl = new Template("__preview__", new StringReader(content), cfg);
             java.io.StringWriter out = new java.io.StringWriter();
             tpl.process(model == null ? new java.util.HashMap<>() : model, out);
+            String html = out.toString();
+            // FreeMarker 默认 templateExceptionHandler=DEBUG 会把报错**内联写进输出流而不抛异常**：
+            // 错误在模板顶层时才走下面的 catch；错误在标签体内则被标签的降级 catch 吞掉、只剩输出流里的报错。
+            // 与 ThemeHealthChecker 的判定口径统一：输出流出现报错标记即判失败（P4-5），
+            // 否则试渲染会返回「操作成功」但 html 里全是报错，编辑器无法提示。
+            if (html.contains(FM_ERROR_MARK)) {
+                return DataVo.failure("试渲染输出含 FreeMarker 报错：" + firstLine(extractFmError(html)));
+            }
             Map<String, Object> data = new LinkedHashMap<>();
-            data.put("html", out.toString());
+            data.put("html", html);
             return DataVo.success("操作成功", data);
         } catch (Exception e) {
             return DataVo.failure("试渲染失败：" + firstLine(e.getMessage()));
         }
+    }
+
+    /** FreeMarker DEBUG 异常处理器写入输出流的报错标记（preview/ThemeHealthChecker 共用判定口径） */
+    private static final String FM_ERROR_MARK = "FreeMarker template error";
+
+    /** 从输出流里截取 FreeMarker 报错的第一段有效信息（截断换行，供接口返回） */
+    private String extractFmError(String html) {
+        int i = html.indexOf(FM_ERROR_MARK);
+        if (i < 0) {
+            return "未知模板错误";
+        }
+        String tail = html.substring(i);
+        // 报错块以 "----" 分隔行结尾，截到分隔或 300 字符
+        int end = tail.indexOf("----", FM_ERROR_MARK.length());
+        String s = end > 0 ? tail.substring(0, end) : tail.substring(0, Math.min(tail.length(), 300));
+        return s.replace('\n', ' ').replace('\r', ' ').trim();
     }
 
     /** 试渲染的样例数据：给标签提供最小可用变量，避免所有值都为空看不出排版 */
@@ -829,6 +899,28 @@ public class TemplateCenterService {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("siteName", StringUtils.defaultIfBlank(configService.getStringByKey("fly_title"), "示例站点"));
         m.put("p", 1);
+        // 页面级公共上下文 mock（P4-6）：早期只给 siteName/p，导致引用 channel/categoryList/
+        // userinfo 的骨架在试渲染时必然「变量缺失」，无法区分骨架错误与上下文不足。
+        // 注意不要 mock `type`——它是 fly_articletypeinfo 的输出变量，字符串 mock 会与其 hash 取属性冲突
+        Map<String, Object> channel = new LinkedHashMap<>();
+        channel.put("id", "1");
+        channel.put("channelName", "示例栏目");
+        channel.put("channelDir", "news");
+        m.put("channel", channel);
+        List<Map<String, Object>> categoryList = new ArrayList<>();
+        for (int i = 1; i <= 2; i++) {
+            Map<String, Object> c = new LinkedHashMap<>();
+            c.put("id", String.valueOf(i));
+            c.put("categoryName", "示例分类 " + i);
+            categoryList.add(c);
+        }
+        m.put("categoryList", categoryList);
+        Map<String, Object> userinfo = new LinkedHashMap<>();
+        userinfo.put("id", "1");
+        userinfo.put("userName", "示例用户");
+        userinfo.put("nickname", "示例昵称");
+        userinfo.put("avatar", "");
+        m.put("userinfo", userinfo);
         if (StringUtils.isBlank(modelCode)) {
             return m;
         }
@@ -853,6 +945,25 @@ public class TemplateCenterService {
         }
         m.put("dataList", list);
         m.put("modelCode", modelCode);
+        // 详情/问答/分享类骨架的常用宿主变量（P4-6）：article 与 info 同构，其余给最小字段
+        m.put("article", info);
+        Map<String, Object> question = new LinkedHashMap<>();
+        question.put("id", "1");
+        question.put("title", "示例问题标题");
+        question.put("content", "<p>示例问题描述。</p>");
+        question.put("createTime", "2026-01-01 12:00");
+        m.put("question", question);
+        Map<String, Object> answer = new LinkedHashMap<>();
+        answer.put("id", "1");
+        answer.put("content", "<p>示例回答内容。</p>");
+        answer.put("createTime", "2026-01-01 13:00");
+        m.put("answer", answer);
+        Map<String, Object> share = new LinkedHashMap<>();
+        share.put("id", "1");
+        share.put("title", "示例分享");
+        share.put("url", "https://example.com/demo");
+        share.put("createTime", "2026-01-01 14:00");
+        m.put("share", share);
         return m;
     }
 
@@ -864,8 +975,9 @@ public class TemplateCenterService {
             // FreeMarker 2.3.x 的失效 API 是 removeTemplateFromCache（Configuration 上无 removeTemplate）
             freeMarkerConfigurer.getConfiguration()
                     .removeTemplateFromCache("pc_theme/" + skin + "/" + file);
-        } catch (Exception ignored) {
-            // 模板从未被加载时移除会抛异常，忽略
+        } catch (Exception e) {
+            // 模板从未被加载时移除会抛异常，属正常路径，debug 留痕即可
+            logger.debug("模板缓存失效跳过（{} / {}）：{}", skin, file, e.getMessage());
         }
     }
 
@@ -876,8 +988,9 @@ public class TemplateCenterService {
     public void clearAllTemplateCache() {
         try {
             freeMarkerConfigurer.getConfiguration().clearTemplateCache();
-        } catch (Exception ignored) {
-            // 缓存为空时部分实现会抛异常，忽略
+        } catch (Exception e) {
+            // 缓存为空时部分实现会抛异常，属正常路径，debug 留痕即可
+            logger.debug("清空模板缓存时异常（可忽略）：{}", e.getMessage());
         }
         if (themeRegistry != null) {
             themeRegistry.refresh();
@@ -911,6 +1024,27 @@ public class TemplateCenterService {
             return "";
         }
         return n;
+    }
+
+    /**
+     * 从根级 {@code manifest.json} 内容里读皮肤名（{@code name} 字段）。
+     *
+     * <p>解析失败不阻断导入（第三方包可能只借用了这个文件名），返回 null 后
+     * 退化为按「首个文件路径首段」推导——与旧行为兼容。
+     */
+    private String manifestSkinName(String json) {
+        if (StringUtils.isBlank(json)) {
+            return null;
+        }
+        try {
+            com.alibaba.fastjson.JSONObject o = com.alibaba.fastjson.JSONObject.parseObject(json);
+            if (o != null && StringUtils.isNotBlank(o.getString("name"))) {
+                return o.getString("name").trim();
+            }
+        } catch (Exception e) {
+            logger.debug("皮肤包根级 manifest.json 解析失败，退化为按目录名推导：{}", e.getMessage());
+        }
+        return null;
     }
 
     private String readAll(InputStream in) throws IOException {

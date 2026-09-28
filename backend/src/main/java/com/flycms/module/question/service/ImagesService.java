@@ -231,7 +231,7 @@ public class ImagesService {
 			userService.updateAvatar(user.getUserId(),saveUrl + fileName);
 			return DataVo.jump("上传成功", saveUrl + fileName);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warn("用户头像文件写入失败（userId={}）：{}", user.getUserId(), e.getMessage());
 		}
 		return data;
 	}

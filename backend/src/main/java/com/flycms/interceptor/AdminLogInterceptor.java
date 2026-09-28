@@ -126,8 +126,9 @@ public class AdminLogInterceptor implements HandlerInterceptor {
                     sb.append(key).append('=').append(mask(key, shown));
                 }
             }
-        } catch (Exception ignored) {
-            // multipart 等场景下取参数可能抛异常，忽略并保证主流程不受影响
+        } catch (Exception e) {
+            // multipart 等场景下取参数可能抛异常，留痕并保证主流程不受影响
+            logger.debug("审计日志组装请求参数失败：{}", e.getMessage());
         }
         return sb.toString();
     }

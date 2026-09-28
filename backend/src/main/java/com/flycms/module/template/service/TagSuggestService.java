@@ -33,6 +33,8 @@ import java.util.Map;
 @Service
 public class TagSuggestService {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TagSuggestService.class);
+
     @Autowired
     private ModelService modelService;
     @Autowired
@@ -230,8 +232,8 @@ public class TagSuggestService {
                 if (m != null) {
                     return m;
                 }
-            } catch (Exception ignored) {
-                // 非法 code 直接跳过
+            } catch (Exception e) {
+                logger.debug("模型 code 查询失败，智能建议跳过（{}）：{}", c, e.getMessage());
             }
         }
         return null;
