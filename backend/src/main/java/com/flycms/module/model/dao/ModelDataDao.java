@@ -99,6 +99,10 @@ public interface ModelDataDao {
     /** 探测某表是否含指定列（information_schema，结果由调用方缓存） */
     public boolean columnExists(@Param("suffix") String suffix, @Param("columnName") String columnName);
 
+    /** 唯一约束校验：列名来自字段元数据白名单（非用户输入），排除 excludeId（更新场景） */
+    public int countDuplicate(@Param("suffix") String suffix, @Param("columnName") String columnName,
+                              @Param("value") Object value, @Param("excludeId") Long excludeId);
+
     /**
      * E1 关联展开：按 id 批量取目标模型内容的轻量列（{@code id / short_url / title / status}）。
      *

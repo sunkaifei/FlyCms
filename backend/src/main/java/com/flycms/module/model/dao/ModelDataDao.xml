@@ -170,6 +170,13 @@
 		  AND column_name = #{columnName}
 	</select>
 
+	<!-- 唯一约束：columnName 来自字段元数据（列名过白名单），非用户输入；value 走 #{} 预编译 -->
+	<select id="countDuplicate" resultType="int">
+		SELECT COUNT(*) FROM `fly_cmodel_${suffix}`
+		WHERE `${columnName}` = #{value}
+		<if test="excludeId != null">AND id != #{excludeId}</if>
+	</select>
+
 	<!--
 	  E1 关联展开：按 id 批量取目标内容的展示列。
 	  列按 G11 口径显式投影（不取 longtext 正文）；ids 恒走 #{} 预编译。

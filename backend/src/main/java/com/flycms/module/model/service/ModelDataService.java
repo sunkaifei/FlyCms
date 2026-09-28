@@ -218,6 +218,10 @@ public class ModelDataService {
         if (check.getCode() != DataVo.CODE_SUCCESS) {
             return check;
         }
+        DataVo uniq = checkUnique(fields, values, tableSuffixOf(modelId), null);
+        if (uniq.getCode() != DataVo.CODE_SUCCESS) {
+            return uniq;
+        }
 
         SnowFlake snowFlake = SnowFlake.getInstance();
         long id = snowFlake.nextId();
@@ -266,6 +270,10 @@ public class ModelDataService {
         DataVo check = buildDynamicValues(fields, form, values, columns, newRefs, tableSuffixOf(modelId));
         if (check.getCode() != DataVo.CODE_SUCCESS) {
             return check;
+        }
+        DataVo uniq = checkUnique(fields, values, tableSuffixOf(modelId), id);
+        if (uniq.getCode() != DataVo.CODE_SUCCESS) {
+            return uniq;
         }
         values.put("id", id);
         putColumn(columns, values, "title", form.get("title"));
@@ -524,6 +532,47 @@ public class ModelDataService {
                     case DECIMAL:
                         v = new java.math.BigDecimal(raw.trim());
                         break;
+                    case SWITCH: {
+                        String s = raw.trim().toLowerCase();
+                        v = ("1".equals(s) || "true".equals(s) || "on".equals(s)) ? 1 : 0;
+                        break;
+                    }
+                    case EMAIL:
+                        if (!raw.trim().matches("^[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
+                            return DataVo.failure(f.getFieldLabel() + "格式不正确");
+                        }
+                        v = raw.trim();
+                        break;
+                    case URL:
+                        if (!raw.trim().matches("^https?://\\S+$")) {
+                            return DataVo.failure(f.getFieldLabel() + "必须以 http(s):// 开头");
+                        }
+                        v = raw.trim();
+                        break;
+                    case PHONE:
+                        if (!raw.trim().matches("^1[3-9]\\d{9}$")) {
+                            return DataVo.failure(f.getFieldLabel() + "格式不正确");
+                        }
+                        v = raw.trim();
+                        break;
+                    case COLOR:
+                        if (!raw.trim().matches("^#[0-9a-fA-F]{3,8}$")) {
+                            return DataVo.failure(f.getFieldLabel() + "必须是 #RGB/#RRGGBB 颜色值");
+                        }
+                        v = raw.trim();
+                        break;
+                    case RATING:
+                        long rate = Long.parseLong(raw.trim());
+                        v = (int) rate;
+                        break;
+                    case SLUG: {
+                        String slug = raw.trim().toLowerCase();
+                        if (!slug.matches("^[a-z0-9][a-z0-9-]{0,127}$")) {
+                            return DataVo.failure(f.getFieldLabel() + "只允许小写字母、数字和中划线");
+                        }
+                        v = slug;
+                        break;
+                    }
                     case DATE:
                         v = new SimpleDateFormat("yyyy-MM-dd").parse(raw.trim());
                         break;
@@ -644,8 +693,40 @@ public class ModelDataService {
                 log.error("模型字段[{}]({})处理失败: {}", f.getFieldName(), f.getFieldType(), e.getMessage(), e);
                 return DataVo.failure(f.getFieldLabel() + "处理失败");
             }
+            // 数值区间（P0 万能建模批次）：number/decimal/rating 支持 min/max
+            if (type == FieldTypeEnum.NUMBER || type == FieldTypeEnum.DECIMAL || type == FieldTypeEnum.RATING) {
+                java.math.BigDecimal num = new java.math.BigDecimal(String.valueOf(v));
+                if (f.getMinValue() != null && num.compareTo(f.getMinValue()) < 0) {
+                    return DataVo.failure(f.getFieldLabel() + "不能小于" + f.getMinValue().stripTrailingZeros().toPlainString());
+                }
+                if (f.getMaxValue() != null && num.compareTo(f.getMaxValue()) > 0) {
+                    return DataVo.failure(f.getFieldLabel() + "不能大于" + f.getMaxValue().stripTrailingZeros().toPlainString());
+                }
+            }
             if (type != FieldTypeEnum.EDITOR) {
                 putColumn(columns, values, f.getFieldName(), v);
+            }
+        }
+        return DataVo.success("ok");
+    }
+
+    /**
+     * 唯一约束（P0 万能建模批次）：is_unique=1 的字段值在全模型内不得重复。
+     * 在 buildDynamicValues 之后调用（列名过白名单、值已定形）；excludeId 用于更新场景排除自身。
+     */
+    private DataVo checkUnique(List<ModelField> fields, Map<String, Object> values,
+                               String suffix, Long excludeId) {
+        for (ModelField f : fields) {
+            if (f.getIsUnique() == null || f.getIsUnique() != 1) {
+                continue;
+            }
+            Object v = values.get(f.getFieldName());
+            if (v == null || "".equals(v)) {
+                continue;
+            }
+            int dup = modelDataDao.countDuplicate(suffix, f.getFieldName(), v, excludeId);
+            if (dup > 0) {
+                return DataVo.failure(f.getFieldLabel() + "「" + v + "」已存在（该字段要求唯一）");
             }
         }
         return DataVo.success("ok");

@@ -37,6 +37,12 @@ export interface ModelFieldRow {
   regex?: string;
   /** RELATE / RELATES 字段的目标模型 code（E1；关联本模型时=本模型 code） */
   relateModel?: string;
+  /** 值是否全模型唯一（1=是） */
+  isUnique?: number;
+  /** 数值区间下限（number/decimal/rating） */
+  minValue?: number;
+  /** 数值区间上限（number/decimal/rating） */
+  maxValue?: number;
   sort: number;
   tips?: string;
 }

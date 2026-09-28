@@ -41,6 +41,13 @@ const FIELD_TYPES = [
   { label: '关联多条内容 (relates)', value: 'relates' },
   { label: '图片URL (image_url，直存链接)', value: 'image_url' },
   { label: '附件URL (file_url，直存链接)', value: 'file_url' },
+  { label: '开关 (switch)', value: 'switch' },
+  { label: '邮箱 (email)', value: 'email' },
+  { label: '网址 (url)', value: 'url' },
+  { label: '手机号 (phone)', value: 'phone' },
+  { label: '颜色 (color)', value: 'color' },
+  { label: '评分 (rating)', value: 'rating' },
+  { label: 'URL片段 (slug，常配唯一)', value: 'slug' },
 ];
 
 const RELATION_TYPES = ['relate', 'relates'];
@@ -178,6 +185,32 @@ const [Form, formApi] = useVbenForm({
       fieldName: 'isFilter',
       label: '列表筛选',
     },
+    {
+      component: 'Checkbox',
+      componentProps: { title: '开启后写入时校验全模型唯一（slug/编号类字段）' },
+      fieldName: 'isUnique',
+      label: '值唯一',
+    },
+    {
+      component: 'InputNumber',
+      componentProps: { step: 0.01 },
+      dependencies: {
+        show: () => ['number', 'decimal', 'rating'].includes(fieldType.value),
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'minValue',
+      label: '最小值',
+    },
+    {
+      component: 'InputNumber',
+      componentProps: { step: 0.01 },
+      dependencies: {
+        show: () => ['number', 'decimal', 'rating'].includes(fieldType.value),
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'maxValue',
+      label: '最大值',
+    },
   ],
   showDefaultActions: false,
 });
@@ -239,6 +272,9 @@ onMounted(async () => {
       isFilter: editing.value.isFilter === 1,
       isList: editing.value.isList === 1,
       isRequired: editing.value.isRequired === 1,
+      isUnique: editing.value.isUnique === 1,
+      minValue: editing.value.minValue ?? undefined,
+      maxValue: editing.value.maxValue ?? undefined,
       maxlength: editing.value.maxlength,
       options: editing.value.options,
       placeholder: editing.value.placeholder,

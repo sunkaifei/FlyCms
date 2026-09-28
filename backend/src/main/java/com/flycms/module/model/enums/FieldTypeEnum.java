@@ -42,7 +42,21 @@ public enum FieldTypeEnum {
      */
     IMAGE_URL("image_url", "varchar(500)", null),
     /** 直存 URL 的附件（E3）：不走引用计数。 */
-    FILE_URL("file_url", "varchar(500)", null);
+    FILE_URL("file_url", "varchar(500)", null),
+    /** 开关（对标 ACF True/False、Strapi Boolean）：0/1 */
+    SWITCH("switch", "tinyint(1)", null),
+    /** 邮箱（写入时校验格式） */
+    EMAIL("email", "varchar(128)", null),
+    /** 网址（写入时校验 http/https 前缀） */
+    URL("url", "varchar(500)", null),
+    /** 中国大陆手机号（写入时校验） */
+    PHONE("phone", "varchar(20)", null),
+    /** 颜色值（#RGB/#RRGGBB/#RRGGBBAA） */
+    COLOR("color", "varchar(16)", null),
+    /** 评分（1..5，可配 min/max 扩展量程） */
+    RATING("rating", "tinyint(4)", null),
+    /** URL 片段（对标 Strapi UID/ACF 的 slug：小写字母数字连字符，常配唯一约束） */
+    SLUG("slug", "varchar(128)", null);
 
     private final String code;
     private final String ddl;

@@ -38,6 +38,12 @@ public class ModelField implements Serializable {
      * 留空表示关联「本模型」——即自关联树场景（如回答的 parent_id）。
      */
     private String relateModel;
+    /** 值是否全模型唯一（slug/编号等），1=是 */
+    private Integer isUnique;
+    /** 数值区间下限（number/decimal/rating） */
+    private java.math.BigDecimal minValue;
+    /** 数值区间上限（number/decimal/rating） */
+    private java.math.BigDecimal maxValue;
     /** 表单选项卡名（表单按此分组渲染，组内按 sort 排序） */
     private String tabName;
     private int sort;

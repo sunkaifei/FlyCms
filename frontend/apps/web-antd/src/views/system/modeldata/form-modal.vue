@@ -9,7 +9,9 @@ import {
   Input,
   InputNumber,
   message,
+  Rate,
   Select,
+  Switch,
   TabPane,
   Tabs,
   Textarea,
@@ -293,6 +295,10 @@ onMounted(async () => {
       } else if (f.fieldType === 'relate') {
         // E1 单值关联：Select 的 value 统一为字符串，避免雪花 ID 精度问题
         v = v === '' || v === null ? undefined : String(v);
+      } else if (f.fieldType === 'switch') {
+        v = String(v) === '1' || String(v).toLowerCase() === 'true';
+      } else if (f.fieldType === 'rating' || f.fieldType === 'number' || f.fieldType === 'decimal') {
+        v = v === '' || v === null ? undefined : Number(v);
       }
       values[f.fieldName] = v;
     }
@@ -496,6 +502,30 @@ onMounted(async () => {
               v-model:value="values[f.fieldName]"
               :placeholder="f.placeholder || '附件 URL'"
             />
+            <!-- P0 万能建模批次：switch/rating/color -->
+            <Switch
+              v-else-if="f.fieldType === 'switch'"
+              :checked="values[f.fieldName] === true || values[f.fieldName] === '1'"
+              @change="(checked: any) => (values[f.fieldName] = checked ? '1' : '0')"
+            />
+            <Rate
+              v-else-if="f.fieldType === 'rating'"
+              v-model:value="values[f.fieldName]"
+              allow-clear
+            />
+            <div v-else-if="f.fieldType === 'color'" class="flex items-center gap-2">
+              <input
+                type="color"
+                class="h-8 w-12 cursor-pointer rounded border"
+                :value="values[f.fieldName] || '#1677ff'"
+                @input="values[f.fieldName] = ($event.target as HTMLInputElement).value"
+              />
+              <Input
+                v-model:value="values[f.fieldName]"
+                class="w-40"
+                placeholder="#RRGGBB"
+              />
+            </div>
             <Textarea
               v-else-if="f.fieldType === 'textarea'"
               v-model:value="values[f.fieldName]"
