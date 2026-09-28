@@ -3,7 +3,7 @@
 > 版本：v1.0（2026-09-21）
 > 定位：**平台级规划文档**。回答三个问题——与主流 CMS（PHPCMS / 帝国CMS / DedeCMS 等）差距在哪、它们的历史问题如何规避、FlyCms 走"全智能后台（一切操作后台配置化完成，零代码建站）"路线的具体开发方案。
 > 与《自定义模型系统开发手册.md》（领域专项，已落地）互补：模型系统是本规划的核心地基之一，本文不重复其细节。
-> 对接规范（认证/权限码/代理）以 `docs/frontend-access-guide.md` 为准；开发规范以 `.agents/skills/flycms-dev` 铁律为准。
+> 对接规范（认证/权限码/代理）以 `docs/02-手册/前端权限接入开发手册.md` 为准；开发规范以 `.agents/skills/flycms-dev` 铁律为准。
 
 ---
 
@@ -61,7 +61,7 @@
 | 能力 | 现状 | 对标定位 |
 |---|---|---|
 | 自定义内容模型 | `fly_model` + `fly_model_field` + 动态 DDL（`ModelTableService` 自动建表/加列），15 种字段类型，前台自动路由 `/{modelCode}/**`，接口收敛 `/api/system/model/**` | 对标 Dede 内容模型/帝国系统模型，**自动建表比两者都进一步**（Dede 加字段要手工管理附加表） |
-| 模板引擎与标签 | Freemarker 原生语法 + 48 个指令标签（`web/tags/`，`<@fly_xxx>` 自动注册），覆盖文章/问答/分享/专题/用户/模型全数据面 | 对标 Dede 标签、帝国灵动标签；**无方言、表达力即 Freemarker**，且可在线新建模板 |
+| 模板引擎与标签 | Freemarker 原生语法 + 55 个指令标签（`web/tags/`，`<@fly_xxx>` 自动注册），覆盖文章/问答/分享/专题/用户/模型全数据面 | 对标 Dede 标签、帝国灵动标签；**无方言、表达力即 Freemarker**，且可在线新建模板 |
 | 模板在线编辑（雏形） | `ApiWebsiteController`：皮肤列表/切换、模板文件树、读/写/建/删（路径白名单 + canonical 校验 + 512KB 限制） | 对标三家后台模板编辑，安全边界已做路径层，**缺沙箱与版本化**（阶段 A/D） |
 | 新管理后台 | vben v5 SPA：登录/动态菜单/树形授权/按钮权限已落地，`/api/**` REST 规范成型 | 架构代差：三家仍是 jQuery 多页后台 |
 | 会员/互动体系 | user 模块 15 张表 + 积分/粉丝/邀请/收藏/消息/私信 | 超出常规 CMS 出厂能力 |
@@ -94,7 +94,7 @@
 |---|---|---|---|---|---|---|
 | 1 | 内容模型 | 内容模型+附加表 | 系统模型+字段管理 | 模型管理+附加表 | ✅ 元数据+动态 DDL+15 字段类型 | 补字段校验规则细化（随阶段 F 复用） |
 | 2 | 栏目体系 | 栏目树绑模型/模板/封面 | 栏目绑模型+多访问端 | 栏目绑模型 | ❌ 各内容类型独立分类树，无统一栏目 | **阶段 C（最大单项）** |
-| 3 | 模板引擎 | 自研标签 lib_* | 灵动标签 e:loop | get 标签（可写 SQL） | ✅ 原生 Freemarker + 48 指令标签 | 无 |
+| 3 | 模板引擎 | 自研标签 lib_* | 灵动标签 e:loop | get 标签（可写 SQL） | ✅ 原生 Freemarker + 55 指令标签 | 无 |
 | 4 | 模板后台管理 | 在线编辑+模板组 | 在线编辑+方案管理 | 在线编辑 | 🟡 在线编辑/建/删/切肤已落地 | 阶段 D：版本化/回滚/皮肤包/校验 |
 | 5 | 模板安全沙箱 | 无（历史 RCE 源） | 无 | 无 | ❌ **当前可写模板且无沙箱** | **阶段 A（P0）** |
 | 6 | 碎片/广告位 | mytag+广告模块 | 碎片管理（强项） | 碎片+广告 | ❌ 无 | 阶段 E |
@@ -125,7 +125,7 @@
 
 1. **架构代差**：管理端是前后端分离 SPA（vben + `/api/**` REST + Session 认证 + 动态菜单），前台 Freemarker SSR 职责单一。老 CMS 的"后台页面与服务端渲染耦死"在 FlyCms 不存在，后续所有新能力都只是"加接口 + 加配置页"。
 2. **自定义模型一步到位**：后台建模型即自动建物理表（真实列、可索引）、自动出管理页面、自动有前台路由。这是"全智能后台"最核心、开发成本最高的一块，**已经落地**。Strapi 的核心卖点（内容类型构建器）同类。
-3. **技术栈现代且自研可控**：Spring Boot 4.1.1 / JDK 25 / MyBatis / Caffeine / Quartz，全栈可维护。对标对象两家事实停更——**用停更的 CMS 起新站才是最大风险**（安全补丁无来源、版权收费不确定）。
+3. **技术栈现代且自研可控**：Spring Boot 4.1.1 / JDK 24 / MyBatis / Caffeine / Quartz，全栈可维护。对标对象两家事实停更——**用停更的 CMS 起新站才是最大风险**（安全补丁无来源、版权收费不确定）。
 4. **模板表达力即 Freemarker**：无自造标签方言，任何会 Freemarker 的人直接上手；标签插件按 bean 自动注册，新增数据标签成本极低。
 5. **会员/互动开箱即用**：积分、粉丝、邀请、收藏、消息是老 CMS 要靠 UCenter 整合论坛才能拼出来的能力。
 6. **安全基础动作规范**：SQL 全参数化、BCrypt 密码、URL 白名单权限、登录锁定——比三家老 CMS 的"历史上先出事再打补丁"起点高。
@@ -157,7 +157,7 @@
 
 - **根因**：模板引擎可执行代码（Dede/帝国模板语法内嵌 PHP），后台模板编辑功能给了任何人写代码的通道。
 - **规避**：
-  1. Freemarker 配置类解析沙箱 `TemplateClassResolver.ALLOWS_NOTHING_RESOLVER`（禁 `?new`），模板内只允许调用已注册的 48 个指令标签和 Freemarker 内建——**阶段 A 落地，P0**；
+  1. Freemarker 配置类解析沙箱 `TemplateClassResolver.ALLOWS_NOTHING_RESOLVER`（禁 `?new`），模板内只允许调用已注册的 55 个指令标签和 Freemarker 内建——**阶段 A 落地，P0**；
   2. 模板编辑是独立按钮权限（不是"管理员"就默认能编），高危操作记审计日志；
   3. 模板保存强制语法 parse 校验，写坏不会导致全站 500（阶段 D）。
 
@@ -245,7 +245,7 @@
 | Nginx 反代缓存（proxy_cache） | 运维侧可选项 | 对应用零改动，适合大流量纯浏览场景；写入部署文档即可 |
 | 程序生成 HTML（帝国式） | 降级为可选工具（阶段 I，P3） | 仅对"纯浏览列表/详情页"有价值；交互页（评论/计数/表单）不适用；作为容量兜底工具而非默认路径 |
 
-配套要求：生产环境打开 Freemarker 模板缓存（`spring.freemarker.cache: true` + `template_update_delay: 0`，改模板仍即时生效但编译结果可复用）——当前 `cache: false` 仅适合开发期（`application.yml:22`）。
+配套要求：生产环境打开 Freemarker 模板缓存（`spring.freemarker.cache: true` + `template_update_delay: 0`，改模板仍即时生效但编译结果可复用）——当前 `cache: false` 仅适合开发期（`application.yml` 的 `spring.freemarker.cache`）。
 
 ### 7.4 明确不做的事（决策记录，防止路线膨胀）
 
@@ -276,7 +276,7 @@
 | # | 事项 | 说明 |
 |---|---|---|
 | A1 | Freemarker 沙箱 | `config/` 新增配置：`FreeMarkerConfigCustomizer` Bean 调 `configuration.setNewBuiltinClassResolver(TemplateClassResolver.ALLOWS_NOTHING_RESOLVER)`（禁所有 `?new`；模板只需指令标签，无需实例化任何类）。落地前 `grep -rn '?new' views/templates/` 确认存量模板无 `?new` 用法 |
-| A2 | 会话 Cookie 加固 | `application.yml` `servlet.session.cookie.httpOnly` 生产置 `true`（当前为 false，`application.yml:30`；开发联调如需可留 profile 区分） |
+| A2 | 会话 Cookie 加固 | `application.yml` `servlet.session.cookie.httpOnly` 生产置 `true`（`spring.servlet.session.cookie.httpOnly`，**已置 true**；`sameSite` 待补，见《主流CMS对标与全项目优化开发方案》G2） |
 | A3 | 审计日志表 | `fly_admin_log`（见下）+ HandlerInterceptor：对 `/api/**`、`/system/**` 的 POST 记录（管理员、路径、参数摘要 500 字截断、IP、耗时、结果码），异步写 |
 | A4 | 审计查询页 | vben 页面 `views/system/log/`，接口 `/api/system/log/page`（按管理员/时间/路径过滤） |
 | A5 | 上传纵深复查 | UpLoadController / CkeditorUp：扩展名 + MIME 双白名单、强制重命名、上传目录禁止脚本解析（部署文档附 Nginx 配置片段） |
@@ -405,7 +405,7 @@ CREATE TABLE `fly_template_version` (
 | D3 | 删除皮肤 | `skin/delete` | 校验非当前使用皮肤、非默认皮肤 |
 | D4 | 皮肤包导出 | `skin/export`（zip 下载） | 限 `.html/.css/.js/图片` 条目，附 manifest.json（皮肤名/版本/导出时间）——未来模板市场的分发格式 |
 | D5 | 皮肤包导入 | `skin/import`（zip 上传） | **zip-slip 防御**：逐 entry canonical 路径校验、后缀白名单、总大小 50MB、重名皮肤拒收或提示覆盖 |
-| D6 | 组件面板 | 前端功能 | 把 48 个标签按"内容/用户/模型/通用"分组，点击插入带参数占位的标签代码骨架（附参数注释）；**这是给非程序员的模板生产方式** |
+| D6 | 组件面板 | 前端功能 | 把 55 个标签按"内容/用户/模型/通用"分组，点击插入带参数占位的标签代码骨架（附参数注释）；**这是给非程序员的模板生产方式** |
 | D7 | 在线标签手册 | `tags/manual`（静态数据接口） | 每个标签：用途/参数表/最小示例代码；后台页面渲染。手册数据源先内置 Java 常量，后续可入库 |
 | D8 | 模板试渲染（可选增强） | `preview` | 用当前栏目/模型的一行样例数据渲染预览（不落盘），所见即所得的折中实现 |
 
@@ -597,7 +597,7 @@ CREATE TABLE `fly_form_data` (
 
 ## 11. 附录
 
-### 附录 A：现有模板标签清单（48 个，`web/tags/`，模板内 `<@fly_xxx>` 调用）
+### 附录 A：现有模板标签清单（55 个，`web/tags/`，模板内 `<@fly_xxx>` 调用）
 
 | 分组 | 标签 |
 |---|---|
@@ -611,7 +611,7 @@ CREATE TABLE `fly_form_data` (
 
 ### 附录 B：数据库表现状
 
-基线 `sql/flycms_20260928_093335.sql` 含 59 张 `fly_` 表（admin 系 6、article 系 6、user 系 15、question/answer 系 6、topic 系 7、share 系 6、config/score/job/links/message/favorite/feed/filter/images/areas/templet 等）；自定义模型系 `fly_model`/`fly_model_field`/`fly_model_category`/`fly_cmodel_*` 见 `sql/custom-model.sql`；本规划新增表见各阶段 DDL（`fly_admin_log`、`fly_channel`、`fly_template`、`fly_template_version`、`fly_block`、`fly_block_item`、`fly_form`、`fly_form_field`、`fly_form_data`）。注意 `fly_templet` 为零引用遗留表，阶段 D 上线后评估废弃。
+基线 `sql/flycms_20260928_093335.sql` 含 **78 张** `fly_` 表（2026-09-28 实测 `sql/flycms_20260928_093335.sql`，原文"59 张"为过期值）（admin 系 6、article 系 6、user 系 15、question/answer 系 6、topic 系 7、share 系 6、config/score/job/links/message/favorite/feed/filter/images/areas/templet 等）；自定义模型系 `fly_model`/`fly_model_field`/`fly_model_category`/`fly_cmodel_*` 见 `sql/flycms_20260928_093335.sql` 中的 `fly_model*` 与 `fly_cmodel_*` 建表段（原引用的 `sql/custom-model.sql` 已不存在）；本规划新增表见各阶段 DDL（`fly_admin_log`、`fly_channel`、`fly_template`、`fly_template_version`、`fly_block`、`fly_block_item`、`fly_form`、`fly_form_field`、`fly_form_data`）。注意 `fly_templet` 为零引用遗留表，阶段 D 上线后评估废弃。
 
 ### 附录 C：每个阶段的上线检查单（固定动作）
 
