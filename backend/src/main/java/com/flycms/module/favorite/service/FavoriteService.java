@@ -8,10 +8,6 @@ import com.flycms.module.article.model.Article;
 import com.flycms.module.article.service.ArticleService;
 import com.flycms.module.favorite.dao.FavoriteDao;
 import com.flycms.module.favorite.model.Favorite;
-import com.flycms.module.question.model.Question;
-import com.flycms.module.question.service.QuestionService;
-import com.flycms.module.share.model.Share;
-import com.flycms.module.share.service.ShareService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,11 +33,7 @@ public class FavoriteService {
     @Resource
     private FavoriteDao favoriteDao;
     @Autowired
-    private QuestionService questionService;
-    @Autowired
     protected ArticleService articleService;
-    @Autowired
-    protected ShareService shareService;
     // ///////////////////////////////
     // /////       增加       ////////
     // ///////////////////////////////
@@ -49,19 +41,9 @@ public class FavoriteService {
     @Transactional
     public DataVo addFavorite(Long userId,Integer infoType,Long infoId){
         DataVo data = DataVo.failure("操作失败");
-        if(infoType==0){
-            Question question=questionService.findQuestionById(infoId,2);
-            if (question == null) {
-                return data=DataVo.failure("您收藏的信息不存在！");
-            }
-        }else if(infoType==1){
+        if(infoType==1){
             Article article=articleService.findArticleById(infoId, 2);
             if (article == null) {
-                return data=DataVo.failure("您收藏的信息不存在！");
-            }
-        }else if(infoType==2){
-            Share share=shareService.findShareById(infoId,2);
-            if (share == null) {
                 return data=DataVo.failure("您收藏的信息不存在！");
             }
         }else{

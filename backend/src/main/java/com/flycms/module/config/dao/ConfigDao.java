@@ -1,6 +1,5 @@
 package com.flycms.module.config.dao;
 
-import com.flycms.module.config.model.Guide;
 import com.flycms.module.config.model.Config;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -16,8 +15,6 @@ public interface ConfigDao {
     //添加配置信息
     public int addConfig(Config config);
 
-    //添加设置导航信息
-    public int addGuide(Guide guide);
     // ///////////////////////////////
     // ///// 刪除 ////////
     // ///////////////////////////////

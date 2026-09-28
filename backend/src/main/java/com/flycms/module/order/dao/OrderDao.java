@@ -1,7 +1,6 @@
 package com.flycms.module.order.dao;
 
 import com.flycms.module.order.model.Order;
-import com.flycms.module.share.model.Share;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -40,16 +39,6 @@ public interface OrderDao {
     public Order findOrderByid(@Param("id") int id);
 
     //分享总数
-    public int getShareOrderCount(@Param("shareId") Integer shareId,
-                                  @Param("userId") Integer userId,
-                                  @Param("createTime") String createTime);
 
     //分享列表
-    public List<Share> getShareOrder(@Param("shareId") Integer shareId,
-                                     @Param("userId") Integer userId,
-                                     @Param("createTime") String createTime,
-                                     @Param("orderby") String orderby,
-                                     @Param("order") String order,
-                                     @Param("offset") Integer offset,
-                                     @Param("rows") Integer rows);
 }

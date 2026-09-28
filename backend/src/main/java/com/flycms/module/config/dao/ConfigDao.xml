@@ -31,21 +31,6 @@
 	</insert>
 
 	<!-- 添加前台导航信息 -->
-	<insert id="addGuide">
-        insert into fly_guide
-        <!-- 添加表字段 -->
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="name != null and name != ''">name,</if>
-            <if test="link != null and link != ''">link,</if>
-            <if test="sort != null and sort != ''">sort,</if>
-        </trim>
-        <!-- 注入控制层字段 -->
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="name != null and name != ''">#{name},</if>
-            <if test="link != null and link != ''">#{link},</if>
-            <if test="sort != null and sort != ''">#{sort},</if>
-        </trim>
-    </insert>
 
 	<!-- ############################## -->
 	<!-- ###### 删除 ###### -->

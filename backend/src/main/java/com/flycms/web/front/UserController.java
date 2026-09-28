@@ -7,7 +7,7 @@ import com.flycms.module.user.utils.UserSessionUtils;
 import com.flycms.constant.Const;
 import com.flycms.core.base.BaseController;
 import com.flycms.core.entity.DataVo;
-import com.flycms.module.question.service.ImagesService;
+import com.flycms.module.images.service.ImagesService;
 import com.flycms.module.user.model.User;
 import com.flycms.module.user.service.UserService;
 import org.apache.commons.lang3.math.NumberUtils;

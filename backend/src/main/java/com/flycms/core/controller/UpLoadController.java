@@ -14,7 +14,7 @@ import com.flycms.core.base.BaseController;
 import com.flycms.core.entity.CkeditorUp;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.UpImgMsg;
-import com.flycms.module.question.service.ImagesService;
+import com.flycms.module.images.service.ImagesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

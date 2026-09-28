@@ -4,9 +4,6 @@ import com.flycms.module.article.model.Article;
 import com.flycms.module.article.model.ArticleComment;
 import com.flycms.module.article.model.ArticleCount;
 import com.flycms.module.article.service.ArticleService;
-import com.flycms.module.question.model.Question;
-import com.flycms.module.question.service.QuestionService;
-import com.flycms.module.share.service.ShareService;
 import com.flycms.module.weight.model.Weight;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,10 +31,6 @@ public class WeightService {
     private ArticleService articleService;
 
     @Autowired
-    private ShareService shareService;
-
-    @Autowired
-    private QuestionService questionService;
 
     //更新文章权重
     public void updateArticleWeight(){

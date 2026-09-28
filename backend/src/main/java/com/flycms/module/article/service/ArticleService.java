@@ -12,9 +12,7 @@ import com.flycms.module.article.model.ArticleCommentVo;
 import com.flycms.module.article.model.ArticleCount;
 import com.flycms.module.article.model.ArticleVotes;
 import com.flycms.module.config.service.ConfigService;
-import com.flycms.module.message.model.Message;
-import com.flycms.module.message.service.MessageService;
-import com.flycms.module.question.service.ImagesService;
+import com.flycms.module.images.service.ImagesService;
 import com.flycms.module.search.service.SearchService;
 import com.flycms.module.topic.model.Topic;
 import com.flycms.module.topic.service.TopicService;
@@ -64,8 +62,6 @@ public class ArticleService {
     protected TopicService topicService;
     @Autowired
     protected ImagesService imagesService;
-    @Autowired
-    protected MessageService messageService;
     // ///////////////////////////////
     // /////      增加        ////////
     // ///////////////////////////////
@@ -818,27 +814,11 @@ public class ArticleService {
     }
 
     /**
-     * 审核结果站内信通知作者
+     * 审核结果通知作者（U2 退役 message 模块后暂为空操作；
+     * 平台统一通知能力由后续 E 阶段承接，届时恢复实现）
      */
     private void sendAuditMessage(Article article, String reason, Long adminId) {
-        try {
-            Message message = new Message();
-            long fromId = adminId == null ? 0L : adminId;
-            message.setFromId(fromId);
-            message.setFromNickname("系统");
-            message.setToId(article.getUserId());
-            message.setSubject("文章审核未通过");
-            message.setMessage("您投稿的文章《" + article.getTitle() + "》未通过审核。\n原因：" + reason);
-            message.setSendTime(new Date());
-            message.setWriteTime(new Date());
-            message.setHasView(0);
-            message.setIsAdmin(1);
-            message.setState(1);
-            messageService.addMessage(message);
-        } catch (Exception e) {
-            // 站内信失败不影响审核结果本身
-            log.warn("审核站内信发送失败, articleId={}, err={}", article.getId(), e.getMessage());
-        }
+        log.info("文章审核未通过通知(待平台通知能力承接), articleId={}, title={}", article.getId(), article.getTitle());
     }
 
     /** 待审文章数量（后台角标用） */

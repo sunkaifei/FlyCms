@@ -50,27 +50,7 @@
 
 
 	<!-- 按分享id和用户id查询分享订单总数 -->
-	<select id="getShareOrderCount" resultType="Integer">
-		select count(*) from fly_share_order o left join fly_share s on o.share_id=s.id
-		<where>
-			<if test="shareId!=null and shareId!=''">and o.share_id = #{shareId}</if>
-			<if test="userId != null and userId !=''">and o.user_id = #{userId}</if>
-			<if test="createTime != null and createTime != ''">and create_time like concat(#{createTime}, '%')</if>
-		</where>
-	</select>
 
 	<!-- 按分享id和用户id查询分享订单 -->
-	<select id="getShareOrder" resultType="com.flycms.module.share.model.Share">
-		select s.* from fly_share_order o left join fly_share s on o.share_id=s.id
-		<where>
-			<if test="shareId!=null and shareId!=''">and o.share_id = #{shareId}</if>
-			<if test="userId != null and userId !=''">and o.user_id = #{userId}</if>
-			<if test="createTime != null and createTime != ''">and create_time like concat(#{createTime}, '%')</if>
-		</where>
-		order by
-		<if test="orderby != null">o.${orderby}</if>
-		<if test="order != null">${order}</if>
-		limit #{offset},#{rows}
-	</select>
 
 </mapper>  

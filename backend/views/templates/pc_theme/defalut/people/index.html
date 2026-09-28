@@ -46,16 +46,14 @@
                     </div>
                     <#list feed_page.list as list>
                     <#if list.infoType=0>
-                        <#assign infoId="${list.infoId!}">
-                        <#include "../common/user_question.html">
+                        <!-- U2：question 旧通道关闭 -->
                     </#if>
                     <#if list.infoType=1>
                         <#assign infoId="${list.infoId!}">
                         <#include "../common/user_article.html">
                     </#if>
                     <#if list.infoType=2>
-                        <#assign infoId="${list.infoId!}">
-                        <#include "../common/user_share.html">
+                        <!-- U2：share 旧通道关闭 -->
                     </#if>
                     </#list>
                 </div>

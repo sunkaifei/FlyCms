@@ -3,7 +3,6 @@ package com.flycms.web.tags;
 import com.flycms.core.base.AbstractTagPlugin;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.StringHelperUtils;
-import com.flycms.module.question.model.Answer;
 import com.flycms.module.search.model.Info;
 import com.flycms.module.search.service.SearchService;
 import freemarker.core.Environment;

@@ -770,24 +770,26 @@ CREATE TABLE fly_content_i18n (
 | 旧模块 | 表与存量 | 目标自定义模型 | 特殊字段需求 | 退役难度 |
 |---|---|---|---|---|
 | 文章 article | `fly_article`(0 行) + `fly_article_category_merge` | `articles`（已注册 id=3） | 分类字段、tag、评论/顶踩走平台能力（E4/E7） | **高**（前台模板与标签引用最多，最后退役） |
-| 图片 images | `fly_images`(0 行) | `images`（已注册 id=1） | images/files 字段已有 | 低 |
-| 分享 share | `fly_share`(0 行) | `shares`（新建） | files 字段已有 | 低 |
-| 问答 question/answer | `fly_question`(0 行)/`fly_answer`(0 行) | `questions` + `answers`（answers 带 relate→questions + relate 自关联 parent） | E1 已具备 | 中（悬赏/采纳是业务逻辑，先用 number 字段表达） |
-| 话题 topic | `fly_topic`(**18 行**) | `topics`（新建） | E3 image_url 已具备 | **中**（有存量数据，需迁移） |
-| 链接 links | `fly_links`(**1 行**) | `links`（新建） | E3 image_url（link_logo） | **低（试点首选）** |
-| 公告 announcement | `fly_announcement`(0 行) | `announcements`（新建） | 无 | 低 |
-| 帮助 guide | `fly_guide`(**3 行**) | `guides`（新建） | 无 | 低 |
-| 留言 message | `fly_message`(**2 行**) | `messages`（新建） | 回复关系 = relate 自关联（E1 已具备） | 低 |
+| 图片 images | `fly_images` = **附件库基础设施**（引用计数/孤儿清理，供模型引擎 IMAGE/FILE 字段与上传服务使用） | **不退役**——`ApiImagesController`/`ImagesService`（已迁 `module/images`）是引擎能力的一部分 | — | —（U2 现场修正：fly_images 不是内容表） |
+| 分享 share | `fly_share`(0 行) | `shares`（已建 id=10） | files 字段已有 | 低（**U2 已退役** ✅） |
+| 问答 question/answer | `fly_question`(0 行)/`fly_answer`(0 行) | `questions`（id=11）+ `answers`（id=12，relate→questions + relate 自关联 parent） | E1 已具备 | 中（悬赏/采纳是业务逻辑，先用 number 字段表达；**U2 已退役** ✅） |
+| 话题 topic | `fly_topic`(**18 行**) | `topics`（已建 id=9，18 行已迁入 ✅） | **与 article 标签系统耦合**：ArticleService 把文章 tag 写入 TopicService、`fly_topic` 兼作标签存储 | **顺延 U3 与 article 一并退役**（代码已删会连带断标签链路） |
+| 链接 links | `fly_links`(**1 行**) | `links`（新建） | E3 image_url（link_logo） | **低（试点首选，U1 已退役）** |
+| 公告 announcement | `fly_announcement`(0 行) | `announcements`（已建 id=7） | 无 | 低（**U2 已退役** ✅） |
+| 帮助/导航 guide | `fly_guide`(**3 行**) | `guides`（已建 id=6，3 行已迁入 ✅） | 无 | 低（**U2 已退役** ✅） |
+| 留言 message | `fly_message`(**2 行**) | `messages`（已建 id=8，2 行已迁入 ✅） | 回复关系 = relate 自关联（E1 已具备） | 低（**U2 已退役** ✅） |
 | 话题聚合 topics（front） | — | 走 `fly_list_model` + 模型 code | — | 随 topic 退役 |
 | **保留例外** | `fly_favorite`/关注/Feed/积分/订单 | **不建模**——用户行为与交易属平台能力，不是内容模块 | — | — |
 
 ### U2 施工顺序
 
 > **进度（2026-09-28）**：**U1 试点已完成并验收**——links 模块按四步法端到端退役：旧代码删除（`module/links`、`ApiLinksController`、`Linkspage` 标签、前端 `views/system/links` + `api/core/links.ts`、黑名单移除 `links`）→ 在线建模 `links` 模型（id=5，字段 link_url/link_logo(image_url)/link_type/sort）→ 存量 1 行迁入 `fly_cmodel_links`（旧表更名 `fly_retired_links_20260928` 留档）→ footer 模板改走 `<@fly_list_model model="links">`。**验收：首页 200、0 条 FreeMarker template error、友情链接正常渲染迁移数据；e2e PASS 51 / audit PASS 16。**
+>
+> **U2 批量已完成并验收（2026-09-28）**：guide / announcement / message / share / question+answer 五组退役端到端落地。在线建模 7 模型（guides=6 / announcements=7 / messages=8 / topics=9 / shares=10 / questions=11 / answers=12）+ 种子字段；存量迁移 guide 3 行、message 2 行、topic 18 行（topics 表保留供标签系统直至 U3）；旧主表 6 张更名 `fly_retired_*_20260928` + 关联表 10 张（share_category/share_comment/share_count/share_order/share_votes/question_count/question_follow_merge/answer_count/answer_votes）留档；删除 `module/{announcement,message,share,question}`（附件库迁出为 `module/images` 独立包）、`Api{Announcement,Guide,Message}Controller`、前台 `{Help,Message,Question,Share}Controller`、12 个旧标签、前端 `views/system/{guide,announcement,message}` + `api/core/{guide,message}.ts`、权限/菜单节点 16 条；模板层 question/share 目录删除，people 列表页改走 `<@fly_page_model>` 通用通道，feed 场景 type 0/2 占位；标签手册同步移除 11 个退役标签骨架（55→44）。**验收：probe_u2 25/25、e2e PASS 51、audit PASS 16、vue-tsc 通过。** 附带修复：ModelController 404 兜底补 `setStatus(404)`（此前返回 200 的 404 页）。
 
-1. **U1 试点**：`links`（1 行数据、模板简单）端到端跑通四步退役法，沉淀操作手册；
-2. **U2 批量**：guide / announcement / message / topic（含数据迁移）/ shares / questions+answers / images；
-3. **U3 收尾**：`article` 最后退役（前台模板 `article/`、`Articlepage` 标签、搜索、权重、投稿审核全部改指向 `articles` 模型后删除旧链路）；
+1. **U1 试点** ✅：`links`（1 行数据、模板简单）端到端跑通四步退役法，沉淀操作手册；
+2. **U2 批量** ✅：guide / announcement / message / shares / questions+answers；**images 行现场修正为「附件库基础设施，保留」**（`fly_images` 是模型引擎 IMAGE/FILE 字段的附件表，不是内容表）；**topic 顺延 U3**（`fly_topic` 兼作 article 标签存储，TopicService/TagController/ArticleService 的 tag 链路在 article 退役前必须存活）；
+3. **U3 收尾**：`article` + `topic` 一并退役（前台模板 `article/`、`Articlepage` 标签、搜索、权重、投稿审核全部改指向 `articles` 模型后删除旧链路；届时 `TopicsController`、`Topicpage`/`Topicinfolist`/`Topicinfopage` 标签、`fly_topic` 表与黑名单条目一并清理）；
 4. **U4 平台能力承接**：评论（E4）与收藏（E7）落为平台表（按 target_type+target_id 引用任意模型内容），替代旧模块内嵌实现；
 5. **U5 清理**：删除退役模块的权限节点/菜单/路由自检登记，更新标签手册。
 

@@ -1,0 +1,29 @@
+<#-- 回答 详情页（自动生成，可自行定制） -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>${(info.title)!''} - ${web_name!''}</title>
+</head>
+<body>
+<@fly_info_model model="answers" shortUrl="${shortUrl!}">
+<article>
+<h1>${(info.title)!''}</h1>
+<p class="meta">
+<#if (info.createTime)??>${info.createTime?substring(0, 16)}</#if>
+</p>
+<div class="content">${(info.content)!''}</div>
+</article>
+<aside>
+<h3>相关阅读</h3>
+<@fly_rel_model model="answers" category="${(info.categoryId)!0}" notid="${(info.id)!0}" rows="5">
+<ul>
+<#if dataList?? && dataList?size gt 0><#list dataList as item>
+  <li><a href="/answers/${item.shortUrl}.html">${(item.title)!''}</a></li>
+</#list></#if>
+</ul>
+</@fly_rel_model>
+</aside>
+</@fly_info_model>
+</body>
+</html>

@@ -13,7 +13,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.io.File;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * 自定义模型前台路由。
@@ -27,8 +27,11 @@ import java.io.File;
  * 与现有前台路由共存：Spring 对字面量段优先于变量段匹配，/article/**、/a/**、/question/** 等
  * 不受影响；modelCode 过 SqlSafeUtil.safeModelCode 白名单，查不到或禁用一律回 404 模板。
  *
+ * U2 修复：404 兜底显式 setStatus(404)——仅返回 404 视图名时状态码由最终渲染决定，
+ * 搜索引擎/监控会拿到 200 的 404 页（同 /403 /404 /500 @ResponseStatus 口径）。
+ *
  * @author sun-kaifei
- * @version 1.0
+ * @version 1.1
  */
 @Controller
 public class ModelController extends BaseController {
@@ -54,7 +57,7 @@ public class ModelController extends BaseController {
     @GetMapping(value = {"/{modelCode}/", "/{modelCode}/index", "/{modelCode}/p{page:\\d+}"})
     public String list(@PathVariable String modelCode,
                        @PathVariable(value = "page", required = false) Integer page,
-                       ModelMap modelMap) {
+                       ModelMap modelMap, HttpServletResponse response) {
         int p = page == null ? 1 : page;
         String channelView = channelRenderService.render(modelCode, p, modelMap);
         if (channelView != null) {
@@ -62,7 +65,7 @@ public class ModelController extends BaseController {
         }
         Model model = resolveModel(modelCode);
         if (model == null) {
-            return theme.getPcTemplate("404");
+            return notFound(response);
         }
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("p", p);
@@ -74,10 +77,10 @@ public class ModelController extends BaseController {
     public String categoryList(@PathVariable String modelCode,
                                @PathVariable Long categoryId,
                                @PathVariable(value = "page", required = false) Integer page,
-                               ModelMap modelMap) {
+                               ModelMap modelMap, HttpServletResponse response) {
         Model model = resolveModel(modelCode);
         if (model == null) {
-            return theme.getPcTemplate("404");
+            return notFound(response);
         }
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("p", page == null ? 1 : page);
@@ -89,16 +92,21 @@ public class ModelController extends BaseController {
     @GetMapping(value = "/{modelCode}/{shortUrl}.html")
     public String detail(@PathVariable String modelCode,
                          @PathVariable String shortUrl,
-                         ModelMap modelMap) {
+                         ModelMap modelMap, HttpServletResponse response) {
         Model model = resolveModel(modelCode);
         if (model == null || StringUtils.length(shortUrl) > 10) {
-            return theme.getPcTemplate("404");
+            return notFound(response);
         }
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("shortUrl", shortUrl);
         // 浏览计数在模板 InfoModel 取数时由 ModelDataService 处理（略，前台查询强制 status=1）
         return templateResolver.resolveAndExpose(
                 com.flycms.module.template.model.TemplateContext.detail(model.getCode(), shortUrl, null, null), modelMap);
+    }
+
+    private String notFound(HttpServletResponse response) {
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        return theme.getPcTemplate("404");
     }
 
     private Model resolveModel(String modelCode) {

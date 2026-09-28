@@ -11,7 +11,6 @@ import java.util.List;
 
 import com.flycms.core.entity.PageVo;
 import com.flycms.module.config.dao.ConfigDao;
-import com.flycms.module.config.model.Guide;
 import com.flycms.module.config.model.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -67,15 +66,6 @@ public class ConfigService {
 		configDao.addConfig(config);
 	}
 
-	//添加设置导航信息
-    @CacheEvict(value = "config", allEntries = true)
-	public void addGuide(String name,String link,Integer sort) {
-		Guide guide=new Guide();
-		guide.setName(name);
-		guide.setLink(link);
-		guide.setSort(sort);
-		configDao.addGuide(guide);
-	}
 	// ///////////////////////////////
 	// ///// 刪除 ////////
 	// ///////////////////////////////

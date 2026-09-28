@@ -81,14 +81,7 @@ public class TagManualService {
         SCOPES.put("fly_articletypelist", "list");
         SCOPES.put("fly_articlecommentpage", "detail");
         // 问答
-        SCOPES.put("fly_questionpage", "list");
-        SCOPES.put("fly_questioninfo", "detail");
-        SCOPES.put("fly_answerpage", "detail");
-        SCOPES.put("fly_answerinfo", "detail");
-        SCOPES.put("fly_newest_answerinfo", "detail");
         // 分享
-        SCOPES.put("fly_sharepage", "list");
-        SCOPES.put("fly_shareinfo", "detail");
         // 专题
         SCOPES.put("fly_topicpage", "list");
         SCOPES.put("fly_topicinfolist", "detail");
@@ -113,11 +106,7 @@ public class TagManualService {
         SCOPES.put("fly_search_page", "list");
         // 通用
         SCOPES.put("fly_infopage", "list");
-        SCOPES.put("fly_guidepage", "global");
-        SCOPES.put("fly_linkspage", "global");
-        SCOPES.put("fly_announcement_model", "global");
         SCOPES.put("fly_form", "global");
-        SCOPES.put("fly_order", "list");
         SCOPES.put("fly_scoredetailpage", "list");
         SCOPES.put("fly_scorerulepage", "list");
         SCOPES.put("fly_stringcut", "global");
@@ -385,93 +374,14 @@ public class TagManualService {
 
         // /////////////////// 问答 ///////////////////
 
-        add(data, "问答", "fly_questionpage", "问题列表",
-                "问答模块问题分页列表。",
-                "question_page（分页对象，数据行取 question_page.list）",
-                params(p("title", false, "标题模糊匹配"),
-                        p("userId", false, "提问人 id"),
-                        p("createTime", false, "按提问时间筛选"),
-                        p("status", false, "状态过滤"),
-                        p("orderby", false, "排序列"),
-                        p("order", false, "asc/desc"),
-                        p("p", false, "页码"),
-                        p("rows", false, "每页条数")),
-                "<@fly_questionpage rows=\"10\">\n"
-                        + "  <#if (question_page.list)??>\n"
-                        + "    <#list question_page.list as q><li>${q.title}</li></#list>\n"
-                        + "  </#if>\n"
-                        + "</@fly_questionpage>");
 
-        add(data, "问答", "fly_questioninfo", "问题详情",
-                "按 id 取单个问题。",
-                "question",
-                params(p("id", true, "问题 id"),
-                        p("status", false, "状态过滤")),
-                "<@fly_questioninfo id=\"${(id)!0}\">\n"
-                        + "  <h1>${question.title}</h1>${question.content!''}\n"
-                        + "</@fly_questioninfo>");
 
-        add(data, "问答", "fly_answerpage", "回答列表",
-                "某问题的回答分页列表。",
-                "answer_page（分页对象，数据行取 answer_page.list）",
-                params(p("questionId", true, "问题 id"),
-                        p("userId", false, "回答人 id"),
-                        p("addTime", false, "按回答时间筛选"),
-                        p("status", false, "状态过滤"),
-                        p("orderby", false, "排序列"),
-                        p("order", false, "asc/desc"),
-                        p("p", false, "页码"),
-                        p("rows", false, "每页条数")),
-                "<@fly_answerpage questionId=\"${(id)!0}\" rows=\"10\">\n"
-                        + "  <#if (answer_page.list)??>\n"
-                        + "    <#list answer_page.list as a><li>${a.content}</li></#list>\n"
-                        + "  </#if>\n"
-                        + "</@fly_answerpage>");
 
-        add(data, "问答", "fly_answerinfo", "回答详情",
-                "按 id 取单条回答。",
-                "answer",
-                params(p("answerId", true, "回答 id"),
-                        p("status", false, "状态过滤")),
-                "<@fly_answerinfo answerId=\"${(answerId)!0}\">\n"
-                        + "  <div>${answer.content!''}</div>\n"
-                        + "</@fly_answerinfo>");
 
-        add(data, "问答", "fly_newest_answerinfo", "最新回答",
-                "取某问题下的最新一条回答，详情页「最新回复」场景。",
-                "answer",
-                params(p("questionId", true, "问题 id")),
-                "<@fly_newest_answerinfo questionId=\"${(id)!0}\">\n"
-                        + "  <div>${answer.content!''}</div>\n"
-                        + "</@fly_newest_answerinfo>");
 
         // /////////////////// 分享 ///////////////////
 
-        add(data, "分享", "fly_sharepage", "分享列表",
-                "分享模块分页列表。",
-                "share_page（分页对象，数据行取 share_page.list）",
-                params(p("title", false, "标题模糊匹配"),
-                        p("userId", false, "分享人 id"),
-                        p("createTime", false, "按分享时间筛选"),
-                        p("status", false, "状态过滤"),
-                        p("orderby", false, "排序列"),
-                        p("order", false, "asc/desc"),
-                        p("p", false, "页码"),
-                        p("rows", false, "每页条数")),
-                "<@fly_sharepage rows=\"10\">\n"
-                        + "  <#if (share_page.list)??>\n"
-                        + "    <#list share_page.list as s><li>${s.title}</li></#list>\n"
-                        + "  </#if>\n"
-                        + "</@fly_sharepage>");
 
-        add(data, "分享", "fly_shareinfo", "分享详情",
-                "按 id 取单条分享。",
-                "share",
-                params(p("id", true, "分享 id"),
-                        p("status", false, "状态过滤")),
-                "<@fly_shareinfo id=\"${(id)!0}\">\n"
-                        + "  <h1>${share.title!''}</h1>\n"
-                        + "</@fly_shareinfo>");
 
         // /////////////////// 专题 / 话题 ///////////////////
 
@@ -727,41 +637,8 @@ public class TagManualService {
                         + "  </#if>\n"
                         + "</@fly_infopage>");
 
-        add(data, "通用", "fly_guidepage", "导航列表",
-                "后台「导航管理」维护的顶部导航分页列表。",
-                "guide_page（分页对象，数据行取 guide_page.list）",
-                params(p("name", false, "导航分组名"),
-                        p("status", false, "状态过滤"),
-                        p("orderby", false, "排序列"),
-                        p("order", false, "asc/desc"),
-                        p("p", false, "页码"),
-                        p("rows", false, "条数，默认 10")),
-                "<@fly_guidepage rows=\"8\">\n"
-                        + "  <#if (guide_page.list)??>\n"
-                        + "    <#list guide_page.list as g><a href=\"${g.link}\">${g.name}</a></#list>\n"
-                        + "  </#if>\n"
-                        + "</@fly_guidepage>");
 
-        add(data, "通用", "fly_linkspage", "友情链接",
-                "按类型/展示位输出友链（图文/文字）分页列表。",
-                "link_page（分页对象，数据行取 link_page.list）",
-                params(p("type", false, "类型过滤"),
-                        p("show", false, "展示位过滤"),
-                        p("p", false, "页码"),
-                        p("rows", false, "条数，默认 10")),
-                "<@fly_linkspage rows=\"20\">\n"
-                        + "  <#if (link_page.list)??>\n"
-                        + "    <#list link_page.list as l><a href=\"${l.linkUrl!''}\">${l.linkName!''}</a></#list>\n"
-                        + "  </#if>\n"
-                        + "</@fly_linkspage>");
 
-        add(data, "通用", "fly_announcement_model", "站内公告",
-                "后台「公告管理」发布的站内公告列表（仅启用且时间窗内）。",
-                "announcementList",
-                params(p("rows", false, "条数，默认 5")),
-                "<@fly_announcement_model rows=\"5\">\n"
-                        + "  <#list announcementList as n><li>${n.title}</li></#list>\n"
-                        + "</@fly_announcement_model>");
 
         add(data, "通用", "fly_form", "自定义表单",
                 "渲染后台「表单生成器」建的表单（含 fields 字段列表）。",
@@ -775,16 +652,6 @@ public class TagManualService {
                         + "  </form>\n"
                         + "</@fly_form>");
 
-        add(data, "通用", "fly_order", "分享订单",
-                "判断 (shareId, userId, createTime) 是否已产生订单（布尔结果，不返回订单实体）。",
-                "order（boolean，true=已下单）",
-                params(p("shareId", false, "分享 id"),
-                        p("userId", false, "用户 id"),
-                        p("createTime", false, "按下单时间筛选")),
-                "<@fly_order shareId=\"${(shareId)!0}\" userId=\"${(userId)!0}\">\n"
-                        // order 是 boolean（orderService.checkShareOrder 返回值），直接判真假
-                        + "  <#if order!false>已下单</#if>\n"
-                        + "</@fly_order>");
 
         add(data, "通用", "fly_scoredetailpage", "积分明细分页",
                 "积分流水分页列表。",

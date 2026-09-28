@@ -2,8 +2,8 @@ package com.flycms.web.api;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
-import com.flycms.module.question.model.Images;
-import com.flycms.module.question.service.ImagesService;
+import com.flycms.module.images.model.Images;
+import com.flycms.module.images.service.ImagesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
