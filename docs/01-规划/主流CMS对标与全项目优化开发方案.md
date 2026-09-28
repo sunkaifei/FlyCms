@@ -643,6 +643,20 @@ CREATE TABLE `fly_automation_rule` (
 | P | 20~30 | 富文本结构化改造最重（涉及存量数据） |
 | R | 8~14 | XML 迁移 + 仓库瘦身 + 配置外部化 |
 
+### 9.3 实施进度
+
+> 图例：`[x]` 已完成并验收 / `[~]` 部分完成 / `[ ]` 未开始
+
+#### 阶段 K —— 工程底座补齐（**已完成**）
+
+| # | 事项 | 状态 | 交付物与验收证据 |
+|---|---|---|---|
+| K1 | 全局异常契约（G1） | `[x]` | 新增 `core/entity/ErrorVo`、`core/exception/GlobalExceptionHandler`（`@RestControllerAdvice(basePackages="com.flycms.web.api")`）、`core/exception/BusinessException`、`filter/TraceIdFilter`；`Application` 恢复 `ErrorMvcAutoConfiguration`。**实测**：未登录 `GET /api/auth/codes` → `401` + `{"code":40101,"message":"未登录或登录态已失效","path":...,"status":401,"timestamp":...,"traceId":"..."}`，响应头含 `X-Trace-Id`；前台 `/403`、`/404`、`/500` 主题页与首页 200 全部不受影响 |
+| K2 | CSRF + 安全头 + SameSite + CORS 配置化（G2） | `[x]` | 新增 `config/CsrfConfig`、`filter/CsrfFilter`（双提交 Cookie，**默认监听模式**，实测 85 条 `CSRF 监听` 日志）、`filter/SecurityHeaderFilter`；`session.cookie` 加 `sameSite=lax`，prod 加 `secure=true`；`CorsConfig` 白名单改为 `flycms.cors.allowed-hosts` 配置项（dev 仅本机 / prod 仅真实域名）并改用 `FilterRegistrationBean` 置顶；**删除**重复的 `filter/CorsFilter`（原全局 `Access-Control-Allow-Origin: *`）。实测响应含 `X-Content-Type-Options` / `X-Frame-Options` / `Referrer-Policy` / `Content-Security-Policy` 与 `XSRF-TOKEN` Cookie |
+| K3 | MVC 装配回归（G3） | `[x]` | `WebMvcConfig` 由 `extends WebMvcConfigurationSupport` 改为 `implements WebMvcConfigurer`；**连带修正 `WebSocketConfig` 同类继承**（两个子类各继承一份 `@Bean localeResolver` → `BeanDefinitionOverrideException`）。验收：**e2e PASS 51 / FAIL 0**、静态资源 200（`/assets/**`）、雪花 ID 序列化未回退 |
+| K4 | 测试与 CI（G4） | `[x]` | 新增 `src/test`：**31 个用例（30 通过 / 1 按环境跳过）**——`CheckUrlUtilsTest`（权限通配符，越权红线）、`SqlSafeUtilTest`（动态 SQL 标识符）、`UploadSafeUtilTest`（上传三重校验/双后缀绕过）、`DataVoTest`、`ErrorVoTest`，以及 `ApiErrorContractIntegrationTest`（Testcontainers MySQL 5.7，无 Docker 自动跳过，CI 上执行）；新增 `.github/workflows/ci.yml` 三 job（backend-test / backend-build / frontend-check）；`.gitignore` 改为 `tools/*` + 4 条否定规则，验收脚本入库 |
+| K5 | 拆循环依赖（G5） | `[x]` | 删除 `spring.main.allow-circular-references`，并**拆掉由此暴露的三组循环**：① `UserService ↔ UserSessionUtils` → 新增 `UserSessionStore`（只依赖 DAO）；② `QuestionService ↔ AnswerService` → `AnswerService` 改用已有 `questionDao`；③ `AbstractTagPlugin.init()` 在 `@PostConstruct` 中 `getBean(自身)` 的自循环 → 改用 `this`。验收：**无该项配置下应用正常启动**（启动失败自证拆干净） |
+
 ---
 
 ## 10. 决策复审：原"不做清单"的再评估

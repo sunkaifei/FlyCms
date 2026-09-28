@@ -15,6 +15,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>24</java.version>
+        <!-- 阶段 K4：Boot 4.1.1 BOM 未纳入 testcontainers，显式锁版本 -->
+        <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -211,6 +213,24 @@
             <artifactId>lombok</artifactId>
             <version>1.18.48</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- 阶段 K4/G4：集成测试基础设施。无 Docker 环境自动跳过（@EnabledIf 条件），CI 上执行 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

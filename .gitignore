@@ -53,7 +53,13 @@ coverage/
 .workbuddy/
 
 # 本地辅助工具（WP 主题转换等，不入库）
-tools/
+# 阶段 K4/G4：验收基线脚本必须随仓库分发（否则协作者拿不到回归门禁），
+# 故用 tools/* + 否定规则，而不是排除整个 tools/ 目录。
+tools/*
+!tools/e2e_template_check.py
+!tools/audit_extra_check.py
+!tools/CapSolver.java
+!tools/trigger_backup.py
 
 # 运行时产物（不入库）：备份可由后台再生成、静态化输出可随时重建
 backend/backup/

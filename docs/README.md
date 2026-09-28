@@ -25,7 +25,7 @@
 
 | 文档 | 类型 | 涉及模块 | 状态 | 最后更新 |
 |---|---|---|---|---|
-| [主流CMS对标与全项目优化开发方案](01-规划/主流CMS对标与全项目优化开发方案.md) | 规划 | 全站（K–R 阶段） | **待启动**；含 30 项差距矩阵（G1–G30）、20 条主流 CMS 最优解提取、架构/路径优化建议 | 2026-09-28 |
+| [主流CMS对标与全项目优化开发方案](01-规划/主流CMS对标与全项目优化开发方案.md) | 规划 | 全站（K–R 阶段） | **阶段 K 已完成并验收**（K1–K5 全绿）；含 30 项差距矩阵（G1–G30）、20 条主流 CMS 最优解提取、架构/路径优化建议 | 2026-09-28 |
 | [全智能CMS对标分析与开发规划](01-规划/全智能CMS对标分析与开发规划.md) | 规划 | 全站（A–J 阶段） | A–J 已基本落地；**本轮修订**过期版本号/标签数/表数与 3 处失效引用 | 2026-09-28 |
 | [前台模板引擎重新设计开发方案](01-规划/前台模板引擎重新设计开发方案.md) | 规划 | 模板 / 主题 / 前端 | **P1–P10 + P4 全部落地**（复核降级项已随 P4 修复） | 2026-09-28 |
 | [模板引擎补齐执行清单](01-规划/模板引擎补齐执行清单.md) | 执行清单 | 模板 / 主题 / 前端 / 配置 | **26 项交付（25 `[x]` + P4-9 `[~]`）**；P4 的 D1–D6 缺陷已全部修复；唯余 P4-9 浏览器走查待干净环境补验 | 2026-09-28 |
@@ -47,16 +47,20 @@
 | `tools/e2e_template_check.py` | **正向验收**：已知能力的用例（自带登录与现场还原，退出码非 0 = 有 FAIL）。最后运行 **PASS 51 / FAIL 0** |
 | `tools/audit_extra_check.py` | **缺陷修复回归**（P4 修复后翻转为正向断言）：D1–D6 的修复仍有效 = PASS，回退 = FAIL。最后运行 **PASS 16 / FAIL 0** |
 | `tools/CapSolver.java` | 后台登录验证码识别器（4 帧 GIF 动画验证码，供 e2e 自动登录） |
+| `backend/src/test/**` | **单元/集成测试**（阶段 K4）：31 个用例（30 通过 + 1 按环境跳过），`mvn test` 运行 |
 
 ```bash
 # MySQL 与后端起来后
 C:/Users/kaife/.workbuddy/binaries/python/envs/default/Scripts/python.exe tools/e2e_template_check.py
 C:/Users/kaife/.workbuddy/binaries/python/envs/default/Scripts/python.exe tools/audit_extra_check.py
+
+# 后端测试（K4 新增，Air CI 见 .github/workflows/ci.yml）
+cd backend && mvn test
 ```
 
-> ⚠️ `tools/` 目录被 `.gitignore` 排除（仓库既有策略：「本地辅助工具，不入库」），
-> 这三个脚本**只存在于本地工作区**。需要随仓库分发时，把 `.gitignore` 的 `tools/` 改成
-> `tools/*` 并加 `!tools/e2e_template_check.py`、`!tools/audit_extra_check.py`、`!tools/CapSolver.java` 三条否定规则。
+> ℹ️ 阶段 K4 起 `tools/` 已改为「**目录内默认可忽略 + 4 条否定规则**」——
+> `e2e_template_check.py`、`audit_extra_check.py`、`CapSolver.java`、`trigger_backup.py`
+> 四个验收基线脚本**随仓库分发**，其余本地辅助脚本仍不入库。
 
 ---
 

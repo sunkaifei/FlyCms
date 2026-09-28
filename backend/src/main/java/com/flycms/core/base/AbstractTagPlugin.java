@@ -61,7 +61,10 @@ public abstract class AbstractTagPlugin extends ApplicationObjectSupport impleme
 		String className = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".") + 1);
 		String beanName = StringUtils.uncapitalize(className);
 		String tagName = "fly_" + StringHelperUtils.toUnderline(beanName);
-		freeMarkerConfigurer.getConfiguration().setSharedVariable(tagName, this.getApplicationContext().getBean(beanName));
+		// 阶段 K5/G5：原实现为 getApplicationContext().getBean(beanName) —— 在自身 @PostConstruct 中
+		// 向容器反查自身，形成 `xxxModel -> xxxModel` 自循环（此前靠 allow-circular-references 侥幸启动）。
+		// 这里要注册的就是当前实例，直接用 this 即可；标签类无 AOP 代理，this 与容器内实例一致。
+		freeMarkerConfigurer.getConfiguration().setSharedVariable(tagName, this);
 	}
 
 }

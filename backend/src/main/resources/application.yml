@@ -3,9 +3,6 @@ server:
 spring:
   application:
     name: FlyCms
-  main:
-    # 老项目存在 userService <-> userSessionUtils 等循环依赖，Boot 2.2+ 默认禁止，恢复原行为
-    allow-circular-references: true
   mvc:
     static-path-pattern: /**
   devtools:
@@ -30,6 +27,9 @@ spring:
       session:
          cookie:
            httpOnly: true
+           # 阶段 K2/G2：SameSite=Lax —— 阻止跨站请求携带会话 Cookie（CSRF 第一道防线）；
+           # 同时不影响从外部链接跳回后台的常规导航（Lax 允许顶层 GET 导航携带）。
+           sameSite: lax
       multipart:
         max-file-size: 2MB
         max-request-size: 2MB
@@ -105,6 +105,31 @@ site:
   #如需主域下多子站共享登录态，部署时改为实际域名，如 ".example.com"
   cookieDomain: ""
 
+# ============================================================
+# 安全与跨域（阶段 K2/G2）
+# ------------------------------------------------------------
+# 默认值面向开发：CORS 只放行本机，CSRF 处于"监听模式"（只记录不拦截）。
+# 生产由 prod profile 覆盖为真实域名并把 CSRF 切强制（见文末 prod 段）。
+# 详见《主流CMS对标与全项目优化开发方案》§7.2。
+# ============================================================
+flycms:
+  cors:
+    # 允许跨域的主机名白名单（逗号分隔，不带协议与端口）。空值=不启用 CORS（纯同源部署）
+    allowed-hosts: "localhost,127.0.0.1"
+  security:
+    csrf:
+      # false=监听模式（灰度），true=强制校验（无 token 的 /api 写操作返回 403）
+      enabled: false
+      header-name: "X-XSRF-TOKEN"
+      cookie-name: "XSRF-TOKEN"
+      path-prefix: "/api/"
+    csp:
+      # 保守策略：只禁嵌套/插件对象/篡改 base，不限制脚本与样式来源（避免打挂存量前台内联脚本）
+      policy: "frame-ancestors 'self'; object-src 'none'; base-uri 'self'"
+    hsts:
+      max-age: 31536000
+      include-subdomains: true
+
 ---
 # ============================================================
 # 生产 profile（§10 缓存与性能）
@@ -125,3 +150,17 @@ spring:
   devtools:
     # 生产必须关闭 devtools 自动重启（否则缓存与热重载相互打架）
     enabled: false
+  servlet:
+    session:
+      cookie:
+        # 阶段 K2/G2：生产强制 HTTPS-only Cookie
+        secure: true
+
+# 生产：CORS 只放行真实域名（不再出现 localhost）；CSRF 灰度期结束、确认无漏网端点后把
+# flycms.security.csrf.enabled 改为 true 即切强制（建议先观察日志中的 "CSRF 监听" 记录一周）。
+flycms:
+  cors:
+    allowed-hosts: "www.28844.com,28844.com"
+  security:
+    csrf:
+      enabled: false

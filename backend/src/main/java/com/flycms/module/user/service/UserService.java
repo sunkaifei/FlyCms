@@ -59,6 +59,13 @@ public class UserService {
     @Autowired
     private UserSessionUtils userSessionUtils;
 
+    /**
+     * 阶段 K5/G5：会话表存取下沉到本类，UserSessionUtils 改依赖它而非 UserService，
+     * 从而解除 UserService ↔ UserSessionUtils 的循环依赖。
+     */
+    @Autowired
+    private UserSessionStore userSessionStore;
+
     @Autowired
     private SiteConst siteConst;
     // ///////////////////////////////
@@ -251,9 +258,9 @@ public class UserService {
         }
     }
 
-    //添加用户保持登录状态记录
+    //添加用户保持登录状态记录（K5：委托 UserSessionStore，保持公开 API 不变）
     public int addUserSession(UserSession userSession) {
-        return userDao.addUserSession(userSession);
+        return userSessionStore.save(userSession);
     }
     // ///////////////////////////////
     // /////        刪除      ////////
@@ -743,9 +750,9 @@ public class UserService {
         return DataVo.success("验证码已发送，请去邮箱查收！", DataVo.NOOP);
     }
 
-    //添加用户保持登录状态记录
+    //添加用户保持登录状态记录（K5：委托 UserSessionStore）
     public int updateUserSession(UserSession session) {
-        return userDao.updateUserSession(session);
+        return userSessionStore.update(session);
     }
     // ///////////////////////////////
     // /////        查询      ////////
@@ -1126,7 +1133,6 @@ public class UserService {
      * @return
      */
     public boolean checkUserSessionByUserId(Long userId) {
-        int totalCount = userDao.checkUserSessionByUserId(userId);
-        return totalCount > 0 ? true : false;
+        return userSessionStore.existsByUserId(userId);
     }
 }

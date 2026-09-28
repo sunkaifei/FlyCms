@@ -5,7 +5,7 @@ import com.flycms.constant.SiteConst;
 import com.flycms.core.utils.Md5Utils;
 import com.flycms.module.user.model.User;
 import com.flycms.module.user.model.UserSession;
-import com.flycms.module.user.service.UserService;
+import com.flycms.module.user.service.UserSessionStore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +43,12 @@ import java.util.Date;
 @Service
 public class UserSessionUtils {
 
+    /**
+     * 阶段 K5/G5：原依赖 UserService 造成 UserService ↔ UserSessionUtils 循环依赖，
+     * 现将会话"判存/新增/更新"下沉到 UserSessionStore（只依赖 UserDao），循环解除。
+     */
     @Autowired
-    private UserService userService;
+    private UserSessionStore userSessionStore;
     @Autowired
     private SiteConst siteConst;
 
@@ -96,10 +100,10 @@ public class UserSessionUtils {
         userSession.setUserId(user.getUserId());
         userSession.setExpireTime(expireTime);
         userSession.setUpdateTime(new Date());
-        if(userService.checkUserSessionByUserId(user.getUserId())){
-            userService.updateUserSession(userSession);
+        if(userSessionStore.existsByUserId(user.getUserId())){
+            userSessionStore.update(userSession);
         }else{
-            userService.addUserSession(userSession);
+            userSessionStore.save(userSession);
         }
     }
 
@@ -124,8 +128,8 @@ public class UserSessionUtils {
         userSession.setUserId(user.getUserId());
         userSession.setExpireTime(expireTime);
         userSession.setUpdateTime(new Date());
-        if(userService.checkUserSessionByUserId(user.getUserId())){
-            userService.updateUserSession(userSession);
+        if(userSessionStore.existsByUserId(user.getUserId())){
+            userSessionStore.update(userSession);
         }
     }
 

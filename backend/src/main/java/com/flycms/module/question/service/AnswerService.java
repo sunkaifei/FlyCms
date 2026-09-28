@@ -34,8 +34,6 @@ import java.util.List;
 @Service
 public class AnswerService {
     @Autowired
-    private QuestionService questionService;
-    @Autowired
     private AnswerDao answerDao;
     @Autowired
     protected UserService userService;
@@ -180,7 +178,10 @@ public class AnswerService {
         }
         answer.setContent(imagesService.replaceContent(1,answer.getId(),answer.getUserId(),answer.getContent()));
         answer.setLastTime(new Date());
-        Question question=questionService.findQuestionById(answer.getQuestionId(),0);
+        // 阶段 K5/G5：原为 questionService.findQuestionById(...)，会形成
+        // QuestionService ↔ AnswerService 循环依赖（QuestionService 删问题时需要遍历/删除答案）。
+        // 本类是"写路径"（修改答案），直接读 DAO 反而避免 @Cacheable 带来的脏读，行为更正确。
+        Question question=questionDao.findQuestionById(answer.getQuestionId(),0);
         if(question.getStatus()!=1){
             answer.setStatus(0);
         }else{
