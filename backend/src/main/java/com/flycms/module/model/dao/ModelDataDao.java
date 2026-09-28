@@ -99,6 +99,15 @@ public interface ModelDataDao {
     /** 探测某表是否含指定列（information_schema，结果由调用方缓存） */
     public boolean columnExists(@Param("suffix") String suffix, @Param("columnName") String columnName);
 
+    /**
+     * E1 关联展开：按 id 批量取目标模型内容的轻量列（{@code id / short_url / title / status}）。
+     *
+     * <p>只取展示必需列，避免关联展开把目标表的 longtext 正文拉回内存；
+     * 调用方（{@code ModelDataService.expandReferences}）以「一次批量查询」满足
+     * 「模板零二次查询」原则（模型手册 §7.3）。
+     */
+    public List<Map<String, Object>> findRowsByIds(@Param("suffix") String suffix, @Param("ids") List<Long> ids);
+
     // /////////////////// 附件（fly_images，AttachmentPicker 数据源） ///////////////////
 
     public List<Map<String, Object>> attachmentList(@Param("offset") int offset, @Param("rows") int rows);

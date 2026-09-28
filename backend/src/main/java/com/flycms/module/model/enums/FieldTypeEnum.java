@@ -27,7 +27,22 @@ public enum FieldTypeEnum {
     FILE("file", "bigint(20) unsigned", null),
     FILES("files", "json", null),
     /** 地区，数据源 fly_areas（前端暂用文本输入，级联后补） */
-    REGION("region", "varchar(64)", null);
+    REGION("region", "varchar(64)", null),
+    /**
+     * 单值关联（E1）：存目标模型内容的 id。目标模型 code 见 fly_model_field.relate_model；
+     * relate_model 留空表示关联本模型（自关联树，如回答的 parent_id）。
+     */
+    RELATE("relate", "bigint(20) unsigned", null),
+    /** 多值关联（E1）：id 数组（JSON）。 */
+    RELATES("relates", "json", null),
+    /**
+     * 直存 URL 的图片（E3）：不走 fly_images 引用计数。
+     * 用于存量模块（fly_topic.topic_image / fly_links.link_logo）这类「URL 直存」语义，
+     * 是《内容体系收敛》§10.3 附件语义冲突的正解——不反查 id，另存 URL。
+     */
+    IMAGE_URL("image_url", "varchar(500)", null),
+    /** 直存 URL 的附件（E3）：不走引用计数。 */
+    FILE_URL("file_url", "varchar(500)", null);
 
     private final String code;
     private final String ddl;
@@ -56,14 +71,32 @@ public enum FieldTypeEnum {
         return ddl != null;
     }
 
-    /** 是否 JSON 数组类型（checkbox/images/files） */
+    /** 是否 JSON 数组类型（checkbox/images/files/relates） */
     public boolean isJsonArray() {
-        return this == CHECKBOX || this == IMAGES || this == FILES;
+        return this == CHECKBOX || this == IMAGES || this == FILES || this == RELATES;
     }
 
-    /** 是否附件引用类型（值 = fly_images.id） */
+    /** 是否附件引用类型（值 = fly_images.id，参与引用计数） */
     public boolean isAttachment() {
         return this == IMAGE || this == IMAGES || this == FILE || this == FILES;
+    }
+
+    /**
+     * 是否关联引用类型（E1：值 = 目标模型的业务数据 id）。
+     * 目标模型 code 取 {@code fly_model_field.relate_model}；为空表示关联本模型。
+     */
+    public boolean isRelation() {
+        return this == RELATE || this == RELATES;
+    }
+
+    /** 是否「直存 URL」附件类型（E3：值就是 URL 字符串，不参与引用计数） */
+    public boolean isUrlType() {
+        return this == IMAGE_URL || this == FILE_URL;
+    }
+
+    /** 是否 text 系重列（列表查询不投影）：textarea 是 text，editor 走主表 content 通道 */
+    public boolean isHeavyText() {
+        return this == TEXTAREA || this == EDITOR;
     }
 
     /**

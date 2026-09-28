@@ -35,6 +35,8 @@ export interface ModelFieldRow {
   options?: string;
   placeholder?: string;
   regex?: string;
+  /** RELATE / RELATES 字段的目标模型 code（E1；关联本模型时=本模型 code） */
+  relateModel?: string;
   sort: number;
   tips?: string;
 }

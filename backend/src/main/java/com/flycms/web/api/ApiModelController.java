@@ -151,6 +151,7 @@ public class ApiModelController extends ApiBaseController {
         field.setRegex(params.get("regex"));
         field.setPlaceholder(params.get("placeholder"));
         field.setTips(params.get("tips"));
+        field.setRelateModel(params.get("relateModel"));
         field.setTabName(StringUtils.defaultIfBlank(params.get("tabName"), "基础信息"));
         field.setSort(parseInt(params.get("sort"), 0));
         if (field.getModelId() == null) {
@@ -179,6 +180,7 @@ public class ApiModelController extends ApiBaseController {
         field.setRegex(params.get("regex"));
         field.setPlaceholder(params.get("placeholder"));
         field.setTips(params.get("tips"));
+        field.setRelateModel(params.get("relateModel"));
         field.setTabName(StringUtils.defaultIfBlank(params.get("tabName"), "基础信息"));
         field.setSort(parseInt(params.get("sort"), 0));
         field.setStatus(parseInt(params.get("status"), 1));
@@ -212,6 +214,7 @@ public class ApiModelController extends ApiBaseController {
     @GetMapping("/system/modelData/list/{modelId}")
     public DataVo dataList(@PathVariable Long modelId,
                            @RequestParam(value = "p", defaultValue = "1") int pageNum,
+                           @RequestParam(value = "rows", defaultValue = "20") int rows,
                            @RequestParam(value = "title", required = false) String title,
                            @RequestParam(value = "status", required = false) Integer status,
                            @RequestParam(value = "categoryId", required = false) Long categoryId,
@@ -221,13 +224,18 @@ public class ApiModelController extends ApiBaseController {
         requirePermission("/api/system/modelData/list");
         Map<String, String> filters = new HashMap<>(allParams);
         filters.remove("p");
+        filters.remove("rows");
         filters.remove("title");
         filters.remove("status");
         filters.remove("categoryId");
         filters.remove("orderby");
         filters.remove("order");
+        // rows 由调用方指定（关联选择器需一次取更多候选），上限 200 防滥用
+        int pageSize = Math.min(Math.max(rows, 1), 200);
         PageVo<Map<String, Object>> pageVo = modelDataService.selectPage(
-                modelId, title, categoryId, status, filters, orderby, order, pageNum, 20, null, false);
+                modelId, title, categoryId, status, filters, orderby, order, pageNum, pageSize, null, false);
+        // 附件/关联展开（E1）：后台列表也能显示关联内容名而非裸 id
+        modelDataService.expandAttachments(modelId, pageVo.getList());
         return DataVo.success("操作成功", pageVo);
     }
 
@@ -246,6 +254,8 @@ public class ApiModelController extends ApiBaseController {
         if (row == null) {
             return DataVo.failure("内容不存在");
         }
+        // 附件/关联展开（E1）：编辑弹窗需要 {field}Obj / {field}List 做回显
+        modelDataService.expandAttachments(modelId, java.util.Collections.singletonList(row));
         return DataVo.success("操作成功", row);
     }
 

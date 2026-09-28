@@ -81,7 +81,7 @@ function openAdd() {
 
 function openEdit(row: ModelFieldRow) {
   fieldModalApi
-    .setData({ onSaved: () => gridApi.query(), record: row })
+    .setData({ modelId, onSaved: () => gridApi.query(), record: row })
     .open();
 }
 

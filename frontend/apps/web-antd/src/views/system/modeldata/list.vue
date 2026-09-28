@@ -108,6 +108,18 @@ function parseOptions(optionsJson?: string) {
 
 function cellText(record: Record<string, any>, column: any): string {
   const key = column?.key as string;
+  // E1 关联引用：优先显示展开后的目标内容标题，而非裸 id
+  const obj = key ? record[`${key}Obj`] : undefined;
+  if (obj && typeof obj === 'object') {
+    return String((obj as Record<string, any>).title ?? '');
+  }
+  const list = key ? record[`${key}List`] : undefined;
+  if (Array.isArray(list)) {
+    return list
+      .map((r: any) => String(r?.title ?? ''))
+      .filter(Boolean)
+      .join('、');
+  }
   const v = key ? record[key] : undefined;
   if (v === undefined || v === null) return '-';
   if (typeof v === 'object') {

@@ -158,7 +158,7 @@ public class ModelDataService {
                 continue;
             }
             // editor 不建列（正文走 content 通道）；textarea 是重列，列表不投影
-            if (!type.hasColumn() || type == FieldTypeEnum.TEXTAREA) {
+            if (!type.hasColumn() || type.isHeavyText()) {
                 continue;
             }
             String name;
@@ -214,7 +214,7 @@ public class ModelDataService {
         Map<String, Object> values = new HashMap<>();
         List<String> columns = new ArrayList<>();
         List<Long> refIds = new ArrayList<>();
-        DataVo check = buildDynamicValues(fields, form, values, columns, refIds);
+        DataVo check = buildDynamicValues(fields, form, values, columns, refIds, tableSuffixOf(modelId));
         if (check.getCode() != DataVo.CODE_SUCCESS) {
             return check;
         }
@@ -263,7 +263,7 @@ public class ModelDataService {
         List<String> columns = new ArrayList<>();
         List<Long> oldRefs = collectAttachmentIds(fields, old);
         List<Long> newRefs = new ArrayList<>();
-        DataVo check = buildDynamicValues(fields, form, values, columns, newRefs);
+        DataVo check = buildDynamicValues(fields, form, values, columns, newRefs, tableSuffixOf(modelId));
         if (check.getCode() != DataVo.CODE_SUCCESS) {
             return check;
         }
@@ -364,6 +364,96 @@ public class ModelDataService {
                 }
             }
         }
+        // E1：同一个入口顺带展开关联引用，调用方无需改动
+        expandReferences(tableSuffixOf(modelId), fields, rows);
+    }
+
+    /**
+     * E1 关联展开：RELATE → 字段名+"Obj"（目标内容 Map）；RELATES → 字段名+"List"（目标内容 List）。
+     *
+     * <p>与 {@link #expandAttachments} 同构，但目标不是 `fly_images` 而是另一个模型数据表。
+     * 目标表由 {@link ModelField#getRelateModel()} 决定，留空表示本模型（自关联树，如回答的 parent_id）。
+     * <b>一次批量查询</b>满足"模板零二次查询"（模型手册 §7.3）：<br>
+     * {@code ${(item.brand_idObj.title)!''}} / {@code <#list item.tag_idList as t>${t.title}}</#list>}
+     *
+     * <p>悬空引用（目标已删）不抛异常，直接不放入结果 —— 模板侧用 {@code ??} 判空降级。
+     */
+    private void expandReferences(String selfSuffix, List<ModelField> fields, List<Map<String, Object>> rows) {
+        for (ModelField f : fields) {
+            FieldTypeEnum type;
+            try {
+                type = FieldTypeEnum.of(f.getFieldType());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            if (!type.isRelation()) {
+                continue;
+            }
+            String target = referenceTargetSuffix(f, selfSuffix);
+            if (target == null) {
+                continue;
+            }
+            // 第一遍：按行解析出引用的 id
+            Map<Map<String, Object>, List<Long>> perRow = new java.util.IdentityHashMap<>();
+            java.util.Set<Long> all = new java.util.LinkedHashSet<>();
+            for (Map<String, Object> row : rows) {
+                List<Long> ids = readReferenceIds(type, f, row);
+                if (ids.isEmpty()) {
+                    continue;
+                }
+                perRow.put(row, ids);
+                all.addAll(ids);
+            }
+            if (all.isEmpty()) {
+                continue;
+            }
+            // 第二遍：一次批量取回目标行（只取展示列）
+            List<Map<String, Object>> targets =
+                    modelDataDao.findRowsByIds(target, new ArrayList<>(all));
+            normalizeKeys(targets);
+            Map<Long, Map<String, Object>> byId = new HashMap<>();
+            for (Map<String, Object> t : targets) {
+                Object tid = t.get("id");
+                if (tid != null) {
+                    byId.put(Long.parseLong(String.valueOf(tid)), t);
+                }
+            }
+            for (Map.Entry<Map<String, Object>, List<Long>> e : perRow.entrySet()) {
+                Map<String, Object> row = e.getKey();
+                if (type == FieldTypeEnum.RELATE) {
+                    row.put(f.getFieldName() + "Obj", byId.get(e.getValue().get(0)));
+                } else {
+                    List<Map<String, Object>> list = new ArrayList<>();
+                    for (Long id : e.getValue()) {
+                        Map<String, Object> t = byId.get(id);
+                        if (t != null) {
+                            list.add(t);
+                        }
+                    }
+                    row.put(f.getFieldName() + "List", list);
+                }
+            }
+        }
+    }
+
+    /** 读取一行里某关联字段引用的 id 列表（RELATE 单值 / RELATES JSON 数组） */
+    private List<Long> readReferenceIds(FieldTypeEnum type, ModelField f, Map<String, Object> row) {
+        Object v = row.get(f.getFieldName());
+        List<Long> ids = new ArrayList<>();
+        if (v == null) {
+            return ids;
+        }
+        try {
+            if (type == FieldTypeEnum.RELATE) {
+                ids.add(Long.parseLong(String.valueOf(v)));
+            } else {
+                for (String s : parseStringArray(String.valueOf(v))) {
+                    ids.add(Long.parseLong(s.trim()));
+                }
+            }
+        } catch (NumberFormatException ignored) {
+        }
+        return ids;
     }
 
     /**
@@ -405,9 +495,12 @@ public class ModelDataService {
     /**
      * 遍历字段定义校验 form 值并写入 values/columns（列名过白名单）。
      * refIds 收集附件引用（fly_images.id，含 JSON 数组内 id）。
+     *
+     * @param selfSuffix 本模型的物理表后缀，供 RELATE 自关联（relate_model 留空）解析目标表
      */
     private DataVo buildDynamicValues(List<ModelField> fields, Map<String, String> form,
-                                      Map<String, Object> values, List<String> columns, List<Long> refIds) {
+                                      Map<String, Object> values, List<String> columns, List<Long> refIds,
+                                      String selfSuffix) {
         for (ModelField f : fields) {
             String raw = form.get(f.getFieldName());
             boolean blank = StringUtils.isBlank(raw);
@@ -437,6 +530,55 @@ public class ModelDataService {
                     case DATETIME:
                         v = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(raw.trim().replace('T', ' '));
                         break;
+                    case RELATE: {
+                        // E1 单值关联：目标内容必须存在且 status=1（防悬空引用）
+                        long rid;
+                        try {
+                            rid = Long.parseLong(raw.trim());
+                        } catch (NumberFormatException e) {
+                            return DataVo.failure(f.getFieldLabel() + "引用格式不正确");
+                        }
+                        DataVo rel = checkReferences(f, selfSuffix, Arrays.asList(rid));
+                        if (rel.getCode() != DataVo.CODE_SUCCESS) {
+                            return rel;
+                        }
+                        v = rid;
+                        break;
+                    }
+                    case RELATES: {
+                        // E1 多值关联：存 id 数组（JSON），逐个校验存在且已发布
+                        List<String> arr = parseStringArray(raw);
+                        if (arr.isEmpty() && f.getIsRequired() == 1) {
+                            return DataVo.failure(f.getFieldLabel() + "不能为空");
+                        }
+                        List<Long> ids = new ArrayList<>();
+                        for (String a : arr) {
+                            try {
+                                ids.add(Long.parseLong(a.trim()));
+                            } catch (NumberFormatException e) {
+                                return DataVo.failure(f.getFieldLabel() + "含有非法引用：" + a);
+                            }
+                        }
+                        if (!ids.isEmpty()) {
+                            DataVo rel = checkReferences(f, selfSuffix, distinct(ids));
+                            if (rel.getCode() != DataVo.CODE_SUCCESS) {
+                                return rel;
+                            }
+                        }
+                        v = JSON.toJSONString(arr);
+                        break;
+                    }
+                    case IMAGE_URL:
+                    case FILE_URL: {
+                        // E3 直存 URL：不参与引用计数；值会直接输出到 src/href，必须拒绝可闭合属性的字符
+                        String url = raw.trim();
+                        if (url.indexOf('<') >= 0 || url.indexOf('>') >= 0
+                                || url.indexOf('"') >= 0 || url.indexOf('\'') >= 0) {
+                            return DataVo.failure(f.getFieldLabel() + "含非法字符（< > \" '）");
+                        }
+                        v = url;
+                        break;
+                    }
                     case CHECKBOX:
                     case IMAGES:
                     case FILES: {
@@ -507,6 +649,59 @@ public class ModelDataService {
             }
         }
         return DataVo.success("ok");
+    }
+
+    /**
+     * E1：校验关联引用的目标内容是否全部存在且已发布（status=1）。
+     * 目标表由 {@link ModelField#getRelateModel()} 决定；留空表示关联本模型（自关联树）。
+     */
+    private DataVo checkReferences(ModelField f, String selfSuffix, List<Long> ids) {
+        String target = referenceTargetSuffix(f, selfSuffix);
+        if (target == null) {
+            return DataVo.failure(f.getFieldLabel() + "的关联目标模型标识非法，请检查字段配置");
+        }
+        List<Map<String, Object>> rows = modelDataDao.findRowsByIds(target, ids);
+        long published = 0;
+        for (Map<String, Object> r : rows) {
+            if (toInt(r.get("status")) == 1) {
+                published++;
+            }
+        }
+        if (published < ids.size()) {
+            return DataVo.failure(f.getFieldLabel() + "引用的内容不存在或未发布");
+        }
+        return DataVo.success("ok");
+    }
+
+    /**
+     * E1：解析关联字段的目标表后缀。relate_model 留空 → 本模型（自关联树）；
+     * 否则按「存量表后缀豁免」白名单校验（与 ModelTableService 同口径）。
+     */
+    private String referenceTargetSuffix(ModelField f, String selfSuffix) {
+        String code = f.getRelateModel();
+        if (StringUtils.isBlank(code)) {
+            return selfSuffix;
+        }
+        try {
+            return SqlSafeUtil.safeTableSuffixForExisting(code);
+        } catch (IllegalArgumentException e) {
+            log.warn("字段[{}]的关联目标模型标识非法，已拒绝：{}", f.getFieldName(), code);
+            return null;
+        }
+    }
+
+    private int toInt(Object v) {
+        if (v == null) {
+            return -1;
+        }
+        if (v instanceof Number) {
+            return ((Number) v).intValue();
+        }
+        try {
+            return Integer.parseInt(String.valueOf(v).trim());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     private void putColumn(List<String> columns, Map<String, Object> values, String name, Object v) {

@@ -60,6 +60,19 @@ public class ModelFieldService {
         if (StringUtils.isBlank(field.getFieldLabel())) {
             return DataVo.failure("字段显示名不能为空");
         }
+        // E1：关联字段必须显式指定目标模型（关联本模型时填本模型 code，用于自关联树）
+        if (type.isRelation()) {
+            if (StringUtils.isBlank(field.getRelateModel())) {
+                return DataVo.failure("请选择被引用模型（关联本模型请选择「本模型」）");
+            }
+            String target = field.getRelateModel().trim();
+            if (!target.equals(model.getCode()) && modelService.findModelByCode(target) == null) {
+                return DataVo.failure("被引用模型不存在：" + target);
+            }
+            field.setRelateModel(target);
+        } else {
+            field.setRelateModel(null);
+        }
         if (modelFieldDao.checkFieldName(field.getModelId(), field.getFieldName())) {
             return DataVo.failure("字段名已存在");
         }
@@ -101,6 +114,21 @@ public class ModelFieldService {
         Model owner = modelService.findModelById(old.getModelId());
         if (owner == null) {
             return DataVo.failure("模型不存在");
+        }
+        // E1：类型不可改，故关联目标只能在「本就是关联字段」时维护；
+        // 未传时沿用原值（避免 XML 的 relate_model = #{relateModel} 把它清空）
+        if (oldType.isRelation()) {
+            if (StringUtils.isBlank(form.getRelateModel())) {
+                form.setRelateModel(old.getRelateModel());
+            } else {
+                String target = form.getRelateModel().trim();
+                if (!target.equals(owner.getCode()) && modelService.findModelByCode(target) == null) {
+                    return DataVo.failure("被引用模型不存在：" + target);
+                }
+                form.setRelateModel(target);
+            }
+        } else {
+            form.setRelateModel(null);
         }
         if (modelFieldDao.updateField(form) > 0) {
             if (!newColType.equals(oldColType)) {

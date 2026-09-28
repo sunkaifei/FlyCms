@@ -170,6 +170,17 @@
 		  AND column_name = #{columnName}
 	</select>
 
+	<!--
+	  E1 关联展开：按 id 批量取目标内容的展示列。
+	  列按 G11 口径显式投影（不取 longtext 正文）；ids 恒走 #{} 预编译。
+	-->
+	<select id="findRowsByIds" resultType="map">
+		SELECT `id`, `short_url`, `title`, `status`
+		FROM `fly_cmodel_${suffix}`
+		WHERE `id` IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</select>
+
 	<!-- 附件：fly_images（AttachmentPicker 数据源与引用计数） -->
 	<select id="attachmentList" resultType="map">
 		SELECT id, info_id AS infoId, img_url AS imgUrl, img_name AS imgName, info_count AS infoCount

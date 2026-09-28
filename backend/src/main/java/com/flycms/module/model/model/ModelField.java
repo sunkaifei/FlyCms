@@ -33,6 +33,11 @@ public class ModelField implements Serializable {
     private String regex;
     private String placeholder;
     private String tips;
+    /**
+     * RELATE / RELATES 字段的目标模型 code（E1）。
+     * 留空表示关联「本模型」——即自关联树场景（如回答的 parent_id）。
+     */
+    private String relateModel;
     /** 表单选项卡名（表单按此分组渲染，组内按 sort 排序） */
     private String tabName;
     private int sort;

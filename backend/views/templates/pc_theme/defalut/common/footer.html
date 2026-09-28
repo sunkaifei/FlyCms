@@ -1,18 +1,20 @@
 <#-- ============================================================
      全站尾：友情链接 + 版权/备案 + 统计代码（web_footer_code 原样输出）
+     友情链接由自定义模型 links（fly_cmodel_links）生产：后台「内容模型 → 友情链接」维护，
+     字段：title(链接名称) / link_url(地址) / link_logo(Logo, image_url) / link_type(0文字 1Logo) / sort
      ============================================================ -->
 <footer class="foot">
   <div class="wrap foot-in">
-    <@fly_linkspage type="0" show="2">
-    <#if (link_page.list)?? && link_page.list?size gt 0>
+    <@fly_list_model model="links" rows="20" orderby="sort" order="asc">
+    <#if (dataList)?? && dataList?size gt 0>
     <div class="flink">
       <b>友情链接</b>
-      <#list link_page.list as l>
-      <a href="${l.linkUrl!'/'}" target="_blank" rel="nofollow">${l.linkName!''}</a>
+      <#list dataList as l>
+      <a href="${(l.link_url)!(l.linkUrl)!'/'}" target="_blank" rel="nofollow">${l.title!''}</a>
       </#list>
     </div>
     </#if>
-    </@fly_linkspage>
+    </@fly_list_model>
     <div class="base">
       <div>© <span class="num">2018-2026</span> ${web_name!''} · Powered by FlyCms</div>
       <div><span class="num">${web_beian!''}</span></div>

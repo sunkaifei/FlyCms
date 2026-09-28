@@ -33,6 +33,8 @@
 
 ## 1. 一句话结论
 
+> **总纲（2026-09-28 定调，优先级高于本文一切分项）**：FlyCms 的核心技术就是**自定义模型引擎**——系统的一切内容模块（文章、图片、下载、问答、链接、话题……以及未来任何模块）都由后台**在线建模**生产，不做第二套硬编码实现。现存硬编码内容模块（article/share/question/topic/links/announcement/message/guide/favorite 等）属于历史包袱，按**阶段 U** 逐个退役：数据迁入 `fly_cmodel_*`、页面收敛到通用 `modeldata` 管理与 `cmodel` 模板通道、旧代码删除。目标形态 = **万能系统**：用户只靠后台设置就能生成任何想要的程序模块。
+
 **FlyCms 在"架构代差"上依然领先所有对标对象（前后端分离 SPA + 配置驱动建模 + 现代 JVM 栈），A–J 阶段补齐后，"通用建站 CMS 的功能全集"已基本闭合；当前真正的短板从"功能缺失"转移到了三个新层面：**
 
 1. **工程健壮性债务**（零单元测试、无全局异常契约、无 CSRF/安全头、循环依赖）——这是"能演示"与"能交付"的分界线；
@@ -619,8 +621,9 @@ CREATE TABLE `fly_automation_rule` (
 | **N** | **编辑体验与可配置性** | G16–G20 | P2/P3 | M | Live Preview、自动化规则、插件扩展点、设计令牌、配置即代码 |
 | **P** | **AI 原生能力** | G21–G24 | P3 | N（G24 可先行） | 语义搜索/RAG、AI 内容助手、MCP 接入 → **"全智能"名实相符** |
 | **R** | **工程债清偿** | G25–G30 | P3 | K（测试兜底） | 仓库瘦身、XML 归位、路由收敛、配置外部化、依赖升级 |
+| **U** | **旧模块退役与统一生产（宗旨落地）** | U1–U6 | **P1** | L（引擎 E1/E3 已验收） | 硬编码内容模块全部退役，一切内容由自定义模型生产 → **万能系统形态** |
 
-**关键路径**：`K → （L / M 并行） → N → P`；R 全程穿插（但 **XML 迁移必须在 K 之后**，否则无测试兜底）。
+**关键路径**：`K → （L / M 并行） → N → P`；R 全程穿插（但 **XML 迁移必须在 K 之后**，否则无测试兜底）；**U 与 M 并行推进**（U 是产品总纲，M 的内容治理能力必须落在自定义模型通道上，不为旧模块重复建设）。
 
 ### 9.1 阶段 K 详表（最先行）
 
@@ -753,6 +756,42 @@ CREATE TABLE fly_content_i18n (
 ```
 
 前台路由加 locale 前缀 `/{locale}/{channelDir}`（默认 locale 不带前缀，保证存量 URL 不变）。**成本可控点**：i18n 基础设施（`spring.messages`）已存在；菜单/模板文案走 messages，内容走 `fly_content_i18n`。
+
+---
+
+## 9.4 阶段 U —— 旧模块退役与统一生产（宗旨落地，新增于 2026-09-28）
+
+> **宗旨**：自定义模型引擎是本系统核心技术；一切内容模块由后台在线建模生产（万能系统）。
+> 引擎前置能力已验收：E1 关联引用（relate/relates，含目标存在性/发布状态校验 + `{field}Obj`/`{field}List` 读取展开）、E3 URL 型图片/文件（image_url/file_url，varchar(500) + XSS 字符拦截）——探针 11/11 PASS。
+> 退役路径（每个旧模块四步）：① `fly_model` 注册模型 + 种子字段 → ② 存量数据迁 `fly_cmodel_{code}`（有量才迁）→ ③ 后台页面收敛到通用 `modeldata`、前台模板走 `cmodel` 通道 → ④ 删除旧代码（module/ + web.front/ + web.api/ + 前端页面 + 旧模板 + 专用标签引用）。
+
+### U1 退役矩阵（实证于 2026-09-28 现场取证）
+
+| 旧模块 | 表与存量 | 目标自定义模型 | 特殊字段需求 | 退役难度 |
+|---|---|---|---|---|
+| 文章 article | `fly_article`(0 行) + `fly_article_category_merge` | `articles`（已注册 id=3） | 分类字段、tag、评论/顶踩走平台能力（E4/E7） | **高**（前台模板与标签引用最多，最后退役） |
+| 图片 images | `fly_images`(0 行) | `images`（已注册 id=1） | images/files 字段已有 | 低 |
+| 分享 share | `fly_share`(0 行) | `shares`（新建） | files 字段已有 | 低 |
+| 问答 question/answer | `fly_question`(0 行)/`fly_answer`(0 行) | `questions` + `answers`（answers 带 relate→questions + relate 自关联 parent） | E1 已具备 | 中（悬赏/采纳是业务逻辑，先用 number 字段表达） |
+| 话题 topic | `fly_topic`(**18 行**) | `topics`（新建） | E3 image_url 已具备 | **中**（有存量数据，需迁移） |
+| 链接 links | `fly_links`(**1 行**) | `links`（新建） | E3 image_url（link_logo） | **低（试点首选）** |
+| 公告 announcement | `fly_announcement`(0 行) | `announcements`（新建） | 无 | 低 |
+| 帮助 guide | `fly_guide`(**3 行**) | `guides`（新建） | 无 | 低 |
+| 留言 message | `fly_message`(**2 行**) | `messages`（新建） | 回复关系 = relate 自关联（E1 已具备） | 低 |
+| 话题聚合 topics（front） | — | 走 `fly_list_model` + 模型 code | — | 随 topic 退役 |
+| **保留例外** | `fly_favorite`/关注/Feed/积分/订单 | **不建模**——用户行为与交易属平台能力，不是内容模块 | — | — |
+
+### U2 施工顺序
+
+> **进度（2026-09-28）**：**U1 试点已完成并验收**——links 模块按四步法端到端退役：旧代码删除（`module/links`、`ApiLinksController`、`Linkspage` 标签、前端 `views/system/links` + `api/core/links.ts`、黑名单移除 `links`）→ 在线建模 `links` 模型（id=5，字段 link_url/link_logo(image_url)/link_type/sort）→ 存量 1 行迁入 `fly_cmodel_links`（旧表更名 `fly_retired_links_20260928` 留档）→ footer 模板改走 `<@fly_list_model model="links">`。**验收：首页 200、0 条 FreeMarker template error、友情链接正常渲染迁移数据；e2e PASS 51 / audit PASS 16。**
+
+1. **U1 试点**：`links`（1 行数据、模板简单）端到端跑通四步退役法，沉淀操作手册；
+2. **U2 批量**：guide / announcement / message / topic（含数据迁移）/ shares / questions+answers / images；
+3. **U3 收尾**：`article` 最后退役（前台模板 `article/`、`Articlepage` 标签、搜索、权重、投稿审核全部改指向 `articles` 模型后删除旧链路）；
+4. **U4 平台能力承接**：评论（E4）与收藏（E7）落为平台表（按 target_type+target_id 引用任意模型内容），替代旧模块内嵌实现；
+5. **U5 清理**：删除退役模块的权限节点/菜单/路由自检登记，更新标签手册。
+
+**验收口径**：`module/` 下不再有 article/share/question/topic/links/announcement/message/guide 内容模块目录；后台「内容」分组只剩「内容模型 + 内容数据（通用）+ 栏目」；前台任意主题模板用 `<@fly_page_model model="{code}">` 可渲染全部内容类型；e2e 与 audit 脚本全绿。
 
 ---
 

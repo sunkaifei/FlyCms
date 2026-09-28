@@ -58,10 +58,12 @@ public final class SqlSafeUtil {
             "images", "model", "model_field", "model_category",
             "user", "config", "config_web", "channel", "block", "block_item",
             "template", "template_version", "form", "form_field", "form_data",
-            "guide", "links", "job", "score", "score_detail", "score_rule", "message",
+            "guide", "job", "score", "score_detail", "score_rule", "message",
             "announcement", "share", "share_category", "share_comment",
             "question", "answer", "topic", "useraccount", "usergroup",
             "attachment", "captcha", "sms", "email", "log", "search");
+    // 注：links 已从黑名单移除——links 旧模块已退役（U1 试点），内容由自定义模型
+    // fly_cmodel_links 生产；其余条目随对应模块退役时逐个移除。
 
     /** 完整黑名单 = SQL 保留字 + 项目表名（新建模型用） */
     private static final Set<String> RESERVED_TABLE_SUFFIX;

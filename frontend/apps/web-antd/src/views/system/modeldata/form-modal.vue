@@ -17,6 +17,8 @@ import {
 
 import {
   getDataDetailApi,
+  getDataListApi,
+  getModelListApi,
   saveDataApi,
   updateDataApi,
   type ModelCategoryRow,
@@ -84,6 +86,46 @@ function pick(row: Record<string, any>, name: string) {
     .map((p, i) => (i === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1)))
     .join('');
   return row[camel];
+}
+
+// /////////// E1 关联字段（relate / relates）候选项 ///////////
+
+/** fieldName → 候选选项（目标模型的内容列表） */
+const relationOptions = ref<Record<string, { label: string; value: string }[]>>({});
+/** 目标模型 code 缓存（避免每个字段重复拉列表） */
+let modelCode2Id: Record<string, string> = {};
+
+async function loadRelationOptions(fieldsList: ModelFieldRow[]) {
+  const relFields = fieldsList.filter(
+    (f) => ['relate', 'relates'].includes(f.fieldType) && f.relateModel,
+  );
+  if (relFields.length === 0) return;
+  if (Object.keys(modelCode2Id).length === 0) {
+    try {
+      const res = await getModelListApi({ p: 1 });
+      modelCode2Id = Object.fromEntries(
+        (res.list ?? []).map((m) => [m.code, String(m.id)]),
+      );
+    } catch {
+      modelCode2Id = {};
+    }
+  }
+  for (const f of relFields) {
+    const targetId = modelCode2Id[f.relateModel as string];
+    if (!targetId) {
+      relationOptions.value[f.fieldName] = [];
+      continue;
+    }
+    try {
+      const res = await getDataListApi(targetId, { p: 1, rows: 200 });
+      relationOptions.value[f.fieldName] = (res.list ?? []).map((r) => ({
+        label: String(r.title ?? r.id),
+        value: String(r.id),
+      }));
+    } catch {
+      relationOptions.value[f.fieldName] = [];
+    }
+  }
 }
 
 // /////////// P7 内容模板指派（§8.3，对应 WP 后台 Page Template 下拉） ///////////
@@ -213,6 +255,8 @@ onMounted(async () => {
   if (data?.fields) fields.value = data.fields;
   if (data?.categories) categories.value = data.categories;
   if (data?.model) model.value = data.model;
+  // E1：关联字段候选项（目标模型内容列表），必须在回显取值之前就绪
+  await loadRelationOptions(fields.value);
 
   if (data?.record) {
     record.value = data.record;
@@ -233,7 +277,7 @@ onMounted(async () => {
     values.status = String(row.status ?? '0');
     for (const f of fields.value) {
       let v = pick(row, f.fieldName) ?? '';
-      if (f.fieldType === 'checkbox') {
+      if (f.fieldType === 'checkbox' || f.fieldType === 'relates') {
         try {
           v = v ? JSON.parse(String(v)) : [];
         } catch {
@@ -246,6 +290,9 @@ onMounted(async () => {
         typeof v === 'object'
       ) {
         v = '';
+      } else if (f.fieldType === 'relate') {
+        // E1 单值关联：Select 的 value 统一为字符串，避免雪花 ID 精度问题
+        v = v === '' || v === null ? undefined : String(v);
       }
       values[f.fieldName] = v;
     }
@@ -354,7 +401,7 @@ onMounted(async () => {
           <div
             v-for="f in fieldsOfTab(tab)"
             :key="f.id"
-            :class="f.fieldType === 'textarea' || f.fieldType === 'images' || f.fieldType === 'files' ? 'col-span-2' : ''"
+            :class="['textarea', 'images', 'files', 'relates', 'image_url'].includes(f.fieldType) ? 'col-span-2' : ''"
           >
             <div class="mb-1 text-sm">
               <span v-if="f.isRequired === 1" class="text-red-500">*</span>
@@ -408,6 +455,46 @@ onMounted(async () => {
               v-else-if="f.fieldType === 'images' || f.fieldType === 'files'"
               v-model:model-value="values[f.fieldName]"
               multiple
+            />
+            <!-- E1 关联引用：候选项来自目标模型内容列表（一次拉取，前端筛选） -->
+            <Select
+              v-else-if="f.fieldType === 'relate'"
+              v-model:value="values[f.fieldName]"
+              allow-clear
+              class="w-full"
+              option-filter-prop="label"
+              :options="relationOptions[f.fieldName] ?? []"
+              :placeholder="`选择${f.fieldLabel}（${f.relateModel}）`"
+              show-search
+            />
+            <Select
+              v-else-if="f.fieldType === 'relates'"
+              v-model:value="values[f.fieldName]"
+              allow-clear
+              class="w-full"
+              mode="multiple"
+              option-filter-prop="label"
+              :options="relationOptions[f.fieldName] ?? []"
+              :placeholder="`选择${f.fieldLabel}（${f.relateModel}）`"
+              show-search
+            />
+            <!-- E3 直存 URL：不走附件库引用计数 -->
+            <div v-else-if="f.fieldType === 'image_url'" class="w-full">
+              <Input
+                v-model:value="values[f.fieldName]"
+                :placeholder="f.placeholder || '图片 URL，如 /upload/2026/09/a.png'"
+              />
+              <img
+                v-if="values[f.fieldName]"
+                :alt="f.fieldLabel"
+                class="mt-1 max-h-24 rounded border"
+                :src="values[f.fieldName]"
+              />
+            </div>
+            <Input
+              v-else-if="f.fieldType === 'file_url'"
+              v-model:value="values[f.fieldName]"
+              :placeholder="f.placeholder || '附件 URL'"
             />
             <Textarea
               v-else-if="f.fieldType === 'textarea'"
