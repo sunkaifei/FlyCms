@@ -29,5 +29,11 @@ public interface ModelFieldDao {
 
     public List<ModelField> findFieldsByModelId(@Param("modelId") Long modelId, @Param("status") Integer status);
 
+    /** P2 反向引用：所有指向目标模型 code 的单值 RELATE 字段（跨模型） */
+    public List<ModelField> findRelateFieldsByTargetModel(@Param("code") String code);
+
+    /** P1：删除 GROUP/REPEATER 字段时级联删除其子字段元数据 */
+    public int deleteFieldsByParentId(@Param("parentId") Long parentId);
+
     public int updateFieldSort(@Param("id") Long id, @Param("sort") int sort);
 }

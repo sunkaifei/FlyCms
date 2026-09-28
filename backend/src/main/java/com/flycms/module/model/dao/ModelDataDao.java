@@ -109,8 +109,45 @@ public interface ModelDataDao {
      * <p>只取展示必需列，避免关联展开把目标表的 longtext 正文拉回内存；
      * 调用方（{@code ModelDataService.expandReferences}）以「一次批量查询」满足
      * 「模板零二次查询」原则（模型手册 §7.3）。
+     *
+     * @param extraColumns P2 Lookup 展示列（来自字段元数据 lookupFields，逐列过 safeColumnName，
+     *                     非用户输入），可空
      */
-    public List<Map<String, Object>> findRowsByIds(@Param("suffix") String suffix, @Param("ids") List<Long> ids);
+    public List<Map<String, Object>> findRowsByIds(@Param("suffix") String suffix, @Param("ids") List<Long> ids,
+                                                   @Param("extraColumns") List<String> extraColumns);
+
+    /**
+     * P2 Rollup：按引用列分组聚合。func 已过白名单（COUNT/SUM/AVG/MIN/MAX），
+     * valueColumn 已过 safeColumnName（func=COUNT 时为 null，SQL 侧按分支生成）。
+     */
+    public List<Map<String, Object>> rollupAggregate(@Param("suffix") String suffix,
+                                                     @Param("columnName") String columnName,
+                                                     @Param("func") String func,
+                                                     @Param("valueColumn") String valueColumn,
+                                                     @Param("ids") List<Long> ids);
+
+    /**
+     * P2 双向标注反查：source 表中 ${columnName}（RELATE 物理列）引用了 ids 的已发布行。
+     * 返回 refId（被引用的目标 id）/ id / shortUrl / title / status。
+     */
+    public List<Map<String, Object>> findReverseRefs(@Param("suffix") String suffix,
+                                                     @Param("columnName") String columnName,
+                                                     @Param("ids") List<Long> ids);
+
+    // /////////////////// M2A 多对任意（P2，fly_relation 中间表） ///////////////////
+
+    /** 覆盖式写入：先删后插（调用方保证 rows 非空） */
+    public void insertRelations(@Param("rows") List<Map<String, Object>> rows);
+
+    public void deleteRelations(@Param("fromModel") String fromModel, @Param("fromIds") List<Long> fromIds,
+                                @Param("fieldName") String fieldName);
+
+    /** 内容删除时按来源清理全部 m2a 关系（不分字段） */
+    public void deleteRelationsByFromIds(@Param("fromModel") String fromModel, @Param("fromIds") List<Long> fromIds);
+
+    public List<Map<String, Object>> findRelations(@Param("fromModel") String fromModel,
+                                                   @Param("fromIds") List<Long> fromIds,
+                                                   @Param("fieldName") String fieldName);
 
     // /////////////////// 附件（fly_images，AttachmentPicker 数据源） ///////////////////
 

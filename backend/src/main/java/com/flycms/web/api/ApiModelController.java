@@ -155,6 +155,12 @@ public class ApiModelController extends ApiBaseController {
         field.setIsUnique(parseInt(params.get("isUnique"), 0));
         field.setMinValue(parseDecimal(params.get("minValue")));
         field.setMaxValue(parseDecimal(params.get("maxValue")));
+        // P1 结构层：父字段（子字段）与条件显隐
+        field.setParentId(parseLong(params.get("parentId")));
+        field.setVisibleWhen(blankToNull(params.get("visibleWhen")));
+        // P2 关系层：Rollup 聚合表达式与 Lookup 展示列
+        field.setRollupExpr(blankToNull(params.get("rollupExpr")));
+        field.setLookupFields(blankToNull(params.get("lookupFields")));
         field.setTabName(StringUtils.defaultIfBlank(params.get("tabName"), "基础信息"));
         field.setSort(parseInt(params.get("sort"), 0));
         if (field.getModelId() == null) {
@@ -187,6 +193,10 @@ public class ApiModelController extends ApiBaseController {
         field.setIsUnique(parseInt(params.get("isUnique"), 0));
         field.setMinValue(parseDecimal(params.get("minValue")));
         field.setMaxValue(parseDecimal(params.get("maxValue")));
+        // P1/P2：visibleWhen/rollupExpr/lookupFields 未传（null）沿用原值；传空串 = 清除（服务端裁决）
+        field.setVisibleWhen(params.containsKey("visibleWhen") ? params.get("visibleWhen") : null);
+        field.setRollupExpr(params.containsKey("rollupExpr") ? params.get("rollupExpr") : null);
+        field.setLookupFields(params.containsKey("lookupFields") ? blankToNull(params.get("lookupFields")) : null);
         field.setTabName(StringUtils.defaultIfBlank(params.get("tabName"), "基础信息"));
         field.setSort(parseInt(params.get("sort"), 0));
         field.setStatus(parseInt(params.get("status"), 1));
@@ -363,6 +373,11 @@ public class ApiModelController extends ApiBaseController {
     }
 
     // /////////////////// 工具 ///////////////////
+
+    /** 空串转 null（P1/P2 新字段：显式传空 = 清除配置） */
+    private String blankToNull(String v) {
+        return StringUtils.isBlank(v) ? null : v;
+    }
 
     private Long parseLong(String v) {
         try {

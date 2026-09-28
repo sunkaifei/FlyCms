@@ -43,6 +43,14 @@ export interface ModelFieldRow {
   minValue?: number;
   /** 数值区间上限（number/decimal/rating） */
   maxValue?: number;
+  /** 父字段 id（P1：>0 = GROUP/REPEATER 子字段） */
+  parentId?: number;
+  /** 条件显隐 JSON（P1：{"field","op","value"}） */
+  visibleWhen?: string;
+  /** Rollup 聚合 JSON（P2：{"source","func","column"}） */
+  rollupExpr?: string;
+  /** Lookup 展示列 JSON 数组（P2：relate 展开目标行的额外列） */
+  lookupFields?: string;
   sort: number;
   tips?: string;
 }

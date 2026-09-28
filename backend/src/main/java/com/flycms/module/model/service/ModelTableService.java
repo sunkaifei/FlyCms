@@ -48,9 +48,12 @@ public class ModelTableService {
     }
 
     /**
-     * 新增自定义字段 → ALTER ADD COLUMN（editor 不建列）
+     * 新增自定义字段 → ALTER ADD COLUMN（editor 不建列；P1 子字段存父字段 JSON 内不建列）
      */
     public void addColumn(String code, ModelField field) {
+        if (field.getParentId() != null && field.getParentId() > 0) {
+            return;
+        }
         FieldTypeEnum type = FieldTypeEnum.of(field.getFieldType());
         String colType = type.resolveColumnType(field.getMaxlength());
         if (colType == null) {

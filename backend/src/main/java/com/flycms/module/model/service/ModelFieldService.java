@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 模型字段元数据服务：字段增删改 + 类型兼容校验 + DDL 联动。
@@ -21,6 +22,11 @@ import java.util.List;
  */
 @Service
 public class ModelFieldService {
+
+    /** visible_when 操作符白名单（P1 条件显隐） */
+    private static final Set<String> VISIBLE_OPS = Set.of("eq", "neq", "in", "notin", "empty", "notempty");
+    /** rollup 聚合函数白名单（P2） */
+    private static final Set<String> ROLLUP_FUNCS = Set.of("COUNT", "SUM", "AVG", "MIN", "MAX");
 
     @Autowired
     private ModelFieldDao modelFieldDao;
@@ -76,11 +82,43 @@ public class ModelFieldService {
         if (modelFieldDao.checkFieldName(field.getModelId(), field.getFieldName())) {
             return DataVo.failure("字段名已存在");
         }
+        // P1 子字段：parentId>0 时校验父字段为 GROUP/REPEATER 且同模型，子字段不建物理列
+        if (field.getParentId() != null && field.getParentId() > 0) {
+            ModelField parent = modelFieldDao.findFieldById(field.getParentId());
+            if (parent == null || parent.getModelId() != field.getModelId()) {
+                return DataVo.failure("父字段不存在或不属于当前模型");
+            }
+            if (!FieldTypeEnum.of(parent.getFieldType()).isStructure()) {
+                return DataVo.failure("只有字段组(group)/重复行(repeater)可以包含子字段");
+            }
+            if (!type.canBeStructureChild()) {
+                return DataVo.failure("该类型不能作为子字段");
+            }
+        } else {
+            field.setParentId(0L);
+        }
+        // P2 Rollup：虚拟字段，校验 rollup_expr 结构
+        if (type == FieldTypeEnum.ROLLUP) {
+            DataVo rollup = validateRollupExpr(field, model);
+            if (rollup.getCode() != DataVo.CODE_SUCCESS) {
+                return rollup;
+            }
+        } else {
+            field.setRollupExpr(null);
+        }
+        // P1 条件显隐：结构化校验（目标字段须为本模型顶层字段）
+        DataVo vis = validateVisibleWhen(field, model, null);
+        if (vis.getCode() != DataVo.CODE_SUCCESS) {
+            return vis;
+        }
         field.setColumnType(type.resolveColumnType(field.getMaxlength()));
         field.setStatus(1);
         field.setCreateTime(new Date());
         if (modelFieldDao.addField(field) > 0) {
-            modelTableService.addColumn(model.getCode(), field);
+            // 子字段/虚拟字段不建物理列（rollup/m2a 无列，结构子字段存父字段 JSON 内）
+            if ((field.getParentId() == null || field.getParentId() == 0) && !type.isVirtual()) {
+                modelTableService.addColumn(model.getCode(), field);
+            }
             modelService.evictCache(model.getCode(), field.getModelId());
             return DataVo.success("字段已添加，数据列已生成");
         }
@@ -130,6 +168,29 @@ public class ModelFieldService {
         } else {
             form.setRelateModel(null);
         }
+        // P1 条件显隐：未传沿用原值；传了做结构校验
+        if (form.getVisibleWhen() == null) {
+            form.setVisibleWhen(old.getVisibleWhen());
+        } else {
+            DataVo vis = validateVisibleWhen(form, owner, old.getId());
+            if (vis.getCode() != DataVo.CODE_SUCCESS) {
+                return vis;
+            }
+        }
+        // P2 Rollup：类型不可改，表达式只在本就是 rollup 字段时可维护
+        if (oldType == FieldTypeEnum.ROLLUP) {
+            if (form.getRollupExpr() == null) {
+                form.setRollupExpr(old.getRollupExpr());
+            } else {
+                form.setModelId(old.getModelId());
+                DataVo rollup = validateRollupExpr(form, owner);
+                if (rollup.getCode() != DataVo.CODE_SUCCESS) {
+                    return rollup;
+                }
+            }
+        } else {
+            form.setRollupExpr(null);
+        }
         if (modelFieldDao.updateField(form) > 0) {
             if (!newColType.equals(oldColType)) {
                 modelTableService.modifyColumn(owner.getCode(), old.getFieldName(), newColType);
@@ -141,7 +202,7 @@ public class ModelFieldService {
     }
 
     /**
-     * 删除字段：DROP COLUMN + 删元数据
+     * 删除字段：DROP COLUMN + 删元数据。GROUP/REPEATER 级联删除子字段元数据（结构存父字段 JSON 列内）。
      */
     public DataVo deleteField(Long id) {
         ModelField field = modelFieldDao.findFieldById(id);
@@ -152,10 +213,108 @@ public class ModelFieldService {
         if (owner == null) {
             return DataVo.failure("模型不存在");
         }
-        modelTableService.dropColumn(owner.getCode(), field.getFieldName());
+        FieldTypeEnum type = FieldTypeEnum.of(field.getFieldType());
+        // 子字段不占物理列；虚拟字段（rollup/m2a）也无列
+        if ((field.getParentId() == null || field.getParentId() == 0) && type.hasColumn()) {
+            modelTableService.dropColumn(owner.getCode(), field.getFieldName());
+        }
+        if (type.isStructure()) {
+            modelFieldDao.deleteFieldsByParentId(field.getId());
+        }
         modelFieldDao.deleteFieldById(id);
         modelService.evictCache(null, field.getModelId());
         return DataVo.success("字段已删除，数据列已移除");
+    }
+
+    // /////////////////// P1/P2 字段定义校验 ///////////////////
+
+    /**
+     * P2 Rollup 表达式校验：{"source":"关联字段名","func":"COUNT|SUM|AVG|MIN|MAX","column":"数值列"}。
+     * source 必须是本模型的单值 relate 字段（rollup v1 只聚合 RELATE 指向的目标行）；
+     * func 非 COUNT 时 column 必填且过列名白名单。
+     */
+    private DataVo validateRollupExpr(ModelField field, Model model) {
+        java.util.Map<String, Object> expr;
+        try {
+            expr = com.alibaba.fastjson2.JSON.parseObject(field.getRollupExpr());
+        } catch (Exception e) {
+            return DataVo.failure("rollup_expr 必须是 JSON 对象");
+        }
+        if (expr == null) {
+            return DataVo.failure("rollup_expr 不能为空");
+        }
+        String source = String.valueOf(expr.get("source"));
+        String func = String.valueOf(expr.get("func"));
+        String column = expr.get("column") == null ? null : String.valueOf(expr.get("column"));
+        ModelField src = null;
+        for (ModelField f : modelFieldDao.findFieldsByModelId(field.getModelId(), 1)) {
+            if (f.getFieldName().equals(source)) {
+                src = f;
+                break;
+            }
+        }
+        if (src == null || !"relate".equals(src.getFieldType())) {
+            return DataVo.failure("source 必须是本模型的单值关联字段（relate）：" + source);
+        }
+        if (!ROLLUP_FUNCS.contains(func)) {
+            return DataVo.failure("func 只允许 COUNT/SUM/AVG/MIN/MAX：" + func);
+        }
+        if (!"COUNT".equals(func)) {
+            if (column == null || column.isBlank()) {
+                return DataVo.failure(func + " 聚合必须指定目标列 column");
+            }
+            try {
+                SqlSafeUtil.safeColumnName(column);
+            } catch (IllegalArgumentException e) {
+                return DataVo.failure("聚合列非法：" + column);
+            }
+        }
+        // 归一化回写
+        java.util.Map<String, Object> normalized = new java.util.LinkedHashMap<>();
+        normalized.put("source", source);
+        normalized.put("func", func);
+        if (!"COUNT".equals(func)) {
+            normalized.put("column", column);
+        }
+        field.setRollupExpr(com.alibaba.fastjson2.JSON.toJSONString(normalized));
+        return DataVo.success("ok");
+    }
+
+    /**
+     * P1 条件显隐表达式校验：{"field":"字段名","op":"eq|neq|in|notin|empty|notempty","value":"比较值"}。
+     * 目标字段必须是同模型字段（更新场景排除自身）；值统一按字符串比较。
+     */
+    private DataVo validateVisibleWhen(ModelField field, Model model, Long excludeFieldId) {
+        if (StringUtils.isBlank(field.getVisibleWhen())) {
+            field.setVisibleWhen(null);
+            return DataVo.success("ok");
+        }
+        java.util.Map<String, Object> cond;
+        try {
+            cond = com.alibaba.fastjson2.JSON.parseObject(field.getVisibleWhen());
+        } catch (Exception e) {
+            return DataVo.failure("visible_when 必须是 JSON 对象");
+        }
+        String refField = String.valueOf(cond.get("field"));
+        String op = String.valueOf(cond.get("op"));
+        if (refField == null || refField.isBlank() || "null".equals(refField)) {
+            return DataVo.failure("visible_when 缺少 field");
+        }
+        if (!VISIBLE_OPS.contains(op)) {
+            return DataVo.failure("visible_when 的 op 只允许 eq/neq/in/notin/empty/notempty：" + op);
+        }
+        boolean refExists = false;
+        for (ModelField f : modelFieldDao.findFieldsByModelId(field.getModelId(), 1)) {
+            if (f.getFieldName().equals(refField)
+                    && (excludeFieldId == null || excludeFieldId != f.getId())) {
+                refExists = true;
+                break;
+            }
+        }
+        if (!refExists) {
+            return DataVo.failure("visible_when 引用的字段不存在：" + refField);
+        }
+        return DataVo.success("ok");
     }
 
     public void updateSort(Long id, int sort) {

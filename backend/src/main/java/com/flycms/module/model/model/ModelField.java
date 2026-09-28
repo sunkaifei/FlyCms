@@ -46,6 +46,28 @@ public class ModelField implements Serializable {
     private java.math.BigDecimal maxValue;
     /** 表单选项卡名（表单按此分组渲染，组内按 sort 排序） */
     private String tabName;
+    /**
+     * 父字段 id（P1 结构层）：>0 表示本字段是 GROUP/REPEATER 的子字段，不建物理列。
+     * 顶层字段为 0/null。
+     */
+    private Long parentId;
+    /**
+     * 条件显隐（P1，对标 ACF Conditional Logic）：JSON
+     * {@code {"field":"probe_switch","op":"eq","value":"1"}}。
+     * op 白名单：eq/neq/in/notin/empty/notempty。命中隐藏时后端跳过校验与写列。
+     */
+    private String visibleWhen;
+    /**
+     * Rollup 聚合表达式（P2）：JSON
+     * {@code {"source":"brand_id","func":"SUM","column":"price"}}。
+     * source 必须是本模型的 relate/relates 字段；func ∈ COUNT/SUM/AVG/MIN/MAX。
+     */
+    private String rollupExpr;
+    /**
+     * Lookup 展示列（P2）：JSON 字符串数组，relate/relates 展开目标行（{field}Obj/{field}List）时
+     * 额外取回的目标表列，如 ["price","cover"]。列名入库前过 safeColumnName。
+     */
+    private String lookupFields;
     private int sort;
     private int status;
     private Date createTime;

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import type { ModelFieldRow } from '#/api/core/model';
+import type { FormMeta, ModelFieldRow, ModelRow } from '#/api/core/model';
 
 import { Page } from '@vben/common-ui';
 import { useEditDrawer } from '#/utils/edit-drawer';
@@ -11,9 +11,10 @@ import { Button, message } from 'ant-design-vue';
 import { useRoute } from 'vue-router';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { deleteFieldApi, getFieldListApi } from '#/api/core/model';
+import { deleteFieldApi, getFieldListApi, getFormMetaApi } from '#/api/core/model';
 
 import FieldModal from './field-modal.vue';
+import FormPreviewModal from '../modeldata/form-modal.vue';
 
 defineOptions({ name: 'SystemModelField' });
 
@@ -25,6 +26,13 @@ const modelId = route.params.modelId as string;
 const [FieldModalComp, fieldModalApi] = useEditDrawer({
   connectedComponent: FieldModal,
   destroyOnClose: true,
+});
+
+// P1：建模后即时预览录入界面（PHPCMS 式「预览表单」，复用动态内容表单只读渲染）
+const [FormPreviewComp, formPreviewApi] = useEditDrawer({
+  connectedComponent: FormPreviewModal,
+  destroyOnClose: true,
+  footer: false,
 });
 
 const gridOptions: VxeTableGridOptions<ModelFieldRow> = {
@@ -54,7 +62,7 @@ const gridOptions: VxeTableGridOptions<ModelFieldRow> = {
       width: 70,
     },
     { field: 'sort', title: '排序', width: 70 },
-    { field: 'action', fixed: 'right', slots: { default: 'action' }, title: '操作', width: 140 },
+    { field: 'action', fixed: 'right', slots: { default: 'action' }, title: '操作', width: 190 },
   ],
   height: 'auto',
   proxyConfig: {
@@ -79,10 +87,37 @@ function openAdd() {
     .open();
 }
 
+function openAddChild(row: ModelFieldRow) {
+  fieldModalApi
+    .setData({
+      modelId,
+      onSaved: () => gridApi.query(),
+      parentId: row.id,
+      parentLabel: row.fieldLabel,
+    })
+    .open();
+}
+
 function openEdit(row: ModelFieldRow) {
   fieldModalApi
     .setData({ modelId, onSaved: () => gridApi.query(), record: row })
     .open();
+}
+
+async function openPreview() {
+  try {
+    const meta: FormMeta = await getFormMetaApi(modelId);
+    formPreviewApi
+      .setData({
+        categories: meta.categories ?? [],
+        fields: meta.fields ?? [],
+        model: meta.model as unknown as ModelRow,
+        preview: true,
+      })
+      .open();
+  } catch {
+    message.error('加载表单元数据失败');
+  }
 }
 
 async function onDelete(row: ModelFieldRow) {
@@ -96,6 +131,7 @@ async function onDelete(row: ModelFieldRow) {
   <Page auto-content-height>
     <Grid table-title="模型字段（字段名即数据表列名，创建后不可改）">
       <template #toolbar-tools>
+        <Button class="mr-2" @click="openPreview">预览表单</Button>
         <Button
           v-if="hasAccessByCodes(['/api/system/modelField/*'])"
           class="mr-2"
@@ -106,6 +142,15 @@ async function onDelete(row: ModelFieldRow) {
         </Button>
       </template>
       <template #action="{ row }">
+        <Button
+          v-if="['group', 'repeater'].includes(row.fieldType)"
+          class="mr-2 px-2"
+          size="small"
+          type="link"
+          @click="openAddChild(row)"
+        >
+          子字段
+        </Button>
         <Button
           class="mr-2 px-2"
           size="small"
@@ -127,5 +172,6 @@ async function onDelete(row: ModelFieldRow) {
       </template>
     </Grid>
     <FieldModalComp />
+    <FormPreviewComp />
   </Page>
 </template>

@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +38,9 @@ import java.util.Map;
 public class ModelDataService {
 
     private static final Logger log = LoggerFactory.getLogger(ModelDataService.class);
+
+    /** P2 Rollup 聚合函数白名单（与 ModelFieldService 校验一致） */
+    private static final java.util.Set<String> ROLLUP_FUNCS = java.util.Set.of("COUNT", "SUM", "AVG", "MIN", "MAX");
 
     @Autowired
     private ModelDataDao modelDataDao;
@@ -97,8 +99,8 @@ public class ModelDataService {
             where.add("id != #{params.notId}");
             params.put("notId", notId);
         }
-        // 自定义字段筛选：仅 is_filter=1 且值非空
-        for (ModelField f : fields) {
+        // 自定义字段筛选：仅 is_filter=1 且值非空（P1：结构子字段不占物理列，只遍历顶层字段）
+        for (ModelField f : topFields(fields)) {
             if (f.getIsFilter() != 1) {
                 continue;
             }
@@ -150,15 +152,17 @@ public class ModelDataService {
      */
     private List<String> listColumns(List<ModelField> fields) {
         List<String> columns = new ArrayList<>(LIST_BASE_COLUMNS);
-        for (ModelField f : fields) {
+        // P1：只遍历顶层字段——子字段存父字段 JSON 内，没有物理列，投影会直接 SQL 报错
+        for (ModelField f : topFields(fields)) {
             FieldTypeEnum type;
             try {
                 type = FieldTypeEnum.of(f.getFieldType());
             } catch (IllegalArgumentException e) {
                 continue;
             }
-            // editor 不建列（正文走 content 通道）；textarea 是重列，列表不投影
-            if (!type.hasColumn() || type.isHeavyText()) {
+            // editor 不建列（正文走 content 通道）；textarea 是重列，列表不投影；
+            // P1 结构列（group/repeater 的 JSON）可能是大对象，列表同样不投影
+            if (!type.hasColumn() || type.isHeavyText() || type.isStructure()) {
                 continue;
             }
             String name;
@@ -214,7 +218,8 @@ public class ModelDataService {
         Map<String, Object> values = new HashMap<>();
         List<String> columns = new ArrayList<>();
         List<Long> refIds = new ArrayList<>();
-        DataVo check = buildDynamicValues(fields, form, values, columns, refIds, tableSuffixOf(modelId));
+        Map<String, List<Map<String, Object>>> m2aOut = new HashMap<>();
+        DataVo check = buildDynamicValues(fields, form, values, columns, refIds, m2aOut, tableSuffixOf(modelId));
         if (check.getCode() != DataVo.CODE_SUCCESS) {
             return check;
         }
@@ -251,10 +256,16 @@ public class ModelDataService {
         if (!refIds.isEmpty()) {
             modelDataDao.incrImagesRefCount(distinct(refIds));
         }
+        // P2 M2A：内容行落库后同步中间表关系（覆盖式）
+        syncRelations(model, id, m2aOut);
         return DataVo.success("发布成功", id);
     }
 
     public DataVo updateData(Long modelId, Long id, Map<String, String> form) {
+        Model model = modelService.findModelById(modelId);
+        if (model == null) {
+            return DataVo.failure("模型不存在");
+        }
         Map<String, Object> old = modelDataDao.findDataById(tableSuffixOf(modelId), id);
         if (old == null) {
             return DataVo.failure("内容不存在");
@@ -267,7 +278,8 @@ public class ModelDataService {
         List<String> columns = new ArrayList<>();
         List<Long> oldRefs = collectAttachmentIds(fields, old);
         List<Long> newRefs = new ArrayList<>();
-        DataVo check = buildDynamicValues(fields, form, values, columns, newRefs, tableSuffixOf(modelId));
+        Map<String, List<Map<String, Object>>> m2aOut = new HashMap<>();
+        DataVo check = buildDynamicValues(fields, form, values, columns, newRefs, m2aOut, tableSuffixOf(modelId));
         if (check.getCode() != DataVo.CODE_SUCCESS) {
             return check;
         }
@@ -291,6 +303,8 @@ public class ModelDataService {
 
         modelDataDao.updateData(tableSuffixOf(modelId), id, columns, values);
         adjustRefCounts(oldRefs, distinct(newRefs));
+        // P2 M2A：覆盖式同步（未传该字段则不触碰既有关系）
+        syncRelations(model, id, m2aOut);
         return DataVo.success("更新成功");
     }
 
@@ -298,6 +312,7 @@ public class ModelDataService {
      * 软删（status=3）+ 引用计数 -1
      */
     public DataVo deleteData(Long modelId, List<Long> ids) {
+        Model model = modelService.findModelById(modelId);
         for (Long id : ids) {
             Map<String, Object> row = modelDataDao.findDataById(tableSuffixOf(modelId), id);
             if (row != null) {
@@ -309,6 +324,10 @@ public class ModelDataService {
             }
         }
         modelDataDao.deleteData(tableSuffixOf(modelId), ids);
+        // P2 M2A：内容删除时清理其发出的全部任意关系
+        if (model != null && model.getCode() != null) {
+            modelDataDao.deleteRelationsByFromIds(model.getCode(), ids);
+        }
         return DataVo.success("删除成功");
     }
 
@@ -318,15 +337,24 @@ public class ModelDataService {
     }
 
     /**
-     * 附件字段展开：IMAGE/FILE → 字段名+"Url"（img_url 字符串）；
-     * IMAGES/FILES → 字段名+"Urls"（img_url 列表）。前台模板零二次查询（手册 §7.3）。
+     * 读侧统一展开：附件（含 P1 结构体内嵌附件）→ E1 关联（含 P2 Lookup 列）→
+     * P2 Rollup 聚合 → P2 M2A 任意关系 → P2 双向标注（反向引用）。
+     * 全部一次批量查询，前台/后台模板零二次查询（模型手册 §7.3）。
      */
     public void expandAttachments(Long modelId, List<Map<String, Object>> rows) {
         if (rows == null || rows.isEmpty()) {
             return;
         }
         normalizeKeys(rows);
+        Model model = modelService.findModelById(modelId);
+        if (model == null) {
+            return;
+        }
         List<ModelField> fields = modelFieldDao.findFieldsByModelId(modelId, 1);
+        List<ModelField> top = topFields(fields);
+        String selfSuffix = tableSuffixOf(modelId);
+
+        // 1) 顶层附件 id 收集（含结构体内嵌附件 id，统一一次批量取 URL）
         java.util.Set<Long> ids = new java.util.LinkedHashSet<>();
         for (Map<String, Object> row : rows) {
             ids.addAll(collectAttachmentIds(fields, row));
@@ -343,7 +371,7 @@ public class ModelDataService {
             }
         }
         for (Map<String, Object> row : rows) {
-            for (ModelField f : fields) {
+            for (ModelField f : top) {
                 FieldTypeEnum type;
                 try {
                     type = FieldTypeEnum.of(f.getFieldType());
@@ -372,8 +400,106 @@ public class ModelDataService {
                 }
             }
         }
-        // E1：同一个入口顺带展开关联引用，调用方无需改动
-        expandReferences(tableSuffixOf(modelId), fields, rows);
+        // 2) P1 结构体内嵌附件展开：JSON 解析后注入 {子字段}Url/{子字段}Urls，值替换为结构化对象
+        expandStructureAttachments(top, childrenOf(fields), rows, urlMap);
+        // 3) E1 关联展开（P2：按 lookupFields 追加目标行展示列）
+        expandReferences(selfSuffix, top, rows);
+        // 4) P2 Rollup 聚合
+        expandRollup(selfSuffix, top, rows);
+        // 5) P2 M2A 任意关系展开
+        expandM2a(model.getCode(), top, rows);
+        // 6) P2 双向标注：被哪些模型的内容引用着
+        expandBackRefs(model, rows);
+    }
+
+    /**
+     * P1 结构字段内嵌附件展开：把 json 列的字符串值解析为 Map（GROUP）/ List&lt;Map&gt;（REPEATER），
+     * 附件子字段注入 {@code {子字段名}Url} / {@code {子字段名}Urls} 后整体替换原值。
+     */
+    private void expandStructureAttachments(List<ModelField> top, Map<Long, List<ModelField>> children,
+                                            List<Map<String, Object>> rows, Map<Long, String> urlMap) {
+        for (ModelField f : top) {
+            FieldTypeEnum type;
+            try {
+                type = FieldTypeEnum.of(f.getFieldType());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            if (!type.isStructure()) {
+                continue;
+            }
+            List<ModelField> kids = children.getOrDefault(f.getId(), List.of());
+            List<ModelField> attKids = new ArrayList<>();
+            for (ModelField k : kids) {
+                try {
+                    if (FieldTypeEnum.of(k.getFieldType()).isAttachment()) {
+                        attKids.add(k);
+                    }
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+            // 无子字段时保持原值；否则一律解析为结构化对象/数组（附件子字段顺带注入 URL 别名）
+            if (kids.isEmpty()) {
+                continue;
+            }
+            for (Map<String, Object> row : rows) {
+                Object v = row.get(f.getFieldName());
+                if (v == null || !(v instanceof String s) || s.isBlank()) {
+                    continue;
+                }
+                try {
+                    if (type == FieldTypeEnum.GROUP) {
+                        Map<String, Object> obj = JSON.parseObject(s, Map.class);
+                        if (obj == null) {
+                            continue;
+                        }
+                        enrichStructureRow(obj, attKids, urlMap);
+                        row.put(f.getFieldName(), obj);
+                    } else {
+                        List<Object> arr = JSON.parseArray(s);
+                        List<Map<String, Object>> list = new ArrayList<>();
+                        for (Object o : arr == null ? List.of() : arr) {
+                            if (o instanceof Map) {
+                                @SuppressWarnings("unchecked")
+                                Map<String, Object> m = (Map<String, Object>) o;
+                                enrichStructureRow(m, attKids, urlMap);
+                                list.add(m);
+                            }
+                        }
+                        row.put(f.getFieldName(), list);
+                    }
+                } catch (Exception e) {
+                    log.warn("结构字段[{}]附件展开失败（保持原值）：{}", f.getFieldName(), e.getMessage());
+                }
+            }
+        }
+    }
+
+    /** 单个结构行内附件子字段注入 URL 别名 */
+    private void enrichStructureRow(Map<String, Object> obj, List<ModelField> attKids, Map<Long, String> urlMap) {
+        for (ModelField k : attKids) {
+            Object cv = obj.get(k.getFieldName());
+            if (cv == null) {
+                continue;
+            }
+            FieldTypeEnum kt = FieldTypeEnum.of(k.getFieldType());
+            try {
+                if (kt == FieldTypeEnum.IMAGE || kt == FieldTypeEnum.FILE) {
+                    long id = Long.parseLong(String.valueOf(cv));
+                    obj.put(k.getFieldName() + "Url", urlMap.getOrDefault(id, ""));
+                } else {
+                    List<String> urls = new ArrayList<>();
+                    for (String item : parseStringArray(String.valueOf(cv))) {
+                        try {
+                            urls.add(urlMap.getOrDefault(Long.parseLong(item.trim()), ""));
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                    obj.put(k.getFieldName() + "Urls", urls);
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        }
     }
 
     /**
@@ -415,9 +541,9 @@ public class ModelDataService {
             if (all.isEmpty()) {
                 continue;
             }
-            // 第二遍：一次批量取回目标行（只取展示列）
+            // 第二遍：一次批量取回目标行（P2：按 lookupFields 追加展示列）
             List<Map<String, Object>> targets =
-                    modelDataDao.findRowsByIds(target, new ArrayList<>(all));
+                    modelDataDao.findRowsByIds(target, new ArrayList<>(all), lookupColumns(f));
             normalizeKeys(targets);
             Map<Long, Map<String, Object>> byId = new HashMap<>();
             for (Map<String, Object> t : targets) {
@@ -444,6 +570,337 @@ public class ModelDataService {
         }
     }
 
+    /**
+     * P2 Lookup：解析字段的 lookupFields（JSON 字符串数组），逐列过列名白名单后作为
+     * 关联展开（{field}Obj/{field}List）的追加展示列，上限 10 列。
+     */
+    private List<String> lookupColumns(ModelField f) {
+        if (StringUtils.isBlank(f.getLookupFields())) {
+            return null;
+        }
+        List<String> cols = new ArrayList<>();
+        try {
+            List<String> arr = JSON.parseArray(f.getLookupFields(), String.class);
+            for (String c : arr == null ? List.<String>of() : arr) {
+                if (cols.size() >= 10) {
+                    break;
+                }
+                try {
+                    String safe = SqlSafeUtil.safeColumnName(c);
+                    if (!cols.contains(safe)) {
+                        cols.add(safe);
+                    }
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return cols.isEmpty() ? null : cols;
+    }
+
+    /**
+     * P2 Rollup 聚合展开（NocoDB 语义）：对 rollup 字段按其 source（本模型 RELATE 字段）
+     * 指向的目标行做 COUNT/SUM/AVG/MIN/MAX，结果写入 {@code row[fieldName]}。
+     * 一次批量取回全部被引用目标行，按行在 Java 侧聚合。
+     */
+    private void expandRollup(String selfSuffix, List<ModelField> top, List<Map<String, Object>> rows) {
+        for (ModelField f : top) {
+            FieldTypeEnum type;
+            try {
+                type = FieldTypeEnum.of(f.getFieldType());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            if (type != FieldTypeEnum.ROLLUP || StringUtils.isBlank(f.getRollupExpr())) {
+                continue;
+            }
+            Map<String, Object> expr;
+            try {
+                expr = JSON.parseObject(f.getRollupExpr());
+            } catch (Exception e) {
+                continue;
+            }
+            if (expr == null) {
+                continue;
+            }
+            String source = String.valueOf(expr.get("source"));
+            String func = String.valueOf(expr.get("func"));
+            String column = expr.get("column") == null ? null : String.valueOf(expr.get("column"));
+            if (!ROLLUP_FUNCS.contains(func)) {
+                continue;
+            }
+            ModelField src = null;
+            for (ModelField t : top) {
+                if (t.getFieldName().equals(source)) {
+                    src = t;
+                    break;
+                }
+            }
+            if (src == null) {
+                continue;
+            }
+            // 第一遍：按行解析出引用的目标 id
+            Map<Map<String, Object>, List<Long>> perRow = new java.util.IdentityHashMap<>();
+            java.util.Set<Long> all = new java.util.LinkedHashSet<>();
+            for (Map<String, Object> row : rows) {
+                List<Long> linked = readReferenceIds(FieldTypeEnum.RELATE, src, row);
+                if (linked.isEmpty()) {
+                    continue;
+                }
+                perRow.put(row, linked);
+                all.addAll(linked);
+            }
+            if (all.isEmpty()) {
+                continue;
+            }
+            String targetSuffix;
+            try {
+                targetSuffix = StringUtils.isBlank(src.getRelateModel())
+                        ? selfSuffix : SqlSafeUtil.safeTableSuffixForExisting(src.getRelateModel());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            try {
+                List<Map<String, Object>> targets = modelDataDao.rollupAggregate(
+                        targetSuffix, source, func, "COUNT".equals(func) ? null : column, new ArrayList<>(all));
+                Map<Long, Object> valById = new HashMap<>();
+                for (Map<String, Object> t : targets) {
+                    Object refId = t.get("refId");
+                    if (refId != null) {
+                        valById.put(Long.parseLong(String.valueOf(refId)), t.get("aggVal"));
+                    }
+                }
+                for (Map.Entry<Map<String, Object>, List<Long>> e : perRow.entrySet()) {
+                    e.getKey().put(f.getFieldName(),
+                            aggregate(func, e.getValue(), valById));
+                }
+            } catch (Exception e) {
+                log.warn("rollup 字段[{}]聚合失败：{}", f.getFieldName(), e.getMessage());
+            }
+        }
+    }
+
+    /** 按白名单函数对一组引用目标行的取值做聚合（缺失目标行跳过；COUNT 按行存在数计） */
+    private Object aggregate(String func, List<Long> ids, Map<Long, Object> valById) {
+        List<Double> nums = new ArrayList<>();
+        int count = 0;
+        for (Long id : ids) {
+            if (!valById.containsKey(id)) {
+                continue; // 目标行不存在或未发布
+            }
+            count++;
+            Object val = valById.get(id);
+            if (!"COUNT".equals(func) && val != null) {
+                try {
+                    nums.add(Double.parseDouble(String.valueOf(val)));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        switch (func) {
+            case "COUNT":
+                return count;
+            case "SUM":
+                return nums.stream().mapToDouble(Double::doubleValue).sum();
+            case "AVG":
+                return nums.isEmpty() ? null
+                        : nums.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+            case "MIN":
+                return nums.isEmpty() ? null : nums.stream().min(Double::compare).orElse(null);
+            case "MAX":
+                return nums.isEmpty() ? null : nums.stream().max(Double::compare).orElse(null);
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * P2 M2A 展开：读 fly_relation，按目标模型分组批量取行，
+     * 写入 {@code row[fieldName + "List"]} = [{model:…, id, title, …}]（保持 sort 顺序）。
+     */
+    private void expandM2a(String fromModel, List<ModelField> top, List<Map<String, Object>> rows) {
+        boolean hasM2a = false;
+        for (ModelField f : top) {
+            try {
+                if (FieldTypeEnum.of(f.getFieldType()) == FieldTypeEnum.M2A) {
+                    hasM2a = true;
+                    break;
+                }
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        if (!hasM2a) {
+            return;
+        }
+        List<Long> rowIds = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            Object id = row.get("id");
+            if (id != null) {
+                try {
+                    rowIds.add(Long.parseLong(String.valueOf(id)));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        if (rowIds.isEmpty()) {
+            return;
+        }
+        for (ModelField f : top) {
+            FieldTypeEnum type;
+            try {
+                type = FieldTypeEnum.of(f.getFieldType());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            if (type != FieldTypeEnum.M2A) {
+                continue;
+            }
+            List<Map<String, Object>> rels;
+            try {
+                rels = modelDataDao.findRelations(fromModel, rowIds, f.getFieldName());
+            } catch (Exception e) {
+                log.warn("m2a 字段[{}]关系读取失败：{}", f.getFieldName(), e.getMessage());
+                continue;
+            }
+            if (rels == null || rels.isEmpty()) {
+                continue;
+            }
+            // 目标行批量取回：按 toModel 分组
+            Map<String, java.util.Set<Long>> idsByModel = new java.util.LinkedHashMap<>();
+            for (Map<String, Object> r : rels) {
+                idsByModel.computeIfAbsent(String.valueOf(r.get("toModel")), k -> new java.util.LinkedHashSet<>())
+                        .add(Long.parseLong(String.valueOf(r.get("toId"))));
+            }
+            Map<String, Map<Long, Map<String, Object>>> rowsByModel = new HashMap<>();
+            for (Map.Entry<String, java.util.Set<Long>> e : idsByModel.entrySet()) {
+                try {
+                    List<Map<String, Object>> targets = modelDataDao.findRowsByIds(
+                            SqlSafeUtil.safeTableSuffixForExisting(e.getKey()), new ArrayList<>(e.getValue()), null);
+                    normalizeKeys(targets);
+                    Map<Long, Map<String, Object>> byId = new HashMap<>();
+                    for (Map<String, Object> t : targets) {
+                        Object tid = t.get("id");
+                        if (tid != null) {
+                            byId.put(Long.parseLong(String.valueOf(tid)), t);
+                        }
+                    }
+                    rowsByModel.put(e.getKey(), byId);
+                } catch (IllegalArgumentException ex) {
+                    log.warn("m2a 字段[{}]目标模型标识非法：{}", f.getFieldName(), e.getKey());
+                }
+            }
+            Map<Long, List<Map<String, Object>>> byFrom = new HashMap<>();
+            for (Map<String, Object> r : rels) {
+                long fromId = Long.parseLong(String.valueOf(r.get("fromId")));
+                Map<Long, Map<String, Object>> byId = rowsByModel.get(String.valueOf(r.get("toModel")));
+                if (byId == null) {
+                    continue;
+                }
+                Map<String, Object> target = byId.get(Long.parseLong(String.valueOf(r.get("toId"))));
+                if (target == null) {
+                    continue; // 悬空引用静默跳过
+                }
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("model", r.get("toModel"));
+                item.putAll(target);
+                byFrom.computeIfAbsent(fromId, k -> new ArrayList<>()).add(item);
+            }
+            for (Map<String, Object> row : rows) {
+                Object id = row.get("id");
+                if (id == null) {
+                    continue;
+                }
+                try {
+                    List<Map<String, Object>> list = byFrom.get(Long.parseLong(String.valueOf(id)));
+                    if (list != null) {
+                        row.put(f.getFieldName() + "List", list);
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+    }
+
+    /**
+     * P2 双向标注：查「哪些模型的单值 relate 字段指向本模型」，为每行注入
+     * {@code row[fieldName + "Backs"]} = [{id, shortUrl, title}]（来源行，仅已发布）。
+     * 无物理列、无需目标模型预定义反向字段。
+     */
+    private void expandBackRefs(Model self, List<Map<String, Object>> rows) {
+        List<ModelField> incoming;
+        try {
+            incoming = modelFieldDao.findRelateFieldsByTargetModel(self.getCode());
+        } catch (Exception e) {
+            return;
+        }
+        if (incoming == null || incoming.isEmpty()) {
+            return;
+        }
+        List<Long> ids = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            Object id = row.get("id");
+            if (id != null) {
+                try {
+                    ids.add(Long.parseLong(String.valueOf(id)));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        if (ids.isEmpty()) {
+            return;
+        }
+        for (ModelField f : incoming) {
+            Model srcModel = modelService.findModelById(f.getModelId());
+            if (srcModel == null || StringUtils.isBlank(srcModel.getCode())) {
+                continue;
+            }
+            String srcSuffix;
+            try {
+                srcSuffix = SqlSafeUtil.safeTableSuffixForExisting(srcModel.getCode());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            List<Map<String, Object>> refs;
+            try {
+                refs = modelDataDao.findReverseRefs(srcSuffix, f.getFieldName(), ids);
+            } catch (Exception e) {
+                log.warn("反向引用查询失败：model={}, field={}, err={}", srcModel.getCode(), f.getFieldName(), e.getMessage());
+                continue;
+            }
+            if (refs == null || refs.isEmpty()) {
+                continue;
+            }
+            normalizeKeys(refs);
+            Map<Long, List<Map<String, Object>>> byRef = new HashMap<>();
+            for (Map<String, Object> r : refs) {
+                Object refId = r.get("refId");
+                if (refId == null) {
+                    continue;
+                }
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("id", r.get("id"));
+                item.put("shortUrl", r.get("shortUrl"));
+                item.put("title", r.get("title"));
+                try {
+                    byRef.computeIfAbsent(Long.parseLong(String.valueOf(refId)), k -> new ArrayList<>()).add(item);
+                } catch (NumberFormatException ignored) {
+                }
+            }
+            for (Map<String, Object> row : rows) {
+                Object id = row.get("id");
+                if (id == null) {
+                    continue;
+                }
+                try {
+                    List<Map<String, Object>> list = byRef.get(Long.parseLong(String.valueOf(id)));
+                    if (list != null) {
+                        row.put(f.getFieldName() + "Backs", list);
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+    }
     /** 读取一行里某关联字段引用的 id 列表（RELATE 单值 / RELATES JSON 数组） */
     private List<Long> readReferenceIds(FieldTypeEnum type, ModelField f, Map<String, Object> row) {
         Object v = row.get(f.getFieldName());
@@ -501,20 +958,49 @@ public class ModelDataService {
     // /////////////////// 内部：元数据驱动校验与值转换 ///////////////////
 
     /**
-     * 遍历字段定义校验 form 值并写入 values/columns（列名过白名单）。
-     * refIds 收集附件引用（fly_images.id，含 JSON 数组内 id）。
+     * 遍历顶层字段定义校验 form 值并写入 values/columns（列名过白名单）。
+     * refIds 收集附件引用（fly_images.id，含 JSON 数组与结构体内 id）；
+     * m2aOut 收集 M2A 关系待写列表（值 = [{model,id}]，内容行落库后统一同步 fly_relation）。
+     *
+     * <p>P1 结构层语义：
+     * <ul>
+     *   <li>只遍历顶层字段（parentId=0），GROUP/REPEATER 按子字段 schema 递归校验后整包 JSON 落列；</li>
+     *   <li>visible_when 命中「隐藏」的字段跳过校验与写列（必填也不生效）。</li>
+     * </ul>
      *
      * @param selfSuffix 本模型的物理表后缀，供 RELATE 自关联（relate_model 留空）解析目标表
      */
-    private DataVo buildDynamicValues(List<ModelField> fields, Map<String, String> form,
+    private DataVo buildDynamicValues(List<ModelField> allFields, Map<String, String> form,
                                       Map<String, Object> values, List<String> columns, List<Long> refIds,
-                                      String selfSuffix) {
+                                      Map<String, List<Map<String, Object>>> m2aOut, String selfSuffix) {
+        List<ModelField> fields = topFields(allFields);
+        Map<Long, List<ModelField>> children = childrenOf(allFields);
         for (ModelField f : fields) {
             String raw = form.get(f.getFieldName());
             boolean blank = StringUtils.isBlank(raw);
+            FieldTypeEnum type;
+            try {
+                type = FieldTypeEnum.of(f.getFieldType());
+            } catch (IllegalArgumentException e) {
+                return DataVo.failure("字段[" + f.getFieldName() + "]类型非法");
+            }
+            // P2 虚拟字段：rollup 读取时聚合不落列；m2a 落 fly_relation 中间表（此处只校验）
+            if (type.isVirtual()) {
+                if (type == FieldTypeEnum.M2A && !blank) {
+                    DataVo r = validateM2a(f, raw, m2aOut);
+                    if (r.getCode() != DataVo.CODE_SUCCESS) {
+                        return r;
+                    }
+                }
+                continue;
+            }
             if (blank && StringUtils.isNotBlank(f.getDefaultValue())) {
                 raw = f.getDefaultValue();
                 blank = false;
+            }
+            // P1 条件显隐：隐藏字段跳过校验与写列（默认值也不落库）
+            if (!isVisible(f, form)) {
+                continue;
             }
             if (blank) {
                 if (f.getIsRequired() == 1) {
@@ -522,192 +1008,443 @@ public class ModelDataService {
                 }
                 continue;
             }
-            FieldTypeEnum type = FieldTypeEnum.of(f.getFieldType());
             Object v;
             try {
-                switch (type) {
-                    case NUMBER:
-                        v = Long.parseLong(raw.trim());
-                        break;
-                    case DECIMAL:
-                        v = new java.math.BigDecimal(raw.trim());
-                        break;
-                    case SWITCH: {
-                        String s = raw.trim().toLowerCase();
-                        v = ("1".equals(s) || "true".equals(s) || "on".equals(s)) ? 1 : 0;
-                        break;
+                if (type.isStructure()) {
+                    DataVo sv = buildStructureValue(f, children.getOrDefault(f.getId(), List.of()),
+                            raw, refIds, selfSuffix);
+                    if (sv.getCode() != DataVo.CODE_SUCCESS) {
+                        return sv;
                     }
-                    case EMAIL:
-                        if (!raw.trim().matches("^[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
-                            return DataVo.failure(f.getFieldLabel() + "格式不正确");
-                        }
-                        v = raw.trim();
-                        break;
-                    case URL:
-                        if (!raw.trim().matches("^https?://\\S+$")) {
-                            return DataVo.failure(f.getFieldLabel() + "必须以 http(s):// 开头");
-                        }
-                        v = raw.trim();
-                        break;
-                    case PHONE:
-                        if (!raw.trim().matches("^1[3-9]\\d{9}$")) {
-                            return DataVo.failure(f.getFieldLabel() + "格式不正确");
-                        }
-                        v = raw.trim();
-                        break;
-                    case COLOR:
-                        if (!raw.trim().matches("^#[0-9a-fA-F]{3,8}$")) {
-                            return DataVo.failure(f.getFieldLabel() + "必须是 #RGB/#RRGGBB 颜色值");
-                        }
-                        v = raw.trim();
-                        break;
-                    case RATING:
-                        long rate = Long.parseLong(raw.trim());
-                        v = (int) rate;
-                        break;
-                    case SLUG: {
-                        String slug = raw.trim().toLowerCase();
-                        if (!slug.matches("^[a-z0-9][a-z0-9-]{0,127}$")) {
-                            return DataVo.failure(f.getFieldLabel() + "只允许小写字母、数字和中划线");
-                        }
-                        v = slug;
-                        break;
-                    }
-                    case DATE:
-                        v = new SimpleDateFormat("yyyy-MM-dd").parse(raw.trim());
-                        break;
-                    case DATETIME:
-                        v = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(raw.trim().replace('T', ' '));
-                        break;
-                    case RELATE: {
-                        // E1 单值关联：目标内容必须存在且 status=1（防悬空引用）
-                        long rid;
-                        try {
-                            rid = Long.parseLong(raw.trim());
-                        } catch (NumberFormatException e) {
-                            return DataVo.failure(f.getFieldLabel() + "引用格式不正确");
-                        }
-                        DataVo rel = checkReferences(f, selfSuffix, Arrays.asList(rid));
-                        if (rel.getCode() != DataVo.CODE_SUCCESS) {
-                            return rel;
-                        }
-                        v = rid;
-                        break;
-                    }
-                    case RELATES: {
-                        // E1 多值关联：存 id 数组（JSON），逐个校验存在且已发布
-                        List<String> arr = parseStringArray(raw);
-                        if (arr.isEmpty() && f.getIsRequired() == 1) {
-                            return DataVo.failure(f.getFieldLabel() + "不能为空");
-                        }
-                        List<Long> ids = new ArrayList<>();
-                        for (String a : arr) {
-                            try {
-                                ids.add(Long.parseLong(a.trim()));
-                            } catch (NumberFormatException e) {
-                                return DataVo.failure(f.getFieldLabel() + "含有非法引用：" + a);
-                            }
-                        }
-                        if (!ids.isEmpty()) {
-                            DataVo rel = checkReferences(f, selfSuffix, distinct(ids));
-                            if (rel.getCode() != DataVo.CODE_SUCCESS) {
-                                return rel;
-                            }
-                        }
-                        v = JSON.toJSONString(arr);
-                        break;
-                    }
-                    case IMAGE_URL:
-                    case FILE_URL: {
-                        // E3 直存 URL：不参与引用计数；值会直接输出到 src/href，必须拒绝可闭合属性的字符
-                        String url = raw.trim();
-                        if (url.indexOf('<') >= 0 || url.indexOf('>') >= 0
-                                || url.indexOf('"') >= 0 || url.indexOf('\'') >= 0) {
-                            return DataVo.failure(f.getFieldLabel() + "含非法字符（< > \" '）");
-                        }
-                        v = url;
-                        break;
-                    }
-                    case CHECKBOX:
-                    case IMAGES:
-                    case FILES: {
-                        List<String> arr = parseStringArray(raw);
-                        if (arr.isEmpty() && f.getIsRequired() == 1) {
-                            return DataVo.failure(f.getFieldLabel() + "不能为空");
-                        }
-                        if (type == FieldTypeEnum.CHECKBOX && f.getOptions() != null) {
-                            List<String> opts = parseStringArray(f.getOptions());
-                            for (String a : arr) {
-                                if (!opts.contains(a)) {
-                                    return DataVo.failure(f.getFieldLabel() + "含有非法选项：" + a);
-                                }
-                            }
-                        }
-                        if (type.isAttachment() && !arr.isEmpty()) {
-                            List<Long> ids = new ArrayList<>();
-                            for (String a : arr) {
-                                ids.add(Long.parseLong(a));
-                            }
-                            if (modelDataDao.countImages(ids) < ids.size()) {
-                                return DataVo.failure(f.getFieldLabel() + "引用的附件不存在");
-                            }
-                            refIds.addAll(ids);
-                        }
-                        v = JSON.toJSONString(arr);
-                        break;
-                    }
-                    case IMAGE:
-                    case FILE: {
-                        long aid = Long.parseLong(raw.trim());
-                        if (modelDataDao.countImages(Arrays.asList(aid)) == 0) {
-                            return DataVo.failure(f.getFieldLabel() + "引用的附件不存在");
-                        }
-                        refIds.add(aid);
-                        v = aid;
-                        break;
-                    }
-                    case SELECT:
-                    case RADIO: {
-                        if (f.getOptions() != null && !parseStringArray(f.getOptions()).contains(raw)) {
-                            return DataVo.failure(f.getFieldLabel() + "含有非法选项：" + raw);
-                        }
-                        v = raw;
-                        break;
-                    }
-                    default: {
-                        // input/textarea/editor(走content通道)/region
-                        if (!blank && f.getMaxlength() != null && raw.length() > f.getMaxlength()) {
-                            return DataVo.failure(f.getFieldLabel() + "长度不能超过" + f.getMaxlength());
-                        }
-                        if (type == FieldTypeEnum.INPUT && StringUtils.isNotBlank(f.getRegex())
-                                && !raw.matches(f.getRegex())) {
-                            return DataVo.failure(f.getFieldLabel() + "格式不正确");
-                        }
-                        v = raw;
-                    }
+                    // json 列必须存 JSON 字符串（Map/List 直传会被驱动按二进制序列化，MySQL 拒绝）
+                    v = JSON.toJSONString(sv.getData());
+                } else {
+                    v = convertFieldValue(f, type, raw, refIds, selfSuffix);
                 }
-            } catch (ParseException | IllegalArgumentException e) {
-                return DataVo.failure(f.getFieldLabel() + "格式不正确");
+            } catch (IllegalArgumentException e) {
+                return DataVo.failure(StringUtils.defaultIfBlank(e.getMessage(), f.getFieldLabel() + "格式不正确"));
             } catch (Exception e) {
                 // 动态模型字段处理链路的异常必须留痕，否则只能看到笼统的"处理失败"
                 log.error("模型字段[{}]({})处理失败: {}", f.getFieldName(), f.getFieldType(), e.getMessage(), e);
                 return DataVo.failure(f.getFieldLabel() + "处理失败");
-            }
-            // 数值区间（P0 万能建模批次）：number/decimal/rating 支持 min/max
-            if (type == FieldTypeEnum.NUMBER || type == FieldTypeEnum.DECIMAL || type == FieldTypeEnum.RATING) {
-                java.math.BigDecimal num = new java.math.BigDecimal(String.valueOf(v));
-                if (f.getMinValue() != null && num.compareTo(f.getMinValue()) < 0) {
-                    return DataVo.failure(f.getFieldLabel() + "不能小于" + f.getMinValue().stripTrailingZeros().toPlainString());
-                }
-                if (f.getMaxValue() != null && num.compareTo(f.getMaxValue()) > 0) {
-                    return DataVo.failure(f.getFieldLabel() + "不能大于" + f.getMaxValue().stripTrailingZeros().toPlainString());
-                }
             }
             if (type != FieldTypeEnum.EDITOR) {
                 putColumn(columns, values, f.getFieldName(), v);
             }
         }
         return DataVo.success("ok");
+    }
+
+    /** 顶层字段（P1：parentId 为空或 0） */
+    private static List<ModelField> topFields(List<ModelField> fields) {
+        List<ModelField> top = new ArrayList<>();
+        for (ModelField f : fields) {
+            if (f.getParentId() == null || f.getParentId() == 0) {
+                top.add(f);
+            }
+        }
+        return top;
+    }
+
+    /** 子字段索引：parent 字段 id → 子字段列表（P1） */
+    private static Map<Long, List<ModelField>> childrenOf(List<ModelField> fields) {
+        Map<Long, List<ModelField>> map = new HashMap<>();
+        for (ModelField f : fields) {
+            if (f.getParentId() != null && f.getParentId() > 0) {
+                map.computeIfAbsent(f.getParentId(), k -> new ArrayList<>()).add(f);
+            }
+        }
+        return map;
+    }
+
+    /**
+     * P1 条件显隐求值。visible_when = {"field":"x","op":"eq|neq|in|notin|empty|notempty","value":"1"}。
+     * 返回 true = 显示（参与校验）；表达式缺失或解析失败一律按显示处理（保存时已做结构校验，防御性兜底）。
+     */
+    private boolean isVisible(ModelField f, Map<String, String> form) {
+        if (StringUtils.isBlank(f.getVisibleWhen())) {
+            return true;
+        }
+        try {
+            Map<String, Object> cond = JSON.parseObject(f.getVisibleWhen());
+            if (cond == null) {
+                return true;
+            }
+            String ref = String.valueOf(cond.get("field"));
+            String op = String.valueOf(cond.get("op"));
+            String expected = cond.get("value") == null ? "" : String.valueOf(cond.get("value"));
+            String actual = form.get(ref);
+            boolean present = StringUtils.isNotBlank(actual);
+            String actualTrim = present ? actual.trim() : "";
+            switch (op) {
+                case "eq":
+                    return present && actualTrim.equals(expected);
+                case "neq":
+                    return !present || !actualTrim.equals(expected);
+                case "in":
+                    return present && Arrays.asList(expected.split(",")).contains(actualTrim);
+                case "notin":
+                    return !present || !Arrays.asList(expected.split(",")).contains(actualTrim);
+                case "empty":
+                    return !present;
+                case "notempty":
+                    return present;
+                default:
+                    return true;
+            }
+        } catch (Exception e) {
+            log.warn("visible_when 解析失败，按显示处理：field={}, expr={}", f.getFieldName(), f.getVisibleWhen());
+            return true;
+        }
+    }
+
+    /**
+     * P1 结构字段（GROUP 对象 / REPEATER 数组）值构建：按子字段 schema 逐个递归校验转换，
+     * 返回序列化前的 Map / List&lt;Map&gt;（由调用方 JSON.toJSONString 落 json 列）。
+     */
+    @SuppressWarnings("unchecked")
+    private DataVo buildStructureValue(ModelField parent, List<ModelField> children, String raw,
+                                       List<Long> refIds, String selfSuffix) {
+        boolean multiple = FieldTypeEnum.of(parent.getFieldType()) == FieldTypeEnum.REPEATER;
+        if (children.isEmpty()) {
+            return DataVo.success("ok", multiple ? new ArrayList<>() : new LinkedHashMap<String, Object>());
+        }
+        List<Map<String, Object>> rows = new ArrayList<>();
+        try {
+            if (multiple) {
+                List<Object> arr = JSON.parseArray(raw);
+                if (arr != null) {
+                    for (Object o : arr) {
+                        if (!(o instanceof Map)) {
+                            return DataVo.failure(parent.getFieldLabel() + "的每一行必须是对象");
+                        }
+                        rows.add((Map<String, Object>) o);
+                    }
+                }
+            } else {
+                Map<String, Object> obj = JSON.parseObject(raw, Map.class);
+                if (obj != null) {
+                    rows.add(obj);
+                }
+            }
+        } catch (Exception e) {
+            return DataVo.failure(parent.getFieldLabel() + "必须是合法 JSON" + (multiple ? "数组" : "对象"));
+        }
+        if (multiple) {
+            if (rows.size() > 50) {
+                return DataVo.failure(parent.getFieldLabel() + "最多 50 行");
+            }
+            if (rows.isEmpty() && parent.getIsRequired() == 1) {
+                return DataVo.failure(parent.getFieldLabel() + "至少需要一行");
+            }
+        }
+        List<Object> outArr = multiple ? new ArrayList<>() : null;
+        Map<String, Object> outObj = multiple ? null : new LinkedHashMap<>();
+        for (Map<String, Object> rowMap : rows) {
+            Map<String, Object> clean = new LinkedHashMap<>();
+            for (ModelField child : children) {
+                Object cv = rowMap.get(child.getFieldName());
+                String childRaw = cv == null ? null
+                        : (cv instanceof String s ? s : String.valueOf(cv));
+                FieldTypeEnum ct;
+                try {
+                    ct = FieldTypeEnum.of(child.getFieldType());
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+                if (StringUtils.isBlank(childRaw)) {
+                    if (child.getIsRequired() == 1) {
+                        return DataVo.failure(
+                                parent.getFieldLabel() + "的「" + child.getFieldLabel() + "」不能为空");
+                    }
+                    continue;
+                }
+                Object v2;
+                try {
+                    v2 = convertFieldValue(child, ct, childRaw, refIds, selfSuffix);
+                } catch (IllegalArgumentException e) {
+                    return DataVo.failure(parent.getFieldLabel() + "的「" + child.getFieldLabel() + "」："
+                            + StringUtils.defaultIfBlank(e.getMessage(), "格式不正确"));
+                } catch (Exception e) {
+                    log.error("结构子字段[{}.{}]({})处理失败: {}", parent.getFieldName(), child.getFieldName(),
+                            child.getFieldType(), e.getMessage(), e);
+                    return DataVo.failure(parent.getFieldLabel() + "的「" + child.getFieldLabel() + "」处理失败");
+                }
+                clean.put(child.getFieldName(), v2);
+            }
+            if (multiple) {
+                outArr.add(clean);
+            } else {
+                outObj = clean;
+            }
+        }
+        return DataVo.success("ok", multiple ? outArr : outObj);
+    }
+
+    /**
+     * 单字段值转换与校验（顶层与结构子字段共用）。只做「字符串 → 落库值」的定形，
+     * 空值语义 / 可见性 / 列写入由调用方处理；校验失败抛 IllegalArgumentException（message 为用户可读原因）。
+     * 数值区间（min/max，P0）在本方法尾部统一执行。
+     */
+    private Object convertFieldValue(ModelField f, FieldTypeEnum type, String raw,
+                                     List<Long> refIds, String selfSuffix) throws Exception {
+        Object v;
+        switch (type) {
+            case NUMBER:
+                v = Long.parseLong(raw.trim());
+                break;
+            case DECIMAL:
+                v = new java.math.BigDecimal(raw.trim());
+                break;
+            case SWITCH: {
+                String s = raw.trim().toLowerCase();
+                v = ("1".equals(s) || "true".equals(s) || "on".equals(s)) ? 1 : 0;
+                break;
+            }
+            case EMAIL:
+                if (!raw.trim().matches("^[\\w.%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "格式不正确");
+                }
+                v = raw.trim();
+                break;
+            case URL:
+                if (!raw.trim().matches("^https?://\\S+$")) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "必须以 http(s):// 开头");
+                }
+                v = raw.trim();
+                break;
+            case PHONE:
+                if (!raw.trim().matches("^1[3-9]\\d{9}$")) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "格式不正确");
+                }
+                v = raw.trim();
+                break;
+            case COLOR:
+                if (!raw.trim().matches("^#[0-9a-fA-F]{3,8}$")) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "必须是 #RGB/#RRGGBB 颜色值");
+                }
+                v = raw.trim();
+                break;
+            case RATING:
+                v = (int) Long.parseLong(raw.trim());
+                break;
+            case SLUG: {
+                String slug = raw.trim().toLowerCase();
+                if (!slug.matches("^[a-z0-9][a-z0-9-]{0,127}$")) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "只允许小写字母、数字和中划线");
+                }
+                v = slug;
+                break;
+            }
+            case DATE:
+                v = new SimpleDateFormat("yyyy-MM-dd").parse(raw.trim());
+                break;
+            case DATETIME:
+                v = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(raw.trim().replace('T', ' '));
+                break;
+            case RELATE: {
+                // E1 单值关联：目标内容必须存在且 status=1（防悬空引用）
+                long rid;
+                try {
+                    rid = Long.parseLong(raw.trim());
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "引用格式不正确");
+                }
+                DataVo rel = checkReferences(f, selfSuffix, Arrays.asList(rid));
+                if (rel.getCode() != DataVo.CODE_SUCCESS) {
+                    throw new IllegalArgumentException(rel.getMessage());
+                }
+                v = rid;
+                break;
+            }
+            case RELATES: {
+                // E1 多值关联：存 id 数组（JSON），逐个校验存在且已发布
+                List<String> arr = parseStringArray(raw);
+                if (arr.isEmpty() && f.getIsRequired() == 1) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "不能为空");
+                }
+                List<Long> ids = new ArrayList<>();
+                for (String a : arr) {
+                    try {
+                        ids.add(Long.parseLong(a.trim()));
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException(f.getFieldLabel() + "含有非法引用：" + a);
+                    }
+                }
+                if (!ids.isEmpty()) {
+                    DataVo rel = checkReferences(f, selfSuffix, distinct(ids));
+                    if (rel.getCode() != DataVo.CODE_SUCCESS) {
+                        throw new IllegalArgumentException(rel.getMessage());
+                    }
+                }
+                v = JSON.toJSONString(arr);
+                break;
+            }
+            case IMAGE_URL:
+            case FILE_URL: {
+                // E3 直存 URL：不参与引用计数；值会直接输出到 src/href，必须拒绝可闭合属性的字符
+                String url = raw.trim();
+                if (url.indexOf('<') >= 0 || url.indexOf('>') >= 0
+                        || url.indexOf('"') >= 0 || url.indexOf('\'') >= 0) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "含非法字符（< > \" '）");
+                }
+                v = url;
+                break;
+            }
+            case CHECKBOX:
+            case IMAGES:
+            case FILES: {
+                List<String> arr = parseStringArray(raw);
+                if (arr.isEmpty() && f.getIsRequired() == 1) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "不能为空");
+                }
+                if (type == FieldTypeEnum.CHECKBOX && f.getOptions() != null) {
+                    List<String> opts = parseStringArray(f.getOptions());
+                    for (String a : arr) {
+                        if (!opts.contains(a)) {
+                            throw new IllegalArgumentException(f.getFieldLabel() + "含有非法选项：" + a);
+                        }
+                    }
+                }
+                if (type.isAttachment() && !arr.isEmpty()) {
+                    List<Long> ids = new ArrayList<>();
+                    for (String a : arr) {
+                        ids.add(Long.parseLong(a));
+                    }
+                    if (modelDataDao.countImages(ids) < ids.size()) {
+                        throw new IllegalArgumentException(f.getFieldLabel() + "引用的附件不存在");
+                    }
+                    refIds.addAll(ids);
+                }
+                v = JSON.toJSONString(arr);
+                break;
+            }
+            case IMAGE:
+            case FILE: {
+                long aid = Long.parseLong(raw.trim());
+                if (modelDataDao.countImages(Arrays.asList(aid)) == 0) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "引用的附件不存在");
+                }
+                refIds.add(aid);
+                v = aid;
+                break;
+            }
+            case SELECT:
+            case RADIO: {
+                if (f.getOptions() != null && !parseStringArray(f.getOptions()).contains(raw)) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "含有非法选项：" + raw);
+                }
+                v = raw;
+                break;
+            }
+            default: {
+                // input/textarea/region
+                if (f.getMaxlength() != null && raw.length() > f.getMaxlength()) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "长度不能超过" + f.getMaxlength());
+                }
+                if (type == FieldTypeEnum.INPUT && StringUtils.isNotBlank(f.getRegex())
+                        && !raw.matches(f.getRegex())) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "格式不正确");
+                }
+                v = raw;
+            }
+        }
+        // 数值区间（P0 万能建模批次）：number/decimal/rating 支持 min/max
+        if (type == FieldTypeEnum.NUMBER || type == FieldTypeEnum.DECIMAL || type == FieldTypeEnum.RATING) {
+            java.math.BigDecimal num = new java.math.BigDecimal(String.valueOf(v));
+            if (f.getMinValue() != null && num.compareTo(f.getMinValue()) < 0) {
+                throw new IllegalArgumentException(
+                        f.getFieldLabel() + "不能小于" + f.getMinValue().stripTrailingZeros().toPlainString());
+            }
+            if (f.getMaxValue() != null && num.compareTo(f.getMaxValue()) > 0) {
+                throw new IllegalArgumentException(
+                        f.getFieldLabel() + "不能大于" + f.getMaxValue().stripTrailingZeros().toPlainString());
+            }
+        }
+        return v;
+    }
+
+    /**
+     * P2 M2A 值校验：form 值 = [{"model":"目标模型code","id":目标内容id},…]，
+     * 逐项校验目标模型标识与内容存在性（status=1），通过后写入 m2aOut 待同步。
+     */
+    @SuppressWarnings("unchecked")
+    private DataVo validateM2a(ModelField f, String raw, Map<String, List<Map<String, Object>>> m2aOut) {
+        List<Map<String, Object>> arr;
+        try {
+            List<Object> parsed = JSON.parseArray(raw);
+            arr = new ArrayList<>();
+            for (Object o : parsed == null ? List.of() : parsed) {
+                if (!(o instanceof Map)) {
+                    return DataVo.failure(f.getFieldLabel() + "必须是 [{model,id}] 数组");
+                }
+                arr.add((Map<String, Object>) o);
+            }
+        } catch (Exception e) {
+            return DataVo.failure(f.getFieldLabel() + "必须是 [{model,id}] 数组");
+        }
+        List<Map<String, Object>> entries = new ArrayList<>();
+        java.util.Set<String> seen = new java.util.LinkedHashSet<>();
+        for (Map<String, Object> item : arr == null ? List.<Map<String, Object>>of() : arr) {
+            String toModel = item.get("model") == null ? "" : String.valueOf(item.get("model")).trim();
+            long toId;
+            try {
+                toId = Long.parseLong(String.valueOf(item.get("id")).trim());
+            } catch (Exception e) {
+                return DataVo.failure(f.getFieldLabel() + "引用格式不正确");
+            }
+            if (toModel.isEmpty()) {
+                return DataVo.failure(f.getFieldLabel() + "缺少目标模型");
+            }
+            String target;
+            try {
+                target = SqlSafeUtil.safeTableSuffixForExisting(toModel);
+            } catch (IllegalArgumentException e) {
+                return DataVo.failure(f.getFieldLabel() + "的目标模型标识非法：" + toModel);
+            }
+            List<Map<String, Object>> rows = modelDataDao.findRowsByIds(target, Arrays.asList(toId), null);
+            if (rows.isEmpty() || toInt(rows.get(0).get("status")) != 1) {
+                return DataVo.failure(f.getFieldLabel() + "引用的内容不存在或未发布");
+            }
+            if (seen.add(toModel + ":" + toId)) {
+                Map<String, Object> entry = new LinkedHashMap<>();
+                entry.put("toModel", toModel);
+                entry.put("toId", toId);
+                entries.add(entry);
+            }
+        }
+        m2aOut.put(f.getFieldName(), entries);
+        return DataVo.success("ok");
+    }
+
+    /**
+     * P2 M2A 关系同步（覆盖式）：删旧插新。m2aOut 为空表示本次未提交任何 m2a 字段，不触碰既有关系。
+     */
+    private void syncRelations(Model model, Long id, Map<String, List<Map<String, Object>>> m2aOut) {
+        if (m2aOut.isEmpty() || model == null || StringUtils.isBlank(model.getCode())) {
+            return;
+        }
+        for (Map.Entry<String, List<Map<String, Object>>> e : m2aOut.entrySet()) {
+            modelDataDao.deleteRelations(model.getCode(), Arrays.asList(id), e.getKey());
+            List<Map<String, Object>> rows = e.getValue();
+            if (rows.isEmpty()) {
+                continue;
+            }
+            List<Map<String, Object>> inserts = new ArrayList<>();
+            SnowFlake snowFlake = SnowFlake.getInstance();
+            for (int i = 0; i < rows.size(); i++) {
+                Map<String, Object> r = new HashMap<>();
+                r.put("id", snowFlake.nextId());
+                r.put("fromModel", model.getCode());
+                r.put("fromId", id);
+                r.put("fieldName", e.getKey());
+                r.put("toModel", rows.get(i).get("toModel"));
+                r.put("toId", rows.get(i).get("toId"));
+                r.put("sort", i);
+                inserts.add(r);
+            }
+            modelDataDao.insertRelations(inserts);
+        }
     }
 
     /**
@@ -741,7 +1478,7 @@ public class ModelDataService {
         if (target == null) {
             return DataVo.failure(f.getFieldLabel() + "的关联目标模型标识非法，请检查字段配置");
         }
-        List<Map<String, Object>> rows = modelDataDao.findRowsByIds(target, ids);
+        List<Map<String, Object>> rows = modelDataDao.findRowsByIds(target, ids, null);
         long published = 0;
         for (Map<String, Object> r : rows) {
             if (toInt(r.get("status")) == 1) {
@@ -817,12 +1554,22 @@ public class ModelDataService {
     private List<Long> collectAttachmentIds(List<ModelField> fields, Map<String, Object> row) {
         List<Long> ids = new ArrayList<>();
         for (ModelField f : fields) {
-            FieldTypeEnum type = FieldTypeEnum.of(f.getFieldType());
-            if (!type.isAttachment()) {
+            FieldTypeEnum type;
+            try {
+                type = FieldTypeEnum.of(f.getFieldType());
+            } catch (IllegalArgumentException e) {
                 continue;
             }
             Object v = row.get(f.getFieldName());
             if (v == null) {
+                continue;
+            }
+            if (type.isStructure()) {
+                // P1：结构体内嵌附件子字段的引用同样参与引用计数
+                collectStructureAttachmentIds(f, type, String.valueOf(v), ids);
+                continue;
+            }
+            if (!type.isAttachment()) {
                 continue;
             }
             try {
@@ -837,6 +1584,62 @@ public class ModelDataService {
             }
         }
         return ids;
+    }
+
+    /** P1：解析 GROUP/REPEATER 的 JSON 值，收集附件子字段引用的 fly_images.id */
+    @SuppressWarnings("unchecked")
+    private void collectStructureAttachmentIds(ModelField f, FieldTypeEnum type, String json, List<Long> ids) {
+        try {
+            List<Map<String, Object>> rows = new ArrayList<>();
+            if (type == FieldTypeEnum.GROUP) {
+                Map<String, Object> obj = JSON.parseObject(json, Map.class);
+                if (obj != null) {
+                    rows.add(obj);
+                }
+            } else {
+                List<Object> arr = JSON.parseArray(json);
+                for (Object o : arr == null ? List.of() : arr) {
+                    if (o instanceof Map) {
+                        rows.add((Map<String, Object>) o);
+                    }
+                }
+            }
+            if (rows.isEmpty()) {
+                return;
+            }
+            for (ModelField child : modelFieldDao.findFieldsByModelId(f.getModelId(), 1)) {
+                if (child.getParentId() == null || child.getParentId() != f.getId()) {
+                    continue;
+                }
+                FieldTypeEnum ct;
+                try {
+                    ct = FieldTypeEnum.of(child.getFieldType());
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+                if (!ct.isAttachment()) {
+                    continue;
+                }
+                for (Map<String, Object> r : rows) {
+                    Object cv = r.get(child.getFieldName());
+                    if (cv == null) {
+                        continue;
+                    }
+                    try {
+                        if (ct == FieldTypeEnum.IMAGE || ct == FieldTypeEnum.FILE) {
+                            ids.add(Long.parseLong(String.valueOf(cv)));
+                        } else {
+                            for (String s : parseStringArray(String.valueOf(cv))) {
+                                ids.add(Long.parseLong(s.trim()));
+                            }
+                        }
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("结构字段[{}]内嵌附件收集失败（忽略）：{}", f.getFieldName(), e.getMessage());
+        }
     }
 
     private List<Long> distinct(List<Long> ids) {

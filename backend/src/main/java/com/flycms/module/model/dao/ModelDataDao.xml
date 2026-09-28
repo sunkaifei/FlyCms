@@ -180,12 +180,66 @@
 	<!--
 	  E1 关联展开：按 id 批量取目标内容的展示列。
 	  列按 G11 口径显式投影（不取 longtext 正文）；ids 恒走 #{} 预编译。
+	  extraColumns = P2 Lookup 展示列（字段元数据 lookupFields，逐列过 safeColumnName），可空。
 	-->
 	<select id="findRowsByIds" resultType="map">
 		SELECT `id`, `short_url`, `title`, `status`
+		<if test="extraColumns != null and extraColumns.size() > 0">
+			<foreach collection="extraColumns" item="c" separator=",">, `${c}`</foreach>
+		</if>
 		FROM `fly_cmodel_${suffix}`
 		WHERE `id` IN
 		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</select>
+
+	<!--
+	  P2 Rollup：按 id 批量取目标行的聚合源值（聚合在 Java 侧按引用行分组计算）。
+	  valueColumn 过 safeColumnName（COUNT 场景为 null，只取 id）。
+	-->
+	<select id="rollupAggregate" resultType="map">
+		SELECT `id` AS refId
+		<if test="valueColumn != null">, `${valueColumn}` AS aggVal</if>
+		FROM `fly_cmodel_${suffix}`
+		WHERE `id` IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+		AND `status` = 1
+	</select>
+
+	<!-- P2 双向标注反查：已发布来源行中 ${columnName}（RELATE 物理列，值 #{}）引用了 ids -->
+	<select id="findReverseRefs" resultType="map">
+		SELECT `${columnName}` AS refId, `id`, `short_url` AS shortUrl, `title`
+		FROM `fly_cmodel_${suffix}`
+		WHERE `${columnName}` IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+		AND `status` = 1
+	</select>
+
+	<!-- M2A（P2）：fly_relation 中间表，rows 由 Service 组装（id 雪花、值已校验） -->
+	<insert id="insertRelations">
+		INSERT INTO fly_relation (id, from_model, from_id, field_name, to_model, to_id, sort) VALUES
+		<foreach collection="rows" item="r" separator=",">
+			(#{r.id}, #{r.fromModel}, #{r.fromId}, #{r.fieldName}, #{r.toModel}, #{r.toId}, #{r.sort})
+		</foreach>
+	</insert>
+
+	<delete id="deleteRelations">
+		DELETE FROM fly_relation
+		WHERE from_model = #{fromModel} AND field_name = #{fieldName} AND from_id IN
+		<foreach collection="fromIds" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</delete>
+
+	<delete id="deleteRelationsByFromIds">
+		DELETE FROM fly_relation
+		WHERE from_model = #{fromModel} AND from_id IN
+		<foreach collection="fromIds" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</delete>
+
+	<select id="findRelations" resultType="map">
+		SELECT from_id AS fromId, to_model AS toModel, to_id AS toId, sort
+		FROM fly_relation
+		WHERE from_model = #{fromModel} AND field_name = #{fieldName} AND from_id IN
+		<foreach collection="fromIds" item="i" open="(" separator="," close=")">#{i}</foreach>
+		ORDER BY from_id ASC, sort ASC
 	</select>
 
 	<!-- 附件：fly_images（AttachmentPicker 数据源与引用计数） -->

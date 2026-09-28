@@ -6,17 +6,19 @@
 		column_type AS columnType, default_value AS defaultValue, maxlength, dict_type AS dictType, options,
 		is_required AS isRequired, is_list AS isList, is_search AS isSearch, is_filter AS isFilter,
 		regex, placeholder, tips, relate_model AS relateModel, is_unique AS isUnique, min_value AS minValue,
-		max_value AS `maxValue`, tab_name AS tabName, sort, status,
+		max_value AS `maxValue`, tab_name AS tabName, parent_id AS parentId, visible_when AS visibleWhen,
+		rollup_expr AS rollupExpr, lookup_fields AS lookupFields, sort, status,
 		create_time AS createTime, update_time AS updateTime</sql>
 
 	<!-- 主键策略（D8）：fly_model_field.id 为 AUTO_INCREMENT，插入不带 id，由 useGeneratedKeys 回填 -->
 	<insert id="addField" useGeneratedKeys="true" keyProperty="id">
 		insert into fly_model_field (model_id, field_name, field_label, field_type, column_type, default_value, maxlength,
 			dict_type, options, is_required, is_list, is_search, is_filter, regex, placeholder, tips, relate_model,
-			is_unique, min_value, max_value, tab_name, sort, status, create_time)
+			is_unique, min_value, max_value, tab_name, parent_id, visible_when, rollup_expr, lookup_fields, sort, status, create_time)
 		values (#{modelId}, #{fieldName}, #{fieldLabel}, #{fieldType}, #{columnType}, #{defaultValue}, #{maxlength},
 			#{dictType}, #{options}, #{isRequired}, #{isList}, #{isSearch}, #{isFilter}, #{regex}, #{placeholder}, #{tips}, #{relateModel},
-			#{isUnique}, #{minValue}, #{maxValue}, #{tabName}, #{sort}, #{status}, now())
+			#{isUnique}, #{minValue}, #{maxValue}, #{tabName},
+			coalesce(#{parentId}, 0), #{visibleWhen}, #{rollupExpr}, #{lookupFields}, #{sort}, #{status}, now())
 	</insert>
 
 	<update id="updateField">
@@ -38,6 +40,9 @@
 			min_value = #{minValue},
 			max_value = #{maxValue},
 			<if test="tabName != null">tab_name = #{tabName},</if>
+			visible_when = #{visibleWhen},
+			rollup_expr = #{rollupExpr},
+			<if test="lookupFields != null">lookup_fields = #{lookupFields},</if>
 			sort = #{sort},
 			status = #{status},
 			update_time = now()
@@ -66,6 +71,17 @@
 		<if test="status != null">and status = #{status}</if>
 		order by sort asc, id asc
 	</select>
+
+	<!-- P2 反向引用：查「哪些模型的 relate 字段指向 code 模型」（仅单值 RELATE 参与反查） -->
+	<select id="findRelateFieldsByTargetModel" resultType="com.flycms.module.model.model.ModelField">
+		select <include refid="base_column"/> from fly_model_field
+		where field_type = 'relate' and status = 1 and relate_model = #{code}
+	</select>
+
+	<!-- P1：删除 GROUP/REPEATER 时级联删子字段元数据 -->
+	<delete id="deleteFieldsByParentId">
+		delete from fly_model_field where parent_id = #{parentId}
+	</delete>
 
 	<update id="updateFieldSort">
 		update fly_model_field set sort = #{sort}, update_time = now() where id = #{id}

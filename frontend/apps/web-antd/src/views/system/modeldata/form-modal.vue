@@ -3,19 +3,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 
 import { useEditDrawer } from '#/utils/edit-drawer';
 
-import {
-  CheckboxGroup,
-  DatePicker,
-  Input,
-  InputNumber,
-  message,
-  Rate,
-  Select,
-  Switch,
-  TabPane,
-  Tabs,
-  Textarea,
-} from 'ant-design-vue';
+import { Button, Input, message, Select, TabPane, Tabs, Textarea } from 'ant-design-vue';
 
 import {
   getDataDetailApi,
@@ -34,15 +22,16 @@ import {
   unassignTemplateApi,
 } from '#/api/core/template';
 
-import AttachmentInput from './attachment-input.vue';
+import DynamicFieldInput from './dynamic-field-input.vue';
 import RichtextEditor from './richtext-editor.vue';
 
 /**
  * 动态内容表单（元数据驱动，全部模型共用，无需新增 Vue 页面）。
  * - 选项卡：自定义字段按 tabName 分组（字段管理里配置），组内按 sort 排序；
- *   多个不同 tabName 时自动出现选项卡，全同则单页。
- * - 自定义控件（attachment-input/richtext-editor）走默认 modelValue 绑定（坑 15）。
- * - DatePicker 用 valueFormat 直接绑字符串，后端 SimpleDateFormat 解析。
+ * - P1 结构层：GROUP 子字段组（JSON 对象）、REPEATER 重复行（可增删行）、
+ *   条件显隐（visibleWhen 命中隐藏的字段不渲染、不校验、不提交）；
+ * - P2 关系层：m2a 任意关联（"model:id" 复合值，候选项聚合全部模型内容）；
+ * - 预览模式（preview: true）：只渲染表单不提交，供「建模后即时预览录入界面」。
  */
 const TAB_BASE = '基础信息';
 const TAB_CONTENT = '详细内容';
@@ -55,11 +44,18 @@ const record = ref<null | Record<string, any>>(null);
 const activeTab = ref(TAB_BASE);
 const values = reactive<Record<string, any>>({ status: '0' });
 let onSaved: (() => void) | undefined;
+/** 预览模式（field.vue「预览表单」按钮打开） */
+const preview = ref(false);
+
+/** 顶层字段（P1：parentId 为空或 0） */
+const topFields = computed(() =>
+  fields.value.filter((f) => !f.parentId || f.parentId === 0),
+);
 
 /** 自定义字段的选项卡名（保持首次出现顺序） */
 const customTabs = computed(() => {
   const names: string[] = [];
-  for (const f of fields.value) {
+  for (const f of topFields.value) {
     const tab = f.tabName || TAB_BASE;
     if (!names.includes(tab)) names.push(tab);
   }
@@ -67,17 +63,60 @@ const customTabs = computed(() => {
 });
 
 function fieldsOfTab(tab: string): ModelFieldRow[] {
-  return fields.value.filter((f) => (f.tabName || TAB_BASE) === tab);
+  return topFields.value.filter((f) => (f.tabName || TAB_BASE) === tab);
 }
 
-function parseOptions(optionsJson?: string) {
-  if (!optionsJson) return [];
+function childrenOf(f: ModelFieldRow): ModelFieldRow[] {
+  return fields.value.filter((cf) => cf.parentId === f.id);
+}
+
+/** P1 条件显隐求值（与后端 isVisible 同口径；解析失败按显示处理） */
+function isVisible(f: ModelFieldRow): boolean {
+  if (!f.visibleWhen) return true;
   try {
-    return JSON.parse(optionsJson).map((o: any) =>
-      typeof o === 'string' ? { label: o, value: o } : o,
-    );
+    const cond = JSON.parse(f.visibleWhen);
+    const actual = values[cond.field];
+    const present =
+      actual !== undefined &&
+      actual !== null &&
+      actual !== '' &&
+      !(Array.isArray(actual) && actual.length === 0);
+    const expected = cond.value ?? '';
+    switch (cond.op) {
+      case 'eq': {
+        return present && String(actual).trim() === String(expected);
+      }
+      case 'neq': {
+        return !present || String(actual).trim() !== String(expected);
+      }
+      case 'in': {
+        return (
+          present &&
+          String(expected)
+            .split(',')
+            .includes(String(actual).trim())
+        );
+      }
+      case 'notin': {
+        return (
+          !present ||
+          !String(expected)
+            .split(',')
+            .includes(String(actual).trim())
+        );
+      }
+      case 'empty': {
+        return !present;
+      }
+      case 'notempty': {
+        return present;
+      }
+      default: {
+        return true;
+      }
+    }
   } catch {
-    return optionsJson.split(',').map((s) => ({ label: s, value: s }));
+    return true;
   }
 }
 
@@ -90,7 +129,7 @@ function pick(row: Record<string, any>, name: string) {
   return row[camel];
 }
 
-// /////////// E1 关联字段（relate / relates）候选项 ///////////
+// /////////// E1/P2 关联字段（relate / relates / m2a）候选项 ///////////
 
 /** fieldName → 候选选项（目标模型的内容列表） */
 const relationOptions = ref<Record<string, { label: string; value: string }[]>>({});
@@ -99,7 +138,9 @@ let modelCode2Id: Record<string, string> = {};
 
 async function loadRelationOptions(fieldsList: ModelFieldRow[]) {
   const relFields = fieldsList.filter(
-    (f) => ['relate', 'relates'].includes(f.fieldType) && f.relateModel,
+    (f) =>
+      (['relate', 'relates'].includes(f.fieldType) && f.relateModel) ||
+      f.fieldType === 'm2a',
   );
   if (relFields.length === 0) return;
   if (Object.keys(modelCode2Id).length === 0) {
@@ -113,6 +154,30 @@ async function loadRelationOptions(fieldsList: ModelFieldRow[]) {
     }
   }
   for (const f of relFields) {
+    // P2 m2a：候选项 = 全部模型的内容聚合，value 用 "model:id" 复合串
+    if (f.fieldType === 'm2a') {
+      const opts: { label: string; value: string }[] = [];
+      try {
+        const res = await getModelListApi({ p: 1 });
+        for (const m of res.list ?? []) {
+          try {
+            const r = await getDataListApi(m.id, { p: 1, rows: 100 });
+            for (const item of r.list ?? []) {
+              opts.push({
+                label: `${m.name} / ${item.title ?? item.id}`,
+                value: `${m.code}:${item.id}`,
+              });
+            }
+          } catch {
+            // 单个模型拉取失败跳过
+          }
+        }
+      } catch {
+        // 模型列表失败
+      }
+      relationOptions.value[f.fieldName] = opts;
+      continue;
+    }
     const targetId = modelCode2Id[f.relateModel as string];
     if (!targetId) {
       relationOptions.value[f.fieldName] = [];
@@ -190,13 +255,15 @@ const [Modal, modalApi] = useEditDrawer({
       message.warning('定时发布必须填写发布时间');
       return;
     }
-    for (const f of fields.value) {
+    for (const f of topFields.value) {
+      if (!isVisible(f)) continue; // P1 隐藏字段不校验
       const v = values[f.fieldName];
       const blank =
         v === undefined ||
         v === null ||
         v === '' ||
-        (Array.isArray(v) && v.length === 0);
+        (Array.isArray(v) && v.length === 0) ||
+        (f.fieldType === 'repeater' && Array.isArray(v) && v.length === 0);
       if (f.isRequired === 1 && blank) {
         message.warning(`${f.fieldLabel}不能为空`);
         return;
@@ -222,10 +289,27 @@ const [Modal, modalApi] = useEditDrawer({
       ]) {
         if (values[key]) payload[key] = values[key];
       }
-      for (const f of fields.value) {
+      for (const f of topFields.value) {
+        if (!isVisible(f)) continue; // P1 隐藏字段不提交
         const v = values[f.fieldName];
+        // P2 m2a：显式提交（含空数组 = 清空关系），把 "model:id" 拆回 [{model,id}]
+        if (f.fieldType === 'm2a') {
+          if (Array.isArray(v)) {
+            payload[f.fieldName] = JSON.stringify(
+              v.map((s: string) => {
+                const idx = String(s).indexOf(':');
+                return {
+                  model: String(s).slice(0, idx),
+                  id: String(s).slice(idx + 1),
+                };
+              }),
+            );
+          }
+          continue;
+        }
         if (v === undefined || v === null || v === '') continue;
-        payload[f.fieldName] = Array.isArray(v) ? JSON.stringify(v) : String(v);
+        payload[f.fieldName] =
+          Array.isArray(v) || typeof v === 'object' ? JSON.stringify(v) : String(v);
       }
       if (values.publish_time) payload.publish_time = values.publish_time;
       if (record.value) {
@@ -243,6 +327,18 @@ const [Modal, modalApi] = useEditDrawer({
   title: '内容',
 });
 
+/** REPEATER 加一行 */
+function addRepeaterRow(f: ModelFieldRow) {
+  if (!Array.isArray(values[f.fieldName])) values[f.fieldName] = [];
+  const row: Record<string, any> = {};
+  for (const child of childrenOf(f)) row[child.fieldName] = undefined;
+  values[f.fieldName].push(row);
+}
+
+function removeRepeaterRow(f: ModelFieldRow, index: number) {
+  if (Array.isArray(values[f.fieldName])) values[f.fieldName].splice(index, 1);
+}
+
 onMounted(async () => {
   const data = modalApi.getData() as
     | {
@@ -250,14 +346,16 @@ onMounted(async () => {
         fields?: ModelFieldRow[];
         model?: ModelRow;
         onSaved?: () => void;
+        preview?: boolean;
         record?: Record<string, any>;
       }
     | undefined;
   onSaved = data?.onSaved;
+  preview.value = Boolean(data?.preview);
   if (data?.fields) fields.value = data.fields;
   if (data?.categories) categories.value = data.categories;
   if (data?.model) model.value = data.model;
-  // E1：关联字段候选项（目标模型内容列表），必须在回显取值之前就绪
+  // E1/P2：关联字段候选项（目标模型内容列表），必须在回显取值之前就绪
   await loadRelationOptions(fields.value);
 
   if (data?.record) {
@@ -285,6 +383,26 @@ onMounted(async () => {
         } catch {
           v = v ? String(v).split(',') : [];
         }
+      } else if (f.fieldType === 'group') {
+        // P1 字段组：JSON 对象
+        try {
+          v = v ? JSON.parse(String(v)) : {};
+        } catch {
+          v = {};
+        }
+      } else if (f.fieldType === 'repeater') {
+        // P1 重复行：JSON 数组
+        try {
+          v = v ? JSON.parse(String(v)) : [];
+        } catch {
+          v = [];
+        }
+      } else if (f.fieldType === 'm2a') {
+        // P2 任意关联：读展开的 {field}List，转 "model:id" 复合值
+        const list = row[`${f.fieldName}List`];
+        v = Array.isArray(list)
+          ? list.map((x: any) => `${x.model}:${x.id}`)
+          : [];
       } else if (f.fieldType === 'number' || f.fieldType === 'decimal') {
         v = v === '' || v === null ? undefined : Number(v);
       } else if (
@@ -297,21 +415,33 @@ onMounted(async () => {
         v = v === '' || v === null ? undefined : String(v);
       } else if (f.fieldType === 'switch') {
         v = String(v) === '1' || String(v).toLowerCase() === 'true';
-      } else if (f.fieldType === 'rating' || f.fieldType === 'number' || f.fieldType === 'decimal') {
+      } else if (f.fieldType === 'rating') {
         v = v === '' || v === null ? undefined : Number(v);
       }
       values[f.fieldName] = v;
     }
   } else {
-    modalApi.setState({ title: `添加${model.value?.titleLabel || '内容'}` });
+    modalApi.setState({
+      title: preview.value
+        ? `预览录入界面（${model.value?.name || ''}）`
+        : `添加${model.value?.titleLabel || '内容'}`,
+    });
     for (const f of fields.value) {
-      values[f.fieldName] =
-        f.fieldType === 'checkbox'
-          ? []
-          : (f.defaultValue ??
-            (f.fieldType === 'number' || f.fieldType === 'decimal'
-              ? undefined
-              : ''));
+      if (f.fieldType === 'repeater' || f.fieldType === 'm2a') {
+        values[f.fieldName] = [];
+      } else if (f.fieldType === 'group') {
+        const obj: Record<string, any> = {};
+        for (const child of childrenOf(f)) obj[child.fieldName] = undefined;
+        values[f.fieldName] = obj;
+      } else {
+        values[f.fieldName] =
+          f.fieldType === 'checkbox'
+            ? []
+            : (f.defaultValue ??
+              (f.fieldType === 'number' || f.fieldType === 'decimal'
+                ? undefined
+                : ''));
+      }
     }
   }
   loadTemplateAssign();
@@ -354,10 +484,6 @@ onMounted(async () => {
             />
           </div>
           <div class="col-span-2">
-            <div class="mb-1 text-sm">封面图</div>
-            <AttachmentInput v-model:model-value="values.thumbnail" />
-          </div>
-          <div class="col-span-2">
             <div class="mb-1 text-sm">内容模板（详情页版式）</div>
             <Select
               v-if="record"
@@ -375,6 +501,13 @@ onMounted(async () => {
             <div class="mt-0.5 text-xs text-gray-400">
               指派优先级最高；清空即恢复 list/detail 层级默认（§5）
             </div>
+          </div>
+          <div class="col-span-2">
+            <div class="mb-1 text-sm">封面图</div>
+            <DynamicFieldInput
+              v-model="values.thumbnail"
+              :field="{ fieldName: 'thumbnail', fieldLabel: '封面图', fieldType: 'image' } as any"
+            />
           </div>
           <div class="col-span-2" v-if="values.status === '4'">
             <div class="mb-1 text-sm">
@@ -406,137 +539,80 @@ onMounted(async () => {
         <div class="grid grid-cols-2 gap-x-5 gap-y-3">
           <div
             v-for="f in fieldsOfTab(tab)"
+            v-show="isVisible(f)"
             :key="f.id"
-            :class="['textarea', 'images', 'files', 'relates', 'image_url'].includes(f.fieldType) ? 'col-span-2' : ''"
+            :class="['textarea', 'images', 'files', 'relates', 'image_url', 'repeater', 'm2a'].includes(f.fieldType) ? 'col-span-2' : ''"
           >
             <div class="mb-1 text-sm">
               <span v-if="f.isRequired === 1" class="text-red-500">*</span>
               {{ f.fieldLabel }}
               <span class="ml-1 text-xs text-gray-400">{{ f.fieldName }}</span>
             </div>
-            <InputNumber
-              v-if="f.fieldType === 'number'"
-              v-model:value="values[f.fieldName]"
-              class="w-full"
-              :placeholder="f.placeholder || f.fieldLabel"
-            />
-            <InputNumber
-              v-else-if="f.fieldType === 'decimal'"
-              v-model:value="values[f.fieldName]"
-              class="w-full"
-              :placeholder="f.placeholder || f.fieldLabel"
-              :step="0.01"
-            />
-            <Select
-              v-else-if="f.fieldType === 'select' || f.fieldType === 'radio'"
-              v-model:value="values[f.fieldName]"
-              allow-clear
-              class="w-full"
-              :options="parseOptions(f.options)"
-              :placeholder="f.placeholder || f.fieldLabel"
-            />
-            <CheckboxGroup
-              v-else-if="f.fieldType === 'checkbox'"
-              v-model:value="values[f.fieldName]"
-              :options="parseOptions(f.options)"
-            />
-            <DatePicker
-              v-else-if="f.fieldType === 'date'"
-              v-model:value="values[f.fieldName]"
-              class="w-full"
-              value-format="YYYY-MM-DD"
-            />
-            <DatePicker
-              v-else-if="f.fieldType === 'datetime'"
-              v-model:value="values[f.fieldName]"
-              show-time
-              class="w-full"
-              value-format="YYYY-MM-DD HH:mm:ss"
-            />
-            <AttachmentInput
-              v-else-if="f.fieldType === 'image' || f.fieldType === 'file'"
-              v-model:model-value="values[f.fieldName]"
-            />
-            <AttachmentInput
-              v-else-if="f.fieldType === 'images' || f.fieldType === 'files'"
-              v-model:model-value="values[f.fieldName]"
-              multiple
-            />
-            <!-- E1 关联引用：候选项来自目标模型内容列表（一次拉取，前端筛选） -->
-            <Select
-              v-else-if="f.fieldType === 'relate'"
-              v-model:value="values[f.fieldName]"
-              allow-clear
-              class="w-full"
-              option-filter-prop="label"
-              :options="relationOptions[f.fieldName] ?? []"
-              :placeholder="`选择${f.fieldLabel}（${f.relateModel}）`"
-              show-search
-            />
-            <Select
-              v-else-if="f.fieldType === 'relates'"
-              v-model:value="values[f.fieldName]"
-              allow-clear
-              class="w-full"
-              mode="multiple"
-              option-filter-prop="label"
-              :options="relationOptions[f.fieldName] ?? []"
-              :placeholder="`选择${f.fieldLabel}（${f.relateModel}）`"
-              show-search
-            />
-            <!-- E3 直存 URL：不走附件库引用计数 -->
-            <div v-else-if="f.fieldType === 'image_url'" class="w-full">
-              <Input
-                v-model:value="values[f.fieldName]"
-                :placeholder="f.placeholder || '图片 URL，如 /upload/2026/09/a.png'"
-              />
-              <img
-                v-if="values[f.fieldName]"
-                :alt="f.fieldLabel"
-                class="mt-1 max-h-24 rounded border"
-                :src="values[f.fieldName]"
-              />
+
+            <!-- P1 GROUP 字段组：子字段网格 -->
+            <div
+              v-if="f.fieldType === 'group'"
+              class="rounded border border-gray-200 p-3"
+            >
+              <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                <div v-for="child in childrenOf(f)" :key="child.id">
+                  <div class="mb-1 text-xs text-gray-500">
+                    <span v-if="child.isRequired === 1" class="text-red-500">*</span>
+                    {{ child.fieldLabel }}
+                    <span class="ml-1 text-gray-300">{{ child.fieldName }}</span>
+                  </div>
+                  <DynamicFieldInput
+                    v-model="values[f.fieldName][child.fieldName]"
+                    :field="child"
+                  />
+                </div>
+                <div v-if="childrenOf(f).length === 0" class="text-xs text-gray-400">
+                  该字段组还没有子字段（在「字段管理」里点「子字段」添加）
+                </div>
+              </div>
             </div>
-            <Input
-              v-else-if="f.fieldType === 'file_url'"
-              v-model:value="values[f.fieldName]"
-              :placeholder="f.placeholder || '附件 URL'"
-            />
-            <!-- P0 万能建模批次：switch/rating/color -->
-            <Switch
-              v-else-if="f.fieldType === 'switch'"
-              :checked="values[f.fieldName] === true || values[f.fieldName] === '1'"
-              @change="(checked: any) => (values[f.fieldName] = checked ? '1' : '0')"
-            />
-            <Rate
-              v-else-if="f.fieldType === 'rating'"
-              v-model:value="values[f.fieldName]"
-              allow-clear
-            />
-            <div v-else-if="f.fieldType === 'color'" class="flex items-center gap-2">
-              <input
-                type="color"
-                class="h-8 w-12 cursor-pointer rounded border"
-                :value="values[f.fieldName] || '#1677ff'"
-                @input="values[f.fieldName] = ($event.target as HTMLInputElement).value"
-              />
-              <Input
-                v-model:value="values[f.fieldName]"
-                class="w-40"
-                placeholder="#RRGGBB"
-              />
+
+            <!-- P1 REPEATER 重复行：可增删行 -->
+            <div v-else-if="f.fieldType === 'repeater'" class="space-y-3">
+              <div
+                v-for="(rowItem, rowIndex) in values[f.fieldName] || []"
+                :key="rowIndex"
+                class="relative rounded border border-gray-200 p-3"
+              >
+                <Button
+                  class="absolute right-2 top-2"
+                  danger
+                  size="small"
+                  type="link"
+                  @click="removeRepeaterRow(f, Number(rowIndex))"
+                >
+                  删除本行
+                </Button>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div v-for="child in childrenOf(f)" :key="child.id">
+                    <div class="mb-1 text-xs text-gray-500">
+                      <span v-if="child.isRequired === 1" class="text-red-500">*</span>
+                      {{ child.fieldLabel }}
+                      <span class="ml-1 text-gray-300">{{ child.fieldName }}</span>
+                    </div>
+                    <DynamicFieldInput
+                      v-model="rowItem[child.fieldName]"
+                      :field="child"
+                    />
+                  </div>
+                </div>
+              </div>
+              <Button class="w-full" size="small" @click="addRepeaterRow(f)">
+                + 添加一行（{{ (values[f.fieldName] || []).length }} 行）
+              </Button>
             </div>
-            <Textarea
-              v-else-if="f.fieldType === 'textarea'"
-              v-model:value="values[f.fieldName]"
-              :placeholder="f.placeholder || f.fieldLabel"
-              :rows="3"
-            />
-            <Input
+
+            <!-- 其余类型走通用控件（relate/relates/m2a 候选项由父组件传入） -->
+            <DynamicFieldInput
               v-else
-              v-model:value="values[f.fieldName]"
-              :maxlength="f.maxlength || undefined"
-              :placeholder="f.placeholder || f.fieldLabel"
+              v-model="values[f.fieldName]"
+              :field="f"
+              :options="relationOptions[f.fieldName] ?? []"
             />
             <div v-if="f.tips" class="mt-0.5 text-xs text-gray-400">
               {{ f.tips }}

@@ -56,7 +56,29 @@ public enum FieldTypeEnum {
     /** 评分（1..5，可配 min/max 扩展量程） */
     RATING("rating", "tinyint(4)", null),
     /** URL 片段（对标 Strapi UID/ACF 的 slug：小写字母数字连字符，常配唯一约束） */
-    SLUG("slug", "varchar(128)", null);
+    SLUG("slug", "varchar(128)", null),
+    /**
+     * 子字段组（P1 结构层，对标 ACF Group / Strapi Component）：JSON 列存对象，
+     * 子字段定义存 fly_model_field.parent_id（字段表自关联），录入与展示按子字段 schema 递归处理。
+     */
+    GROUP("group", "json", null),
+    /**
+     * 重复行（P1 结构层，对标 ACF Repeater / Payload Array）：与 GROUP 同构，
+     * JSON 列存数组，每行按子字段 schema 校验。
+     */
+    REPEATER("repeater", "json", null),
+    /**
+     * 聚合统计（P2 关系层，对标 NocoDB Rollup）：虚拟字段不建列，
+     * 配置存 fly_model_field.rollup_expr（JSON：source=本模型关联字段名，func=COUNT/SUM/AVG/MIN/MAX，
+     * column=SUM/AVG/MIN/MAX 时目标行的数值列名，须过 safeColumnName）。
+     */
+    ROLLUP("rollup", null, null),
+    /**
+     * 多对任意（P2 关系层，对标 Directus M2A）：不建物理列，关系存平台中间表 fly_relation
+     * （from_model/from_id/field_name/to_model/to_id/sort），值 = [{model,id},…] 数组，
+     * 承接「相关阅读/商品推荐」这类可关联任意模型的场景。
+     */
+    M2A("m2a", null, null);
 
     private final String code;
     private final String ddl;
@@ -106,6 +128,21 @@ public enum FieldTypeEnum {
     /** 是否「直存 URL」附件类型（E3：值就是 URL 字符串，不参与引用计数） */
     public boolean isUrlType() {
         return this == IMAGE_URL || this == FILE_URL;
+    }
+
+    /** 是否结构类型（P1：GROUP/REPEATER，JSON 存子字段结构，子字段定义见 parent_id） */
+    public boolean isStructure() {
+        return this == GROUP || this == REPEATER;
+    }
+
+    /** 是否虚拟字段（不建列、不落动态表：rollup/m2a，editor 走主表 content 通道同样无列） */
+    public boolean isVirtual() {
+        return this == ROLLUP || this == M2A;
+    }
+
+    /** 是否允许作为 GROUP/REPEATER 的子字段（结构/虚拟/富文本不可嵌套，编辑器走主表通道会撞 content） */
+    public boolean canBeStructureChild() {
+        return !isStructure() && !isVirtual() && this != EDITOR;
     }
 
     /** 是否 text 系重列（列表查询不投影）：textarea 是 text，editor 走主表 content 通道 */
