@@ -1,5 +1,6 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * 
  * @author sunaifei
  */
+@Slf4j
 public class IpUtils{
 	private static Logger logger = LoggerFactory.getLogger(IpUtils.class);
 	public IpUtils()
@@ -94,7 +96,7 @@ public class IpUtils{
 				try {
 					inet = InetAddress.getLocalHost();
 				} catch (UnknownHostException e) {
-					e.printStackTrace();
+					log.warn("操作异常，已降级处理", e);
 				}
 				ipAddress = inet.getHostAddress();
 			}

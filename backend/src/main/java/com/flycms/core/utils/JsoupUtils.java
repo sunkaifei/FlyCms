@@ -1,5 +1,6 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -25,6 +26,7 @@ import java.io.IOException;
  * 过滤html中的xss字符
  * @author xbz
  */
+@Slf4j
 public class JsoupUtils {
 
     /**
@@ -52,7 +54,7 @@ public class JsoupUtils {
 
     public static void main(String[] args) throws IOException {
         String text = "   <a href=\"http://www.baidu.com/a\" onclick=\"alert(1);\">sss</a><script>alert(0);</script>sss   ";
-        System.out.println(clean(text));
+        log.debug(String.valueOf(clean(text)));
     }
 }
 

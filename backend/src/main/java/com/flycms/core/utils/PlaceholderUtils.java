@@ -1,5 +1,6 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
  * @Date: 0:01 2018/9/8
  */
 
+@Slf4j
 public class PlaceholderUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(PlaceholderUtils.class);
@@ -68,10 +70,10 @@ public class PlaceholderUtils {
         map.put("num","小二比");
         map.put("people","小明");
         double Qview = ((0.3 * 4) + (0 * 0) / 5 + 0) / Math.pow(((1 + 1) - (1- 0) / 2), 1.5);
-        System.out.println(Qview);
-        System.out.println(Math.log10(2));
+        log.debug(String.valueOf(Qview));
+        log.debug(String.valueOf(Math.log10(2)));
 
-        System.out.println(Math.pow(((1 + 1) - (1 - 0) / 2), 1.5));
+        log.debug(String.valueOf(Math.pow(((1 + 1) - (1 - 0) / 2), 1.5)));
     }
 
 }

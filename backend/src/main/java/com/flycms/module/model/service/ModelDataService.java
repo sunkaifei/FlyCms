@@ -122,9 +122,56 @@ public class ModelDataService {
         params.put("offset", pageVo.getOffset());
         params.put("rows", pageVo.getRows());
         String whereSql = String.join(" AND ", where);
-        pageVo.setList(modelDataDao.selectPage(tableSuffixOf(modelId), whereSql, orderBySql, params));
+        pageVo.setList(modelDataDao.selectPage(tableSuffixOf(modelId), whereSql, orderBySql,
+                listColumns(fields), params));
         pageVo.setCount(modelDataDao.countPage(tableSuffixOf(modelId), whereSql, params));
         return pageVo;
+    }
+
+    /**
+     * 列表查询的固定列（与 {@link ModelTableService#createModelTable} 的建表 DDL 一致）。
+     * 顺序即 SELECT 输出顺序，便于人工比对。
+     */
+    private static final List<String> LIST_BASE_COLUMNS = Arrays.asList(
+            "id", "short_url", "user_id", "category_id", "title", "keywords", "description",
+            "thumbnail", "recommend", "count_view", "count_comment", "status",
+            "create_time", "update_time", "publish_time");
+
+    /**
+     * G11：列表列白名单投影（收敛 {@code SELECT *}）。
+     *
+     * <p>组成 = 固定列 {@link #LIST_BASE_COLUMNS} + 启用模型字段中「有独立列且非 text 系」的字段。
+     * 排除 text 系（{@link FieldTypeEnum#TEXTAREA}）与主表 {@code content} 通道：列表页模板只消费
+     * 标题 / 摘要 / 封面 / 时间 / 计数等轻量列，正文一律由详情查询
+     * （{@link #findDataById} / {@link #findByShortUrl}，保留 {@code SELECT *}）提供，
+     * 避免列表查询把 longtext / text 整列拉回内存。
+     *
+     * <p>列名一律过 {@link SqlSafeUtil#safeColumnName}，非法字段名直接跳过（不进入 SQL）。
+     */
+    private List<String> listColumns(List<ModelField> fields) {
+        List<String> columns = new ArrayList<>(LIST_BASE_COLUMNS);
+        for (ModelField f : fields) {
+            FieldTypeEnum type;
+            try {
+                type = FieldTypeEnum.of(f.getFieldType());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            // editor 不建列（正文走 content 通道）；textarea 是重列，列表不投影
+            if (!type.hasColumn() || type == FieldTypeEnum.TEXTAREA) {
+                continue;
+            }
+            String name;
+            try {
+                name = SqlSafeUtil.safeColumnName(f.getFieldName());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            if (!columns.contains(name)) {
+                columns.add(name);
+            }
+        }
+        return columns;
     }
 
     public Map<String, Object> findDataById(Long modelId, Long id) {

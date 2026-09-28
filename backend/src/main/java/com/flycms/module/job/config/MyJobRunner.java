@@ -3,6 +3,7 @@ package com.flycms.module.job.config;
 import com.flycms.module.job.model.Job;
 import com.flycms.module.job.service.JobService;
 import com.flycms.module.job.utils.ScheduleUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -16,6 +17,7 @@ import java.util.List;
  * @author 郑杰
  * @date 2018/10/06 11:09:35
  */
+@Slf4j
 @Service
 public class MyJobRunner implements ApplicationRunner {
 
@@ -33,7 +35,7 @@ public class MyJobRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments applicationArguments){
 
-        System.out.println("--------------------开始注入定时任务---------------------");
+        log.info("开始注入启用的定时任务");
         List<Job> jobs = jobService.getJobAllList();
         jobs.forEach(scheduleJob -> {
             ScheduleUtils.createScheduleJob(scheduler, scheduleJob);

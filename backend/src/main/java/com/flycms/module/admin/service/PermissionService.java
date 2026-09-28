@@ -8,6 +8,8 @@ import com.flycms.module.admin.dao.PermissionDao;
 import com.flycms.module.admin.model.Permission;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.method.HandlerMethod;
@@ -30,6 +32,7 @@ public class PermissionService {
 
     //同步并更新所有权限
     @Transactional
+    @CacheEvict(value = "permission", allEntries = true)
     public boolean getSyncAllPermission(){
         RequestMappingHandlerMapping mapping = applicationContext.getBean(RequestMappingHandlerMapping.class);
         //获取url与类和方法的对应信息
@@ -93,6 +96,7 @@ public class PermissionService {
     // ///////////////////////////////
     //按id删除权限权限
     @Transactional
+    @CacheEvict(value = "permission", allEntries = true)
     public boolean deletePermission(Long id){
         int totalCount = permissionDao.deletePermission(id);
         permissionDao.deleteRolePermission(id);
@@ -103,6 +107,7 @@ public class PermissionService {
     // /////        修改      ////////
     // ///////////////////////////////
     //添加产品分类信息
+    @CacheEvict(value = "permission", allEntries = true)
     public DataVo updatePermissions(Permission permission){
         DataVo data = DataVo.failure("操作失败");
         if(permissionDao.updatePermissions(permission)>0){
@@ -144,9 +149,15 @@ public class PermissionService {
     /**
      * 查询该用户所有权限url
      *
+     * <p>阶段 L/G10：加了 {@code @Cacheable}。改造前 {@code ApiBaseController.requirePermission()}
+     * 每个受保护 API 都要打一次库，高频接口开销可观。权限数据的写入口只有
+     * {@link #getSyncAllPermission()}、{@link #deletePermission(Long)}、{@link #updatePermissions}
+     * 三处，均已配套 {@code @CacheEvict}。
+     *
      * @param userId
      * @return
      */
+    @Cacheable(value = "permission", key = "#userId")
     public List<Permission> findPermissionByUserId(Long userId) {
         return permissionDao.findPermissionByUserId(userId);
     }

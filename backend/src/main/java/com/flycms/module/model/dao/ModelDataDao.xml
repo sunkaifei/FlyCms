@@ -91,9 +91,23 @@
 		SELECT COUNT(*) > 0 FROM `fly_cmodel_${suffix}` WHERE `short_url` = #{shortUrl}
 	</select>
 
-	<!-- whereSql/orderBySql 由 Service 依元数据白名单生成，参数占位 #{params.xxx} 预编译 -->
+	<!--
+	  G11：列表查询改为显式列投影（收敛 SELECT *），避免把 longtext 正文（content）
+	  与 text 型自定义字段整列拉回内存。
+	  columns 由 Service 依「固定列常量 + 启用模型字段（排除 text 系）」生成，
+	  每个元素均已过 SqlSafeUtil.safeColumnName 白名单，非用户输入；这里统一加反引号。
+	  columns 为空时回退全列（向后兼容）。
+	  whereSql/orderBySql 同样由 Service 依元数据白名单生成，参数占位 #{params.xxx} 预编译。
+	-->
 	<select id="selectPage" resultType="map">
-		SELECT * FROM `fly_cmodel_${suffix}`
+		SELECT
+		<choose>
+			<when test="columns != null and columns.size() > 0">
+				<foreach collection="columns" item="c" separator=",">`${c}`</foreach>
+			</when>
+			<otherwise>*</otherwise>
+		</choose>
+		FROM `fly_cmodel_${suffix}`
 		<where>${whereSql}</where>
 		ORDER BY ${orderBySql}
 		LIMIT #{params.offset}, #{params.rows}

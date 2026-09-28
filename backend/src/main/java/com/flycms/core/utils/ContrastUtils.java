@@ -1,5 +1,6 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -13,6 +14,7 @@ import java.lang.reflect.Method;
  * @email 79678111@qq.com
  * @Date: 12:17 2018/9/28
  */
+@Slf4j
 public class ContrastUtils<T> {
     public String contrastObj(Object oldBean, Object newBean) {
         String str="";
@@ -43,7 +45,7 @@ public class ContrastUtils<T> {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("操作异常，已降级处理", e);
         }
         // }
         return str;

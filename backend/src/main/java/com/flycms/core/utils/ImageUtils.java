@@ -1,5 +1,6 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -39,6 +40,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
  * 
  */
 @Service
+@Slf4j
 public class ImageUtils {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -102,7 +104,7 @@ public class ImageUtils {
 		try {
 			is.read(b, 0, b.length);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.warn("操作异常，已降级处理", e);
 		}
 		String type = bytesToHexString(b).toUpperCase();
 		if (type.contains("FFD8FF")) {
@@ -153,15 +155,15 @@ public class ImageUtils {
                 BufferedImage bi = reader.read(0, param);
                 ImageIO.write(bi, suffix, output);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                log.warn("操作异常，已降级处理", e);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.warn("操作异常，已降级处理", e);
             } finally {
                 try {
                     if(fis != null){ fis.close();}
                     if(iis != null){ iis.close();}
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.warn("操作异常，已降级处理", e);
                 }
             }
         }else {

@@ -1,5 +1,6 @@
 package com.flycms.core.utils.lucbir.index;
 
+import lombok.extern.slf4j.Slf4j;
 import com.flycms.core.utils.lucbir.features.Feature;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -20,6 +21,7 @@ import java.nio.file.Paths;
 /**
  * Created by Administrator on 2016/7/11.
  */
+@Slf4j
 public class LucbirIndexer {
     /**
      * 在此仅作为特征提取工具<br>
@@ -54,7 +56,7 @@ public class LucbirIndexer {
                 iterateFile(writer, new File(pictureDirectory));
                 writer.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.warn("操作异常，已降级处理", e);
                 return;
             }
         }
@@ -74,11 +76,11 @@ public class LucbirIndexer {
                 Document document = new Document();
                 document.add(new StringField(LucbirIndexer.FEATURE_NAME_FIELD_NAME, this.feature.getFeatureName(), Field.Store.YES));
                 document.add(new StringField(LucbirIndexer.FEATURE_VALUE_FIELD_NAME, featureValue, Field.Store.YES));
-                System.out.println(featureValue);
+                log.debug(String.valueOf(featureValue));
                 document.add(new StringField(LucbirIndexer.IMAGE_PATH_FIELD_NAME, file.getAbsolutePath(), Field.Store.YES));
                 writer.addDocument(document);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.warn("操作异常，已降级处理", e);
             }
         }else{
             for(File f : file.listFiles()){
@@ -96,7 +98,7 @@ public class LucbirIndexer {
                 featureValue = this.feature.feature2index();
                 //System.out.println(featureValue);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.warn("操作异常，已降级处理", e);
             }
         }
 		return featureValue;

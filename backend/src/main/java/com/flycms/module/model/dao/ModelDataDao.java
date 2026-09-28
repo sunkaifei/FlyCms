@@ -53,8 +53,16 @@ public interface ModelDataDao {
 
     public boolean existsShortUrl(@Param("suffix") String suffix, @Param("shortUrl") String shortUrl);
 
+    /**
+     * 动态列表查询（列白名单投影，G11）。
+     *
+     * @param columns 投影列清单（不含反引号；每个元素由 Service 依「固定列 + 启用模型字段」生成，
+     *                并已过 {@code SqlSafeUtil.safeColumnName}），XML 侧统一加反引号输出。
+     *                传空则回退为全列，保证向后兼容。
+     */
     public List<Map<String, Object>> selectPage(@Param("suffix") String suffix, @Param("whereSql") String whereSql,
                                                 @Param("orderBySql") String orderBySql,
+                                                @Param("columns") List<String> columns,
                                                 @Param("params") Map<String, Object> params);
 
     public int countPage(@Param("suffix") String suffix, @Param("whereSql") String whereSql,

@@ -545,10 +545,5 @@ public class ImagesService {
 		Matcher matcher = p.matcher(url);
 		return matcher.find();
 	}
-	public static void main(String[] args) {
-		System.out.println(getContentUrl("/upload/content/2019/1/24/30EC1B7906CBFC8B_0.png"));
-
-
-	}
 
 }

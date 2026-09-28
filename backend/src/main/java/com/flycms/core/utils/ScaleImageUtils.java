@@ -1,5 +1,6 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -29,6 +30,7 @@ import com.flycms.core.utils.lucbir.index.LucbirIndexer;
  * @email hoojo_@126.com
  * @version 1.0
  */
+@Slf4j
 public abstract class ScaleImageUtils {
   
     private static final float DEFAULT_SCALE_QUALITY = 1f;
@@ -367,6 +369,6 @@ public abstract class ScaleImageUtils {
 
         LucbirIndexer indexer = new LucbirIndexer(new PHash());
         String signature = indexer.iterateFile(new File("https://gss0.baidu.com/9vo3dSag_xI4khGko9WTAnF6hhy/zhidao/wh%3D450%2C600/sign=50ae602ecb5c1038242bc6c68721bf25/060828381f30e9240167fc0541086e061c95f7c7.jpg"));
-        System.out.println("-----------开始保存数据------------"+signature);
+        log.debug(String.valueOf("-----------开始保存数据------------"+signature));
     }
 }

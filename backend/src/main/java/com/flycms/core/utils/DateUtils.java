@@ -1,5 +1,6 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,6 +28,7 @@ import java.util.Date;
  * @version 1.0,2017年7月20日 <br/>
  * 
  */
+@Slf4j
 public class DateUtils {
 	private final static SimpleDateFormat SDFYEAR = new SimpleDateFormat("yyyy");
 
@@ -103,7 +105,7 @@ public class DateUtils {
 		try {
 			return fmt.parse(date);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.warn("操作异常，已降级处理", e);
 			return null;
 		}
 	}
@@ -122,7 +124,7 @@ public class DateUtils {
 			Date d = fmt.parse(date);
 			return fmt.format(d.getTime());
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.warn("操作异常，已降级处理", e);
 			return null;
 		}
 	}
@@ -155,7 +157,7 @@ public class DateUtils {
 			Date d = sdf.parse(date);
 			return fmt.format(d);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.warn("操作异常，已降级处理", e);
 			return null;
 		}
 	}
@@ -220,7 +222,7 @@ public class DateUtils {
 				beginDate = format.parse(beginDateStr);
 				endDate= format.parse(endDateStr);
 			} catch (ParseException e) {
-				e.printStackTrace();
+				log.warn("操作异常，已降级处理", e);
 			}
             day=(endDate.getTime()-beginDate.getTime())/(24*60*60*1000);
             //System.out.println("相隔的天数="+day);

@@ -1,11 +1,13 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.UnsupportedEncodingException;
 
 /**
  * @author Mr.Zheng
  * @date 2014年9月19日14:01:23
  */
+@Slf4j
 public class Base64HelperUtils {
 	private static char[] base64EncodeChars = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
 			'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
@@ -64,7 +66,7 @@ public class Base64HelperUtils {
 		try {
 			return decodePrivate(str);
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			log.warn("操作异常，已降级处理", e);
 		}
 		return new byte[] {};
 	}

@@ -657,6 +657,17 @@ CREATE TABLE `fly_automation_rule` (
 | K4 | 测试与 CI（G4） | `[x]` | 新增 `src/test`：**31 个用例（30 通过 / 1 按环境跳过）**——`CheckUrlUtilsTest`（权限通配符，越权红线）、`SqlSafeUtilTest`（动态 SQL 标识符）、`UploadSafeUtilTest`（上传三重校验/双后缀绕过）、`DataVoTest`、`ErrorVoTest`，以及 `ApiErrorContractIntegrationTest`（Testcontainers MySQL 5.7，无 Docker 自动跳过，CI 上执行）；新增 `.github/workflows/ci.yml` 三 job（backend-test / backend-build / frontend-check）；`.gitignore` 改为 `tools/*` + 4 条否定规则，验收脚本入库 |
 | K5 | 拆循环依赖（G5） | `[x]` | 删除 `spring.main.allow-circular-references`，并**拆掉由此暴露的三组循环**：① `UserService ↔ UserSessionUtils` → 新增 `UserSessionStore`（只依赖 DAO）；② `QuestionService ↔ AnswerService` → `AnswerService` 改用已有 `questionDao`；③ `AbstractTagPlugin.init()` 在 `@PostConstruct` 中 `getBean(自身)` 的自循环 → 改用 `this`。验收：**无该项配置下应用正常启动**（启动失败自证拆干净） |
 
+#### 阶段 L —— API 治理与一致性（**已完成**）
+
+| # | 事项 | 状态 | 交付物与验收证据 |
+|---|---|---|---|
+| G6 | API 版本化 | `[x]` | 新增 `filter/ApiVersionFilter`（`@Order(HIGHEST_PRECEDENCE+15)`）：把 `/api/v1/**` **重写**为 `/api/**`（`HttpServletRequestWrapper` 覆写 `getRequestURI`/`getServletPath`/`getRequestURL`）。**刻意不用 `@RequestMapping` 双注册**——双注册会调 `getSyncAllPermission()` 重复登记权限行。**实测**：`GET /api/v1/system/modelData/list/3` → 200 且载荷与 `/api/**` 完全一致 |
+| G7 | 稀疏字段集（`_fields`） | `[x]` | 新增 `web/api/SparseFieldAdvice`（`@ControllerAdvice(basePackages="com.flycms.web.api")` + `ResponseBodyAdvice`）：解析 `?fields=a,b,c`，对 `DataVo.data` 的 JSON 树裁剪顶层键；识别分页信封（含 `list` 数组）只裁 `list` 内行。**实测**：`GET /api/system/modelData/list/3?fields=id,title` → 行键恰为 `['id','title']`；不带 `fields` 时 10 列 |
+| G8 | 健康/就绪探针 | `[x]` | 新增 `web/api/ApiHealthController`：`GET /api/health`（存活，不查依赖）与 `GET /api/ready`（就绪，`DataSource.isValid(2)` + `CacheManager` 非空，失败 503）。**实测**：`/api/health` → `{"status":"UP","app":"FlyCms"}`；`/api/ready` → `{"status":"UP","checks":{"database":"UP","cache":"UP"}}` |
+| G9 | 日志口径统一 | `[x]` | `core/**` + `filter/**` 共 29 处 `printStackTrace` → `log.warn("操作异常，已降级处理", e)`、14 处 `System.out/err.print*` → `log.debug/ info`（17 个文件）。补扫阶段再清 6 处真实残留（`SnowFlake.main` / `ImagesService.main` 两处死代码 `main` 直接删除；`MyJobRunner` 补 `@Slf4j` 后 `log.info`；`MyTaskTest` 用已有 `log`）。**验收**：排除注释后 `printStackTrace|System.out.print|System.err.print` 命中 **0** |
+| G10 | 权限查询缓存 | `[x]` | `PermissionService.findPermissionByUserId` 加 `@Cacheable(value="permission", key="#userId")`；`getSyncAllPermission` / `deletePermission` / `updatePermissions` 各加 `@CacheEvict(value="permission", allEntries=true)`（写侧精准失效） |
+| G11 | `select *` 收敛（热点列表） | `[x]` | ① `fly_cmodel_*`：`ModelDataDao.selectPage` 由 `SELECT *` 改为**列白名单投影**（`<foreach>` + `<choose>` 空则回退全列），列清单由 `ModelDataService.listColumns()` 依「固定列常量 + 启用模型字段（排除 `TEXTAREA` 与 `content` 通道）」生成并过 `SqlSafeUtil.safeColumnName`；② `fly_article`：新增 `articleListColumn(-Aliased)` 片段，`getArticleList`（**保留 content**：`type_article.html` 用 `fly_stringcut` 出摘要）改显式列，`getArticleIndexList` / `getArticleAuditList` 剔除 longtext `content`；③ `fly_channel`：`ChannelDao.xml` 原已用 `<sql id="ch_column">` 显式列，登记为已满足。详情查询（`findDataById` / `findByShortUrl` / `findArticleByShorturl` / `findArticleById` / `findArticleByPK`）按规划**保留 `*`**。**实测**：`fly_cmodel_articles` 16 行、其中 14 行 `content` 非空，`GET /api/system/modelData/list/3?rows=20` 返回 16 行**含 content 的为 0 行**；`/articles/`、`/downloads/`、`/images/`、`/testdemo/` 列表页全 200；**e2e PASS 51 / FAIL 0**、**audit PASS 16 / FAIL 0** |
+
 ---
 
 ## 10. 决策复审：原"不做清单"的再评估

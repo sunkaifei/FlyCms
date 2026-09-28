@@ -1,5 +1,6 @@
 package com.flycms.core.utils.lucbir.search;
 
+import lombok.extern.slf4j.Slf4j;
 import com.flycms.core.utils.lucbir.features.Feature;
 import com.flycms.core.utils.lucbir.index.LucbirIndexer;
 import com.flycms.core.utils.lucbir.utils.LucbirResult;
@@ -20,6 +21,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/7/11.
  */
+@Slf4j
 public class LucbirSearcher {
     /**
      * 存放输入图片的图像特征
@@ -47,7 +49,7 @@ public class LucbirSearcher {
             LucbirResult[] result = new LucbirResult[resultNum];
             return this.getTopNResult(results, resultNum).toArray(result);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("操作异常，已降级处理", e);
         }
         return null;
     }
@@ -58,7 +60,7 @@ public class LucbirSearcher {
             results = this.search(inputFile, FSDirectory.open(Paths.get(this.directory)));
             return this.getTopNResult(results, resultNum);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("操作异常，已降级处理", e);
         }
         return null;
     }
@@ -70,7 +72,7 @@ public class LucbirSearcher {
             LucbirResult[] result = new LucbirResult[resultNum];
             return this.getTopNResult(results, resultNum).toArray(result);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("操作异常，已降级处理", e);
         }
         return null;
     }
@@ -81,7 +83,7 @@ public class LucbirSearcher {
             results = this.search(inputFile, FSDirectory.open(Paths.get(directory)));
             return this.getTopNResult(results, resultNum);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("操作异常，已降级处理", e);
         }
         return null;
     }
@@ -95,7 +97,7 @@ public class LucbirSearcher {
             
             // 遍历索引文件中的图像特征，逐一进行对比
             Feature feature2 = this.feature.getClass().newInstance();
-            System.out.println(feature2);
+            log.debug(String.valueOf(feature2));
             IndexReader reader = DirectoryReader.open(directory);
             //System.out.println("================"+reader);
             LucbirResult[] results = new LucbirResult[reader.numDocs()];
@@ -106,17 +108,17 @@ public class LucbirSearcher {
                 }
                 feature2.index2feature(document.getField(LucbirIndexer.FEATURE_VALUE_FIELD_NAME).stringValue());
                 double similarity = this.feature.calculateSimilarity(feature2);
-                System.out.println(document.getField(LucbirIndexer.FEATURE_VALUE_FIELD_NAME).stringValue());
+                log.debug(String.valueOf(document.getField(LucbirIndexer.FEATURE_VALUE_FIELD_NAME).stringValue()));
                 LucbirResult result = new LucbirResult(this.feature.getFeatureName(), document.getField(LucbirIndexer.IMAGE_PATH_FIELD_NAME).stringValue(), similarity);
                 results[i] = result;
             }
             return results;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("操作异常，已降级处理", e);
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            log.warn("操作异常，已降级处理", e);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            log.warn("操作异常，已降级处理", e);
         }
         return null;
     }

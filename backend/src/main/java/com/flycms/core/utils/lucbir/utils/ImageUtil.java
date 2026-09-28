@@ -1,5 +1,6 @@
 package com.flycms.core.utils.lucbir.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -7,13 +8,14 @@ import java.io.IOException;
 /**
  * Created by VenyoWang on 2016/7/8.
  */
+@Slf4j
 public class ImageUtil {
     public static Pixel[][] getImagePixel(BufferedImage srcImg, int width, int height) {
         BufferedImage bi = null;
         try {
             bi = resizeImage(srcImg, width, height, BufferedImage.TYPE_INT_RGB);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("操作异常，已降级处理", e);
             return null;
         }
         int minx = bi.getMinX();
@@ -40,7 +42,7 @@ public class ImageUtil {
         try {
             bi = resizeImage(srcImg, width, height, BufferedImage.TYPE_INT_RGB);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("操作异常，已降级处理", e);
             return null;
         }
         int minx = bi.getMinX();

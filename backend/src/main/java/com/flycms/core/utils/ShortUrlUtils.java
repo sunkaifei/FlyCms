@@ -1,5 +1,6 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 
 /**
@@ -14,6 +15,7 @@ import java.io.IOException;
  * @author: sunkaifei
  * @version:1.0
  */
+@Slf4j
 public class ShortUrlUtils {
     public static String[] shortUrl(String url) {  
        // 可以自定义生成 MD5 加密字符传前的混合 KEY  
@@ -59,7 +61,7 @@ public class ShortUrlUtils {
         String invite=null;
         for ( int i = 0; i < aResult. length ; i++) {
             invite=aResult[i];
-            System.out.println(invite);
+            log.debug(String.valueOf(invite));
         }
 
     }

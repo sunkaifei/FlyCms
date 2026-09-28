@@ -1,5 +1,6 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author sunkaifei
  * @datetime 2010-8-17 下午05:11:29
  */
+@Slf4j
 public class Md5Utils {
 	private static Logger logger = LoggerFactory.getLogger(Md5Utils.class);
 	private final static char[] hexDigits = { '0', '1', '2', '3', '4', '5',
@@ -117,7 +119,7 @@ public class Md5Utils {
             }
             return bytesToHex(md.digest(input.getBytes("utf-8")));  
         } catch (NoSuchAlgorithmException e) {  
-            e.printStackTrace();  
+            log.warn("操作异常，已降级处理", e);  
             throw new Exception("Could not found MD5 algorithm.", e);  
         }  
     }  
@@ -151,6 +153,6 @@ public class Md5Utils {
 	    }
 
 	public static void main(String[] args) {
-		System.out.println(getMD5("1"));
+		log.debug(String.valueOf(getMD5("1")));
 	}
 }

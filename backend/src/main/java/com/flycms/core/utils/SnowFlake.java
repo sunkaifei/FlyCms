@@ -130,15 +130,4 @@ public class SnowFlake {
     private static long getNewstmp() {
         return System.currentTimeMillis();
     }
-
-    public static void main(String[] args) {
-        SnowFlake snowFlake = SnowFlake.getInstance();
-
-        long start = System.currentTimeMillis();
-        System.out.println(snowFlake.nextId());
-
-        System.out.println(System.currentTimeMillis() - start);
-
-
-    }
 }

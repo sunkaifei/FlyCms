@@ -1,5 +1,6 @@
 package com.flycms.core.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author SunKaiFei
  *
  */
+@Slf4j
 public class StringHelperUtils {
 	private static Logger logger = LoggerFactory.getLogger(StringHelperUtils.class);
 
@@ -82,7 +84,7 @@ public class StringHelperUtils {
 			htmlStr = htmlStr.replaceAll("\"", " ").replaceAll("\'", " ");
 			textStr = htmlStr;
 		} catch (Exception e) {
-			System.err.println("Html2Text: " + e.getMessage());
+			log.debug(String.valueOf("Html2Text: " + e.getMessage()));
 		}
 		return textStr;// 返回文本字符
 	}
@@ -116,7 +118,7 @@ public class StringHelperUtils {
 			}
 			return str.trim();
 		} catch (Exception e) {
-			System.out.println("过滤字符文本为可显示的HTML文本类出错！" + e);
+			log.debug(String.valueOf("过滤字符文本为可显示的HTML文本类出错！" + e));
 			return "";
 		}
 	}
@@ -161,7 +163,7 @@ public class StringHelperUtils {
 			}
 			return str.trim();
 		} catch (Exception e) {
-			System.out.println("过滤字符文本为可显示的HTML文本类出错！" + e);
+			log.debug(String.valueOf("过滤字符文本为可显示的HTML文本类出错！" + e));
 			return "";
 		}
 	}
@@ -544,7 +546,7 @@ public class StringHelperUtils {
 			return value ;
 		} catch (UnsupportedEncodingException e) {
 			logger.error( "字符串转换为URLCode失败,value:" + value,e);
-			e.printStackTrace();
+			log.warn("操作异常，已降级处理", e);
 			return null;
 		}    
     }
@@ -559,7 +561,7 @@ public class StringHelperUtils {
 			return value ;
 		} catch (UnsupportedEncodingException e) {
 			logger.error("URLCode转换为字符串失败;value:" + value,e);
-			e.printStackTrace();
+			log.warn("操作异常，已降级处理", e);
 			return null;
 		}  
     }

@@ -4,7 +4,8 @@
  *	http://www.28844.com
  */
 package com.flycms.core.utils.captcha;
-import java.awt.AlphaComposite;
+
+import lombok.extern.slf4j.Slf4j;import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -21,6 +22,7 @@ import java.io.OutputStream;
  * @author: wuhongjun
  * @version:1.0
  */
+@Slf4j
 public class GifCaptcha extends Captcha
 {
     public GifCaptcha()
@@ -74,7 +76,7 @@ public class GifCaptcha extends Captcha
 				os.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.warn("操作异常，已降级处理", e);
 			}
         }
 

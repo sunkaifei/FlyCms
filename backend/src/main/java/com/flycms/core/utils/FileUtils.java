@@ -365,7 +365,7 @@ public class FileUtils {
 		if (dirs != null) {
 			for (int i = 0; i < dirs.length; i++) {
 				if (dirs[i].isDirectory()) {
-					System.out.println("name:" + dirs[i].getPath());
+					log.debug(String.valueOf("name:" + dirs[i].getPath()));
 					list.add(dirs[i]);
 				}
 				visitAll(dirs[i]);
@@ -575,7 +575,7 @@ public class FileUtils {
 		try {
 			is.read(b, 0, b.length);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.warn("操作异常，已降级处理", e);
 		}
 		String type = bytesToHexString(b).toUpperCase();
 		if (type.contains("FFD8FF")) {
