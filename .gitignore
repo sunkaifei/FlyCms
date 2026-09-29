@@ -64,3 +64,24 @@ tools/*
 # 运行时产物（不入库）：备份可由后台再生成、静态化输出可随时重建
 backend/backup/
 backend/html/
+
+# G25 静态资源隔离区（审计/隔离脚本的暂存区，不入库）
+backend/views_static_quarantine/
+
+# JVM 崩溃日志具名变体（*.log 已覆盖普通日志）
+hs_err_pid*.log
+replay_pid*.log
+
+# Python 字节码（任意层级，如 tools/__pycache__）
+__pycache__/
+*.pyc
+
+# 系统与编辑器杂项
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.bak
+*.orig
+*.rej
+*.swp
+*~
