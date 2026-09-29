@@ -12,6 +12,7 @@ import {
   Select,
   Switch,
   Textarea,
+  TreeSelect,
 } from 'ant-design-vue';
 
 import AttachmentInput from './attachment-input.vue';
@@ -26,7 +27,10 @@ const props = defineProps<{
   /** 当前值（v-model） */
   modelValue?: any;
   field: ModelFieldRow;
+  /** relate/relates/m2a/user 的候选项（label/value） */
   options?: { label: string; value: string }[];
+  /** category 的分类树（B1 绑定数据源，父组件按绑定模型组好树） */
+  treeData?: any[];
 }>();
 
 const emit = defineEmits<(e: 'update:modelValue', v: any) => void>();
@@ -112,6 +116,30 @@ export default { inheritAttrs: false };
     v-else-if="field.fieldType === 'images' || field.fieldType === 'files'"
     v-model:model-value="inner"
     multiple
+  />
+  <!-- B1 绑定数据源：用户选择器（显示昵称，提交存 user_id） -->
+  <Select
+    v-else-if="field.fieldType === 'user'"
+    v-model:value="inner"
+    allow-clear
+    class="w-full"
+    option-filter-prop="label"
+    :options="controlOptions"
+    :placeholder="field.placeholder || `选择${field.fieldLabel}`"
+    show-search
+  />
+  <!-- B1 绑定数据源：分类树下拉（提交存分类 id） -->
+  <TreeSelect
+    v-else-if="field.fieldType === 'category'"
+    v-model:value="inner"
+    allow-clear
+    class="w-full"
+    :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+    :placeholder="field.placeholder || `选择${field.fieldLabel}`"
+    show-search
+    :tree-data="props.treeData ?? []"
+    tree-default-expand-all
+    tree-node-filter-prop="label"
   />
   <!-- E1 关联 / P2 任意关联：候选项由父组件传入 -->
   <Select

@@ -3,18 +3,34 @@ import { computed, onMounted, reactive, ref } from 'vue';
 
 import { useEditDrawer } from '#/utils/edit-drawer';
 
-import { Button, Input, message, Select, TabPane, Tabs, Textarea } from 'ant-design-vue';
+import {
+  Button,
+  Input,
+  message,
+  Modal as AntModal,
+  Select,
+  TabPane,
+  Tabs,
+  Textarea,
+  TreeSelect,
+} from 'ant-design-vue';
 
 import {
+  getCategoryOptionsApi,
   getDataDetailApi,
   getDataListApi,
   getModelListApi,
+  getUserOptionsApi,
   saveDataApi,
   updateDataApi,
   type ModelCategoryRow,
   type ModelFieldRow,
   type ModelRow,
 } from '#/api/core/model';
+import {
+  aiGenerateApi,
+  getAiStatusApi,
+} from '#/api/core/ai';
 import {
   assignTemplateApi,
   getAssignListApi,
@@ -28,6 +44,8 @@ import RichtextEditor from './richtext-editor.vue';
 /**
  * 动态内容表单（元数据驱动，全部模型共用，无需新增 Vue 页面）。
  * - 选项卡：自定义字段按 tabName 分组（字段管理里配置），组内按 sort 排序；
+ * - U3 表单布局：字段级 isForm=0 表单隐藏（不渲染不校验不提交）；
+ *   模型级 useContent/useSeo 关闭「详细内容」「SEO 设置」基础页签；
  * - P1 结构层：GROUP 子字段组（JSON 对象）、REPEATER 重复行（可增删行）、
  *   条件显隐（visibleWhen 命中隐藏的字段不渲染、不校验、不提交）；
  * - P2 关系层：m2a 任意关联（"model:id" 复合值，候选项聚合全部模型内容）；
@@ -52,10 +70,11 @@ const topFields = computed(() =>
   fields.value.filter((f) => !f.parentId || f.parentId === 0),
 );
 
-/** 自定义字段的选项卡名（保持首次出现顺序） */
+/** 自定义字段的选项卡名（保持首次出现顺序；表单隐藏字段不计入，空页签不渲染） */
 const customTabs = computed(() => {
   const names: string[] = [];
   for (const f of topFields.value) {
+    if (f.isForm === 0) continue;
     const tab = f.tabName || TAB_BASE;
     if (!names.includes(tab)) names.push(tab);
   }
@@ -63,7 +82,9 @@ const customTabs = computed(() => {
 });
 
 function fieldsOfTab(tab: string): ModelFieldRow[] {
-  return topFields.value.filter((f) => (f.tabName || TAB_BASE) === tab);
+  return topFields.value.filter(
+    (f) => (f.tabName || TAB_BASE) === tab && f.isForm !== 0,
+  );
 }
 
 function childrenOf(f: ModelFieldRow): ModelFieldRow[] {
@@ -195,6 +216,141 @@ async function loadRelationOptions(fieldsList: ModelFieldRow[]) {
   }
 }
 
+// /////////// G22 AI 内容助手（输出仅回填表单，人工审核后保存） ///////////
+
+const aiBusy = ref(false);
+const aiConfigured = ref(false);
+const titleSuggestions = ref<string[]>([]);
+
+async function checkAi() {
+  try {
+    const res = await getAiStatusApi();
+    aiConfigured.value = Boolean((res as any)?.configured);
+  } catch {
+    aiConfigured.value = false;
+  }
+}
+
+function adoptTitle(t: string) {
+  values.title = t;
+  titleSuggestions.value = [];
+  message.success("已采用");
+}
+
+async function runAi(task: "summary" | "keywords" | "title") {
+  if (aiBusy.value) return;
+  const content = values.content ?? "";
+  const title = values.title ?? "";
+  if (!content && !title) {
+    message.warning("请先填写正文或标题");
+    return;
+  }
+  aiBusy.value = true;
+  try {
+    const res = (await aiGenerateApi({ content, task, title })) as any;
+    if (typeof res !== "string" || !res.trim()) {
+      message.warning("AI 未返回内容");
+      return;
+    }
+    if (task === "summary") {
+      values.description = res.trim();
+      message.success("摘要已填入「描述」（SEO 页签可修改）");
+    } else if (task === "keywords") {
+      values.keywords = res.trim();
+      message.success("关键词已填入「关键词」（SEO 页签可修改）");
+    } else {
+      titleSuggestions.value = res
+        .split("\n")
+        .map((x) => x.trim().replace(/^\d+[.、)]\s*/, ""))
+        .filter(Boolean);
+      if (titleSuggestions.value.length === 0) {
+        message.warning("AI 未返回标题建议");
+      }
+    }
+  } catch (e: any) {
+    message.error(e?.message ?? "AI 调用失败");
+  } finally {
+    aiBusy.value = false;
+  }
+}
+
+// /////////// B1 字段绑定数据源：user 候选 / category 分类树 ///////////
+
+/** 用户候选（懒加载一次，全部 user 字段共用） */
+const userOptions = ref<{ label: string; value: string }[]>([]);
+/** 各绑定模型的分类树：key = 模型 code（本模型也入表） */
+const categoryTrees = ref<Record<string, any[]>>({});
+
+/** 平铺分类 → 树（fatherId 归组；游离节点挂根） */
+function buildCategoryTree(
+  rows: { fatherId: string; id: string; name: string; status?: number }[],
+): any[] {
+  const nodes = new Map<string, any>();
+  for (const r of rows) {
+    nodes.set(r.id, { value: r.id, label: r.name, children: [] });
+  }
+  const roots: any[] = [];
+  for (const r of rows) {
+    const node = nodes.get(r.id);
+    const parent = nodes.get(r.fatherId);
+    if (parent && r.fatherId !== r.id) {
+      parent.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+  return roots;
+}
+
+function stripTree(nodes: any[]): any[] {
+  return (nodes ?? []).map((n) => ({
+    value: n.value,
+    label: n.label,
+    children: n.children?.length ? stripTree(n.children) : undefined,
+  }));
+}
+
+async function loadBoundOptions(fieldsList: ModelFieldRow[], ownCode: string) {
+  // 本模型分类树常备（固定「分类」TreeSelect 与绑本模型的 category 字段共用）
+  if (model.value && ownCode && !categoryTrees.value[ownCode]) {
+    categoryTrees.value[ownCode] = stripTree(
+      buildCategoryTree((categories.value ?? []) as any),
+    );
+  }
+  // user 字段候选：一次拉满（管理端量级可用）
+  if (fieldsList.some((f) => f.fieldType === 'user')) {
+    try {
+      userOptions.value = ((await getUserOptionsApi()) ?? []).map((o) => ({
+        label: o.label,
+        value: o.id,
+      }));
+    } catch {
+      userOptions.value = [];
+    }
+  }
+  // category 字段：按绑定模型取分类（本模型复用 categories props）
+  const needCodes = new Set<string>();
+  for (const f of fieldsList) {
+    if (f.fieldType !== 'category') continue;
+    needCodes.add(f.relateModel || ownCode);
+  }
+  for (const code of needCodes) {
+    if (categoryTrees.value[code]) continue;
+    if (model.value && code === model.value.code) {
+      categoryTrees.value[code] = stripTree(
+        buildCategoryTree((categories.value ?? []) as any),
+      );
+      continue;
+    }
+    try {
+      const rows = (await getCategoryOptionsApi(code)) ?? [];
+      categoryTrees.value[code] = stripTree(buildCategoryTree(rows));
+    } catch {
+      categoryTrees.value[code] = [];
+    }
+  }
+}
+
 // /////////// P7 内容模板指派（§8.3，对应 WP 后台 Page Template 下拉） ///////////
 
 /** 当前内容被指派的详情模板（undefined = 未指派，走层级默认） */
@@ -257,6 +413,8 @@ const [Modal, modalApi] = useEditDrawer({
     }
     for (const f of topFields.value) {
       if (!isVisible(f)) continue; // P1 隐藏字段不校验
+      if (f.isForm === 0) continue; // U3 表单隐藏字段不校验
+      if (f.fieldType === 'formula') continue; // E6 公式字段读侧计算，无表单值
       const v = values[f.fieldName];
       const blank =
         v === undefined ||
@@ -280,17 +438,22 @@ const [Modal, modalApi] = useEditDrawer({
         title: values.title,
         status: values.status ?? '0',
       };
-      for (const key of [
-        'categoryId',
-        'thumbnail',
-        'content',
-        'keywords',
-        'description',
-      ]) {
+      const fixedKeys = ['categoryId', 'thumbnail', 'content', 'keywords', 'description'];
+      for (const key of fixedKeys) {
         if (values[key]) payload[key] = values[key];
+      }
+      // U3 模型级页签关闭时，不提交对应固定列（避免以载入值覆盖）
+      if (model.value?.useContent === 0) {
+        delete payload.content;
+      }
+      if (model.value?.useSeo === 0) {
+        delete payload.keywords;
+        delete payload.description;
       }
       for (const f of topFields.value) {
         if (!isVisible(f)) continue; // P1 隐藏字段不提交
+        if (f.isForm === 0) continue; // U3 表单隐藏字段不提交
+        if (f.fieldType === 'formula') continue; // E6 公式字段不提交
         const v = values[f.fieldName];
         // P2 m2a：显式提交（含空数组 = 清空关系），把 "model:id" 拆回 [{model,id}]
         if (f.fieldType === 'm2a') {
@@ -410,8 +573,8 @@ onMounted(async () => {
         typeof v === 'object'
       ) {
         v = '';
-      } else if (f.fieldType === 'relate') {
-        // E1 单值关联：Select 的 value 统一为字符串，避免雪花 ID 精度问题
+      } else if (f.fieldType === 'relate' || f.fieldType === 'user' || f.fieldType === 'category') {
+        // E1 单值关联 / B1 绑定实体：Select/TreeSelect 的 value 统一为字符串，避免雪花 ID 精度问题
         v = v === '' || v === null ? undefined : String(v);
       } else if (f.fieldType === 'switch') {
         v = String(v) === '1' || String(v).toLowerCase() === 'true';
@@ -444,6 +607,8 @@ onMounted(async () => {
       }
     }
   }
+  loadBoundOptions(fields.value, model.value?.code ?? '');
+  checkAi();
   loadTemplateAssign();
 });
 </script>
@@ -459,15 +624,30 @@ onMounted(async () => {
               {{ model?.titleLabel || '标题' }}
             </div>
             <Input v-model:value="values.title" :maxlength="250" />
+            <div v-if="aiConfigured" class="mt-1 flex flex-wrap items-center gap-2">
+              <Button :loading="aiBusy" size="small" @click="runAi('title')">
+                AI 标题建议
+              </Button>
+              <Button :loading="aiBusy" size="small" @click="runAi('summary')">
+                AI 生成摘要
+              </Button>
+              <Button :loading="aiBusy" size="small" @click="runAi('keywords')">
+                AI 提取关键词
+              </Button>
+            </div>
           </div>
           <div v-if="categories.length > 0">
             <div class="mb-1 text-sm">分类</div>
-            <Select
+            <TreeSelect
               v-model:value="values.categoryId"
               allow-clear
               class="w-full"
-              :options="categories.map((c) => ({ label: c.name, value: c.id }))"
-              placeholder="选择分类"
+              :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+              :placeholder="`选择${model?.name || ''}分类`"
+              show-search
+              :tree-data="categoryTrees[model?.code ?? ''] ?? []"
+              tree-default-expand-all
+              tree-node-filter-prop="label"
             />
           </div>
           <div>
@@ -519,7 +699,7 @@ onMounted(async () => {
         </div>
       </TabPane>
 
-      <TabPane :tab="TAB_CONTENT" key="content">
+      <TabPane v-if="model?.useContent !== 0" :tab="TAB_CONTENT" key="content">
         <div class="mb-1 text-xs text-gray-400">
           正文（富文本，编辑器图片上传走附件通道）
         </div>
@@ -538,7 +718,7 @@ onMounted(async () => {
       >
         <div class="grid grid-cols-2 gap-x-5 gap-y-3">
           <div
-            v-for="f in fieldsOfTab(tab)"
+            v-for="f in fieldsOfTab(tab).filter((x) => x.fieldType !== 'formula')"
             v-show="isVisible(f)"
             :key="f.id"
             :class="['textarea', 'images', 'files', 'relates', 'image_url', 'repeater', 'm2a'].includes(f.fieldType) ? 'col-span-2' : ''"
@@ -564,6 +744,8 @@ onMounted(async () => {
                   <DynamicFieldInput
                     v-model="values[f.fieldName][child.fieldName]"
                     :field="child"
+                    :options="child.fieldType === 'user' ? userOptions : (relationOptions[child.fieldName] ?? [])"
+                    :tree-data="child.fieldType === 'category' ? (categoryTrees[child.relateModel || model?.code || ''] ?? []) : undefined"
                   />
                 </div>
                 <div v-if="childrenOf(f).length === 0" class="text-xs text-gray-400">
@@ -598,6 +780,8 @@ onMounted(async () => {
                     <DynamicFieldInput
                       v-model="rowItem[child.fieldName]"
                       :field="child"
+                      :options="child.fieldType === 'user' ? userOptions : (relationOptions[child.fieldName] ?? [])"
+                      :tree-data="child.fieldType === 'category' ? (categoryTrees[child.relateModel || model?.code || ''] ?? []) : undefined"
                     />
                   </div>
                 </div>
@@ -607,12 +791,13 @@ onMounted(async () => {
               </Button>
             </div>
 
-            <!-- 其余类型走通用控件（relate/relates/m2a 候选项由父组件传入） -->
+            <!-- 其余类型走通用控件（relate/relates/m2a/user 候选、category 树由父组件传入） -->
             <DynamicFieldInput
               v-else
               v-model="values[f.fieldName]"
               :field="f"
-              :options="relationOptions[f.fieldName] ?? []"
+              :options="f.fieldType === 'user' ? userOptions : (relationOptions[f.fieldName] ?? [])"
+              :tree-data="f.fieldType === 'category' ? (categoryTrees[f.relateModel || model?.code || ''] ?? []) : undefined"
             />
             <div v-if="f.tips" class="mt-0.5 text-xs text-gray-400">
               {{ f.tips }}
@@ -621,7 +806,7 @@ onMounted(async () => {
         </div>
       </TabPane>
 
-      <TabPane :tab="TAB_SEO" key="seo">
+      <TabPane v-if="model?.useSeo !== 0" :tab="TAB_SEO" key="seo">
         <div class="grid grid-cols-1 gap-y-3">
           <div>
             <div class="mb-1 text-sm">关键词（SEO）</div>
@@ -635,4 +820,23 @@ onMounted(async () => {
       </TabPane>
     </Tabs>
   </Modal>
+
+  <!-- G22 AI 标题建议 -->
+  <AntModal
+    :footer="null"
+    :open="titleSuggestions.length > 0"
+    title="AI 标题建议（点击采用）"
+    @cancel="titleSuggestions = []"
+  >
+    <div class="space-y-2">
+      <div
+        v-for="(t, i) in titleSuggestions"
+        :key="i"
+        class="cursor-pointer rounded border p-2 hover:bg-blue-50"
+        @click="adoptTitle(t)"
+      >
+        {{ t }}
+      </div>
+    </div>
+  </AntModal>
 </template>

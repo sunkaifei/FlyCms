@@ -56,7 +56,7 @@ const query = reactive<{
 const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 160 },
   { title: '评论内容', dataIndex: 'content', key: 'content' },
-  { title: '所属文章', dataIndex: 'articleTitle', key: 'articleTitle', width: 220 },
+  { title: '所属内容', dataIndex: 'targetTitle', key: 'targetTitle', width: 220 },
   { title: '时间', dataIndex: 'createTime', key: 'createTime', width: 170 },
   { title: '状态', dataIndex: 'status', key: 'status', width: 90 },
   { title: '操作', key: 'action', width: 160 },
@@ -174,7 +174,7 @@ onMounted(load);
           <div class="line-clamp-2">{{ record.content }}</div>
         </template>
         <template v-else-if="column.key === 'articleTitle'">
-          <span class="text-xs text-gray-500">{{ record.articleTitle || '-' }}</span>
+          <span class="text-xs text-gray-500">{{ record.targetTitle || '-' }}</span>
         </template>
         <template v-else-if="column.key === 'status'">
           <span :class="record.status === 1 ? 'text-green-600' : 'text-orange-500'">

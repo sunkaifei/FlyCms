@@ -1,8 +1,8 @@
 import { requestClient } from '#/api/request';
 
 /**
- * 投稿审核 API（规划阶段 H）
- * 文章真实状态：0未审核 1正常 2审核未通过 3删除
+ * 内容审核 API（U3 起模型驱动）：审核对象 = 自定义模型内容（fly_cmodel_*.status）
+ * 状态：0待审 1发布 2未通过；审核开关沿用 fly_article_audit 键。
  */
 
 export interface AuditArticleRow {
@@ -13,6 +13,7 @@ export interface AuditArticleRow {
   status: number;
   title: string;
   userId?: string;
+  [key: string]: unknown;
 }
 
 function postForm<T>(url: string, data: Record<string, unknown>) {
@@ -31,6 +32,7 @@ function postForm<T>(url: string, data: Record<string, unknown>) {
 
 export async function getAuditPageApi(params: {
   createTime?: string;
+  modelId?: number | string;
   p?: number;
   rows?: number;
   status?: number;
@@ -47,22 +49,25 @@ export async function getPendingCountApi() {
   return requestClient.get<number>('/system/audit/pendingCount');
 }
 
-/** status：1=通过 2=驳回（驳回 reason 必填） */
+/** status：1=通过 2=驳回（驳回 reason 必填；reason 由站内信通道另行处理） */
 export async function auditArticleApi(
   id: string,
   status: number,
   reason?: string,
+  modelId?: number | string,
 ) {
-  return postForm<void>('/system/audit/audit', { id, reason, status });
+  return postForm<void>('/system/audit/audit', { id, modelId, reason, status });
 }
 
 export async function batchAuditApi(
   ids: string[],
   status: number,
   reason?: string,
+  modelId?: number | string,
 ) {
   return postForm<void>('/system/audit/batch', {
     ids: ids.join(','),
+    modelId,
     reason,
     status,
   });

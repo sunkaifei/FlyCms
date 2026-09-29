@@ -17,6 +17,12 @@ export interface ModelRow {
   sort: number;
   status: number;
   titleLabel: string;
+  /** 表单布局开关（U3）：0=内容表单不渲染「详细内容」选项卡；undefined 视为 1 */
+  useContent?: number;
+  /** 表单布局开关（U3）：0=内容表单不渲染「SEO 设置」选项卡；undefined 视为 1 */
+  useSeo?: number;
+  /** E9 模型级评论开关：0=关闭前台评论；undefined 视为 1 */
+  enableComment?: number;
 }
 
 export interface ModelFieldRow {
@@ -45,6 +51,10 @@ export interface ModelFieldRow {
   maxValue?: number;
   /** 父字段 id（P1：>0 = GROUP/REPEATER 子字段） */
   parentId?: number;
+  /** 表单隐藏（U3）：0=不出现在内容表单（不渲染不提交不校验） */
+  isForm?: number;
+  /** E6 行内公式（FORMULA 类型）：变量=本模型字段名 */
+  formula?: string;
   /** 条件显隐 JSON（P1：{"field","op","value"}） */
   visibleWhen?: string;
   /** Rollup 聚合 JSON（P2：{"source","func","column"}） */
@@ -89,8 +99,57 @@ function postForm<T>(url: string, data: Record<string, unknown>) {
 
 // /////////////////// 模型 ///////////////////
 
-export async function getModelListApi(params: { p?: number }) {
+export async function getModelListApi(params: { p?: number; rows?: number }) {
   return requestClient.get<PageData<ModelRow>>('/system/model/list', { params });
+}
+
+/** G12 内容版本行 */
+export interface ContentVersionRow {
+  createTime?: string;
+  editorId?: string;
+  id: string;
+  remark?: string;
+  status?: number;
+  targetId: string;
+  targetModel: string;
+  version: number;
+}
+
+/** G12 内容版本列表（新→旧） */
+export async function getVersionListApi(modelId: number | string, id: string, params?: { p?: number; rows?: number }) {
+  return requestClient.get<{ count: number; list: ContentVersionRow[] }>(
+    `/system/modelData/version/list/${modelId}/${id}`,
+    { params },
+  );
+}
+
+/** G16 草稿预览：签发短时效预览 URL（绑定模型+内容，重启失效） */
+export async function getPreviewTokenApi(modelId: number | string, id: string) {
+  return requestClient.get<{ url: string }>('/system/modelData/previewToken', {
+    params: { id, modelId },
+  });
+}
+
+/** G12 恢复到指定版本（恢复动作另存为新版本） */
+export async function restoreVersionApi(modelId: number | string, id: string, version: number) {
+  const form = new URLSearchParams({ id: String(id), modelId: String(modelId), version: String(version) });
+  return requestClient.post<void>('/system/modelData/version/restore', form, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+  });
+}
+
+/** B1 字段绑定数据源：用户选项（可搜索；显示昵称，提交存 user_id） */
+export async function getUserOptionsApi(keyword?: string) {
+  return requestClient.get<
+    { id: string; label: string }[]
+  >('/system/options/users', { params: { keyword, rows: 200 } });
+}
+
+/** B1 字段绑定数据源：绑定模型的分类树平铺（前端组树） */
+export async function getCategoryOptionsApi(modelCode: string) {
+  return requestClient.get<
+    { fatherId: string; id: string; name: string; status: number }[]
+  >('/system/options/categories', { params: { modelCode } });
 }
 
 export async function getModelByCodeApi(code: string) {
@@ -190,6 +249,64 @@ export async function getCategoryTreeApi(modelId: number) {
 
 export async function saveCategoryApi(data: Record<string, unknown>) {
   return postForm<void>('/system/modelCategory/save', data);
+}
+
+export async function deleteCategoryApi(id: number | string) {
+  return postForm<void>('/system/modelCategory/del', { id });
+}
+
+/** G15 字段组库（复制式 Component） */
+export async function getComponentListApi() {
+  return requestClient.get<any[]>('/system/component/list');
+}
+
+export async function applyComponentApi(modelId: number | string, componentId: number | string) {
+  const form = new URLSearchParams({
+    componentId: String(componentId),
+    modelId: String(modelId),
+  });
+  return requestClient.post<{ message: string }>('/system/component/apply', form, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+  });
+}
+
+export async function pickupComponentApi(data: Record<string, unknown>) {
+  const form = new URLSearchParams();
+  for (const [k, v] of Object.entries(data)) {
+    if (v !== undefined && v !== null && v !== '') form.append(k, String(v));
+  }
+  return requestClient.post<void>('/system/component/pickup', form, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+  });
+}
+
+export async function deleteComponentApi(id: number | string) {
+  return postForm<void>('/system/component/del', { id });
+}
+
+/** G20 模型定义（导出/导入） */
+export interface ModelDefinition {
+  categories: { fatherName?: string; keywords?: string; name: string; sort?: number }[];
+  fields: Record<string, unknown>[];
+  model: Record<string, unknown>;
+}
+
+export async function exportModelApi(id: number | string) {
+  return requestClient.get<ModelDefinition>(`/system/model/export/${id}`);
+}
+
+export async function importModelApi(payload: string) {
+  const form = new URLSearchParams({ payload });
+  return requestClient.post<{ categoryAdded: number; errors: string[]; fieldAdded: number; fieldFailed: number; fieldUpdated: number; modelCreated: boolean }>(
+    '/system/model/import',
+    form,
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' } },
+  );
+}
+
+/** E10：重新生成模型默认模板（list.html/detail.html 强制覆盖 + 注入标签速查注释块） */
+export async function regenTemplatesApi(id: number | string) {
+  return postForm<void>(`/system/model/regenTemplates/${id}`, {});
 }
 
 // /////////////////// 附件（AttachmentPicker 数据源） ///////////////////

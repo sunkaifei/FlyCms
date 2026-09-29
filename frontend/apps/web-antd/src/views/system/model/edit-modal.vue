@@ -57,6 +57,45 @@ const [Form, formApi] = useVbenForm({
       fieldName: 'sort',
       label: '排序',
     },
+    {
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '显示', value: 1 },
+          { label: '隐藏', value: 0 },
+        ],
+        optionType: 'button',
+      },
+      defaultValue: 1,
+      fieldName: 'useContent',
+      label: '详细内容页签',
+    },
+    {
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '显示', value: 1 },
+          { label: '隐藏', value: 0 },
+        ],
+        optionType: 'button',
+      },
+      defaultValue: 1,
+      fieldName: 'useSeo',
+      label: 'SEO设置页签',
+    },
+    {
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '开放', value: 1 },
+          { label: '关闭', value: 0 },
+        ],
+        optionType: 'button',
+      },
+      defaultValue: 1,
+      fieldName: 'enableComment',
+      label: '前台评论',
+    },
   ],
   showDefaultActions: false,
 });
@@ -98,6 +137,9 @@ onMounted(() => {
       name: editing.value.name,
       sort: editing.value.sort,
       titleLabel: editing.value.titleLabel,
+      useContent: editing.value.useContent === 0 ? 0 : 1,
+      useSeo: editing.value.useSeo === 0 ? 0 : 1,
+      enableComment: editing.value.enableComment === 0 ? 0 : 1,
     });
     // code 锁定
     formApi.updateSchema([
@@ -108,7 +150,7 @@ onMounted(() => {
     ]);
   } else {
     modalApi.setState({ title: '新增模型' });
-    formApi.setValues({ sort: 0 });
+    formApi.setValues({ sort: 0, useContent: 1, useSeo: 1, enableComment: 1 });
   }
 });
 </script>

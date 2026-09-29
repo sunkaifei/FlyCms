@@ -7,12 +7,19 @@ import { Page } from '@vben/common-ui';
 import { useEditDrawer } from '#/utils/edit-drawer';
 import { useAccess } from '@vben/access';
 
-import { Button, message } from 'ant-design-vue';
+import { Button, Input, message, Modal } from 'ant-design-vue';
+import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { deleteFieldApi, getFieldListApi, getFormMetaApi } from '#/api/core/model';
+import {
+  deleteFieldApi,
+  getFieldListApi,
+  getFormMetaApi,
+  pickupComponentApi,
+} from '#/api/core/model';
 
+import ComponentDrawer from './component-drawer.vue';
 import FieldModal from './field-modal.vue';
 import FormPreviewModal from '../modeldata/form-modal.vue';
 
@@ -120,6 +127,49 @@ async function openPreview() {
   }
 }
 
+// /////////// G15 字段组库 ///////////
+
+const componentVisible = ref(false);
+const componentSeq = ref(0);
+/** 存为字段组：行内弹出的命名表单 */
+const pickupRow = ref<null | ModelFieldRow>(null);
+const pickupCode = ref('');
+const pickupName = ref('');
+const pickupRemark = ref('');
+
+function openComponents() {
+  componentVisible.value = true;
+  componentSeq.value += 1;
+}
+
+const pickupOpen = ref(false);
+function startPickup(row: ModelFieldRow) {
+  pickupRow.value = row;
+  pickupCode.value = '';
+  pickupName.value = `${row.fieldLabel}字段组`;
+  pickupRemark.value = '';
+  pickupOpen.value = true;
+}
+
+async function savePickup() {
+  if (!pickupRow.value) return;
+  const code = pickupCode.value.trim();
+  if (!code) {
+    message.warning('字段组标识不能为空（将作为应用时的 group 字段名）');
+    return;
+  }
+  await pickupComponentApi({
+    code,
+    fieldId: pickupRow.value.id,
+    modelId,
+    name: pickupName.value.trim() || code,
+    remark: pickupRemark.value.trim(),
+  });
+  message.success('字段组已入库，可在任意模型的「字段组库」中应用');
+  pickupRow.value = null;
+  pickupOpen.value = false;
+}
+
 async function onDelete(row: ModelFieldRow) {
   await deleteFieldApi(row.id);
   message.success('字段已删除，数据列已移除');
@@ -132,6 +182,7 @@ async function onDelete(row: ModelFieldRow) {
     <Grid table-title="模型字段（字段名即数据表列名，创建后不可改）">
       <template #toolbar-tools>
         <Button class="mr-2" @click="openPreview">预览表单</Button>
+        <Button class="mr-2" @click="openComponents">字段组库</Button>
         <Button
           v-if="hasAccessByCodes(['/api/system/modelField/*'])"
           class="mr-2"
@@ -150,6 +201,15 @@ async function onDelete(row: ModelFieldRow) {
           @click="openAddChild(row)"
         >
           子字段
+        </Button>
+        <Button
+          v-if="row.fieldType === 'group'"
+          class="mr-2 px-2"
+          size="small"
+          type="link"
+          @click="startPickup(row)"
+        >
+          存为字段组
         </Button>
         <Button
           class="mr-2 px-2"
@@ -173,5 +233,31 @@ async function onDelete(row: ModelFieldRow) {
     </Grid>
     <FieldModalComp />
     <FormPreviewComp />
+    <ComponentDrawer
+      v-if="componentVisible"
+      :key="componentSeq"
+      :model-id="modelId"
+      @applied="() => gridApi.query()"
+    />
+    <Modal
+      v-model:open="pickupOpen"
+      title="存为字段组"
+      @ok="savePickup"
+    >
+      <div class="space-y-3 pt-2">
+        <div>
+          <div class="mb-1 text-sm">字段组标识（应用时作为 group 字段名，小写字母开头）</div>
+          <Input v-model:value="pickupCode" placeholder="如 product_spec" />
+        </div>
+        <div>
+          <div class="mb-1 text-sm">名称</div>
+          <Input v-model:value="pickupName" />
+        </div>
+        <div>
+          <div class="mb-1 text-sm">用途说明（可选）</div>
+          <Input v-model:value="pickupRemark" />
+        </div>
+      </div>
+    </Modal>
   </Page>
 </template>

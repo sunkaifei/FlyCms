@@ -54,7 +54,11 @@ const treeData = computed<TreeRow[]>(() => {
   return roots;
 });
 
-const isSuperGroup = computed(() => groupId.value === 1);
+/**
+ * 超管组判定与后端 isProtectedSuperGroup 对齐：
+ * 历史约定 id=1，实际库中超管组为雪花 id（组名「超级管理员」）。
+ */
+const isSuperGroup = computed(() => groupId.value === 1 || groupName.value === '超级管理员');
 
 const [Modal, modalApi] = useEditDrawer({
   async onConfirm() {

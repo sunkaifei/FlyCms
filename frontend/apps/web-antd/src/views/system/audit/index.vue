@@ -25,6 +25,7 @@ import {
   getAuditSwitchApi,
   setAuditSwitchApi,
 } from '#/api/core/audit';
+import { getModelListApi, type ModelRow } from '#/api/core/model';
 
 defineOptions({ name: 'SystemAudit' });
 
@@ -52,6 +53,10 @@ const selectedKeys = ref<string[]>([]);
 const status = ref(0);
 const title = ref('');
 
+/** U3：审核对象为自定义模型内容，按模型过滤 */
+const models = ref<ModelRow[]>([]);
+const modelId = ref<number | string>();
+
 /** 审核开关：1=先审后发 */
 const auditSwitch = ref(false);
 
@@ -63,7 +68,7 @@ const columns = [
   { title: '标题', dataIndex: 'title', key: 'title' },
   { title: '作者ID', dataIndex: 'userId', key: 'userId', width: 170 },
   { title: '状态', dataIndex: 'status', key: 'status', width: 90 },
-  { title: '投稿时间', dataIndex: 'createTime', key: 'createTime', width: 170 },
+  { title: '提交时间', dataIndex: 'createTime', key: 'createTime', width: 170 },
   { title: '操作', key: 'action', width: 160 },
 ];
 
@@ -71,6 +76,7 @@ async function load() {
   loading.value = true;
   try {
     const res = await getAuditPageApi({
+      modelId: modelId.value,
       p: page.value,
       rows: 20,
       status: status.value >= 0 ? status.value : undefined,
@@ -115,9 +121,9 @@ async function confirmReject() {
   }
   const ids = rejectTarget.value;
   if (ids.length === 1) {
-    await auditArticleApi(String(ids[0]), 2, rejectReason.value);
+    await auditArticleApi(String(ids[0]), 2, rejectReason.value, modelId.value);
   } else {
-    await batchAuditApi(ids, 2, rejectReason.value);
+    await batchAuditApi(ids, 2, rejectReason.value, modelId.value);
   }
   message.success('已驳回，并已站内信通知作者');
   rejectVisible.value = false;
@@ -131,9 +137,9 @@ async function onPass(ids: string[]) {
     return;
   }
   if (ids.length === 1) {
-    await auditArticleApi(String(ids[0]), 1);
+    await auditArticleApi(String(ids[0]), 1, undefined, modelId.value);
   } else {
-    await batchAuditApi(ids, 1);
+    await batchAuditApi(ids, 1, undefined, modelId.value);
   }
   message.success('已通过');
   selectedKeys.value = [];
@@ -142,6 +148,15 @@ async function onPass(ids: string[]) {
 
 onMounted(async () => {
   await loadSwitch();
+  try {
+    const res = await getModelListApi({ p: 1, rows: 100 });
+    models.value = res.list ?? [];
+    if (models.value.length > 0) {
+      modelId.value = models.value[0]!.id;
+    }
+  } catch {
+    models.value = [];
+  }
   load();
 });
 </script>
@@ -149,6 +164,13 @@ onMounted(async () => {
 <template>
   <Page>
     <div class="mb-3 flex flex-wrap items-center gap-2">
+      <Select
+        v-model:value="modelId"
+        :options="(models ?? []).map((m) => ({ label: m.name, value: m.id }))"
+        class="w-40"
+        placeholder="内容模型"
+        @change="onSearch"
+      />
       <Select
         v-model:value="status"
         :options="STATUS_OPTIONS"
@@ -159,7 +181,7 @@ onMounted(async () => {
         v-model:value="title"
         allow-clear
         class="w-56"
-        placeholder="文章标题"
+        placeholder="标题"
         @press-enter="onSearch"
       />
       <Button @click="onSearch">搜索</Button>

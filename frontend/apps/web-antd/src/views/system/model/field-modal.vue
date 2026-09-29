@@ -51,6 +51,9 @@ const FIELD_TYPES = [
   { label: '颜色 (color)', value: 'color' },
   { label: '评分 (rating)', value: 'rating' },
   { label: 'URL片段 (slug，常配唯一)', value: 'slug' },
+  { label: '用户选择器 (user，存用户id显示昵称)', value: 'user' },
+  { label: '分类选择器 (category，绑分类树存分类id)', value: 'category' },
+  { label: '公式 (formula，行内计算不落库)', value: 'formula' },
   { label: '字段组 (group，JSON 子字段)', value: 'group' },
   { label: '重复行 (repeater，可增行)', value: 'repeater' },
   { label: '聚合统计 (rollup，虚拟列)', value: 'rollup' },
@@ -58,6 +61,8 @@ const FIELD_TYPES = [
 ];
 
 const RELATION_TYPES = ['relate', 'relates'];
+/** B1 绑定数据源中复用 relateModel 配置列的类型（category 绑定目标分类树所属模型，留空=本模型） */
+const BOUND_TYPES = ['category'];
 const STRUCTURE_TYPES = ['group', 'repeater'];
 const VIS_OPS = [
   { label: '等于 (eq)', value: 'eq' },
@@ -151,16 +156,19 @@ const [Form, formApi] = useVbenForm({
       component: 'Select',
       componentProps: {
         options: [],
-        placeholder: '选择被引用的模型（关联本模型 = 自关联树）',
+        placeholder: '被引用/绑定的模型（关联本模型或分类留空 = 本模型）',
         showSearch: true,
         optionFilterProp: 'label',
+        allowClear: true,
       },
       dependencies: {
-        show: () => RELATION_TYPES.includes(fieldType.value),
+        show: () =>
+          RELATION_TYPES.includes(fieldType.value) ||
+          BOUND_TYPES.includes(fieldType.value),
         triggerFields: ['fieldType'],
       },
       fieldName: 'relateModel',
-      label: '被引用模型',
+      label: '绑定模型',
     },
     {
       component: 'Input',
@@ -246,6 +254,17 @@ const [Form, formApi] = useVbenForm({
       fieldName: 'rollupColumn',
       label: '聚合列',
     },
+    // /////////// E6 公式（仅 formula 类型） ///////////
+    {
+      component: 'Input',
+      componentProps: { placeholder: '行内表达式，如 price * 0.88；变量=本模型字段名，仅四则+括号+数字' },
+      dependencies: {
+        show: () => fieldType.value === 'formula',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'formula',
+      label: '计算公式',
+    },
     // /////////// P2 Lookup 展示列（仅 relate/relates） ///////////
     {
       component: 'Textarea',
@@ -320,6 +339,15 @@ const [Form, formApi] = useVbenForm({
       component: 'Checkbox',
       fieldName: 'isList',
       label: '列表显示',
+    },
+    {
+      component: 'Checkbox',
+      componentProps: {
+        title: '关闭后该字段不出现在内容表单（不校验不提交），仅存储/列表/详情可见',
+      },
+      defaultValue: true,
+      fieldName: 'isForm',
+      label: '表单显示',
     },
     {
       component: 'Checkbox',
@@ -400,6 +428,7 @@ const [Modal, modalApi] = useEditDrawer({
       message.warning('请选择被引用模型（关联本模型请选择「本模型」）');
       return;
     }
+    // category 的 relateModel 留空合法（= 本模型分类树），无需校验
     if (values.fieldType === 'rollup' && !values.rollupSource) {
       message.warning('聚合来源必须选择本模型的一个 relate 字段');
       return;
@@ -490,6 +519,7 @@ onMounted(async () => {
       relateModel: editing.value.relateModel,
       tabName: editing.value.tabName || '基础信息',
       isFilter: editing.value.isFilter === 1,
+      isForm: editing.value.isForm === 0 ? false : true,
       isList: editing.value.isList === 1,
       isRequired: editing.value.isRequired === 1,
       isUnique: editing.value.isUnique === 1,
@@ -501,6 +531,7 @@ onMounted(async () => {
       regex: editing.value.regex,
       sort: editing.value.sort,
       lookupFields: editing.value.lookupFields,
+      formula: editing.value.formula,
       visField: vis.field,
       visOp: vis.op ?? 'eq',
       visValue: vis.value,

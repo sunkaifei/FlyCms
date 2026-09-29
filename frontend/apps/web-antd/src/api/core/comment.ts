@@ -6,8 +6,10 @@ import { requestClient } from '#/api/request';
  */
 
 export interface CommentRow {
-  articleId: string;
-  articleTitle?: string;
+  /** U3 平台评论：目标模型 code 与内容 id（兼容保留 articleId 别名语义） */
+  targetModel?: string;
+  targetId?: string;
+  targetTitle?: string;
   content: string;
   createTime: string;
   id: string;
@@ -36,6 +38,8 @@ function postForm<T>(url: string, data: Record<string, unknown>) {
 
 export async function getCommentPageApi(params: {
   articleId?: string;
+  targetModel?: string;
+  targetId?: string;
   createTime?: string;
   keyword?: string;
   p?: number;

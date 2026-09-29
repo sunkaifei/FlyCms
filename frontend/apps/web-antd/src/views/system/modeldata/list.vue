@@ -7,6 +7,7 @@ import { useAccessStore } from '@vben/stores';
 
 import {
   Button,
+  Drawer,
   Input,
   InputNumber,
   message,
@@ -14,6 +15,7 @@ import {
   Pagination,
   Select,
   Table,
+  Tag,
 } from 'ant-design-vue';
 import { useRoute } from 'vue-router';
 
@@ -22,7 +24,11 @@ import {
   getFormMetaApi,
   getDataListApi,
   getModelByCodeApi,
+  getPreviewTokenApi,
+  getVersionListApi,
+  restoreVersionApi,
   updateDataStatusApi,
+  type ContentVersionRow,
   type FormMeta,
   type ModelFieldRow,
   type ModelRow,
@@ -46,7 +52,9 @@ function matchCode(codes: string[], need: string): boolean {
 }
 
 const accessStore = useAccessStore();
-const canSave = computed(() => matchCode(accessStore.accessCodes, '/api/system/modelData/save'));
+const canSave = computed(() =>
+  matchCode(accessStore.accessCodes, `/api/system/modelData/save@${model.value?.id ?? 0}`),
+);
 
 const model = ref<null | ModelRow>(null);
 const fields = ref<ModelFieldRow[]>([]);
@@ -111,7 +119,9 @@ function cellText(record: Record<string, any>, column: any): string {
   // E1 关联引用：优先显示展开后的目标内容标题，而非裸 id
   const obj = key ? record[`${key}Obj`] : undefined;
   if (obj && typeof obj === 'object') {
-    return String((obj as Record<string, any>).title ?? '');
+    // E1 关联显示目标标题；B1 绑定实体显示昵称/分类名（用户/分类没有 title）
+    const o = obj as Record<string, any>;
+    return String(o.title ?? o.nickName ?? o.name ?? o.userName ?? '');
   }
   const list = key ? record[`${key}List`] : undefined;
   if (Array.isArray(list)) {
@@ -196,6 +206,66 @@ function openEdit(row: Record<string, any>) {
       record: row,
     })
     .open();
+}
+
+// /////////// G16 草稿预览 ///////////
+
+async function openPreview(row: Record<string, any>) {
+  try {
+    const res = await getPreviewTokenApi(modelId(), String(row.id));
+    window.open(res.url, '_blank');
+  } catch {
+    message.error('预览令牌签发失败');
+  }
+}
+
+// /////////// G12 内容版本 ///////////
+
+const versionVisible = ref(false);
+const versionRow = ref<null | Record<string, any>>(null);
+const versionLoading = ref(false);
+const versions = ref<ContentVersionRow[]>([]);
+const versionTotal = ref(0);
+const versionPage = ref(1);
+/** 版本恢复确认 */
+const restoreTarget = ref<null | ContentVersionRow>(null);
+
+function openVersions(row: Record<string, any>) {
+  versionRow.value = row;
+  versionVisible.value = true;
+  versionPage.value = 1;
+  loadVersions();
+}
+
+async function loadVersions() {
+  if (!versionRow.value) return;
+  versionLoading.value = true;
+  try {
+    const res = await getVersionListApi(modelId(), String(versionRow.value.id), {
+      p: versionPage.value,
+      rows: 10,
+    });
+    versions.value = res.list ?? [];
+    versionTotal.value = res.count ?? 0;
+  } finally {
+    versionLoading.value = false;
+  }
+}
+
+function confirmRestore(v: ContentVersionRow) {
+  restoreTarget.value = v;
+  Modal.confirm({
+    content: `将内容恢复到 v${v.version}（${v.createTime ?? ''}）？恢复动作会另存为新版本，历史不丢失。`,
+    okText: '恢复',
+    onOk: async () => {
+      await restoreVersionApi(modelId(), String(versionRow.value?.id), v.version);
+      message.success(`已恢复到 v${v.version}`);
+      restoreTarget.value = null;
+      await loadVersions();
+      load();
+    },
+    title: '版本恢复确认',
+  });
 }
 
 function onDelete(row: Record<string, any>) {
@@ -321,6 +391,24 @@ onMounted(async () => {
             class="mr-1 px-2"
             size="small"
             type="link"
+            @click="openPreview(record)"
+          >
+            预览
+          </Button>
+          <Button
+            v-if="canSave"
+            class="mr-1 px-2"
+            size="small"
+            type="link"
+            @click="openVersions(record)"
+          >
+            版本
+          </Button>
+          <Button
+            v-if="canSave"
+            class="mr-1 px-2"
+            size="small"
+            type="link"
             @click="toggleStatus(record)"
           >
             {{ Number(record.status) === 1 ? '下架' : '发布' }}
@@ -341,6 +429,60 @@ onMounted(async () => {
         </template>
       </template>
     </Table>
+
+    <!-- G12 内容版本抽屉 -->
+    <Drawer
+      v-model:open="versionVisible"
+      :title="`内容版本 - ${versionRow?.title ?? ''}`"
+      :width="520"
+    >
+      <Table
+        :columns="[
+          { title: '版本', dataIndex: 'version', key: 'version', width: 70 },
+          { title: '状态', dataIndex: 'status', key: 'status', width: 80 },
+          { title: '备注', dataIndex: 'remark', key: 'remark' },
+          { title: '时间', dataIndex: 'createTime', key: 'createTime', width: 160 },
+          { title: '操作', key: 'vaction', width: 80 },
+        ]"
+        :data-source="versions"
+        :loading="versionLoading"
+        :pagination="false"
+        row-key="id"
+        size="small"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'version'">
+            <Tag color="blue">v{{ record.version }}</Tag>
+          </template>
+          <template v-else-if="column.key === 'status'">
+            {{ Number(record.status) === 1 ? '发布' : Number(record.status) === 0 ? '待审' : '其他' }}
+          </template>
+          <template v-else-if="column.key === 'createTime'">
+            {{ (record.createTime ?? '').replace('T', ' ').slice(0, 16) }}
+          </template>
+          <template v-else-if="column.key === 'vaction'">
+            <Button
+              :disabled="restoreTarget !== null"
+              size="small"
+              type="link"
+              @click="confirmRestore(record as ContentVersionRow)"
+            >
+              恢复
+            </Button>
+          </template>
+        </template>
+      </Table>
+      <div class="mt-3 flex justify-end">
+        <Pagination
+          v-model:current="versionPage"
+          :page-size="10"
+          :show-total="(t: number) => `共 ${t} 版`"
+          :total="versionTotal"
+          size="small"
+          @change="loadVersions"
+        />
+      </div>
+    </Drawer>
     <div class="mt-3 flex justify-end">
       <Pagination
         v-model:current="page"
