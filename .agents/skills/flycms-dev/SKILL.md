@@ -29,7 +29,7 @@ FlyCms/
 
 ## 铁律（每条都有原因，违反即返工）
 
-1. **DAO 接口和 XML 放同一目录** `module/<域>/dao/XxxDao.java` + `XxxDao.xml`。`application.yml` 的 `mapper-locations` 只扫 `classpath:com/flycms/module/**/dao/*.xml`——XML 放 resources 下会静默扫不到，启动报绑定失败。
+1. **DAO XML 统一放 `src/main/resources/mapper/`**（2026-09-29 G26 归位后的现行约定；文件名用 `模块__XxxDao.xml` 平铺）。`application.yml` 的 `mapper-locations` 扫 `classpath:mapper/**/*.xml`；`pom.xml` 已不再把 `src/main/java` 当资源目录——新 Mapper XML 放回 java 目录会静默不打包，启动报绑定失败。
 2. **Controller 归位**：前台页面 → `web/front`；管理后台页面（含 Freemarker 渲染 + 局部 @ResponseBody）→ `web/system`，视图一律 `theme.getAdminTemplate("admin/xxx")` 返回；给 vben 前端的新 REST → `web/api`，路径 `/api/**`，返回 `DataVo`。不要在老 controller 里继续堆纯 JSON 端点。
 3. **响应与分页**：JSON 一律 `DataVo`（成功 `DataVo.success(message, data)` 两参重载——单参重载有 message/data 分派陷阱）；分页一律 `PageVo<T>`（service 里 `new PageVo<>(pageNum)`、`setRows`、`setList(dao.getXxx(pageVo.getOffset(), pageVo.getRows()))`、`setCount(dao.countXxx())`，XML 里手写 `limit #{offset}, #{rows}`）。
 4. **ID 与表**：主键 `SnowFlake.nextId()`（`core/utils/SnowFlake.java`），表名 `fly_` 前缀、bigint 主键。SQL 全部走 DAO XML 的 `#{}` 预编译，禁止字符串拼接。

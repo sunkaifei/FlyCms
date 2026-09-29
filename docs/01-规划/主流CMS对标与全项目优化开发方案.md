@@ -769,11 +769,11 @@ CREATE TABLE fly_content_i18n (
 
 | 旧模块 | 表与存量 | 目标自定义模型 | 特殊字段需求 | 退役难度 |
 |---|---|---|---|---|
-| 文章 article | `fly_article`(0 行) + `fly_article_category_merge` | `articles`（已注册 id=3） | 分类字段、tag、评论/顶踩走平台能力（E4/E7） | **高**（前台模板与标签引用最多，最后退役） |
+| 文章 article | `fly_article`(0 行) + `fly_article_category_merge` | `articles`（已注册 id=3） | 分类字段、tag、评论/顶踩走平台能力（E4/E7） | **高**（**U3 已退役** ✅ 评论由 E4 `fly_comment` 承接） |
 | 图片 images | `fly_images` = **附件库基础设施**（引用计数/孤儿清理，供模型引擎 IMAGE/FILE 字段与上传服务使用） | **不退役**——`ApiImagesController`/`ImagesService`（已迁 `module/images`）是引擎能力的一部分 | — | —（U2 现场修正：fly_images 不是内容表） |
 | 分享 share | `fly_share`(0 行) | `shares`（已建 id=10） | files 字段已有 | 低（**U2 已退役** ✅） |
 | 问答 question/answer | `fly_question`(0 行)/`fly_answer`(0 行) | `questions`（id=11）+ `answers`（id=12，relate→questions + relate 自关联 parent） | E1 已具备 | 中（悬赏/采纳是业务逻辑，先用 number 字段表达；**U2 已退役** ✅） |
-| 话题 topic | `fly_topic`(**18 行**) | `topics`（已建 id=9，18 行已迁入 ✅） | **与 article 标签系统耦合**：ArticleService 把文章 tag 写入 TopicService、`fly_topic` 兼作标签存储 | **顺延 U3 与 article 一并退役**（代码已删会连带断标签链路） |
+| 话题 topic | `fly_topic`(**18 行**) | `topics`（已建 id=9，18 行已迁入 ✅） | 标签系统已在改造后走 TagService 跨模型聚合，不再依赖 fly_topic | **U3 已退役** ✅（`fly_topic` 更名留档，侧栏热议话题走 `fly_list_model model="topics"`） |
 | 链接 links | `fly_links`(**1 行**) | `links`（新建） | E3 image_url（link_logo） | **低（试点首选，U1 已退役）** |
 | 公告 announcement | `fly_announcement`(0 行) | `announcements`（已建 id=7） | 无 | 低（**U2 已退役** ✅） |
 | 帮助/导航 guide | `fly_guide`(**3 行**) | `guides`（已建 id=6，3 行已迁入 ✅） | 无 | 低（**U2 已退役** ✅） |
@@ -789,9 +789,182 @@ CREATE TABLE fly_content_i18n (
 
 1. **U1 试点** ✅：`links`（1 行数据、模板简单）端到端跑通四步退役法，沉淀操作手册；
 2. **U2 批量** ✅：guide / announcement / message / shares / questions+answers；**images 行现场修正为「附件库基础设施，保留」**（`fly_images` 是模型引擎 IMAGE/FILE 字段的附件表，不是内容表）；**topic 顺延 U3**（`fly_topic` 兼作 article 标签存储，TopicService/TagController/ArticleService 的 tag 链路在 article 退役前必须存活）；
-3. **U3 收尾**：`article` + `topic` 一并退役（前台模板 `article/`、`Articlepage` 标签、搜索、权重、投稿审核全部改指向 `articles` 模型后删除旧链路；届时 `TopicsController`、`Topicpage`/`Topicinfolist`/`Topicinfopage` 标签、`fly_topic` 表与黑名单条目一并清理）；
-4. **U4 平台能力承接**：评论（E4）与收藏（E7）落为平台表（按 target_type+target_id 引用任意模型内容），替代旧模块内嵌实现；
-5. **U5 清理**：删除退役模块的权限节点/菜单/路由自检登记，更新标签手册。
+3. **U3 收尾** ✅（2026-09-29 完成并验收）：`article` + `topic` + `weight`（权重仅 MyTaskTest 引用，随文章退役）+ `search`（Solr 空壳，`Infopage` 标签一并删）四模块退役。删除 `module/{article,topic,weight,search}`、前台 `ArticleController`/`TopicsController`、10 个旧标签（Articlepage/Articleinfo/Articletypeinfo/Articletypelist/Articlecommentpage/Topicpage/Topicinfolist/Topicinfopage/Checktagfollow/Infopage）；`FavoriteService` 收藏目标校验改走 ModelDataService、`SearchController` 去 SearchService 依赖、`TimingPublishJob` 删 fly_article 硬编码块（cmodel 循环已覆盖）、`UserDao` 文章计数改源 `fly_cmodel_articles`；模板层 `article/`、`topics/`、`search/detail.html`、`common/type_{article,question,share}.html` 删除，explore 页走 `<@fly_page_model model="articles">` + 公告/热议话题侧栏走 `fly_list_model`，people×7 侧栏热议话题同改，people 文章页改 `userId` 参数（**修复 U2 潜伏 bug：`user_id` 参数此前落不进 is_filter 字段被静默忽略**，`selectPage` 新增固定列 userId 过滤）；13 张旧表更名 `fly_retired_*_20260928`；老后台 `/system/{article,question,share,topic}` 死权限节点与前台 `/ucenter/{article,share,topics,answer,question}` 权限行清理；标签手册同步（44→35，新增 `fly_commentpage`）。**验收：e2e PASS 51 / audit PASS 16 / probe_u3 10/10、12 个前台页面 200 零模板错误、`/a/`、`/ac/`、`/article/**`、`/topics/{shortUrl}`（旧路由）均 404。**
+4. **U4 平台能力承接** ✅（E4 评论部分，2026-09-29）：新增多态评论表 `fly_comment`（target_model+target_id 引用任意模型内容）+ `module/comment`（CommentService/Dao）+ 前台 `POST /ucenter/comment/save`（session 用户，沿用 `fly_comment_audit` 先审后显开关，目标存在性/发布态校验与 E1 同口径）+ 模板标签 `<@fly_commentpage/>` + `detail-articles.html` 评论区（列表/分页/发表，内容删除级联清评论、审核通过联动 count_comment±1）；管理端 `ApiCommentController` 重写为平台评论管理（端点路径不变、行内附 targetTitle），`ApiAuditController` 重写为**模型驱动内容审核**（按模型分页/待审角标跨模型求和/审核即 `ModelDataService.updateStatus`，开关沿用 `fly_article_audit` 键）；前端 audit 页加模型下拉、comment 页列改 targetTitle。E7 收藏沿用 `fly_favorite` 表（本次仅解耦 ArticleService 依赖，平台化改造仍待做）。
+5. **U5 清理** ✅：见 U3（权限节点/标签手册已随批完成）。**附带修复**：FlyFilter 记住我自动登录对已删用户/缺失 `fly_user_account` 行的 NPE（两分支补判空）——由 probe 暴露的既有隐患。
+
+**表单布局补齐（2026-09-29，用户点名能力）**：字段级 `fly_model_field.is_form`（0=表单隐藏：不渲染/不校验/不提交，语义同条件显隐未命中的静态版）；模型级 `fly_model.use_content`/`use_seo`（关闭「详细内容」「SEO 设置」基础页签，链接/导航/留言类模型无正文场景）；字段编辑弹窗加「表单显示」勾选、模型编辑弹窗加两页签开关、动态表单按开关渲染/过滤空页签。
+
+**字段绑定数据源（B1，2026-09-29，用户点名能力）**：新增 `user`（用户选择器：表单可搜索下拉显示昵称、提交存 user_id，对标 ACF User 字段）与 `category`（分类选择器：绑定模型的分类树下拉、提交存分类 id，对标 ACF Taxonomy 字段；绑定模型复用 relate_model，留空=本模型，可做跨模型副分类）两种字段类型。写侧校验实体存在性与归属（user 必须存在、category 必须属于绑定模型分类树），读侧批量展开 `{field}Obj`（用户含 userId/nickName/userName/avatar/shortUrl 供模板直出人员链接；分类含 id/name/fatherId），列表/详情/前台模板零二次查询。数据源选项走 `/api/system/options/{users,categories}`（管理端权限行已登记授权）。固定「分类」表单项同步升级为 TreeSelect 树形下拉。管理端列表 cellText 优先渲染展开名（昵称/分类名）而非裸 id。
+
+---
+
+## 9.5 阶段 M 部分落地 + 前台投稿重建 + R 快赢（2026-09-29）
+
+### M/G12 内容版本与草稿回滚 ✅（对标 Payload versions / Directus Revisions）
+
+- 新表 `fly_content_version`（target_model+target_id+version，快照整行含自定义字段；DB 为事实源，快照即版本）；
+- 快照钩子全量接入：内容新建（v1）/更新（version+1）/状态切换（留痕"状态切换→N"）/恢复（另存新版本，历史不丢）；
+- 管理端 API：`GET /api/system/modelData/version/list/{modelId}/{id}`、`POST /api/system/modelData/version/restore`（复用模型发布权限 `save@{modelId}`）；
+- 前端：内容列表新增「版本」按钮 → 版本抽屉（版本/状态/备注/时间/一键恢复）。
+
+### M/G14 字段级权限 ✅（对标 Directus/Payload 字段级 access）
+
+- 锁行约定：`fly_admin_permission` 存在精确行 `/api/system/modelData/field/{modelId}/{fieldName}` 即视为锁定（行不存在=字段开放，向后兼容）；
+- 读侧剔除：formMeta（表单不渲染即不提交）、列表/详情（字段连同 `{f}Obj` 等展开键一并剔除）；
+- 写侧拒绝：无权字段非空提交直接 `DataVo.failure("无权限提交字段：…")`；
+- 授权复用既有角色组勾选（尾星号通配兼容）；锁行增删后需 `POST /api/system/permission/sync` 清缓存。
+
+### 前台投稿通道重建 ✅（万能系统最后缺口收口）
+
+- `POST /ucenter/submit/{modelCode}`：会话用户投稿，任意启用模型皆可开放；
+- 字段白名单 = 启用且 is_form=1 的自定义字段 + 固有列（title/categoryId/thumbnail/keywords/description/content/publish_time），未知键与表单隐藏字段丢弃，status 不可由前台指定；
+- 状态由审核开关 `fly_article_audit` 决定（1→待审 0→直接发布）；落库走 insertData（字段校验/唯一约束/附件引用计数/G12 快照全继承）；
+- 权限行 `/ucenter/submit/*` 已登记并全组授权。
+
+### 顺手修复（探针暴露）
+
+- **permission/sync Spring 6 NPE**：`getPatternsCondition()` 在 Boot 4（PathPatternParser 为主）恒为 null——补 `getPathPatternsCondition()` 优先分支（该端点自旧后台下线后实际已损坏）；
+- **MyBatis 动态绑定三连坑**（restoreColumns 路径）：① `#{params.${c}}` 占位符 token 内的 `${}` 不被替换；② `#{params[c]}` 无引号索引解析不到静默绑 null（UPDATE 空转不报错）；③ 多 @Param 方法绑定名须带 `params.` 前缀。最终按项目 whereSql 惯例：Service 拼白名单 setSql + `#{params.pN}` 索引化参数。
+
+### R 快赢 ✅
+
+- 删除 `backend/views/templates/_testdata`（WP 转换测试残留）与 `frontend/apps/backend-mock`（vben 上游样本，git rm --cached + 本地删除 + turbo 任务清理）。
+
+### M 阶段剩余
+
+- G13 可配置工作流状态机：现有单级审核（audit 开关 + status 语义）保持默认决策不变，状态集可配置按需后置；
+- G15 可复用字段组（Component）：与 `fly_block_type` 一并实现的合并方案维持，排下一批。
+
+**验收：probe_m 15/15、投稿探针全过（user_id 归属/审核开关/注入防护/版本联动）、e2e PASS 51、audit PASS 16、B1 探针 11/11、vue-tsc 通过、7 个前台页面 200 零模板错误。**
+
+---
+
+## 9.6 N 批次部分落地 + 工程收尾（2026-09-29）
+
+### G20 模型导入导出 ✅（schema-as-code，对标 Payload config-as-code / Drupal CMI）
+
+- `ModelTransferService`：`exportModel`（模型元数据+字段定义含 GROUP 子字段按 parentFieldName 关联+分类树按 fatherName 关联的单个 JSON）与 `importModel`（幂等：模型按 code 对齐——存在更新元数据/缺失新建自动建表+骨架；字段按 fieldName 对齐——存在更新可变属性（类型不可变）/缺失新增建列，子字段两遍导入；分类按「同父下名称」对齐）；
+- 端点：`GET /api/system/model/export/{id}`（复用 list 权限）、`POST /api/system/model/import`（复用 save 权限）；外部 relate 依赖缺失时报 `missingModelDeps` 清单（先导依赖再导本模型）；
+- 前端：模型列表行「导出」下载 `{code}-model.json`；工具栏「导入模型」（选文件→确认→按 code 更新或新建，内容数据不受影响）。
+
+### G15 可复用字段组 ✅（复制式 Component，M 阶段收尾）
+
+- 新表 `fly_component`（code/name/remark/fields_json，fields 与导出 fields 同构）；字段管理页对 group 字段「存为字段组」入库；「字段组库」抽屉列出全部组件、「应用到本模型」= 新建 group 字段（fieldName=组件 code，冲突自动 _copy 后缀）+ 子字段逐个复制（同名跳过，复制式不做联动更新）；
+- 端点：`/api/system/component/{list,save,del,apply,pickup}`（复用 modelField 权限）。
+
+### G18 事件扩展点 ✅（§7.14 契约先行）
+
+- 新增 `core/event/ContentChangedEvent`（action/modelCode/ids/operatorId/time）；发布点覆盖 ModelDataService 的 insert/update/delete/status 与 CommentService 的发表/审核/删除；发布侧 try/catch、监听侧异常不阻断主流程。本期零监听者——为 G17 自动化与未来事件型插件提供稳定契约。
+
+### G27 路由冲突自检 ✅
+
+- `RouteConflictChecker`（ContextRefreshedEvent）：扫描全变量同形根级路由按段数分组，≥2 个 handler 即 log.error 报警（不阻断启动）。已验证：启动日志正确报出既有的单段全变量路由组（/{channelDir} 与 /{modelCode} 等）。
+
+### G28/G29 工程小债 ✅
+
+- `EhCacheConfig` → `CacheConfig` 正名（实现早已是 Caffeine）；
+- devtools 默认关闭、新增 dev profile 开启（`mvn spring-boot:run -Dspring-boot.run.profiles=dev`）；
+- DB 账号口令环境变量化：`FLYCMS_DB_USER` / `FLYCMS_DB_PASSWORD`（缺省回退开发值，生产无需改代码即可外部注入）。
+
+**验收：G20 导出/幂等导入/改码新建探针全过（含 fatherName 分类树还原）、G15 入库/应用/复制 2 子字段/重复跳过全过、G27 启动报警 1 组、e2e PASS 51、audit PASS 16、B1 11/11、M 15/15、vue-tsc 通过。**
+
+---
+
+## 9.7 N/R 收尾批次（2026-09-29 第二轮）
+
+### G17 自动化规则 ✅（Directus Flows 简化版：规则表+内置动作，非可视化编排）
+
+- 新表 `fly_automation_rule`（event/model_code/conditions/actions/status）；`AutomationRuleService` 监听 G18 `ContentChangedEvent`——事件+模型匹配 → conditions 对首行求值（eq/neq/gt/lt/contains）→ 依次执行内置动作（`webhook` POST JSON 5s 超时 / `log`）；
+- 管理端：`/api/system/automation/{list,save,del}`（权限行已登记授权）+ 新页面 `views/system/automation/index.vue`（菜单「系统管理→自动化规则」，菜单行 id 2760100000000005001）。
+
+### G16 Live Preview ✅（草稿真预览，对标 Craft Live Preview）
+
+- `PreviewTokenUtils`：HMAC-SHA256 短时效（30 分钟）令牌，绑定（adminId, modelCode, targetId），密钥每次启动随机（重启失效为可接受语义）；
+- `fly_info_model` 标签预览旁路：request 参数 `__preview=1&__pid&__ptoken` 校验通过 → 按 id 取任意状态行（含待审草稿），失败安全回退；任何详情模板零改动生效；
+- `ModelController` 对预览响应设 `X-Robots-Tag: noindex`；`GET /api/system/modelData/previewToken` 签发（复用 save@model 权限）；内容列表新增「预览」按钮。
+
+### E6 公式字段 ✅（P3 提前落地）
+
+- `FieldTypeEnum.FORMULA`（虚拟列）+ `fly_model_field.formula`；表达式白名单校验（仅字段名/数字/四则/括号）；读取时 `expandFormulas` 以行 Map 为根做 SpEL `SimpleEvaluationContext` 受限求值（标识符统一转 `#root['字段']` 索引），失败安全降级 null；
+- 顺手修复 `updateField` 对虚拟字段（columnType NULL）的 NPE。
+
+### E9 模型级评论开关 ✅（部分）
+
+- `fly_model.enable_comment`（缺省 1）：0 时前台发表评论直接拒绝；模型编辑弹窗「前台评论」开关。enable_version 等其余开关维持按需后置。
+
+### G19 设计令牌 ✅（最小闭环）
+
+- theme.json 的 settings 数据层此前已存在（ThemeRegistry 解析）；本轮补齐消费层：新标签 `<@fly_theme_vars />`（ThemeVars）输出 `:root{--fly-color-*; --fly-font-*; --fly-layout-*}`，`common/header.html` 全局引入——模板/自定义 CSS 一律消费令牌，改色只改 theme.json（模板中心文件编辑器可直接编辑）。
+
+### R：G26 MyBatis XML 归位 ✅（P2 技术债清偿）
+
+- 35 个 Mapper XML 从 `src/main/java/**/dao/` 迁至 `src/main/resources/mapper/`（平铺命名 `模块__XxxDao.xml`）；`mapper-locations` 改 `classpath:mapper/**/*.xml`；`pom.xml` 移除把 `src/main/java` 当资源目录的非标准配置；**开发约定同步变更（flycms-dev skill 铁律 #1 已改）**。全量回归通过。
+
+### 本轮修复
+
+- `TagVars` 命名坑：标签类名无驼峰（Themevars）时 `toUnderline` 不产下划线——注册名与模板引用名不一致且**渲染中途抛 InvalidReference 导致 chunked 响应截断**（前端表现为响应体不完整）；已正名 `ThemeVars`。
+
+**验收：e2e PASS 51 / audit PASS 16 / B1 11/11 / M 15/15 / 本批综合探针 7/7（G16 含 noindex 与伪造令牌拒绝、G17 规则 CRUD、E9 开关、E6 公式 100.00）/ vue-tsc 通过。**
+
+---
+
+## 9.8 P 阶段可自研部分落地 + G25 审计（2026-09-29 第三轮）
+
+### G22 AI 内容助手 ✅（OpenAI 兼容 provider 抽象）
+
+- `AiProviderService`：chat / embeddings 客户端（`java.net.http`，60s 超时），配置三键存系统参数 `fly_ai_base_url / fly_ai_api_key / fly_ai_model`（DeepSeek/通义/OpenAI 等 OpenAI 兼容服务均可）；未配置时全部 AI 端点返回可读提示，其余功能零影响；
+- `POST /api/system/ai/generate`：任务集 summary / keywords / title（5 候选）/ translate；输出**只回填表单由人工审核保存**（红线：服务端不直接改写已发布内容）；
+- 前端：内容表单标题下方 AI 按钮组（未配置时不显示）——摘要/关键词直接填入 SEO 页签字段，标题建议弹层点选采用；
+- 配置四键已入 `fly_config_web`（key 空值占位，部署方填值即可点亮）。
+
+### G21 语义搜索 ✅（MySQL 存向量，小站规模免向量库）
+
+- 新表 `fly_embedding`（target_model+target_id+chunk 唯一，vector_json + embed_model）；`EmbeddingService`：发布事件（G18）异步向量化（标题+正文按段落分块 ≤1200 字 ×8），删除/下架删向量；`@EnableAsync` 已开启（事件消费不阻塞保存）；
+- 检索：查询向量化 → 目标模型全量余弦 → topK；`GET /api/system/ai/semanticSearch` 与手动 `POST /api/system/ai/embedSync`（均复用 AI 权限）；
+- 量级边界：内容到十万级迁 ES/pgvector（DAO 已按 target_model 隔离，迁移面收敛在 EmbeddingDao）。
+
+### G25 静态资源审计 ✅（报告产出，删除人工执行）
+
+- 新工具 `tools/static_asset_audit.py`：模板/js/css 直链 + url() + sea.js use/require 闭包展开（alias 两份配置）；
+- **报告结论：views/static 共 1744 个文件（35.0MB），被引用仅 30 个——98%（1714 个 / 34.5MB）为旧主题死资源**；报告含未引用 TOP30 与全量清单（`docs/03-报告/静态资源引用审计-2026-09-29.md`）。删除决策人工执行：sea.js 存在运行时拼路径场景，须对候选清单抽查后再批量删除。
+
+### 本轮修复
+
+- 无新增缺陷；AI 链路未配置态全端点优雅降级（探针 3/3）。
+
+**验收：AI 探针 3/3（status/未配置提示×2）、e2e PASS 51 / audit PASS 16 / B1 11/11 / M 15/15 / vue-tsc 通过。**
+
+### G23 MCP server ✅（轻量自实现 JSON-RPC，Streamable HTTP）
+
+- `web/mcp/McpController`（POST /mcp）：initialize 握手 / tools/list / tools/call / ping，无状态无 SSE（工具型调用无需服务端推送）；不依赖 Spring AI SDK；
+- 4 个工具：`model_list`（启用模型）、`content_search`（关键词跨模型聚合，仅已发布）、`content_get`（按 model+id 读已发布内容，含自定义字段与关联展开）、`content_create_draft`（**MCP 写入红线：强制 status=0 草稿**，字段校验/唯一约束/版本快照全继承）；
+- 门禁：系统参数 `fly_mcp_token`（已入站点参数白名单，后台可直接管理）——留空 = /mcp 404 关闭；非空时请求须带 `Authorization: Bearer <token>`（常量时间比较），错误令牌 401；
+- 探针 10/11（唯一"失败"为探针断言过窄：content_search 正确返回了 brands/downloads 的匹配行）。
+
+### G25 静态资源隔离执行 ⚠️ 已执行并回滚（结论：清理转人工）
+
+- 按 G25 审计报告执行自动隔离（1714 个文件移入 views_static_quarantine），前台资产完整性验证连续暴露**三类静态分析盲区**：
+  ① FreeMarker 条件分支内的字面路径（`src="<#if>…<#else>/assets/.../avatar/128x128.jpg"`）；
+  ② theme.json 元数据字段引用（thumbnail: screenshot.png）；
+  ③ 宏动态拼接族（`cover-{模型码}.svg`，按模型码任意扩展）；
+- 按设计**整体回滚**（隔离目录移回，e2e 恢复 51/0）——报告保留作**人工清理指南**：建议清理时按「先改模板消除条件内路径 → theme.json 引用纳入清单 → cover 族建齐或改占位」三步收敛后再批量删除。
+
+### 全项目剩余（全部需用户决策或外部条件）
+
+- **G22/G21 点亮**：部署方在系统参数填写 `fly_ai_*` 四键（任意 OpenAI 兼容服务）——功能即刻可用，无需改代码；
+- **G24 富文本结构化**：涉及存量 HTML 迁移，建议随 AI 语义检索的段落分块（已实现）演进，暂缓存储改造；
+- **G25 清理执行**：按审计报告人工执行（直接删除模式——先按 §9.8 G25 结论收敛三类盲区路径再删，可回收 34.5MB）；
+- **G30 MySQL 8.0 升级**：生产操作，需停机窗口与回滚预案；
+- **G28 剩余**：Lucene 升级随语义检索规模演进（当前关键词+语义双通道已覆盖）。
+
+- **P 阶段 AI 原生**（G21-G24）：语义搜索需向量库（ES/OpenSearch/pgvector）与 embedding 服务选型；AI 助手需 LLM provider 与 API Key；MCP 需协议接入评审——**全部依赖用户决策与服务开通，无法单方面完成**；
+- **R 剩**：G25 剩余（views/static 39MB 老资源清理——模板经 sea.js 动态加载资源，静态 grep 不可靠，需主题级审计单独立项）、G28 剩余（Lucene 升级随 G21 向量检索一并）、G30 MySQL 8.0 升级（单独立项）；
+- **引擎仅余**：E6 已落地；E9 的 enable_version 等其余 per-model 开关按需。
+
+- N 剩：G16 Live Preview、G17 自动化规则（事件契约 G18 已就位）、G19 设计令牌；
+- P 全部（AI 原生：语义搜索/AI 助手/MCP/富文本结构化）——依赖外部服务选型，单独立项；
+- R 剩：G26 MyBatis XML 归位（需测试兜底）、G25 剩余（views/static 39MB 老资源清理）、G28 剩余（Lucene 升级随 G21）、G30 MySQL 8.0（单独立项）。
 
 **验收口径**：`module/` 下不再有 article/share/question/topic/links/announcement/message/guide 内容模块目录；后台「内容」分组只剩「内容模型 + 内容数据（通用）+ 栏目」；前台任意主题模板用 `<@fly_page_model model="{code}">` 可渲染全部内容类型；e2e 与 audit 脚本全绿。
 
