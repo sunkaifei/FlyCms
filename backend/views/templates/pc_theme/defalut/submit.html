@@ -1,0 +1,86 @@
+<#-- ============================================================
+     前台投稿表单（V2，通用缺省版）：submit-{模型code}.html 可按模型覆盖本文件。
+     字段由 meta.fields（formMeta）驱动：is_form=1 的启用字段逐个渲染。
+     提交目标：POST /ucenter/submit/${model.code}（字段名=fieldName，红线：一律落待审/按开关）。
+     ============================================================ -->
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>投稿 - ${(model.name)!''} - ${web_name!''}</title>
+<style>
+  body{font-family:system-ui,"Microsoft YaHei",sans-serif;background:#f5f6f8;margin:0;}
+  .wrap{max-width:720px;margin:40px auto;background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  h1{font-size:22px;margin:0 0 18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:14px;color:#333;margin-bottom:4px;}
+  .field input[type=text],.field input[type=number],.field input[type=date],.field textarea,.field select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #d9dce1;border-radius:4px;font-size:14px;}
+  .field textarea{min-height:120px;resize:vertical;}
+  .field .tip{font-size:12px;color:#999;margin-top:3px;}
+  .req{color:#e64340;margin-right:2px;}
+  .btn{background:var(--fly-color-ink,#16324A);color:#fff;border:0;border-radius:4px;padding:10px 26px;font-size:15px;cursor:pointer;}
+  .btn:hover{opacity:.9;}
+  .msg{margin-bottom:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>投稿 - ${(model.name)!''}</h1>
+  <#if (user.userId)??>
+
+  <form method="post" action="/ucenter/submit/${model.code}">
+    <#list meta.fields as f>
+      <#if f.isForm == 1>
+        <div class="field">
+          <#assign ft = f.fieldType>
+          <#if ft == 'textarea' || ft == 'editor'>
+            <label><#if f.isRequired == 1><span class="req">*</span></#if>${f.fieldLabel}</label>
+            <textarea name="${f.fieldName}" placeholder="${f.placeholder!''}"></textarea>
+          <#elseif ft == 'select'>
+            <label><#if f.isRequired == 1><span class="req">*</span></#if>${f.fieldLabel}</label>
+            <select name="${f.fieldName}"><option value="">请选择</option><#list (f.optionsList)![] as o><option value="${o}">${o}</option></#list></select>
+          <#elseif ft == 'radio'>
+            <label><#if f.isRequired == 1><span class="req">*</span></#if>${f.fieldLabel}</label>
+            <#list (f.optionsList)![] as o>
+              <label style="display:inline;font-weight:normal;margin-right:10px;"><input type="radio" name="${f.fieldName}" value="${o}">${o}</label>
+            </#list>
+          <#elseif ft == 'checkbox'>
+            <label>${f.fieldLabel}（可多选）</label>
+            <#list (f.optionsList)![] as o>
+              <label style="display:inline;font-weight:normal;margin-right:10px;"><input type="checkbox" name="${f.fieldName}" value="${o}">${o}</label>
+            </#list>
+          <#elseif ft == 'number' || ft == 'decimal' || ft == 'rating'>
+            <label><#if f.isRequired == 1><span class="req">*</span></#if>${f.fieldLabel}</label>
+            <input type="number" name="${f.fieldName}" step="any" placeholder="${f.placeholder!''}">
+          <#elseif ft == 'date'>
+            <label>${f.fieldLabel}</label>
+            <input type="date" name="${f.fieldName}">
+          <#elseif ft == 'datetime'>
+            <label>${f.fieldLabel}</label>
+            <input type="datetime-local" name="${f.fieldName}">
+          <#elseif ft == 'switch'>
+            <label><input type="checkbox" name="${f.fieldName}" value="1"> ${f.fieldLabel}</label>
+          <#elseif ft == 'formula' || ft == 'rollup' || ft == 'm2a'>
+            <#-- 计算列/任意关联不进前台表单 -->
+          <#else>
+            <label><#if f.isRequired == 1><span class="req">*</span></#if>${f.fieldLabel}<span class="tip">（${ft}）</span></label>
+            <input type="text" name="${f.fieldName}" placeholder="${f.placeholder!''}">
+          </#if>
+        </div>
+      </#if>
+    </#list>
+
+    <div class="field">
+      <label><span class="req">*</span>正文（content）</label>
+      <textarea name="content" required placeholder="正文内容"></textarea>
+    </div>
+
+    <button class="btn" type="submit">提交投稿</button>
+    <span class="tip" style="font-size:12px;color:#999;margin-left:10px;">提交后进入审核（如开启），审核通过后公开显示</span>
+  </form>
+
+  <#else>
+  <p>请先 <a href="/login">登录</a> 后再投稿。</p>
+  </#if>
+</div>
+</body>
+</html>

@@ -9,14 +9,18 @@ import com.flycms.module.model.model.ModelField;
 import com.flycms.module.model.service.ModelDataService;
 import com.flycms.module.model.service.ModelFieldService;
 import com.flycms.module.model.service.ModelService;
+import com.flycms.module.template.service.ThemeRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +57,72 @@ public class SubmitController extends BaseController {
     private ModelDataService modelDataService;
     @Autowired
     private ConfigService configService;
+    @Autowired
+    private ThemeRegistry themeRegistry;
+
+    /**
+     * V2 投稿表单页：渲染 submit-{code}.html（缺省回退 submit.html），
+     * 表单字段由 formMeta 驱动（模板内循环 meta.fields 按类型渲染）。
+     * 模型未开放投稿（enable_submit=0）或未登录一律 404/登录语义拒绝。
+     */
+    @GetMapping("/ucenter/submit/{modelCode}")
+    public String submitPage(@PathVariable String modelCode, ModelMap modelMap) {
+        if (getUser() == null) {
+            return "redirect:/login";
+        }
+        final String code;
+        try {
+            code = SqlSafeUtil.safeModelCode(modelCode);
+        } catch (IllegalArgumentException e) {
+            return theme.getPcTemplate("404");
+        }
+        Model model = modelService.findModelByCode(code);
+        if (model == null || model.getStatus() != 1
+                || (model.getEnableSubmit() != null && model.getEnableSubmit() == 0)) {
+            return theme.getPcTemplate("404");
+        }
+        String skin = themeRegistry.currentSkin();
+        ThemeRegistry.Resolved r = themeRegistry.locate(skin, "submit-" + code);
+        if (r == null) {
+            r = themeRegistry.locate(skin, "submit");
+        }
+        if (r == null) {
+            // 主题未提供投稿模板：提示信息页（避免裸 500）
+            modelMap.addAttribute("message", "该模型未开放前台投稿页面（缺少 submit 模板）");
+            return theme.getPcTemplate("message_tip");
+        }
+        modelMap.addAttribute("model", model);
+        Map<String, Object> meta = modelDataService.formMeta(model.getId());
+        // 模板友好化：fields 转.Map 并解析 options → optionsList（radio/checkbox 直接渲染）
+        if (meta.get("fields") instanceof List) {
+            List<Map<String, Object>> fieldMaps = new ArrayList<>();
+            for (ModelField f : (List<ModelField>) meta.get("fields")) {
+                Map<String, Object> m = new HashMap<>();
+                m.put("fieldName", f.getFieldName());
+                m.put("fieldLabel", f.getFieldLabel());
+                m.put("fieldType", f.getFieldType());
+                m.put("isRequired", f.getIsRequired());
+                m.put("isForm", f.getIsForm());
+                m.put("placeholder", f.getPlaceholder());
+                List<String> opts = new ArrayList<>();
+                if (StringUtils.isNotBlank(f.getOptions())) {
+                    try {
+                        opts = com.alibaba.fastjson2.JSON.parseArray(f.getOptions(), String.class);
+                    } catch (Exception e) {
+                        for (String o : f.getOptions().split(",")) {
+                            opts.add(StringUtils.strip(o, "[]"));
+                        }
+                    }
+                }
+                m.put("optionsList", opts);
+                fieldMaps.add(m);
+            }
+            meta.put("fields", fieldMaps);
+        }
+        modelMap.addAttribute("meta", meta);
+        modelMap.addAttribute("user", getUser());
+        return r.view;
+    }
 
     @ResponseBody
     @PostMapping("/ucenter/submit/{modelCode}")
@@ -68,7 +138,8 @@ public class SubmitController extends BaseController {
             return DataVo.failure("模型标识不合法");
         }
         Model model = modelService.findModelByCode(code);
-        if (model == null || model.getStatus() != 1) {
+        if (model == null || model.getStatus() != 1
+                || (model.getEnableSubmit() != null && model.getEnableSubmit() == 0)) {
             return DataVo.failure("模型不存在或未开放投稿");
         }
 

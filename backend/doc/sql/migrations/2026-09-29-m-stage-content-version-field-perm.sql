@@ -71,8 +71,9 @@ INSERT INTO fly_admin_group_permission_merge (group_id, permission_id)
 SELECT g.id, p.permission_id FROM (SELECT 2760100000000004001 permission_id UNION SELECT 2760100000000004002 UNION SELECT 2760100000000004003) p
 CROSS JOIN (SELECT DISTINCT group_id FROM fly_admin_group_permission_merge) g;
 
--- E9 模型级评论开关
+-- E9 模型级评论开关 + V2 前台投稿开关
 ALTER TABLE `fly_model` ADD COLUMN `enable_comment` tinyint(1) DEFAULT '1' COMMENT 'E9 模型级评论开关 0关 1开';
+ALTER TABLE `fly_model` ADD COLUMN `enable_submit` tinyint(1) DEFAULT '1' COMMENT 'V2 前台投稿开关 0关 1开';
 -- E6 行内公式
 ALTER TABLE `fly_model_field` ADD COLUMN `formula` varchar(255) DEFAULT NULL COMMENT 'E6 行内公式（FORMULA 类型）';
 

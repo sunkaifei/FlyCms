@@ -96,6 +96,19 @@ const [Form, formApi] = useVbenForm({
       fieldName: 'enableComment',
       label: '前台评论',
     },
+    {
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '开放', value: 1 },
+          { label: '关闭', value: 0 },
+        ],
+        optionType: 'button',
+      },
+      defaultValue: 1,
+      fieldName: 'enableSubmit',
+      label: '前台投稿',
+    },
   ],
   showDefaultActions: false,
 });
@@ -140,6 +153,7 @@ onMounted(() => {
       useContent: editing.value.useContent === 0 ? 0 : 1,
       useSeo: editing.value.useSeo === 0 ? 0 : 1,
       enableComment: editing.value.enableComment === 0 ? 0 : 1,
+      enableSubmit: editing.value.enableSubmit === 0 ? 0 : 1,
     });
     // code 锁定
     formApi.updateSchema([
@@ -150,7 +164,7 @@ onMounted(() => {
     ]);
   } else {
     modalApi.setState({ title: '新增模型' });
-    formApi.setValues({ sort: 0, useContent: 1, useSeo: 1, enableComment: 1 });
+    formApi.setValues({ sort: 0, useContent: 1, useSeo: 1, enableComment: 1, enableSubmit: 1 });
   }
 });
 </script>

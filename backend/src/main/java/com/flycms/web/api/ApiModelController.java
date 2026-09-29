@@ -225,6 +225,9 @@ public class ApiModelController extends ApiBaseController {
         if (params.containsKey("enableComment")) {
             model.setEnableComment(parseInt(params.get("enableComment"), 1));
         }
+        if (params.containsKey("enableSubmit")) {
+            model.setEnableSubmit(parseInt(params.get("enableSubmit"), 1));
+        }
         DataVo vo = modelService.updateModel(model);
         if (vo.getCode() == DataVo.CODE_SUCCESS) {
             syncModelMenuNodesOnUpdate(model);
