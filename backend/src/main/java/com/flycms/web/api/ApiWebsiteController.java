@@ -46,10 +46,15 @@ public class ApiWebsiteController extends ApiBaseController {
             "fly_smtp_server", "fly_smtp_port", "fly_smtp_ssl",
             "fly_smtp_usermail", "fly_smtp_password", "fly_smtp_fromname",
             // G23 MCP 接入令牌（留空 = /mcp 端点关闭）
-            "fly_mcp_token");
+            "fly_mcp_token",
+            // G22/G21 AI 服务（OpenAI 兼容；key 留空 = AI 功能停用）
+            "fly_ai_base_url", "fly_ai_api_key", "fly_ai_model", "fly_ai_embed_model");
 
     /** SMTP 密码（授权码）掩码：GET 时用它替换真实值，保存时遇它跳过 */
     private static final String SMTP_PASSWORD_MASK = "******";
+
+    /** G22/G23：AI Key / MCP 令牌的回显掩码（与 SMTP 授权码同口径） */
+    private static final String MASK = "******";
 
     private static final Pattern SAFE_TEMPLATE_PATH =
             Pattern.compile("^[\\w\\-/\\u4e00-\\u9fa5]+\\.html$");
@@ -77,10 +82,16 @@ public class ApiWebsiteController extends ApiBaseController {
         for (String key : CONFIG_KEYS) {
             config.put(key, configService.getStringByKey(key));
         }
-        // SMTP 授权码不回传明文
+        // SMTP 授权码不回传明文；G22 AI Key 与 G23 MCP 令牌同理（掩码占位，保存时跳过）
         String smtpPassword = config.get("fly_smtp_password");
         if (smtpPassword != null && !smtpPassword.isEmpty()) {
             config.put("fly_smtp_password", SMTP_PASSWORD_MASK);
+        }
+        for (String secretKey : List.of("fly_ai_api_key", "fly_mcp_token")) {
+            String v = config.get(secretKey);
+            if (v != null && !v.isEmpty()) {
+                config.put(secretKey, MASK);
+            }
         }
         data.put("config", config);
         data.put("skins", listSkins());
@@ -101,6 +112,11 @@ public class ApiWebsiteController extends ApiBaseController {
             // SMTP 授权码：提交掩码或空串都不动已保存的真实值
             if (key.equals("fly_smtp_password")
                     && (v.trim().isEmpty() || SMTP_PASSWORD_MASK.equals(v.trim()))) {
+                continue;
+            }
+            // G22/G23：AI Key 与 MCP 令牌同口径（掩码或空串不动真实值）
+            if ((key.equals("fly_ai_api_key") || key.equals("fly_mcp_token"))
+                    && (v.trim().isEmpty() || MASK.equals(v.trim()))) {
                 continue;
             }
             // 主题目录必须真实存在，防切到无效皮肤

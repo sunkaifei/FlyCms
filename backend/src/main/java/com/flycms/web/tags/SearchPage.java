@@ -1,5 +1,6 @@
 package com.flycms.web.tags;
 
+import com.flycms.module.ai.service.EmbeddingService;
 import com.flycms.module.tag.service.TagService;
 import freemarker.core.Environment;
 import freemarker.template.TemplateDirectiveBody;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -35,6 +37,8 @@ import java.util.Map;
  * </pre>
  *
  * <p>输出变量：{@code dataList}、{@code search_total}、{@code search_page}（PageVo 风格分页对象）。
+ * <p>G21：AI 向量模型就位时自动走语义通道（{@code semantic=true}，topK 单页，无分页），
+ * 否则回退关键词聚合分页——模板无需感知差异。
  *
  * @author sun-kaifei
  * @version 1.0
@@ -44,6 +48,8 @@ public class SearchPage extends AbstractModelTag {
 
     @Autowired
     private TagService tagService;
+    @Autowired
+    private EmbeddingService embeddingService;
 
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -57,6 +63,18 @@ public class SearchPage extends AbstractModelTag {
 
         Map<String, Object> vars = new LinkedHashMap<>();
         try {
+            // G21：AI 已配置且向量模型就位时走语义通道（余弦排序，单页 topK），
+            // 未配置/无向量/异常一律回退关键词聚合——搜索永不因 AI 缺席而空转
+            if (embeddingService.semanticReady()) {
+                List<Map<String, Object>> semanticRows =
+                        embeddingService.searchAcrossModels(q, semanticTopK(page, rows));
+                vars.put("dataList", semanticRows);
+                vars.put("search_total", semanticRows.size());
+                vars.put("search_page", null);
+                vars.put("semantic", true);
+                renderWith(env, body, vars);
+                return;
+            }
             TagService.TagResult r = tagService.search(q, page, rows);
             vars.put("dataList", r.getRowsList());
             vars.put("search_total", r.getTotal());
@@ -68,5 +86,10 @@ public class SearchPage extends AbstractModelTag {
             vars.put("search_page", null);
         }
         renderWith(env, body, vars);
+    }
+
+    /** 语义单页容量 = rows * page（把 ?p=N 映射为 topK 偏移近似，避免翻页越界） */
+    private int semanticTopK(int page, int rows) {
+        return Math.max(page, 1) * Math.max(rows, 1);
     }
 }

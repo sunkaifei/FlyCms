@@ -25,6 +25,7 @@ import {
   getDataListApi,
   getModelByCodeApi,
   getPreviewTokenApi,
+  getVersionDiffApi,
   getVersionListApi,
   restoreVersionApi,
   updateDataStatusApi,
@@ -252,6 +253,21 @@ async function loadVersions() {
   }
 }
 
+const diffRows = ref<{ field: string; from: string; to: string }[]>([]);
+const diffVisible = ref(false);
+
+/** 与紧邻的旧版本对比（v1 无上一版时按钮禁用） */
+async function openDiff(v: ContentVersionRow) {
+  const res = await getVersionDiffApi(
+    modelId(),
+    String(versionRow.value?.id),
+    v.version - 1,
+    v.version,
+  );
+  diffRows.value = res ?? [];
+  diffVisible.value = true;
+}
+
 function confirmRestore(v: ContentVersionRow) {
   restoreTarget.value = v;
   Modal.confirm({
@@ -462,6 +478,14 @@ onMounted(async () => {
           </template>
           <template v-else-if="column.key === 'vaction'">
             <Button
+              :disabled="record.version <= 1"
+              size="small"
+              type="link"
+              @click="openDiff(record as ContentVersionRow)"
+            >
+              对比
+            </Button>
+            <Button
               :disabled="restoreTarget !== null"
               size="small"
               type="link"
@@ -472,6 +496,24 @@ onMounted(async () => {
           </template>
         </template>
       </Table>
+      <Modal
+        v-model:open="diffVisible"
+        :footer="null"
+        title="版本差异（上一版 → 本版）"
+        :width="560"
+      >
+        <Table
+          :columns="[
+            { title: '字段', dataIndex: 'field', key: 'field', width: 140 },
+            { title: '旧值', dataIndex: 'from', key: 'from' },
+            { title: '新值', dataIndex: 'to', key: 'to' },
+          ]"
+          :data-source="diffRows"
+          :pagination="false"
+          row-key="field"
+          size="small"
+        />
+      </Modal>
       <div class="mt-3 flex justify-end">
         <Pagination
           v-model:current="versionPage"

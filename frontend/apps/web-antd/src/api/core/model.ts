@@ -130,6 +130,18 @@ export async function getPreviewTokenApi(modelId: number | string, id: string) {
   });
 }
 
+/** G12 版本逐字段差异（[{field, from, to}]） */
+export async function getVersionDiffApi(
+  modelId: number | string,
+  id: string,
+  from: number,
+  to: number,
+) {
+  return requestClient.get<
+    { field: string; from: string; to: string }[]
+  >('/system/modelData/version/diff', { params: { from, id, modelId, to } });
+}
+
 /** G12 恢复到指定版本（恢复动作另存为新版本） */
 export async function restoreVersionApi(modelId: number | string, id: string, version: number) {
   const form = new URLSearchParams({ id: String(id), modelId: String(modelId), version: String(version) });

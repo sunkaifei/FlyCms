@@ -467,6 +467,49 @@ public class ModelDataService {
     }
 
     /**
+     * G12 版本对比：from/to 两版快照的逐字段差异（仅列出有变化的列；id/short_url 除外）。
+     * 返回 [{field, from, to}]（值统一字符串化；时间列 ISO 形态）。
+     */
+    public List<Map<String, Object>> diffVersions(Long modelId, Long id, int fromVersion, int toVersion) {
+        Model model = modelService.findModelById(modelId);
+        List<Map<String, Object>> out = new ArrayList<>();
+        if (model == null) {
+            return out;
+        }
+        com.flycms.module.model.model.ContentVersion from =
+                contentVersionDao.findVersion(model.getCode(), id, fromVersion);
+        com.flycms.module.model.model.ContentVersion to =
+                contentVersionDao.findVersion(model.getCode(), id, toVersion);
+        if (from == null || to == null) {
+            return out;
+        }
+        Map<String, Object> a = JSON.parseObject(from.getContentJson(),
+                new com.alibaba.fastjson2.TypeReference<Map<String, Object>>() { });
+        Map<String, Object> b = JSON.parseObject(to.getContentJson(),
+                new com.alibaba.fastjson2.TypeReference<Map<String, Object>>() { });
+        java.util.Set<String> keys = new java.util.LinkedHashSet<>();
+        keys.addAll(a.keySet());
+        keys.addAll(b.keySet());
+        for (String key : keys) {
+            if ("id".equalsIgnoreCase(key) || "short_url".equalsIgnoreCase(key)) {
+                continue;
+            }
+            Object av = a.get(key);
+            Object bv = b.get(key);
+            String as = av == null ? "" : String.valueOf(av);
+            String bs = bv == null ? "" : String.valueOf(bv);
+            if (!as.equals(bs)) {
+                Map<String, Object> d = new LinkedHashMap<>();
+                d.put("field", key);
+                d.put("from", as);
+                d.put("to", bs);
+                out.add(d);
+            }
+        }
+        return out;
+    }
+
+    /**
      * G12 版本列表（新→旧，不含 content_json 大字段）。
      */
     public PageVo<com.flycms.module.model.model.ContentVersion> listVersions(

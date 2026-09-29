@@ -51,6 +51,8 @@ public class EmbeddingService {
     @Autowired
     private ModelDataService modelDataService;
     @Autowired
+    private com.flycms.module.model.dao.ModelDataDao modelDataDao;
+    @Autowired
     private ConfigService configService;
 
     // /////////////////// 同步（事件驱动） ///////////////////
@@ -133,6 +135,74 @@ public class EmbeddingService {
     }
 
     // /////////////////// 检索 ///////////////////
+
+    /** 语义检索是否可用（AI 已配置且向量模型就位）——SearchPage 标签据此决定语义/关键词通道 */
+    public boolean semanticReady() {
+        return aiProviderService.isConfigured()
+                && StringUtils.isNotBlank(configService.getStringByKey("fly_ai_embed_model"));
+    }
+
+    /**
+     * 跨模型语义检索（前台搜索页用）：查询向量化后在全部启用模型的向量中算余弦，
+     * 合并排序取 topK，并回表拼好模板可直接消费的行（title/shortUrl/__modelCode/__modelName/
+     * description/countView/thumbnailUrl）。
+     */
+    public List<Map<String, Object>> searchAcrossModels(String query, int topK) {
+        List<Map<String, Object>> out = new ArrayList<>();
+        DataVo vo = aiProviderService.embed(List.of(query));
+        if (vo.getCode() != DataVo.CODE_SUCCESS) {
+            return out;
+        }
+        double[] qv = ((double[][]) vo.getData())[0];
+        List<Map<String, Object>> hits = new ArrayList<>();
+        for (Model model : modelService.getEnabledModels()) {
+            if (!modelDataDao.tableExists(model.getCode())) {
+                continue;
+            }
+            for (Embedding e : embeddingDao.findByModel(model.getCode())) {
+                try {
+                    double[] v = toVector(e.getVectorJson());
+                    if (v == null || v.length != qv.length) {
+                        continue;
+                    }
+                    double score = cosine(qv, v);
+                    hits.add(Map.of("model", model, "targetId", e.getTargetId(), "score", score));
+                } catch (Exception ignored) {
+                    // 坏向量跳过
+                }
+            }
+        }
+        hits.sort((a, b) -> Double.compare((Double) b.get("score"), (Double) a.get("score")));
+        int n = Math.min(topK, hits.size());
+        for (int i = 0; i < n; i++) {
+            Model model = (Model) hits.get(i).get("model");
+            Long id = (Long) hits.get(i).get("targetId");
+            Map<String, Object> row = modelDataService.findDataById(model.getId(), id);
+            if (row == null || !"1".equals(String.valueOf(row.get("status")))) {
+                continue;
+            }
+            Map<String, Object> display = new LinkedHashMap<>(row);
+            display.put("__modelCode", model.getCode());
+            display.put("__modelName", model.getName());
+            out.add(display);
+        }
+        // 展开附件缩略图（mixRows 消费 thumbnailUrl）
+        if (!out.isEmpty()) {
+            Map<Long, List<Map<String, Object>>> byModel = new LinkedHashMap<>();
+            for (Map<String, Object> row : out) {
+                byModel.computeIfAbsent(
+                        modelService.findModelByCode(String.valueOf(row.get("__modelCode"))).getId(),
+                        k -> new ArrayList<>()).add(row);
+            }
+            for (List<Map<String, Object>> rows : byModel.values()) {
+                modelDataService.expandAttachments(
+                        modelService.findModelByCode(
+                                String.valueOf(rows.get(0).get("__modelCode"))).getId(), rows);
+            }
+        }
+        return out;
+    }
+
 
     /**
      * 语义检索：返回 [{targetId, score}]（余弦相似度降序，score∈[-1,1]，越大越相关）。

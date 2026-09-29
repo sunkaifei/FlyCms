@@ -588,6 +588,20 @@ public class ApiModelController extends ApiBaseController {
         return DataVo.success("操作成功", modelDataService.listVersions(modelId, id, pageNum, rows));
     }
 
+    /** 版本对比：from/to 两版逐字段差异 */
+    @ResponseBody
+    @GetMapping("/system/modelData/version/diff")
+    public DataVo versionDiff(@RequestParam(value = "modelId", defaultValue = "0") Long modelId,
+                              @RequestParam(value = "id", defaultValue = "0") Long id,
+                              @RequestParam(value = "from", defaultValue = "0") int from,
+                              @RequestParam(value = "to", defaultValue = "0") int to) {
+        requirePermission("/api/system/modelData/save@" + modelId);
+        if (modelId <= 0 || id <= 0 || from <= 0 || to <= 0) {
+            return DataVo.failure("参数传递错误");
+        }
+        return DataVo.success("操作成功", modelDataService.diffVersions(modelId, id, from, to));
+    }
+
     /** 恢复到指定版本（恢复动作另存为新版本，历史不丢） */
     @ResponseBody
     @PostMapping("/system/modelData/version/restore")
