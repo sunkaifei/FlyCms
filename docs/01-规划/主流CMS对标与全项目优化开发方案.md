@@ -1034,8 +1034,8 @@ CREATE TABLE fly_content_i18n (
 |---|---|---|---|---|
 | **V1** | **flag/属性位筛选**（头条/推荐/幻灯等位标签筛选） | 帝国自定义属性 / Dede `flag` | ✅ **配方已验证（2026-09-29）**：radio 字段（options 合法 JSON）+ `is_filter=1` → `<@fly_page_model model="articles" style="科技">` 筛选命中（探针验证）；注意 options 必须存合法 JSON（裸逗号串会致筛选失配，已修正 articles.style） | P2 ✅（配方） |
 | **V2** | **前台投稿表单模板化**（每模型可绑定投稿页模板） | Dede diyform / 迅睿投稿 | ✅ **已落地（2026-09-29）**：`GET /ucenter/submit/{code}` 渲染 `submit-{code}.html`（缺省 `submit.html` 由 formMeta 字段驱动，options 解析 optionsList 按 radio/checkbox/select 渲染）；`fly_model.enable_submit` 模型级开关（编辑页可控，关闭后投稿页 404/提交拒绝）；探针 6/6 | **P2 ✅** |
-| **V3** | **标签微缓存**（列表标签 cache 参数） | 帝国标签缓存时间 | `AbstractModelTag` 增可选 `cache="秒"` 参数，Caffeine micro-cache（key=标签+参数指纹），内容保存事件按 model 精准失效 | P3 |
-| **V4** | **聚合统计标签** `fly_stats_model`（按分类/作者/模型计数） | Directus Aggregate / 帝国统计函数 | group by 固有列（category_id/user_id）+ count，输出 `statsList`；「栏目新闻数」类侧栏需求 | P3 |
+| **V3** | **标签微缓存**（列表标签 cache 参数） | 帝国标签缓存时间 | ✅ **已落地（2026-09-30）**：`AbstractModelTag.tagCache`（TTL 指纹缓存，>512 条全清防膨胀），`fly_page_model / fly_list_model` 支持 `cache="秒"`；G18 内容事件按模型精准失效 | **P3 ✅** |
+| **V4** | **聚合统计标签** `fly_stats_model`（按分类/作者/模型计数） | Directus Aggregate / 帝国统计函数 | ✅ **已落地（2026-09-30）**：`ModelDataDao.statsGroup`（groupCol 白名单 category_id/user_id，恒定过滤已发布）+ 标签输出 `statsList`（key/name/count，name 解析分类名或作者昵称）；by=category 与 by=author 两通道预览验证 | **P3 ✅** |
 | **V5** | **区块模式库**（Block Patterns） | WP Block Patterns | 现有图案库（3 示例）扩为可后台保存的"模板片段"库，插入任意模板；与 G15 字段组库（字段侧复用）互补（模板侧复用） | P3 |
 
 > V2 完成后，「后台建模 → 前台发布 → 前台展示 → 任意调用」四环全部模板化/数据驱动，万能系统闭环无引擎缺口。
