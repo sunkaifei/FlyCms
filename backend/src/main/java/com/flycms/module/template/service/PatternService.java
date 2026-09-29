@@ -126,6 +126,55 @@ public class PatternService {
     }
 
     /** 该皮肤是否存在 patterns 目录（UI 决定是否显示"图案库"入口） */
+    /**
+     * V5 模板片段库：保存自定义图案（同名覆盖）。name 白名单同 list（小写字母数字_-），
+     * 建议带 custom- 前缀以区分内置示例；content 保存前做 FreeMarker 语法校验由调用方负责。
+     */
+    public DataVo save(String skin, String name, String content) {
+        File dir = patternDir(skin);
+        if (dir == null) {
+            return DataVo.failure("主题不存在或无 patterns 目录");
+        }
+        String file = withHtmlSuffix(name);
+        if (!SAFE_NAME.matcher(file).matches()) {
+            return DataVo.failure("图案名仅允许字母/数字/_-（1~64 位，.html 结尾）");
+        }
+        try {
+            java.nio.file.Files.write(new File(dir, file).toPath(),
+                    (content == null ? "" : content).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return DataVo.success("图案已保存：" + file);
+        } catch (Exception e) {
+            return DataVo.failure("保存失败：" + e.getMessage());
+        }
+    }
+
+    /** V5：删除自定义图案（内置示例同理可删，git 可回滚） */
+    public DataVo delete(String skin, String name) {
+        File dir = patternDir(skin);
+        if (dir == null) {
+            return DataVo.failure("主题不存在或无 patterns 目录");
+        }
+        String file = withHtmlSuffix(name);
+        if (!SAFE_NAME.matcher(file).matches()) {
+            return DataVo.failure("图案名不合法");
+        }
+        File f = new File(dir, file);
+        try {
+            if (!f.exists() || !f.getCanonicalPath().startsWith(dir.getCanonicalPath())) {
+                return DataVo.failure("图案不存在");
+            }
+            return f.delete() ? DataVo.success("已删除") : DataVo.failure("删除失败");
+        } catch (java.io.IOException e) {
+            return DataVo.failure("删除失败：" + e.getMessage());
+        }
+    }
+
+    /** 与 read 同口径：name 自动补 .html 后缀 */
+    private static String withHtmlSuffix(String file) {
+        return file != null && file.regionMatches(true, file.length() - 5, ".html", 0, 5)
+                ? file : file + ".html";
+    }
+
     public boolean hasPatterns(String skin) {
         File dir = patternDir(skin);
         return dir != null && dir.isDirectory() && !list(skin).isEmpty();

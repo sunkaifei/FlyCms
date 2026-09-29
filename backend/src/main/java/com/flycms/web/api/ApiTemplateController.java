@@ -617,6 +617,25 @@ public class ApiTemplateController extends ApiBaseController {
 
     /** 读取图案内容（编辑器插入用） */
     @ResponseBody
+    /** V5 模板片段库：保存自定义图案（同名覆盖；content 建议先过 /system/template/preview 校验） */
+    @PostMapping("/system/pattern/save")
+    public DataVo patternSave(@RequestParam(value = "skin", required = false) String skin,
+                              @RequestParam("name") String name,
+                              @RequestParam("content") String content) {
+        requirePermission("/api/system/template/save");
+        String s = skin == null || skin.isBlank() ? templateResolver.activeSkin() : skin;
+        return patternService.save(s, name, content);
+    }
+
+    /** V5 模板片段库：删除图案 */
+    @PostMapping("/system/pattern/delete")
+    public DataVo patternDelete(@RequestParam(value = "skin", required = false) String skin,
+                                @RequestParam("name") String name) {
+        requirePermission("/api/system/template/save");
+        String s = skin == null || skin.isBlank() ? templateResolver.activeSkin() : skin;
+        return patternService.delete(s, name);
+    }
+
     @GetMapping("/system/pattern/read")
     public DataVo patternRead(@RequestParam("file") String file,
                               @RequestParam(value = "skin", required = false) String skin) {

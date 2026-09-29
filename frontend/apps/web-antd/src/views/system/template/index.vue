@@ -7,7 +7,7 @@ import { Page } from '@vben/common-ui';
 import { useEditDrawer } from '#/utils/edit-drawer';
 import { useAccess } from '@vben/access';
 
-import { Button, message, Modal, Tabs, Tree } from 'ant-design-vue';
+import { Button, Input, message, Modal, Tabs, Textarea, Tree } from 'ant-design-vue';
 
 import {
   deleteTemplateApi,
@@ -15,7 +15,12 @@ import {
   readTemplateApi,
   saveTemplateApi,
 } from '#/api/core/website';
-import { checkTemplateApi, clearTemplateCacheApi, previewTemplateApi } from '#/api/core/template';
+import {
+  checkTemplateApi,
+  clearTemplateCacheApi,
+  previewTemplateApi,
+  savePatternApi,
+} from '#/api/core/template';
 
 import DebugChainModal from './debug-chain-modal.vue';
 import DiffModal from './diff-modal.vue';
@@ -265,6 +270,44 @@ function openPatterns() {
     .open();
 }
 
+// /////////// V5 模板片段库：把当前选区/整个文件存为可复用图案 ///////////
+const savePatternVisible = ref(false);
+const savePatternName = ref('');
+const savePatternContent = ref('');
+
+function openSavePattern() {
+  if (!currentFile.value && !content.value) {
+    message.warning('当前没有可保存的模板内容');
+    return;
+  }
+  const el = editorRef.value;
+  const sel =
+    el && el.selectionStart !== el.selectionEnd
+      ? content.value.slice(el.selectionStart, el.selectionEnd)
+      : content.value;
+  savePatternContent.value = sel;
+  // 默认图案名 = 当前文件名去后缀（非法字符转中划线，符合图案名白名单）
+  savePatternName.value = (currentFile.value ?? 'custom-pattern')
+    .replace(/\.html$/, '')
+    .replace(/[^A-Za-z0-9_-]/g, '-');
+  savePatternVisible.value = true;
+}
+
+async function doSavePattern() {
+  const name = savePatternName.value.trim();
+  if (!name) {
+    message.warning('图案名不能为空');
+    return;
+  }
+  try {
+    await savePatternApi(name, savePatternContent.value, skin.value || undefined);
+    message.success(`图案已保存：patterns/${name}.html（可在图案库插入到任意模板）`);
+    savePatternVisible.value = false;
+  } catch (error: any) {
+    message.error(error?.message ?? '保存失败');
+  }
+}
+
 /** P8 智能标签建议：由当前文件名反推模型与可用字段，给出可插入骨架 */
 function openTagSuggest() {
   if (!currentFile.value) {
@@ -357,6 +400,7 @@ onMounted(load);
             <Button size="small" @click="openTagManual">标签手册</Button>
             <Button size="small" @click="openTagSuggest">智能建议</Button>
             <Button size="small" @click="openPatterns">图案库</Button>
+            <Button size="small" @click="openSavePattern">存为图案</Button>
             <Button
               size="small"
               @click="
@@ -452,5 +496,32 @@ onMounted(load);
     <DiffModalComp />
     <TagSuggestModalComp />
     <PatternModalComp />
+
+    <!-- V5 存为图案（模板片段库） -->
+    <Modal
+      v-model:open="savePatternVisible"
+      title="存为图案（模板片段库）"
+      @ok="doSavePattern"
+    >
+      <div class="space-y-3 pt-2">
+        <div>
+          <div class="mb-1 text-sm">图案名（字母/数字/_-，自动补 .html）</div>
+          <Input v-model:value="savePatternName" placeholder="如 my-hero-banner" />
+        </div>
+        <div>
+          <div class="mb-1 text-sm">
+            图案内容（默认取当前选区；无选区则取整个文件）
+          </div>
+          <Textarea
+            v-model:value="savePatternContent"
+            :rows="10"
+            class="font-mono"
+          />
+        </div>
+        <div class="text-xs text-gray-400">
+          保存后在「图案库」中可一键插入到任何模板。
+        </div>
+      </div>
+    </Modal>
   </Page>
 </template>

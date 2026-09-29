@@ -527,6 +527,24 @@ export async function getPatternListApi(skin?: string) {
   );
 }
 
+/** V5 模板片段库：保存自定义图案（同名覆盖；建议先 preview 校验语法） */
+export async function savePatternApi(name: string, content: string, skin?: string) {
+  const form = new URLSearchParams({ content, name });
+  if (skin) form.append('skin', skin);
+  return requestClient.post<{ message: string }>('/system/pattern/save', form, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+  });
+}
+
+/** V5 模板片段库：删除图案 */
+export async function deletePatternApi(name: string, skin?: string) {
+  const form = new URLSearchParams({ name });
+  if (skin) form.append('skin', skin);
+  return requestClient.post<void>('/system/pattern/delete', form, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+  });
+}
+
 export async function readPatternApi(file: string, skin?: string) {
   return requestClient.get<{
     content: string;
