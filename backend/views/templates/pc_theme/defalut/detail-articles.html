@@ -31,6 +31,34 @@
       <#if (info.tags)?? && info.tags != ''>
       <div class="art-nav"><span>标签：${info.tags}</span></div>
       </#if>
+      <#-- E4 平台评论（U3 替代旧文章评论通道）：列表 + 发表 -->
+      <div class="art-nav art-comments">
+        <h3>评论 <small>(${(info.countComment)!0})</small></h3>
+        <@fly_commentpage targetModel="${model.code}" targetId="${info.id}" p="${p!1}" rows="10">
+          <#if (comment_page.list)?? && comment_page.list?size gt 0>
+          <#list comment_page.list as c>
+          <div class="comment-item" id="comment-${c.id}">
+            <p><b>${c.nickname}</b> <span class="text-muted"><@dt16 (c.createTime)!'' /></span></p>
+            <div>${c.content}</div>
+          </div>
+          </#list>
+          <#else>
+          <p class="text-muted">暂无评论，来抢沙发～</p>
+          </#if>
+          <div class="text-center"><ul class="pagination">${commentPageHtml}</ul></div>
+        </@fly_commentpage>
+        <#if (user.userId)??>
+        <form id="comment_form" method="post" action="/ucenter/comment/save">
+          <input type="hidden" name="targetModel" value="${model.code}">
+          <input type="hidden" name="targetId" value="${info.id}">
+          <textarea name="content" rows="3" maxlength="2000" required
+                    placeholder="写下你的评论（管理员开启审核时，评论通过后显示）"></textarea>
+          <button type="submit" class="btn btn-primary">发表评论</button>
+        </form>
+        <#else>
+        <p><a href="/login">登录</a> 后发表评论</p>
+        </#if>
+      </div>
     </main>
     <@detailAside mc=model.code catId=(info.categoryId)!0 notid=(info.id)!0 />
   </div>

@@ -82,11 +82,11 @@
                 <div class="widget-box">
                     <h2 class="h4 widget-box-title">热议话题 <a href="#" title="更多">»</a></h2>
                     <ul class="taglist-inline multi">
-                        <@fly_topicpage orderby="rand" rows="25">
-                        <#list topic_page.list as list>
-                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
+                        <@fly_list_model model="topics" orderby="count_follow" order="desc" rows="25">
+                        <#list dataList as it>
+                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${it.shortUrl}.html">${it.title}</a></li>
                         </#list>
-                        </@fly_topicpage>
+                        </@fly_list_model>
                     </ul>
                 </div>
 

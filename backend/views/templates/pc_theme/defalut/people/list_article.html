@@ -34,28 +34,33 @@
             <#include "../common/user_header.html">
 
             <div class="col-xs-12 col-md-9 main">
-                <@fly_articlepage userId="${people.userId!}" status="2" p="${p!}" rows="20">
+                <@fly_page_model model="articles" userId="${people.userId!}" p="${p!1}" rows="20">
                 <div class="question-content">
                     <div class="profile-main">
                         <ul>
                             <li><a href="/people/${people.shortUrl!}">动态</a></li>
-                            <li><a href="/people/${people.shortUrl!}/answers">回答<span class="Tabs-meta">${count.countAnswer}</span></a></li>
-                            <li><a href="/people/${people.shortUrl!}/question">提问<span class="Tabs-meta">${count.countQuestion}</span></a></li>
-                            <li class="activ"><a href="/people/${people.shortUrl!}/article">文章<span class="Tabs-meta">${count.countArticle}</span></a></li>
-                            <li><a href="/people/${people.shortUrl!}/share">分享<span class="Tabs-meta">${count.countShare}</span></a></li>
+                            <li><a href="/people/${people.shortUrl!}/answers">回答</a></li>
+                            <li><a href="/people/${people.shortUrl!}/question">提问</a></li>
+                            <li class="activ"><a href="/people/${people.shortUrl!}/article">文章</a></li>
+                            <li><a href="/people/${people.shortUrl!}/share">分享</a></li>
                         </ul>
                     </div>
-                    <#list article_page.list as list>
-                        <#assign infoId="${list.id!}">
+                    <#if (dataList)?? && dataList?size gt 0>
+                    <#list dataList as list>
                         <#include "../common/user_article.html">
                     </#list>
+                    <#else>
+                    <div class="init">
+                        <p class="text-center">(ﾟ∀ﾟ　)<br>  TA还没有发布文章</p>
+                    </div>
+                    </#if>
                     <div class="text-center">
                         <ul class="pagination">
-                            ${article_page.pageNumHtml}
+                            ${pageHtml}
                         </ul>
                     </div>
                 </div>
-                </@fly_articlepage>
+                </@fly_page_model>
             </div>
 
             <div class="col-md-3">
@@ -79,11 +84,11 @@
                 <div class="widget-box">
                     <h2 class="h4 widget-box-title">热议话题 <a href="#" title="更多">»</a></h2>
                     <ul class="taglist-inline multi">
-                        <@fly_topicpage orderby="rand" rows="25">
-                        <#list topic_page.list as list>
-                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
+                        <@fly_list_model model="topics" orderby="count_follow" order="desc" rows="25">
+                        <#list dataList as it>
+                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${it.shortUrl}.html">${it.title}</a></li>
                         </#list>
-                        </@fly_topicpage>
+                        </@fly_list_model>
                     </ul>
                 </div>
 

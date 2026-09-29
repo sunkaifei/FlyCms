@@ -1,51 +1,15 @@
-                    <@fly_articleinfo id="${infoId!}">
-                    <#if article??>
-                    <div class="index-list-item" data-info-type="1" data-info-id="${article.id!}" data-user-id="${list.userId!}">
-                        <#if user??>
-                        <#if list.userId != user.userId><button data-user-id="${list.userId!}" class="Button button-blue right-close <@fly_checkfollow userFollow="${list.userId!}" userFans="${user.userId!}"><#if result gt 0> btn-primary button-grey</#if></@fly_checkfollow> userFollow-button" style="display: block;"><@fly_checkfollow userFollow="${list.userId!}" userFans="${user.userId!}"><#if result=1><i class="fa fa-check"></i> 已关注<#elseif result=2><i class="fa fa-exchange"></i> 互相关注<#else><i class="fa fa-plus"></i> 关注他</#if></@fly_checkfollow></button></#if>
-                        <#else>
-                        <button data-user-id="${list.userId!}" class="Button button-blue right-close userFollow-button" style="display: block;"><i class="fa fa-plus"></i> 关注他</button>
-                        </#if>
-                        <h2 class="title"><a href="/a/${article.shortUrl}">${article.title!}</a></h2>
-                        <@fly_userinfo userId="${list.userId!}">
-                        <div  class="user">
-                            <div class="author-avatar">
-                                <a href="/people/${userinfo.shortUrl!}" target="_blank">
-                                    <img class="avatar-38 mr-10 hidden-xs" src="<#if userinfo.avatar??><@fly_avatar avatarurl=userinfo.avatar avatar="avatar1" /><#else>/assets/skin/pc_theme/defalut/images/avatar/128x128.jpg</#if>" alt="${userinfo.nickName!}">
-                                </a>
-                            </div>
-                            <div class="author-content">
-                                <div class="author-name">
-                                    <a href="/people/${userinfo.shortUrl!}">${userinfo.nickName!}</a>
-                                </div>
-                                <div class="author-nick">
-                                    <#if userinfo.signature??>${userinfo.signature!}<#else>这个家伙很懒什么也没留下！</#if>
-                                </div>
-                            </div>
-                        </div>
-                        </@fly_userinfo>
+                    <#-- U3：模型行渲染（list = fly_cmodel_articles 行，userId 筛选由 fly_page_model 承担） -->
+                    <div class="index-list-item" data-info-type="1" data-info-id="${list.id!}" data-user-id="${(list.userId)!''}">
+                        <h2 class="title"><a href="/articles/${list.shortUrl}.html">${list.title!}</a></h2>
                         <div class="summary">
                             <div class="excerpt">
-                                <#if article.content?? && article.content!=""><@fly_stringcut content="${article.content!}" num="200">${info_content}</@fly_stringcut></#if>
+                                <#if (list.description)?? && list.description != "">${list.description}</#if>
                                 <span class="load-content">阅读全文 <i class="fa fa-angle-down"></i></span>
                             </div>
                         </div>
                         <div class="item-actions">
-                            <span>
-                                <button aria-label="赞同" type="button" class="vote-button VoteButton--up"><i class="fa fa-caret-up"></i> 赞同 <#if article.content?? && article.content!="">${article.countComment!}</button>
-                                <button aria-label="反对" type="button" class="vote-button VoteButton--down"><i class="fa fa-caret-down"></i></button>
-                            </span>
-                            <button type="button" class="Button Button--plain"> <span class="fa fa-comment">​</span> ${article.countComment!} 条评论</button>
-                            <button type="button" class="Button Button--plain star"><i class="fa fa-star">​</i> 收藏</button>
-                            <span class="shrink-content">收起 <i class="fa fa-angle-up"></i></span>
+                            <span class="text-muted"><@dt16 (list.createTime)!'' /></span>
+                            <button type="button" class="Button Button--plain"><span class="fa fa-comment">&#8203;</span> ${(list.countView)!0} 阅读</button>
+                            <a class="Button Button--plain" href="/articles/${list.shortUrl}.html">查看全文</a>
                         </div>
                     </div>
-                    <#else>
-                    <div class="init">
-                        <p class="text-center">
-                            (ﾟ∀ﾟ　)<br>  该内容不存在或者被禁止！
-                        </p>
-                    </div>
-                    </#if>
-                    </#if>
-                    </@fly_articleinfo>

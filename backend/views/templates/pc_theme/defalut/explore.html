@@ -26,6 +26,7 @@
     <script type="text/javascript" src="/user/status.json"></script>
 </head>
 <body>
+<#include "common/macros.html">
 <#include "common/header.html">
 
 <div class="wrap">
@@ -40,19 +41,10 @@
                     </ul>
                 </div>
                 <div class="index-list">
-                    <@fly_infopage p="${p!}">
-                    <#if info_page.list?size gt 0>
-                    <#list info_page.list as list>
-                    <#if list.infoType=0>
-                        <#include "common/type_question.html">
-                    </#if>
-                    <#if list.infoType=1>
-                        <#include "common/type_article.html">
-                    </#if>
-                    <#if list.infoType=2>
-                        <#include "common/type_share.html">
-                    </#if>
-                    </#list>
+                    <#-- U3：探索流走 articles 模型通用通道（原 fly_infopage 跨旧模块聚合已退役） -->
+                    <@fly_page_model model="articles" p="${p!1}" rows="20">
+                    <#if (dataList)?? && dataList?size gt 0>
+                        <@artRows rows=dataList mc="articles" />
                     <#else>
                         <div class="init">
                             <p class="text-center">
@@ -62,47 +54,43 @@
                     </#if>
                     <div class="text-center">
                         <ul class="pagination">
-                         ${info_page.pageNumHtml}
+                         ${pageHtml}
                         </ul>
                     </div>
-                    </@fly_infopage>
+                    </@fly_page_model>
                 </div>
 
             </div>
             <div class="col-md-3 hidden-xs side">
                 <div class="side-alert alert alert-link">
-                    <a href="/question/add" class="btn btn-warning btn-block">我要提问</a>
-                    <a href="/article/add" class="btn btn-primary btn-block">分享经验</a>
+                    <a href="/questions/" class="btn btn-warning btn-block">我要提问</a>
+                    <a href="/articles/" class="btn btn-primary btn-block">分享经验</a>
                 </div>
                 <div class="widget-box">
                     <h4 class="widget-box-title">最新公告</h4>
+                    <@fly_list_model model="announcements" rows="5" orderby="id" order="desc">
                     <ul class="widget-links list-unstyled">
+                        <#if (dataList)?? && dataList?size gt 0>
+                        <#list dataList as it>
                         <li class="widget-links-item">
-                            <a title="FlyCms 发布1.0测试版" href="#">FlyCms 发布1.0测试版</a>
+                            <a title="${it.title}" href="/announcements/${it.shortUrl}.html">${it.title}</a>
                         </li>
-                        <li class="widget-links-item">
-                            <a title="用FlyCms如何运营问答社区平台" href="#">用FlyCms如何运营问答社区平台</a>
-                        </li>
-                        <li class="widget-links-item">
-                            <a title="行家招募令，大牛快来认证吧！" href="#">行家招募令，大牛快来认证吧！</a>
-                        </li>
-                        <li class="widget-links-item">
-                            <a title="FlyCms如何二次开发" href="#">FlyCms如何二次开发</a>
-                        </li>
-                        <li class="widget-links-item">
-                            <a title="FlyCms如何安装" href="#">FlyCms如何安装</a>
-                        </li>
+                        </#list>
+                        <#else>
+                        <li class="widget-links-item">暂无公告</li>
+                        </#if>
                     </ul>
+                    </@fly_list_model>
                 </div>
 
                 <div class="widget-box">
                     <h2 class="h4 widget-box-title">热议话题 <a href="#" title="更多">»</a></h2>
                     <ul class="taglist-inline multi">
-                        <@fly_topicpage  orderby="rand" rows="25">
-                        <#list topic_page.list as list>
-                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${list.shortUrl!}">${list.topic!}</a></li>
+                        <@fly_list_model model="topics" orderby="count_follow" order="desc" rows="25">
+                        <#list dataList as it>
+                        <li class="tagPopup"><a class="tag" data-toggle="popover"  href="/topics/${it.shortUrl}.html">${it.title}</a></li>
                         </#list>
-                        </@fly_topicpage>
+                        </@fly_list_model>
                     </ul>
                 </div>
 
