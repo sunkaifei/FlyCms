@@ -19,7 +19,7 @@ import java.util.Map;
  * 参数名与 {@code env.setVariable(...)} / {@code vars.put(...)} 写入的输出变量名，
  * 非手写猜测。<b>登记名规则</b>：{@code fly_} + 类名首字母小写后「仅在大写字母前插下划线」
  * （见 {@code StringHelperUtils.toUnderline}）——注意它<b>不拆驼峰单词</b>，
- * 所以 {@code Articlepage} → {@code fly_articlepage}（不是 {@code fly_article_page}）、
+ * 所以 {@code PageModel} → {@code fly_page_model}（不是 {@code fly_pagemodel}）、
  * {@code Userinfo} → {@code fly_userinfo}、而 {@code ListModel} → {@code fly_list_model}。
  *
  * @author sun-kaifei
@@ -72,20 +72,18 @@ public class TagManualService {
         SCOPES.put("fly_list_channel", "list");
         // 碎片 / 部件 / 区域
         SCOPES.put("fly_block", "global");
+        // G19 设计令牌（theme.json settings → CSS 变量）
+        SCOPES.put("fly_theme_vars", "global");
+        // E4 平台评论（U3 替代 fly_articlecommentpage）
+        SCOPES.put("fly_commentpage", "detail");
         SCOPES.put("fly_part", "global");
         SCOPES.put("fly_area", "global");
         // 文章
-        SCOPES.put("fly_articlepage", "list");
-        SCOPES.put("fly_articleinfo", "detail");
-        SCOPES.put("fly_articletypeinfo", "global");
-        SCOPES.put("fly_articletypelist", "list");
-        SCOPES.put("fly_articlecommentpage", "detail");
+
         // 问答
         // 分享
         // 专题
-        SCOPES.put("fly_topicpage", "list");
-        SCOPES.put("fly_topicinfolist", "detail");
-        SCOPES.put("fly_topicinfopage", "detail");
+
         // 用户
         SCOPES.put("fly_userinfo", "global");
         SCOPES.put("fly_usercount", "global");
@@ -100,12 +98,10 @@ public class TagManualService {
         SCOPES.put("fly_login", "global");
         SCOPES.put("fly_useractivation", "global");
         SCOPES.put("fly_checkfollow", "global");
-        SCOPES.put("fly_checktagfollow", "global");
         // 检索
         SCOPES.put("fly_tag_list", "list");
         SCOPES.put("fly_search_page", "list");
         // 通用
-        SCOPES.put("fly_infopage", "list");
         SCOPES.put("fly_form", "global");
         SCOPES.put("fly_scoredetailpage", "list");
         SCOPES.put("fly_scorerulepage", "list");
@@ -311,66 +307,35 @@ public class TagManualService {
 
         // /////////////////// 文章 ///////////////////
 
-        add(data, "文章", "fly_articlepage", "文章列表",
-                "文章模块列表查询（输出 article_page 分页对象）。",
-                "article_page（分页对象，数据行取 article_page.list）",
-                params(p("title", false, "标题模糊匹配"),
-                        p("userId", false, "作者 id"),
-                        p("createTime", false, "按发布时间筛选"),
-                        p("status", false, "状态，默认 1（已发布）"),
-                        p("orderby", false, "排序列"),
-                        p("order", false, "asc/desc"),
+
+
+
+
+
+        // /////////////////// 设计令牌（G19） ///////////////////
+
+        add(data, "通用", "fly_theme_vars", "设计令牌",
+                "输出当前主题 theme.json settings 的 CSS 变量（:root{--fly-color-*, --fly-font-*, --fly-layout-*}）。"
+                        + "已由 common/header.html 全局引入；模板/自定义 CSS 一律消费 var(--fly-color-*) 等令牌，改色只改 theme.json。",
+                "直接输出 <style> 块，无输出变量",
+                params(),
+                "<@fly_theme_vars/>");
+
+        // /////////////////// 评论（E4 平台评论） ///////////////////
+
+        add(data, "评论", "fly_commentpage", "评论列表",
+                "目标内容的已通过评论分页（U3 替代 fly_articlecommentpage，适用于任意模型详情页）。",
+                "comment_page（分页对象，数据行取 comment_page.list，行含 nickname/avatar/content/createTime）",
+                params(p("targetModel", true, "目标模型 code"),
+                        p("targetId", true, "目标内容 id"),
+                        p("status", false, "状态，默认已通过"),
                         p("p", false, "页码"),
                         p("rows", false, "每页条数")),
-                "<@fly_articlepage rows=\"10\">\n"
-                        + "  <#if (article_page.list)??>\n"
-                        + "    <#list article_page.list as a><li>${a.title}</li></#list>\n"
-                        + "  </#if>\n"
-                        + "</@fly_articlepage>");
-
-        add(data, "文章", "fly_articleinfo", "文章详情",
-                "按 id 取单篇文章。",
-                "article",
-                params(p("id", true, "文章 id"),
-                        p("status", false, "状态过滤，默认 1")),
-                "<@fly_articleinfo id=\"${(id)!0}\">\n"
-                        + "  <h1>${article.title}</h1>${article.content!''}\n"
-                        + "</@fly_articleinfo>");
-
-        add(data, "文章", "fly_articletypeinfo", "文章分类详情",
-                "按 id 取单个文章分类。",
-                "type",
-                params(p("id", true, "分类 id"),
-                        p("status", false, "状态过滤")),
-                "<@fly_articletypeinfo id=\"${(typeId)!0}\">\n"
-                        // (a.b)!x 整链兜底：id 无匹配时 type 本身为 null，type.name!'' 仍会报错
-                        + "  <h1>${(type.name)!''}</h1>\n"
-                        + "</@fly_articletypeinfo>");
-
-        add(data, "文章", "fly_articletypelist", "文章分类树",
-                "文章模块的分类树（按 fatherId 递归），用于侧栏文章频道导航。",
-                "typelist",
-                params(p("fatherId", false, "父分类 id，默认根")),
-                "<@fly_articletypelist fatherId=\"0\">\n"
-                        + "  <#list typelist as t><li>${t.name}</li></#list>\n"
-                        + "</@fly_articletypelist>");
-
-        add(data, "文章", "fly_articlecommentpage", "文章评论列表",
-                "某文章的评论列表（配合阶段 B 评论审核使用）。",
-                "comment_page（分页对象，数据行取 comment_page.list）",
-                params(p("articleId", true, "文章 id"),
-                        p("userId", false, "评论人 id"),
-                        p("createTime", false, "按评论时间筛选"),
-                        p("status", false, "状态，默认已审核"),
-                        p("orderby", false, "排序列"),
-                        p("order", false, "asc/desc"),
-                        p("p", false, "页码"),
-                        p("rows", false, "每页条数")),
-                "<@fly_articlecommentpage articleId=\"${(id)!0}\" rows=\"10\">\n"
+                "<@fly_commentpage targetModel=\"articles\" targetId=\"${(id)!0}\" rows=\"10\">\n"
                         + "  <#if (comment_page.list)??>\n"
-                        + "    <#list comment_page.list as c><li>${c.content}</li></#list>\n"
+                        + "    <#list comment_page.list as c><li>${c.nickname}：${c.content}</li></#list>\n"
                         + "  </#if>\n"
-                        + "</@fly_articlecommentpage>");
+                        + "</@fly_commentpage>");
 
         // /////////////////// 问答 ///////////////////
 
@@ -385,47 +350,8 @@ public class TagManualService {
 
         // /////////////////// 专题 / 话题 ///////////////////
 
-        add(data, "专题", "fly_topicpage", "话题/专题列表",
-                "话题分页列表，支持推荐（isgood）筛选。",
-                "topic_page（分页对象，数据行取 topic_page.list）",
-                params(p("topic", false, "话题名关键字"),
-                        p("type", false, "话题类型"),
-                        p("isgood", false, "是否推荐 1/0"),
-                        p("status", false, "状态过滤"),
-                        p("orderby", false, "排序列"),
-                        p("order", false, "asc/desc"),
-                        p("p", false, "页码"),
-                        p("rows", false, "每页条数")),
-                "<@fly_topicpage rows=\"10\">\n"
-                        + "  <#if (topic_page.list)??>\n"
-                        + "    <#list topic_page.list as t><li>${t.topic!''}</li></#list>\n"
-                        + "  </#if>\n"
-                        + "</@fly_topicpage>");
 
-        add(data, "专题", "fly_topicinfolist", "话题关联内容",
-                "按 (type, infoId) 取该内容关联的话题列表。",
-                "topiclist",
-                params(p("type", true, "内容类型"),
-                        p("infoId", true, "内容 id")),
-                "<@fly_topicinfolist type=\"1\" infoId=\"${(id)!0}\">\n"
-                        + "  <#list topiclist as t><a href=\"/topic/${t.id}.html\">${t.topicName}</a></#list>\n"
-                        + "</@fly_topicinfolist>");
 
-        add(data, "专题", "fly_topicinfopage", "话题下内容列表",
-                "某话题下的内容分页列表。",
-                "topic_page（分页对象，数据行取 topic_page.list）",
-                params(p("infoType", true, "内容类型"),
-                        p("topicId", true, "话题 id"),
-                        p("status", false, "状态过滤"),
-                        p("orderby", false, "排序列"),
-                        p("order", false, "asc/desc"),
-                        p("p", false, "页码"),
-                        p("rows", false, "每页条数")),
-                "<@fly_topicinfopage infoType=\"1\" topicId=\"${(topicId)!0}\" rows=\"10\">\n"
-                        + "  <#if (topic_page.list)??>\n"
-                        + "    <#list topic_page.list as row><li>${row.title}</li></#list>\n"
-                        + "  </#if>\n"
-                        + "</@fly_topicinfopage>");
 
         // /////////////////// 用户 ///////////////////
 
@@ -578,15 +504,6 @@ public class TagManualService {
                         + "  <#if (result!0) == 1>已关注<#else>关注</#if>\n"
                         + "</@fly_checkfollow>");
 
-        add(data, "用户", "fly_checktagfollow", "是否关注话题",
-                "判断 (用户, 话题) 的关注关系。",
-                "result（1=已关注）",
-                params(p("userId", true, "用户 id"),
-                        p("topicId", true, "话题 id")),
-                "<@fly_checktagfollow userId=\"${(userId)!0}\" topicId=\"${(topicId)!0}\">\n"
-                        // result 是 boolean（false 兜底分支同样输出 boolean），直接判真假
-                        + "  <#if result!false>已关注</#if>\n"
-                        + "</@fly_checktagfollow>");
 
         // /////////////////// 检索（标签页 / 搜索页，§5.1 / §9.4） ///////////////////
 
@@ -620,22 +537,6 @@ public class TagManualService {
 
         // /////////////////// 通用 ///////////////////
 
-        add(data, "通用", "fly_infopage", "通用信息列表",
-                "通用内容池（infoType 区分类型）分页列表，兼容早期「信息」模块。",
-                "info_page（分页对象，数据行取 info_page.list）",
-                params(p("title", false, "标题模糊匹配"),
-                        p("userId", false, "发布人 id"),
-                        p("infoType", false, "信息类型"),
-                        p("categoryId", false, "分类 id"),
-                        p("notId", false, "排除的内容 id"),
-                        p("orderby", false, "排序列"),
-                        p("p", false, "页码"),
-                        p("rows", false, "每页条数")),
-                "<@fly_infopage infoType=\"1\" rows=\"10\">\n"
-                        + "  <#if (info_page.list)??>\n"
-                        + "    <#list info_page.list as r><li>${r.title}</li></#list>\n"
-                        + "  </#if>\n"
-                        + "</@fly_infopage>");
 
 
 

@@ -2,7 +2,6 @@ package com.flycms.web.tags;
 
 import com.flycms.core.base.AbstractTagPlugin;
 import com.flycms.core.entity.PageVo;
-import com.flycms.module.topic.model.Topic;
 import com.flycms.module.user.model.Feed;
 import com.flycms.module.user.service.FeedService;
 import freemarker.core.Environment;

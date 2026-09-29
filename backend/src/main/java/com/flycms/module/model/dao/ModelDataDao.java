@@ -167,4 +167,12 @@ public interface ModelDataDao {
     public void incrImagesRefCount(@Param("ids") List<Long> ids);
 
     public void decrImagesRefCount(@Param("ids") List<Long> ids);
+
+    /**
+     * 平台评论计数（E4）：目标内容固有列 count_comment 增减，下限 0。
+     * suffix 由 Service 过 SqlSafeUtil.safeTableSuffix 白名单。
+     */
+    public void adjustCommentCount(@Param("suffix") String suffix,
+                                   @Param("id") Long id,
+                                   @Param("delta") int delta);
 }

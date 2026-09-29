@@ -167,9 +167,19 @@ public class ApiMenuController extends ApiBaseController {
                 childRoutes.add(child);
             }
         }
-        // 模型动态菜单挂到 /modelData 目录
+        // 模型动态菜单挂到 /modelData 目录；已有静态 C 节点（迁移预置或建模时
+        // 自动注册，带按模型权限锚点）的模型不再重复追加
         if ("/modelData".equals(node.getPath())) {
+            java.util.Set<String> staticPaths = new java.util.HashSet<>();
+            for (Permission k : children.getOrDefault(node.getId(), new ArrayList<>())) {
+                if (k.getPath() != null) {
+                    staticPaths.add(k.getPath());
+                }
+            }
             for (Model model : modelService.getEnabledModels()) {
+                if (staticPaths.contains("/modelData/" + model.getCode())) {
+                    continue;
+                }
                 Map<String, Object> meta = new LinkedHashMap<>();
                 meta.put("title", model.getName() + "管理");
                 meta.put("icon", StringUtils.defaultIfBlank(model.getIcon(), "lucide:file-text"));

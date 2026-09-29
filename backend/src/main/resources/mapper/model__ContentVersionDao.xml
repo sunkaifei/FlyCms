@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  内容版本快照 DAO（M/G12）。targetModel 由 Service 过 safeModelCode；
+  restoreColumns 的列名清单由 Service 依快照列过 safeColumnName 白名单生成，值恒走 #{}。
+-->
+<mapper namespace="com.flycms.module.model.dao.ContentVersionDao">
+
+	<sql id="cv_column">
+		id, target_model, target_id, version, content_json, status, editor_id, remark, create_time
+	</sql>
+
+	<insert id="addVersion">
+		insert into fly_content_version
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			id, target_model, target_id, version, content_json,
+			<if test="status != null">status,</if>
+			<if test="editorId != null">editor_id,</if>
+			<if test="remark != null">remark,</if>
+			<if test="createTime != null">create_time,</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{id}, #{targetModel}, #{targetId}, #{version}, #{contentJson},
+			<if test="status != null">#{status},</if>
+			<if test="editorId != null">#{editorId},</if>
+			<if test="remark != null">#{remark},</if>
+			<if test="createTime != null">#{createTime},</if>
+		</trim>
+	</insert>
+
+	<select id="maxVersion" resultType="int">
+		select coalesce(max(version), 0) from fly_content_version
+		where target_model = #{targetModel} and target_id = #{targetId}
+	</select>
+
+	<select id="findVersion" resultType="com.flycms.module.model.model.ContentVersion">
+		select <include refid="cv_column" /> from fly_content_version
+		where target_model = #{targetModel} and target_id = #{targetId} and version = #{version}
+		limit 1
+	</select>
+
+	<select id="selectVersions" resultType="com.flycms.module.model.model.ContentVersion">
+		select id, target_model, target_id, version, status, editor_id, remark, create_time
+		from fly_content_version
+		where target_model = #{targetModel} and target_id = #{targetId}
+		order by version desc
+		limit #{offset}, #{rows}
+	</select>
+
+	<select id="countVersions" resultType="int">
+		select count(*) from fly_content_version
+		where target_model = #{targetModel} and target_id = #{targetId}
+	</select>
+
+	<!-- 恢复：整行回写（setSql 由 Service 拼接：列名过标识符正则 + 参数键 p0..pn 索引化，值恒 #{}） -->
+	<update id="restoreColumns">
+		UPDATE `fly_cmodel_${suffix}`
+		SET ${setSql}
+		WHERE `id` = #{id}
+	</update>
+</mapper>

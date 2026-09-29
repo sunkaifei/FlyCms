@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  平台评论 DAO（E4）。表：fly_comment（多态，target_model + target_id 引用任意模型内容）。
+  whereSql 由 Service 组装，值一律走 #{} 预编译。
+-->
+<mapper namespace="com.flycms.module.comment.dao.CommentDao">
+
+	<sql id="c_column">
+		id, target_model, target_id, user_id, parent_id, content, status, create_time
+	</sql>
+
+	<!-- 添加评论 -->
+	<insert id="addComment">
+		insert into fly_comment
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			id, target_model, target_id, user_id,
+			<if test="parentId != null">parent_id,</if>
+			content,
+			<if test="status != null">status,</if>
+			<if test="createTime != null">create_time,</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{id}, #{targetModel}, #{targetId}, #{userId},
+			<if test="parentId != null">#{parentId},</if>
+			#{content},
+			<if test="status != null">#{status},</if>
+			<if test="createTime != null">#{createTime},</if>
+		</trim>
+	</insert>
+
+	<!-- 按 id 查询 -->
+	<select id="findCommentById" resultType="com.flycms.module.comment.model.Comment">
+		select <include refid="c_column" /> from fly_comment where id = #{id} limit 1
+	</select>
+
+	<!-- 通用分页 -->
+	<select id="selectPage" resultType="com.flycms.module.comment.model.Comment">
+		select <include refid="c_column" /> from fly_comment
+		<where>${whereSql}</where>
+		order by ${orderBySql}
+		limit #{offset}, #{rows}
+	</select>
+
+	<!-- 通用计数 -->
+	<select id="countPage" resultType="int">
+		select count(*) from fly_comment
+		<where>${whereSql}</where>
+	</select>
+
+	<!-- 单条改状态 -->
+	<update id="updateStatus">
+		update fly_comment set status = #{status} where id = #{id}
+	</update>
+
+	<!-- 批量改状态 -->
+	<update id="batchUpdateStatus">
+		update fly_comment set status = #{status} where id in
+		<foreach collection="ids" item="item" open="(" separator="," close=")">#{item}</foreach>
+	</update>
+
+	<!-- 按 id 删除 -->
+	<delete id="deleteComment">
+		delete from fly_comment where id = #{id}
+	</delete>
+
+	<!-- 批量删除 -->
+	<delete id="batchDelete">
+		delete from fly_comment where id in
+		<foreach collection="ids" item="item" open="(" separator="," close=")">#{item}</foreach>
+	</delete>
+
+	<!-- 按目标清理（内容删除联动） -->
+	<delete id="deleteByTarget">
+		delete from fly_comment where target_model = #{targetModel} and target_id in
+		<foreach collection="targetIds" item="item" open="(" separator="," close=")">#{item}</foreach>
+	</delete>
+
+	<!-- 按状态计数（待审角标） -->
+	<select id="countByStatus" resultType="int">
+		select count(*) from fly_comment where status = #{status}
+	</select>
+
+</mapper>

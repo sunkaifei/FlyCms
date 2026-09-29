@@ -193,6 +193,28 @@ public class ModelService {
      * {@literal <#if dataList?? && dataList?size gt 0>} 守卫。
      */
     private void generateDefaultTemplates(Model model) {
+        writeTemplates(model, false);
+    }
+
+    /**
+     * E10「重新生成骨架」（D13 收尾）：强制覆盖当前主题下该模型的 list.html / detail.html，
+     * 并注入「本模型可用标签 + 实际字段名 + 取值写法」注释块。
+     */
+    public com.flycms.core.entity.DataVo regenerateDefaultTemplates(Long modelId) {
+        Model model = findModelById(modelId);
+        if (model == null) {
+            return com.flycms.core.entity.DataVo.failure("模型不存在");
+        }
+        try {
+            writeTemplates(model, true);
+        } catch (Exception e) {
+            logger.warn("重新生成骨架失败（{}）：{}", model.getCode(), e.getMessage());
+            return com.flycms.core.entity.DataVo.failure("重新生成失败：" + e.getMessage());
+        }
+        return com.flycms.core.entity.DataVo.success("骨架已重新生成（list.html / detail.html 已覆盖）");
+    }
+
+    private void writeTemplates(Model model, boolean force) {
         // 主题名取自 fly_config_web.keycode=pc_theme（当前为 defalut，历史拼写如此）
         String skin = config.getStringByKey("pc_theme");
         File dir = new File("views/templates/pc_theme/" + skin + "/" + model.getCode());
@@ -200,12 +222,66 @@ public class ModelService {
             return;
         }
         List<ModelField> fields = modelFieldDao.findFieldsByModelId(model.getId(), null);
-        writeIfAbsent(new File(dir, "list.html"), defaultListTemplate(model, fields));
-        writeIfAbsent(new File(dir, "detail.html"), defaultDetailTemplate(model, fields));
+        writeTemplate(new File(dir, "list.html"), defaultListTemplate(model, fields), force);
+        writeTemplate(new File(dir, "detail.html"), defaultDetailTemplate(model, fields), force);
     }
 
-    private void writeIfAbsent(File file, String content) {
-        if (file.exists()) {
+    /** 模型标签速查注释块（E10）：字段感知，列出可用标签与每个字段的取值写法 */
+    private String tagCheatSheet(Model model, List<ModelField> fields) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<#-- ============================================================\n");
+        sb.append("     ").append(model.getName()).append("（").append(model.getCode())
+                .append("）模型速查 · 自动生成，可随字段增删后点「重新生成骨架」更新\n");
+        sb.append("     -----------------------------------------------------------\n");
+        sb.append("     可用标签：\n");
+        sb.append("       <@fly_page_model model=\"").append(model.getCode())
+                .append("\" p=\"${p!1}\" rows=\"10\">  分页列表（dataList/pageHtml）\n");
+        sb.append("       <@fly_list_model model=\"").append(model.getCode())
+                .append("\" rows=\"5\" orderby=\"count_view\">  非分页列表（dataList）\n");
+        sb.append("       <@fly_info_model model=\"").append(model.getCode())
+                .append("\" shortUrl=\"${shortUrl!}\">  详情（info）\n");
+        sb.append("       <@fly_category_model model=\"").append(model.getCode())
+                .append("\">  分类导航（categoryList）\n");
+        sb.append("       <@fly_hot_model model=\"").append(model.getCode())
+                .append("\" rows=\"8\">  热点排行\n");
+        sb.append("       <@fly_rel_model model=\"").append(model.getCode())
+                .append("\" category=\"${categoryId}\" notid=\"${info.id}\">  相关内容\n");
+        sb.append("     -----------------------------------------------------------\n");
+        sb.append("     字段取值（列表行 item / 详情 info）：\n");
+        sb.append("       固有：${item.title} ${item.shortUrl}（链接 /").append(model.getCode())
+                .append("/${item.shortUrl}.html） ${item.countView} ${(item.createTime)!''}\n");
+        if (fields != null) {
+            for (ModelField f : fields) {
+                if (f.getParentId() != null && f.getParentId() > 0) {
+                    continue;
+                }
+                String fn = f.getFieldName();
+                String ft = f.getFieldType();
+                String usage;
+                switch (ft) {
+                    case "image" -> usage = "${(item." + fn + "Url)!''}（附件展开）";
+                    case "images", "files" -> usage = "<#list (item." + fn + "Urls)![] as u>${u}</#list>";
+                    case "image_url", "file_url" -> usage = "${(item." + fn + ")!''}（URL 直存）";
+                    case "relate" -> usage = "${(item." + fn + "Obj.title)!''}（目标行展开）";
+                    case "relates" -> usage = "<#list (item." + fn + "List)![] as t>${t.title}</#list>";
+                    case "user" -> usage = "${(item." + fn + "Obj.nickName)!''} / 链接 /people/${(item."
+                            + fn + "Obj.shortUrl)!''}";
+                    case "category" -> usage = "${(item." + fn + "Obj.name)!''}（绑定模型分类树）";
+                    case "group" -> usage = "${(item." + fn + ".子字段)!''}（JSON 对象）";
+                    case "repeater" -> usage = "<#list (item." + fn + ")![] as row>${row.子字段}</#list>";
+                    case "checkbox" -> usage = "${(item." + fn + ")!''}（JSON 数组）";
+                    default -> usage = "${(item." + fn + ")!''}";
+                }
+                sb.append("       ").append(f.getFieldLabel()).append("（").append(fn).append("/").append(ft)
+                        .append("）：").append(usage).append("\n");
+            }
+        }
+        sb.append("     ============================================================ -->\n");
+        return sb.toString();
+    }
+
+    private void writeTemplate(File file, String content, boolean force) {
+        if (file.exists() && !force) {
             return;
         }
         try {
@@ -223,7 +299,7 @@ public class ModelService {
     private String defaultListTemplate(Model model, List<ModelField> fields) {
         String code = model.getCode();
         String extra = fieldSnippet(fields, 3);
-        return "<#-- " + model.getName() + " 列表页（自动生成，可自行定制） -->\n"
+        return tagCheatSheet(model, fields)
                 + "<!DOCTYPE html>\n<html lang=\"zh\">\n<head>\n<meta charset=\"UTF-8\">\n"
                 + "<title>${model.name} - ${web_name!''}</title>\n</head>\n<body>\n"
                 + "<header><h1><a href=\"/\">${web_name!''}</a> · ${model.name}</h1></header>\n"
@@ -254,7 +330,7 @@ public class ModelService {
     private String defaultDetailTemplate(Model model, List<ModelField> fields) {
         String code = model.getCode();
         String contentField = pickContentField(fields);
-        return "<#-- " + model.getName() + " 详情页（自动生成，可自行定制） -->\n"
+        return tagCheatSheet(model, fields)
                 + "<!DOCTYPE html>\n<html lang=\"zh\">\n<head>\n<meta charset=\"UTF-8\">\n"
                 + "<title>${(info.title)!''} - ${web_name!''}</title>\n</head>\n<body>\n"
                 + "<@fly_info_model model=\"" + code + "\" shortUrl=\"${shortUrl!}\">\n"

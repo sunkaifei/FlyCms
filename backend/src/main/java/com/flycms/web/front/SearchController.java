@@ -2,7 +2,6 @@ package com.flycms.web.front;
 
 import com.flycms.core.base.BaseController;
 import com.flycms.core.utils.StringHelperUtils;
-import com.flycms.module.search.service.SearchService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class SearchController extends BaseController {
     protected final static Logger logger = LoggerFactory.getLogger(SearchController.class);
-    @Autowired
-    private SearchService searchService;
     @Autowired
     private com.flycms.module.template.service.TemplateResolver templateResolver;
 

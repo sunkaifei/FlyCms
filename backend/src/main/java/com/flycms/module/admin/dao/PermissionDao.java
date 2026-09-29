@@ -27,6 +27,9 @@ public interface PermissionDao {
 
     public boolean hasMenuChildren(@Param("id") Long id);
 
+    /** 查询直接子节点（模型删除时级联清理 C 下的 F 按钮用） */
+    public java.util.List<Permission> findMenuChildren(@Param("id") Long id);
+
     // ///////////////////////////////
     // /////      增加        ////////
     // ///////////////////////////////

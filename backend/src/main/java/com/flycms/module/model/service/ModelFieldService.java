@@ -106,6 +106,19 @@ public class ModelFieldService {
         } else {
             field.setRollupExpr(null);
         }
+        // E6 公式字段：表达式必填且仅允许 数字/字段名/四则/括号/空格（受限 SpEL 求值的安全前提）
+        if (type == FieldTypeEnum.FORMULA) {
+            String formulaExpr = StringUtils.trimToEmpty(field.getFormula());
+            if (formulaExpr.isEmpty()) {
+                return DataVo.failure("公式不能为空（如 price * 0.88）");
+            }
+            if (!formulaExpr.matches("^[a-z0-9_ +*/().-]+$")) {
+                return DataVo.failure("公式仅允许字段名、数字与 + - * / ( ) 运算");
+            }
+            field.setFormula(formulaExpr);
+        } else {
+            field.setFormula(null);
+        }
         // P1 条件显隐：结构化校验（目标字段须为本模型顶层字段）
         DataVo vis = validateVisibleWhen(field, model, null);
         if (vis.getCode() != DataVo.CODE_SUCCESS) {
@@ -132,6 +145,15 @@ public class ModelFieldService {
         ModelField old = modelFieldDao.findFieldById(form.getId());
         if (old == null) {
             return DataVo.failure("字段不存在");
+        }
+        // E6：formula 未传沿用原值（update XML 无条件更新该列）；非 FORMULA 类型一律清除
+        if (form.getFormula() == null) {
+            form.setFormula(old.getFormula());
+        }
+        if (old.getFieldType() != null
+                && com.flycms.module.model.enums.FieldTypeEnum.of(old.getFieldType())
+                        != com.flycms.module.model.enums.FieldTypeEnum.FORMULA) {
+            form.setFormula(null);
         }
         FieldTypeEnum oldType = FieldTypeEnum.of(old.getFieldType());
         String oldColType = old.getColumnType();
@@ -192,7 +214,8 @@ public class ModelFieldService {
             form.setRollupExpr(null);
         }
         if (modelFieldDao.updateField(form) > 0) {
-            if (!newColType.equals(oldColType)) {
+            // 虚拟字段（formula/rollup/m2a）无列定义（columnType 为 NULL），无物理列可改
+            if (newColType != null && !newColType.equals(oldColType)) {
                 modelTableService.modifyColumn(owner.getCode(), old.getFieldName(), newColType);
             }
             modelService.evictCache(null, old.getModelId());

@@ -44,7 +44,9 @@ public class ApiWebsiteController extends ApiBaseController {
             "pc_theme", "m_theme",
             // 第三方邮箱（SMTP）：注册邮箱验证、找回密码、表单通知等共用
             "fly_smtp_server", "fly_smtp_port", "fly_smtp_ssl",
-            "fly_smtp_usermail", "fly_smtp_password", "fly_smtp_fromname");
+            "fly_smtp_usermail", "fly_smtp_password", "fly_smtp_fromname",
+            // G23 MCP 接入令牌（留空 = /mcp 端点关闭）
+            "fly_mcp_token");
 
     /** SMTP 密码（授权码）掩码：GET 时用它替换真实值，保存时遇它跳过 */
     private static final String SMTP_PASSWORD_MASK = "******";

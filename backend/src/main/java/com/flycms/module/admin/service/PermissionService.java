@@ -41,10 +41,24 @@ public class PermissionService {
         List<String> newlist = new ArrayList<String>();
         for (RequestMappingInfo info : map.keySet()){
             //获取url的Set集合，一个方法可能对应多个url
-            Set<String> patterns = info.getPatternsCondition().getPatterns();
+            //Spring 6（Boot 4）起 PatternsRequestCondition 默认不再构建（PathPatternParser 为主），
+            //getPatternsCondition() 恒为 null——优先取 PathPatternsCondition（2026-09-29 修复 sync 500）
+            Set<String> patterns;
+            String patternText;
+            if (info.getPathPatternsCondition() != null) {
+                patterns = new java.util.LinkedHashSet<>();
+                info.getPathPatternsCondition().getPatterns()
+                        .forEach(p -> patterns.add(p.getPatternString()));
+                patternText = info.getPathPatternsCondition().toString();
+            } else if (info.getPatternsCondition() != null) {
+                patterns = info.getPatternsCondition().getPatterns();
+                patternText = info.getPatternsCondition().toString();
+            } else {
+                continue;
+            }
             for (String url : patterns){
                 Permission per=new Permission();
-                String urlstr=info.getPatternsCondition().toString();
+                String urlstr=patternText;
                 //替换花括号和里面所有内容为*
                 urlstr=urlstr.replaceAll("\\{([^\\}]+)\\}", "*");
                 //替换前后中括号
@@ -160,6 +174,21 @@ public class PermissionService {
     @Cacheable(value = "permission", key = "#userId")
     public List<Permission> findPermissionByUserId(Long userId) {
         return permissionDao.findPermissionByUserId(userId);
+    }
+
+    /**
+     * G14 字段级权限：某权限节点行是否存在（字段锁语义——
+     * 行存在 = 该字段对未授权角色锁定；行不存在 = 字段开放）。
+     * 与用户权限缓存同键空间，写侧三处 @CacheEvict 已覆盖。
+     */
+    @Cacheable(value = "permission", key = "'row:' + #actionKey")
+    public boolean existsPermissionRow(String actionKey) {
+        for (Permission p : getAllPermissions()) {
+            if (p != null && actionKey.equals(p.getActionKey())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

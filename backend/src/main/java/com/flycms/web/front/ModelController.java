@@ -67,6 +67,9 @@ public class ModelController extends BaseController {
         if (model == null) {
             return notFound(response);
         }
+        if (getUser() != null) {
+            modelMap.addAttribute("user", getUser());
+        }
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("p", p);
         return templateResolver.resolveAndExpose(
@@ -82,6 +85,9 @@ public class ModelController extends BaseController {
         if (model == null) {
             return notFound(response);
         }
+        if (getUser() != null) {
+            modelMap.addAttribute("user", getUser());
+        }
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("p", page == null ? 1 : page);
         modelMap.addAttribute("categoryId", categoryId);
@@ -96,6 +102,13 @@ public class ModelController extends BaseController {
         Model model = resolveModel(modelCode);
         if (model == null || StringUtils.length(shortUrl) > 10) {
             return notFound(response);
+        }
+        if (getUser() != null) {
+            modelMap.addAttribute("user", getUser());
+        }
+        // G16 草稿预览：预览响应禁止搜索引擎收录
+        if ("1".equals(request.getParameter("__preview"))) {
+            response.setHeader("X-Robots-Tag", "noindex");
         }
         modelMap.addAttribute("model", model);
         modelMap.addAttribute("shortUrl", shortUrl);

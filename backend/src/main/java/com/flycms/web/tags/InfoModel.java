@@ -46,7 +46,10 @@ public class InfoModel extends AbstractModelTag {
         if (model != null) {
             Long id = longVal(p, "id");
             String shortUrl = str(p, "shortUrl", null);
-            if (id != null) {
+            // G16 草稿预览：request 参数 __preview=1 + __pid + __ptoken → 按 id 取任意状态行
+            if ("1".equals(request.getParameter("__preview"))) {
+                info = previewById(model);
+            } else if (id != null) {
                 info = modelDataService.findDataById(model.getId(), id);
             } else if (shortUrl != null) {
                 info = modelDataService.findByShortUrl(model.getId(), shortUrl);
@@ -61,6 +64,41 @@ public class InfoModel extends AbstractModelTag {
         Map<String, Object> vars = new LinkedHashMap<>();
         vars.put("info", info);
         doRender(env, body, vars);
+    }
+
+    /**
+     * G16 预览取数：预览参数走 HTTP request（__pid + __ptoken），任何详情模板零改动生效。
+     * 令牌绑定 model/admin/id 的短时效 HMAC；校验失败返回 null（模板空态承接 404 语义）。
+     */
+    private Long parseLong(String v) {
+        try {
+            return (v == null || v.isEmpty()) ? null : Long.parseLong(v.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private Map<String, Object> previewById(Model model) {
+        try {
+            Long pid = parseLong(request.getParameter("__pid"));
+            String token = request.getParameter("__ptoken");
+            if (pid == null || token == null) {
+                return null;
+            }
+            if (!com.flycms.core.utils.PreviewTokenUtils.verify(model.getCode(), pid, token)) {
+                return null;
+            }
+            Map<String, Object> row = modelDataService.findDataById(model.getId(), pid);
+            if (row != null) {
+                java.util.ArrayList<Map<String, Object>> one = new java.util.ArrayList<>();
+                one.add(row);
+                modelDataService.expandAttachments(model.getId(), one);
+            }
+            return row;
+        } catch (Exception e) {
+            logTagFailure("fly_info_model#preview", e);
+            return null;
+        }
     }
 
     private void doRender(Environment env, TemplateDirectiveBody body, Map<String, Object> vars)

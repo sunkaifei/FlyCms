@@ -1,8 +1,6 @@
 package com.flycms.module.job.service.task;
 
-import com.flycms.module.weight.service.WeightService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,15 +18,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class MyTaskTest {
-    @Autowired
-    private WeightService weightService;
 
     public void test(String params) {
         log.info("我是带参数的test方法，正在被执行，参数为：{}" , params);
     }
 
     public void test1() {
-        weightService.updateArticleWeight();
+        // U3：文章权重任务随 module/weight 退役，仅保留演示任务空实现
         log.info("我是不带参数的test1方法，正在被执行");
     }
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 字段组库 DAO（G15，复制式 Component） -->
+<mapper namespace="com.flycms.module.model.dao.ComponentDao">
+
+	<sql id="cp_column">
+		id, code, name, remark, fields_json AS fieldsJson, create_time AS createTime
+	</sql>
+
+	<select id="findAll" resultType="com.flycms.module.model.model.Component">
+		select <include refid="cp_column" /> from fly_component order by create_time desc
+	</select>
+
+	<select id="findById" resultType="com.flycms.module.model.model.Component">
+		select <include refid="cp_column" /> from fly_component where id = #{id} limit 1
+	</select>
+
+	<select id="findByCode" resultType="com.flycms.module.model.model.Component">
+		select <include refid="cp_column" /> from fly_component where code = #{code} limit 1
+	</select>
+
+	<insert id="add">
+		insert into fly_component (id, code, name, remark, fields_json, create_time)
+		values (#{id}, #{code}, #{name}, #{remark}, #{fieldsJson}, now())
+	</insert>
+
+	<update id="update">
+		update fly_component
+		<set>
+			<if test="name != null">name = #{name},</if>
+			<if test="remark != null">remark = #{remark},</if>
+			<if test="fieldsJson != null">fields_json = #{fieldsJson},</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete">
+		delete from fly_component where id = #{id}
+	</delete>
+</mapper>

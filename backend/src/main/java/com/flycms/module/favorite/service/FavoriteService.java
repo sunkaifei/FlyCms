@@ -4,9 +4,9 @@ import com.flycms.core.utils.OrderbyUtils;
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.core.utils.SnowFlake;
-import com.flycms.module.article.model.Article;
-import com.flycms.module.article.service.ArticleService;
 import com.flycms.module.favorite.dao.FavoriteDao;
+import com.flycms.module.model.service.ModelDataService;
+import com.flycms.module.model.service.ModelService;
 import com.flycms.module.favorite.model.Favorite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,9 @@ public class FavoriteService {
     @Resource
     private FavoriteDao favoriteDao;
     @Autowired
-    protected ArticleService articleService;
+    protected ModelDataService modelDataService;
+    @Autowired
+    protected ModelService modelService;
     // ///////////////////////////////
     // /////       增加       ////////
     // ///////////////////////////////
@@ -42,8 +44,12 @@ public class FavoriteService {
     public DataVo addFavorite(Long userId,Integer infoType,Long infoId){
         DataVo data = DataVo.failure("操作失败");
         if(infoType==1){
-            Article article=articleService.findArticleById(infoId, 2);
-            if (article == null) {
+            // U3：收藏目标校验改走自定义模型通道（infoType 1 = articles 模型发布态内容）
+            com.flycms.module.model.model.Model articleModel =
+                    modelService.findModelByCode("articles");
+            java.util.Map<String, Object> row = articleModel == null ? null
+                    : modelDataService.findDataById(articleModel.getId(), infoId);
+            if (row == null || !"1".equals(String.valueOf(row.get("status")))) {
                 return data=DataVo.failure("您收藏的信息不存在！");
             }
         }else{

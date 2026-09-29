@@ -67,10 +67,13 @@ public class FlyFilter implements Filter {
                     if(userSession!=null){
                         if (!userService.isExpireTime(userSession.getExpireTime())) {  // session 未过期
                             User user=userService.findUserById(userSession.getUserId(),0);
-                            long expireTime = System.currentTimeMillis() + (120 * 60 * 1000);
-                            boolean keepLogin = userSession.getExpireTime()> expireTime ? true : false;
-                            //用户信息写入session
-                            userSessionUtils.setLoginMember(httpRequest,httpResponse,keepLogin,user);
+                            // 用户可能已被删除/账号记录缺失（inner join 为空），跳过自动登录而非 NPE
+                            if(user != null){
+                                long expireTime = System.currentTimeMillis() + (120 * 60 * 1000);
+                                boolean keepLogin = userSession.getExpireTime()> expireTime ? true : false;
+                                //用户信息写入session
+                                userSessionUtils.setLoginMember(httpRequest,httpResponse,keepLogin,user);
+                            }
                         }else{
                             //过期得话注销cookie、session和登录保持记录
                             userService.signOutLogin(httpRequest,httpResponse);
@@ -82,8 +85,11 @@ public class FlyFilter implements Filter {
                 if(userSession!=null){
                     if (!userService.isExpireTime(userSession.getExpireTime())) {  // session 未过期
                         User user=userService.findUserById(userSession.getUserId(),0);
-                        //用户信息更新session
-                        userSessionUtils.updateLoginMember(httpRequest,httpResponse,sessionKey,user);
+                        // 用户可能已被删除/账号记录缺失（inner join 为空），跳过自动登录而非 NPE
+                        if(user != null){
+                            //用户信息更新session
+                            userSessionUtils.updateLoginMember(httpRequest,httpResponse,sessionKey,user);
+                        }
                     }else{
                         //过期得话注销cookie、session和登录保持记录
                         userService.signOutLogin(httpRequest,httpResponse);

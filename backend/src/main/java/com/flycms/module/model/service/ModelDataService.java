@@ -52,6 +52,14 @@ public class ModelDataService {
     private ModelService modelService;
     @Autowired
     private ModelCategoryService modelCategoryService;
+    @Autowired
+    private com.flycms.module.comment.dao.CommentDao commentDao;
+    @Autowired
+    private com.flycms.module.user.service.UserService userService;
+    @Autowired
+    private com.flycms.module.model.dao.ContentVersionDao contentVersionDao;
+    @Autowired
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     // /////////////////// 查询 ///////////////////
 
@@ -64,6 +72,32 @@ public class ModelDataService {
     public PageVo<Map<String, Object>> selectPage(Long modelId, String title, Long categoryId, Integer status,
                                                   Map<String, String> filters, String orderby, String order,
                                                   int page, int rows, Long notId, boolean front) {
+        return selectPage(modelId, title, categoryId, status, filters, orderby, order,
+                page, rows, notId, front, null);
+    }
+
+    /**
+     * 带 userId 筛选的重载（U3）：固定列 user_id 过滤，供用户中心「他的文章」类页面使用。
+     * 旧签名等价于 userId=null。此前模板参数 user_id 落不进任何 is_filter 字段被静默忽略
+     * （U2 people 页潜伏 bug），改由该显式参数承接。
+     */
+    public PageVo<Map<String, Object>> selectPage(Long modelId, String title, Long categoryId, Integer status,
+                                                  Map<String, String> filters, String orderby, String order,
+                                                  int page, int rows, Long notId, boolean front, Long userId) {
+        return selectPage(modelId, title, categoryId, status, filters, orderby, order,
+                page, rows, notId, front, userId, null, null, null);
+    }
+
+    /**
+     * E8 时间窗过滤重载：timeField 限定为固有时间列或本模型 date/datetime 类型字段，
+     * timeFrom/timeTo 接受 yyyy-MM-dd 或 yyyy-MM-dd HH:mm:ss（非法格式静默忽略，不阻断查询）。
+     * 公告生效期这类场景：<@fly_page_model model="announcements" timeField="start_time"
+     *   timeFrom="${.now?string('yyyy-MM-dd HH:mm:ss')}"。
+     */
+    public PageVo<Map<String, Object>> selectPage(Long modelId, String title, Long categoryId, Integer status,
+                                                  Map<String, String> filters, String orderby, String order,
+                                                  int page, int rows, Long notId, boolean front, Long userId,
+                                                  String timeField, String timeFrom, String timeTo) {
         Model model = modelService.findModelById(modelId);
         PageVo<Map<String, Object>> pageVo = new PageVo<>(page);
         pageVo.setRows(rows);
@@ -98,6 +132,41 @@ public class ModelDataService {
         if (notId != null && notId > 0) {
             where.add("id != #{params.notId}");
             params.put("notId", notId);
+        }
+        if (userId != null && userId > 0) {
+            where.add("user_id = #{params.userId}");
+            params.put("userId", userId);
+        }
+        // E8 时间窗（公告生效期等）：timeField 白名单 = 固有时间列 + 本模型 date/datetime 字段
+        if (StringUtils.isNotBlank(timeField) && (StringUtils.isNotBlank(timeFrom) || StringUtils.isNotBlank(timeTo))) {
+            boolean allowed = "create_time".equals(timeField) || "update_time".equals(timeField)
+                    || "publish_time".equals(timeField);
+            if (!allowed) {
+                try {
+                    if (SqlSafeUtil.safeColumnName(timeField).equals(timeField)) {
+                        for (ModelField f : topFields(fields)) {
+                            if (timeField.equals(f.getFieldName())
+                                    && ("date".equals(f.getFieldType()) || "datetime".equals(f.getFieldType()))) {
+                                allowed = true;
+                                break;
+                            }
+                        }
+                    }
+                } catch (IllegalArgumentException ignored) {
+                    // 非法列名保持 allowed=false
+                }
+            }
+            if (allowed) {
+                String col = "`" + timeField + "`";
+                if (StringUtils.isNotBlank(timeFrom) && parseTime(timeFrom) != null) {
+                    where.add(col + " >= #{params.timeFrom}");
+                    params.put("timeFrom", timeFrom + (timeFrom.length() == 10 ? " 00:00:00" : ""));
+                }
+                if (StringUtils.isNotBlank(timeTo) && parseTime(timeTo) != null) {
+                    where.add(col + " <= #{params.timeTo}");
+                    params.put("timeTo", timeTo + (timeTo.length() == 10 ? " 23:59:59" : ""));
+                }
+            }
         }
         // 自定义字段筛选：仅 is_filter=1 且值非空（P1：结构子字段不占物理列，只遍历顶层字段）
         for (ModelField f : topFields(fields)) {
@@ -204,6 +273,11 @@ public class ModelDataService {
     // /////////////////// 写入 ///////////////////
 
     public DataVo insertData(Long modelId, Map<String, String> form, Long userId) {
+        return insertData(modelId, form, userId, null);
+    }
+
+    /** G12：editorId 供版本快照记录操作人 */
+    public DataVo insertData(Long modelId, Map<String, String> form, Long userId, Long editorId) {
         Model model = modelService.findModelById(modelId);
         if (model == null || model.getStatus() != 1) {
             return DataVo.failure("模型不存在或已禁用");
@@ -253,6 +327,10 @@ public class ModelDataService {
         }
 
         modelDataDao.insertData(tableSuffixOf(modelId), columns, values);
+        // G12：初版快照（v1，DB 为事实源，快照即版本）
+        snapshotContentVersion(model, id, editorId, null);
+        // G18：内容新建事件
+        publishContentEvent("insert", model, List.of(id), userId != null ? userId : editorId);
         if (!refIds.isEmpty()) {
             modelDataDao.incrImagesRefCount(distinct(refIds));
         }
@@ -262,6 +340,11 @@ public class ModelDataService {
     }
 
     public DataVo updateData(Long modelId, Long id, Map<String, String> form) {
+        return updateData(modelId, id, form, null);
+    }
+
+    /** G12：editorId 供版本快照记录操作人 */
+    public DataVo updateData(Long modelId, Long id, Map<String, String> form, Long editorId) {
         Model model = modelService.findModelById(modelId);
         if (model == null) {
             return DataVo.failure("模型不存在");
@@ -305,6 +388,10 @@ public class ModelDataService {
         adjustRefCounts(oldRefs, distinct(newRefs));
         // P2 M2A：覆盖式同步（未传该字段则不触碰既有关系）
         syncRelations(model, id, m2aOut);
+        // G12：每次更新落一版快照（version+1）
+        snapshotContentVersion(model, id, editorId, null);
+        // G18：内容更新事件
+        publishContentEvent("update", model, List.of(id), editorId);
         return DataVo.success("更新成功");
     }
 
@@ -328,12 +415,168 @@ public class ModelDataService {
         if (model != null && model.getCode() != null) {
             modelDataDao.deleteRelationsByFromIds(model.getCode(), ids);
         }
+        // E4 平台评论：内容删除联动清理其全部评论（DAO 直连避免 service 环依赖）
+        if (model != null && model.getCode() != null) {
+            commentDao.deleteByTarget(model.getCode(), ids);
+        }
+        // G18：内容删除事件
+        publishContentEvent("delete", model, ids, null);
         return DataVo.success("删除成功");
     }
 
     public DataVo updateStatus(Long modelId, List<Long> ids, int status) {
         modelDataDao.updateStatus(tableSuffixOf(modelId), ids, status);
+        // G12：状态切换留痕（发布/下架/审核动作都进版本历史）
+        Model model = modelService.findModelById(modelId);
+        if (model != null) {
+            for (Long id : ids) {
+                snapshotContentVersion(model, id, null, "状态切换→" + status);
+            }
+        }
+        // G18：状态变更事件
+        publishContentEvent("status", model, ids, null);
         return DataVo.success("状态已更新");
+    }
+
+    /**
+     * G12 版本快照：整行 SELECT * 序列化落 {@code fly_content_version}（version=max+1）。
+     * 快照失败只告警不阻断主流程（版本能力是增强，不是内容写入的前置）。
+     */
+    private void snapshotContentVersion(Model model, Long id, Long editorId, String remark) {
+        try {
+            Map<String, Object> row = modelDataDao.findDataById(tableSuffixOf(model.getId()), id);
+            if (row == null) {
+                return;
+            }
+            com.flycms.module.model.model.ContentVersion v =
+                    new com.flycms.module.model.model.ContentVersion();
+            v.setId(SnowFlake.getInstance().nextId());
+            v.setTargetModel(model.getCode());
+            v.setTargetId(id);
+            v.setVersion(contentVersionDao.maxVersion(model.getCode(), id) + 1);
+            v.setContentJson(JSON.toJSONString(row));
+            Object st = row.get("status");
+            v.setStatus(st == null ? null : Integer.parseInt(String.valueOf(st)));
+            v.setEditorId(editorId);
+            v.setRemark(remark);
+            v.setCreateTime(new Date());
+            contentVersionDao.addVersion(v);
+        } catch (Exception e) {
+            log.warn("内容版本快照失败：{}#{} {}", model.getCode(), id, e.getMessage());
+        }
+    }
+
+    /**
+     * G12 版本列表（新→旧，不含 content_json 大字段）。
+     */
+    public PageVo<com.flycms.module.model.model.ContentVersion> listVersions(
+            Long modelId, Long id, int pageNum, int rows) {
+        Model model = modelService.findModelById(modelId);
+        PageVo<com.flycms.module.model.model.ContentVersion> pageVo =
+                new PageVo<>(pageNum);
+        pageVo.setRows(rows);
+        if (model == null) {
+            pageVo.setList(new ArrayList<>());
+            return pageVo;
+        }
+        String code = model.getCode();
+        pageVo.setCount(contentVersionDao.countVersions(code, id));
+        pageVo.setList(contentVersionDao.selectVersions(code, id, pageVo.getOffset(), pageVo.getRows()));
+        return pageVo;
+    }
+
+    /**
+     * G12 恢复：快照整行写回主表（跳过 id/short_url），并把恢复动作另存为新版本——历史不丢。
+     */
+    public DataVo restoreVersion(Long modelId, Long id, int version, Long editorId) {
+        Model model = modelService.findModelById(modelId);
+        if (model == null) {
+            return DataVo.failure("模型不存在");
+        }
+        com.flycms.module.model.model.ContentVersion v =
+                contentVersionDao.findVersion(model.getCode(), id, version);
+        if (v == null) {
+            return DataVo.failure("版本不存在");
+        }
+        Map<String, Object> row = modelDataDao.findDataById(tableSuffixOf(modelId), id);
+        if (row == null) {
+            return DataVo.failure("内容不存在或已删除，无法恢复");
+        }
+        Map<String, Object> snap;
+        try {
+            snap = JSON.parseObject(v.getContentJson(), new com.alibaba.fastjson2.TypeReference<Map<String, Object>>() { });
+        } catch (Exception e) {
+            return DataVo.failure("版本快照损坏，无法恢复");
+        }
+        if (snap == null || snap.isEmpty()) {
+            return DataVo.failure("版本快照为空，无法恢复");
+        }
+        // 恢复列校验：标识符正则即可——列名来自本表历史快照（非用户输入），
+        // 不能用 safeColumnName（其黑名单含全部建表固定列，会把 title/status 等全拒掉）
+        java.util.regex.Pattern IDENT = java.util.regex.Pattern.compile("^[a-z][a-z0-9_]{0,63}$");
+        List<String> columns = new ArrayList<>();
+        List<String> setParts = new ArrayList<>();
+        Map<String, Object> params = new HashMap<>();
+        int i = 0;
+        for (Map.Entry<String, Object> e : snap.entrySet()) {
+            String key = e.getKey();
+            if ("id".equalsIgnoreCase(key) || "short_url".equalsIgnoreCase(key)) {
+                continue;
+            }
+            if (!IDENT.matcher(key).matches()) {
+                continue;
+            }
+            String pName = "p" + (i++);
+            // 占位符必须带 params. 前缀（多 @Param 方法绑定名是 params.pN，裸 pN 不在 ParamMap 顶层）
+            setParts.add("`" + key + "` = #{params." + pName + "}");
+            params.put(pName, e.getValue());
+        }
+        if (setParts.isEmpty()) {
+            return DataVo.failure("版本快照无可恢复列");
+        }
+        contentVersionDao.restoreColumns(tableSuffixOf(modelId),
+                String.join(", ", setParts), id, params);
+        // 恢复动作本身也进版本历史
+        snapshotContentVersion(model, id, editorId, "恢复自 v" + version);
+        return DataVo.success("已恢复到 v" + version + "（另存为最新版本）");
+    }
+
+    /**
+     * 平台评论计数（E4）：目标内容固有列 count_comment 增减，下限 0。
+     * 列名/表名固定列 + safeTableSuffix 白名单，delta 由调用方给 ±1。
+     */
+    public void adjustCommentCount(String modelCode, Long id, int delta) {
+        if (StringUtils.isBlank(modelCode) || id == null || id <= 0 || delta == 0) {
+            return;
+        }
+        try {
+            modelDataDao.adjustCommentCount(SqlSafeUtil.safeTableSuffix(modelCode), id,
+                    delta > 0 ? 1 : -1);
+        } catch (IllegalArgumentException e) {
+            log.warn("评论计数调整：非法模型码 {}", modelCode);
+        }
+    }
+
+    /**
+     * G18：内容生命周期事件发布（insert/update/delete/status）。
+     * 插件/自动化的稳定契约——本期只发布不消费；监听侧异常不阻断主流程。
+     */
+    private void publishContentEvent(String action, Model model, List<Long> ids, Long operatorId) {
+        try {
+            if (model != null && model.getCode() != null && ids != null && !ids.isEmpty()) {
+                eventPublisher.publishEvent(new com.flycms.core.event.ContentChangedEvent(
+                        this, action, model.getCode(), ids, operatorId));
+            }
+        } catch (Exception e) {
+            log.warn("内容事件发布失败（不影响主流程）：{} {} {}", action, model == null ? "?" : model.getCode(), e.getMessage());
+        }
+    }
+
+    /** 按状态计数（投稿审核待审角标：跨启用模型求和用） */
+    public int countByStatus(Long modelId, int status) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("status", status);
+        return modelDataDao.countPage(tableSuffixOf(modelId), "status = #{params.status}", params);
     }
 
     /**
@@ -410,6 +653,157 @@ public class ModelDataService {
         expandM2a(model.getCode(), top, rows);
         // 6) P2 双向标注：被哪些模型的内容引用着
         expandBackRefs(model, rows);
+        // 7) B1 绑定数据源展开：user → {field}Obj={userId,nickName,avatar,shortUrl}；
+        //    category → {field}Obj={id,name,fatherId}（绑定模型 code 见 relate_model，留空=本模型）
+        expandBoundEntities(model, top, rows);
+        // 8) E6 公式字段：行内表达式受限求值（不落库，仅读侧）
+        expandFormulas(top, rows);
+    }
+
+    /**
+     * E6 公式求值：表达式已在校验期限定字符集（字段名/数字/四则/括号），
+     * 以行 Map 为 SpEL 根对象求值（SimpleEvaluationContext 禁类型引用/方法调用）。
+     * 求值失败安全降级为 null，不影响行内其他数据。
+     */
+    private void expandFormulas(List<ModelField> top, List<Map<String, Object>> rows) {
+        List<ModelField> formulaFields = new ArrayList<>();
+        for (ModelField f : top) {
+            if (isType(f, FieldTypeEnum.FORMULA)) {
+                formulaFields.add(f);
+            }
+        }
+        if (formulaFields.isEmpty()) {
+            return;
+        }
+        var parser = new org.springframework.expression.spel.standard.SpelExpressionParser();
+        var cache = new HashMap<String, org.springframework.expression.Expression>();
+        for (Map<String, Object> row : rows) {
+            for (ModelField f : formulaFields) {
+                String formula = StringUtils.trimToEmpty(f.getFormula());
+                if (formula.isEmpty()) {
+                    continue;
+                }
+                try {
+                    // Map root 上裸属性名解析不到（SimpleEvaluationContext 无 MapAccessor），
+                    // 统一转成 #root['字段'] 索引形式（标识符已在校验期白名单化）
+                    String spel = formula.replaceAll("([a-z_][a-z0-9_]*)", "#root['$1']");
+                    var expr = cache.computeIfAbsent(spel, k -> parser.parseRaw(k));
+                    var ctx = org.springframework.expression.spel.support.SimpleEvaluationContext
+                            .forReadOnlyDataBinding().withRootObject(row).build();
+                    Object v = expr.getValue(ctx);
+                    row.put(f.getFieldName(), v == null ? null : String.valueOf(v));
+                } catch (Exception e) {
+                    log.warn("公式求值失败（{}#{}）：{}", f.getFieldName(), formula, e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * B1 绑定实体读侧展开（对标 ACF User/Taxonomy 字段读回）：与 E1 关联展开同构——
+     * 一次批量查询，悬空引用（用户/分类已删）安全跳过，模板侧 {@code ??} 判空降级。
+     */
+    private void expandBoundEntities(Model model, List<ModelField> top, List<Map<String, Object>> rows) {
+        // ---- USER 字段：一次批量取用户 ----
+        java.util.Set<Long> userIds = new java.util.LinkedHashSet<>();
+        for (Map<String, Object> row : rows) {
+            for (ModelField f : top) {
+                if (isType(f, FieldTypeEnum.USER)) {
+                    Long uid = asLong(row.get(f.getFieldName()));
+                    if (uid != null) {
+                        userIds.add(uid);
+                    }
+                }
+            }
+        }
+        Map<Long, com.flycms.module.user.model.User> userById = new HashMap<>();
+        if (!userIds.isEmpty()) {
+            for (com.flycms.module.user.model.User u : userService.getUsersByIds(new ArrayList<>(userIds))) {
+                userById.put(u.getUserId(), u);
+            }
+        }
+        // ---- CATEGORY 字段：按绑定模型整树取回（分类量级小，内存建索引） ----
+        Map<String, Map<Long, com.flycms.module.model.model.ModelCategory>> catIndexByCode = new HashMap<>();
+        for (ModelField f : top) {
+            if (!isType(f, FieldTypeEnum.CATEGORY)) {
+                continue;
+            }
+            String boundCode = StringUtils.defaultIfBlank(f.getRelateModel(),
+                    model == null ? null : model.getCode());
+            if (boundCode == null || catIndexByCode.containsKey(boundCode)) {
+                continue;
+            }
+            com.flycms.module.model.model.Model bound = modelService.findModelByCode(boundCode);
+            Map<Long, com.flycms.module.model.model.ModelCategory> idx = new HashMap<>();
+            if (bound != null) {
+                for (com.flycms.module.model.model.ModelCategory c
+                        : modelCategoryService.findCategoriesByModelId(bound.getId(), null)) {
+                    idx.put(c.getId(), c);
+                }
+            }
+            catIndexByCode.put(boundCode, idx);
+        }
+        // ---- 回填 {field}Obj ----
+        for (Map<String, Object> row : rows) {
+            for (ModelField f : top) {
+                if (isType(f, FieldTypeEnum.USER)) {
+                    Long uid = asLong(row.get(f.getFieldName()));
+                    com.flycms.module.user.model.User u = uid == null ? null : userById.get(uid);
+                    if (u != null) {
+                        Map<String, Object> obj = new LinkedHashMap<>();
+                        obj.put("userId", String.valueOf(u.getUserId()));
+                        // 昵称缺失回退用户名（与前台展示口径一致，模板永不输出 null）
+                        String nick = StringUtils.defaultIfBlank(u.getNickName(), u.getUserName());
+                        obj.put("nickName", nick);
+                        obj.put("userName", u.getUserName());
+                        obj.put("avatar", u.getAvatar());
+                        obj.put("shortUrl", u.getShortUrl());
+                        row.put(f.getFieldName() + "Obj", obj);
+                    }
+                } else if (isType(f, FieldTypeEnum.CATEGORY)) {
+                    Long cid = asLong(row.get(f.getFieldName()));
+                    String boundCode = StringUtils.defaultIfBlank(f.getRelateModel(),
+                            model == null ? null : model.getCode());
+                    Map<Long, com.flycms.module.model.model.ModelCategory> idx =
+                            boundCode == null ? Map.of()
+                                              : catIndexByCode.getOrDefault(boundCode, Map.of());
+                    com.flycms.module.model.model.ModelCategory c = cid == null ? null : idx.get(cid);
+                    if (c != null) {
+                        Map<String, Object> obj = new LinkedHashMap<>();
+                        obj.put("id", String.valueOf(c.getId()));
+                        obj.put("name", c.getName());
+                        obj.put("fatherId", String.valueOf(c.getFatherId()));
+                        row.put(f.getFieldName() + "Obj", obj);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isType(ModelField f, FieldTypeEnum expected) {
+        try {
+            return FieldTypeEnum.of(f.getFieldType()) == expected;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    /** E8：宽松解析 yyyy-MM-dd / yyyy-MM-dd HH:mm:ss，非法返回 null */
+    private String parseTime(String v) {
+        String t = StringUtils.trimToEmpty(v).replace('T', ' ');
+        return (t.matches("^\\d{4}-\\d{2}-\\d{2}$") || t.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}(:\\d{2})?$"))
+                ? t : null;
+    }
+
+    private Long asLong(Object v) {
+        if (v == null || StringUtils.isBlank(String.valueOf(v))) {
+            return null;
+        }
+        try {
+            return Long.parseLong(String.valueOf(v));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**
@@ -1002,6 +1396,11 @@ public class ModelDataService {
             if (!isVisible(f, form)) {
                 continue;
             }
+            // 表单隐藏（is_form=0）：不在内容表单出现/提交的字段跳过校验与写列，
+            // 语义同条件显隐未命中——必填、默认值均失效；字段仍参与列表/详情/模板。
+            if (f.getIsForm() == 0) {
+                continue;
+            }
             if (blank) {
                 if (f.getIsRequired() == 1) {
                     return DataVo.failure(f.getFieldLabel() + "不能为空");
@@ -1335,6 +1734,38 @@ public class ModelDataService {
                     throw new IllegalArgumentException(f.getFieldLabel() + "含有非法选项：" + raw);
                 }
                 v = raw;
+                break;
+            }
+            case USER: {
+                // B1 绑定数据源（用户选择器）：必须是真实存在的平台用户——表单显示昵称，落库存 user_id
+                long uid;
+                try {
+                    uid = Long.parseLong(raw.trim());
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "格式不正确");
+                }
+                if (userService.findUserById(uid, 0) == null) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "所选用户不存在");
+                }
+                v = uid;
+                break;
+            }
+            case CATEGORY: {
+                // B1 绑定数据源（分类选择器）：分类必须存在且属于绑定模型的分类树
+                // （绑定模型 code 见 relate_model，留空 = 本模型；与主表固定 category_id 通道互补）
+                long cid;
+                try {
+                    cid = Long.parseLong(raw.trim());
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "格式不正确");
+                }
+                com.flycms.module.model.model.Model bound = modelService.findModelByCode(
+                        StringUtils.defaultIfBlank(f.getRelateModel(), selfSuffix));
+                com.flycms.module.model.model.ModelCategory cat = modelCategoryService.findCategoryById(cid);
+                if (cat == null || bound == null || !bound.getId().equals(cat.getModelId())) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "所选分类不存在或不属于绑定模型");
+                }
+                v = cid;
                 break;
             }
             default: {

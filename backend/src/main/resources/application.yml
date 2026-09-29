@@ -5,8 +5,9 @@ spring:
     name: FlyCms
   mvc:
     static-path-pattern: /**
+  # G29：devtools 默认关闭（热重载与缓存易打架）；开发时加 --spring.profiles.active=dev 启用
   devtools:
-    enabled: true
+    enabled: false
   web:
     resources:
       static-locations:
@@ -40,8 +41,8 @@ spring:
   ##数据库连接信息
   datasource:
       url: jdbc:mysql://127.0.0.1:3306/flycms?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-      username: root
-      password: 123456
+      username: ${FLYCMS_DB_USER:root}
+      password: ${FLYCMS_DB_PASSWORD:123456}
       driver-class-name: com.mysql.cj.jdbc.Driver
       ###################以下为druid增加的配置###########################
       type: com.alibaba.druid.pool.DruidDataSource
@@ -73,7 +74,7 @@ spring:
 
 mybatis:
     type-aliases-package: com.flycms.module.**.model
-    mapper-locations: classpath:com/flycms/module/**/dao/*.xml
+    mapper-locations: classpath:mapper/**/*.xml
     configuration:
         mapUnderscoreToCamelCase: true
         default-fetch-size: 100
@@ -84,6 +85,8 @@ mybatis:
 logging:
     level:
         learning: trace
+        # G12 恢复 SQL 排查（2026-09-29，问题定位后可关）
+        com.flycms.module.model.dao.ContentVersionDao: debug
         #com.flycms.module.score.dao : DEBUG  #直接写包路径，不能用*通配符
         #com.flycms.module.user.dao : DEBUG
         #com.flycms.module.article.dao : DEBUG
@@ -140,6 +143,18 @@ flycms:
 #   ① 保存模板 → TemplateCenterService.evictTemplate() 精确移除该模板缓存
 #   ② 切换主题 / 保存站点配置 → themeRegistry.refresh() + 后台「清空模板缓存」按钮
 # ============================================================
+---
+# ============================================================
+# dev profile（G29）：开发热重载。启动：mvn spring-boot:run -Dspring-boot.run.profiles=dev
+# ============================================================
+spring:
+  config:
+    activate:
+      on-profile: dev
+  devtools:
+    enabled: true
+
+---
 spring:
   config:
     activate:

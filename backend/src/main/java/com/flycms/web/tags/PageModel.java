@@ -32,7 +32,9 @@ import java.util.Map;
  * {@code pageHtml}（可直接输出的分页条 HTML）。
  *
  * <p>参数：{@code model}(code) / {@code category} / {@code title} / {@code orderby} /
- * {@code order} / {@code p} / {@code rows}，其余参数视为自定义字段筛选条件。
+ * {@code order} / {@code p} / {@code rows} / {@code userId}（按发布者筛选，U3 用户中心用）/
+ * {@code timeField+timeFrom+timeTo}（E8 时间窗，公告生效期等），
+ * 其余参数视为自定义字段筛选条件。
  */
 @Service
 public class PageModel extends AbstractModelTag {
@@ -62,7 +64,8 @@ public class PageModel extends AbstractModelTag {
             PageVo<Map<String, Object>> pageVo = modelDataService.selectPage(
                     model.getId(), str(p, "title", null), longVal(p, "category"), 1,
                     extractFilters(p), str(p, "orderby", null), str(p, "order", null),
-                    page, rows, longVal(p, "notid"), true);
+                    page, rows, longVal(p, "notid"), true, longVal(p, "userId"),
+                    str(p, "timeField", null), str(p, "timeFrom", null), str(p, "timeTo", null));
             modelDataService.expandAttachments(model.getId(), pageVo.getList());
             vars.put("dataList", pageVo.getList());
             vars.put("model_page", pageVo);

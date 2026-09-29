@@ -52,7 +52,8 @@ public abstract class AbstractModelTag extends AbstractTagPlugin {
 
     /** 框架参数名：这些参数不参与"自定义字段筛选"（见 {@link #extractFilters}） */
     protected static final List<String> FRAMEWORK_PARAMS = Arrays.asList(
-            "model", "category", "title", "orderby", "order", "p", "rows", "id", "shortUrl", "notid");
+            "model", "category", "title", "orderby", "order", "p", "rows", "id", "shortUrl", "notid",
+            "userId");
 
     @Autowired
     protected ModelService modelService;

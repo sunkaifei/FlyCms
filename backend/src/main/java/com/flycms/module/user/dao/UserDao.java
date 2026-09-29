@@ -464,6 +464,19 @@ public interface UserDao {
      */
     public UserSession findUserSessionBySeeeionKey(@Param("sessionKey") String sessionKey);
 
+    /**
+     * 批量按 id 取用户（B1 绑定数据源读侧展开：user 字段 {field}Obj 批量回填，
+     * 一次查询满足模板零二次查询；status >= 0 即含待审外的全部状态）。
+     */
+    public List<User> findUsersByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * 用户选项搜索（B1 user 选择器数据源）：user_name/nick_name 模糊匹配，
+     * 按注册时间倒序（新用户靠前），keyword 空时返回最新一批。
+     */
+    public List<User> findUserOptions(@Param("keyword") String keyword,
+                                      @Param("rows") int rows);
+
 
     /**
      * 查询当前用户登陆状态是否存在

@@ -133,8 +133,9 @@ public class ApiSystemController extends ApiBaseController {
         if (id == null || id <= 0) {
             return DataVo.failure("参数传递错误");
         }
-        if (id == 1L) {
-            return DataVo.failure("超级管理员组不能删除");
+        // 超管账号按「所属组」判定，不依赖历史 id=1 约定
+        if (isProtectedSuperGroup(groupService.findUserAndGroupById(id))) {
+            return DataVo.failure("超级管理员账号不能删除");
         }
         return adminService.deleteAdminById(id);
     }
@@ -142,6 +143,21 @@ public class ApiSystemController extends ApiBaseController {
     // ///////////////////////////////
     // /////       角色组       ////////
     // ///////////////////////////////
+
+    /**
+     * 超管组判定：历史约定 id=1 + 实际雪花 id 组（组名「超级管理员」）。
+     * 库重建后超管组 id 已不是 1，仅判 id 会让删除/改授权保护完全失效。
+     */
+    private boolean isProtectedSuperGroup(Long groupId) {
+        if (groupId == null) {
+            return false;
+        }
+        if (groupId == 1L) {
+            return true;
+        }
+        com.flycms.module.admin.model.Group g = groupService.findGroupById(groupId);
+        return g != null && "超级管理员".equals(g.getName());
+    }
 
     /**
      * 全部角色组（列表与下拉通用）
@@ -182,7 +198,7 @@ public class ApiSystemController extends ApiBaseController {
         if (id == null || id <= 0) {
             return DataVo.failure("参数传递错误");
         }
-        if (id == 1L) {
+        if (isProtectedSuperGroup(id)) {
             return DataVo.failure("超级管理员组不能删除");
         }
         if (groupService.deleteGroup(id)) {
@@ -215,7 +231,7 @@ public class ApiSystemController extends ApiBaseController {
         if (groupId == null || groupId <= 0) {
             return DataVo.failure("参数错误！");
         }
-        if (groupId == 1L) {
+        if (isProtectedSuperGroup(groupId)) {
             return DataVo.failure("超级管理员组权限不能修改");
         }
         List<Long> oldIds = groupService.findGroupPermissionIds(groupId);

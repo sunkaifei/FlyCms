@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 内容向量 DAO（G21 语义搜索，向量存 MySQL） -->
+<mapper namespace="com.flycms.module.ai.dao.EmbeddingDao">
+
+	<insert id="add">
+		insert into fly_embedding (id, target_model, target_id, chunk, vector_json, embed_model, update_time)
+		values (#{id}, #{targetModel}, #{targetId}, #{chunk}, #{vectorJson}, #{embedModel}, now())
+	</insert>
+
+	<select id="findByModel" resultType="com.flycms.module.ai.model.Embedding">
+		select id, target_model, target_id, chunk, vector_json, embed_model, update_time
+		from fly_embedding where target_model = #{targetModel}
+	</select>
+
+	<select id="findByTarget" resultType="com.flycms.module.ai.model.Embedding">
+		select id, target_model, target_id, chunk, vector_json, embed_model, update_time
+		from fly_embedding where target_model = #{targetModel} and target_id = #{targetId}
+	</select>
+
+	<delete id="deleteByTarget">
+		delete from fly_embedding where target_model = #{targetModel} and target_id in
+		<foreach collection="targetIds" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</delete>
+</mapper>

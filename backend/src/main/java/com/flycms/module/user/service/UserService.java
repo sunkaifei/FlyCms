@@ -1027,6 +1027,23 @@ public class UserService {
      * @return
      * @throws Exception
      */
+    /**
+     * 批量按 id 取用户（B1 绑定数据源：user 字段读侧展开 {field}Obj 用，一次查询）。
+     */
+    public List<User> getUsersByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return userDao.findUsersByIds(ids);
+    }
+
+    /**
+     * 用户选项搜索（B1 user 选择器数据源）：模糊匹配 user_name/nick_name，新用户靠前。
+     */
+    public List<User> getUserOptions(String keyword, int rows) {
+        return userDao.findUserOptions(StringUtils.trimToNull(keyword), Math.min(Math.max(rows, 1), 200));
+    }
+
     public PageVo<User> getUserListPage(String username,String trueName,String mobile,String email,String orderby,String order,int pageNum, int rows) {
         PageVo<User> pageVo = new PageVo<User>(pageNum);
         pageVo.setRows(rows);

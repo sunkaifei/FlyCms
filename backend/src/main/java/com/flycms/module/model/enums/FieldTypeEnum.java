@@ -78,7 +78,26 @@ public enum FieldTypeEnum {
      * （from_model/from_id/field_name/to_model/to_id/sort），值 = [{model,id},…] 数组，
      * 承接「相关阅读/商品推荐」这类可关联任意模型的场景。
      */
-    M2A("m2a", null, null);
+    M2A("m2a", null, null),
+    /**
+     * 计算列（E6，对标 Excel 公式/ACF 计算字段）：虚拟字段不落列，
+     * 配置存 fly_model_field.formula（行内表达式，如 {@code price * 0.88}），
+     * 读取时以本行字段值为变量求值（SpEL SimpleEvaluationContext 受限求值，仅四则+括号+数字+字段名）。
+     */
+    FORMULA("formula", null, null),
+    /**
+     * 用户选择器（B1 绑定数据源，对标 ACF User 字段）：存 fly_user.user_id。
+     * 表单渲染可搜索的用户下拉（显示昵称/用户名），提交保存 user_id；
+     * 读侧展开 {@code {field}Obj = {userId, nickName, avatar, shortUrl}}，模板可直接输出用户链接。
+     */
+    USER("user", "bigint(20) unsigned", null),
+    /**
+     * 分类选择器（B1 绑定数据源，对标 ACF Taxonomy 字段）：存 fly_model_category.id。
+     * 表单渲染绑定模型的分类树下拉；绑定目标由 fly_model_field.relate_model 决定，
+     * 留空 = 本模型分类树（与主表固定 category_id 通道互补，可做副分类/多维度归类）。
+     * 读侧展开 {@code {field}Obj = {id, name, fatherId}}。
+     */
+    CATEGORY("category", "bigint(20) unsigned", null);
 
     private final String code;
     private final String ddl;
@@ -135,9 +154,18 @@ public enum FieldTypeEnum {
         return this == GROUP || this == REPEATER;
     }
 
-    /** 是否虚拟字段（不建列、不落动态表：rollup/m2a，editor 走主表 content 通道同样无列） */
+    /**
+     * 是否「绑定平台数据源」类型（B1）：值是平台实体的 id（fly_user / fly_model_category），
+     * 与 isRelation（绑其他模型内容）并列的第三类引用语义。
+     * 绑定配置：USER 无需配置；CATEGORY 的绑定模型 code 复用 relate_model（留空 = 本模型）。
+     */
+    public boolean isBoundEntity() {
+        return this == USER || this == CATEGORY;
+    }
+
+    /** 是否虚拟字段（不建列、不落动态表：rollup/m2a/formula，editor 走主表 content 通道同样无列） */
     public boolean isVirtual() {
-        return this == ROLLUP || this == M2A;
+        return this == ROLLUP || this == M2A || this == FORMULA;
     }
 
     /** 是否允许作为 GROUP/REPEATER 的子字段（结构/虚拟/富文本不可嵌套，编辑器走主表通道会撞 content） */

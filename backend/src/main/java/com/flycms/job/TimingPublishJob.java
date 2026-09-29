@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * 定时发布 Job（规划阶段 H，对标帝国定时审核）：
- * 每分钟扫描全部 fly_cmodel_* 与 fly_article 中 status=4 且 publish_time<=now 的内容置为发布。
+ * 每分钟扫描全部 fly_cmodel_{模型} 中 status=4 且 publish_time<=now 的内容置为发布（U3 后 article 也走模型表）。
  * 发布即生效红线（§6.4）：到点自动可见，无需任何人工刷新。
  */
 @Component
@@ -49,12 +49,7 @@ public class TimingPublishJob {
                     log.debug("定时发布跳过 {}：{}", table, e.getMessage());
                 }
             }
-            int n = jdbcTemplate.update(
-                    "update fly_article set status = 1 " +
-                    "where status = 4 and publish_time is not null and publish_time <= now()");
-            if (n > 0) {
-                log.info("定时发布 fly_article: {} 条", n);
-            }
+            // U3：fly_article 硬编码块已删——articles 模型同样由上面的 fly_cmodel_{code} 循环覆盖
         } catch (Exception e) {
             log.error("定时发布执行失败", e);
         }

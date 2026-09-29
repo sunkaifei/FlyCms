@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Open source house, All rights reserved. -->
+<!-- 开源之家 版权所有 -->
+<!-- http://www.28844.com -->
+
+<mapper namespace="com.flycms.module.admin.dao.PermissionDao">
+	<!-- ############################## -->
+	<!-- ###### 增加 ###### -->
+	<!-- ############################## -->
+	<insert id="addPermission" useGeneratedKeys="true" keyProperty="id" parameterType="com.flycms.module.admin.model.Permission">
+		insert into fly_admin_permission
+		<!-- 添加表字段 -->
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">id,</if>
+			<if test="actionKey != null">actionKey,</if>
+			<if test="controller != null">controller,</if>
+			<if test="remark != null">remark,</if>
+			<if test="parentId != null">parentId,</if>
+			<if test="menuType != null">menuType,</if>
+			<if test="menuName != null">menuName,</if>
+			<if test="path != null">path,</if>
+			<if test="component != null">component,</if>
+			<if test="icon != null">icon,</if>
+			<if test="sort != null">sort,</if>
+			<if test="visible != null">visible,</if>
+		</trim>
+		<!-- 注入控制层字段 -->
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">#{id},</if>
+			<if test="actionKey != null">#{actionKey},</if>
+			<if test="controller != null">#{controller},</if>
+			<if test="remark != null">#{remark},</if>
+			<if test="parentId != null">#{parentId},</if>
+			<if test="menuType != null">#{menuType},</if>
+			<if test="menuName != null">#{menuName},</if>
+			<if test="path != null">#{path},</if>
+			<if test="component != null">#{component},</if>
+			<if test="icon != null">#{icon},</if>
+			<if test="sort != null">#{sort},</if>
+			<if test="visible != null">#{visible},</if>
+		</trim>
+	</insert>
+
+	<!-- ############################## -->
+	<!-- ###### 删除 ###### -->
+	<!-- ############################## -->
+	<!-- 按id删除权限 -->
+	<delete id="deletePermission">
+		delete from fly_admin_permission where id=#{id}
+	</delete>
+
+	<!-- 按id删除权限 -->
+	<delete id="deleteRolePermission">
+		delete from fly_admin_group_permission_merge where permission_id=#{permissionId}
+	</delete>
+	<!-- ############################## -->
+	<!-- ###### 修改 ###### -->
+	<!-- ############################## -->
+	<update id="updatePermissions">
+		update fly_admin_permission
+		<set>
+			<if test="remark != null and remark != ''">remark=#{remark},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 菜单管理：更新菜单/按钮节点 -->
+	<update id="updateMenuRow">
+		update fly_admin_permission
+		<set>
+			<if test="actionKey != null">actionKey=#{actionKey},</if>
+			<if test="remark != null">remark=#{remark},</if>
+			<if test="parentId != null">parentId=#{parentId},</if>
+			<if test="menuType != null">menuType=#{menuType},</if>
+			<if test="menuName != null">menuName=#{menuName},</if>
+			<if test="path != null">path=#{path},</if>
+			<if test="component != null">component=#{component},</if>
+			<if test="icon != null">icon=#{icon},</if>
+			<if test="sort != null">sort=#{sort},</if>
+			<if test="visible != null">visible=#{visible},</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 菜单管理：全部节点（含 F），按 parent/sort 排序供组树 -->
+	<select id="getAllMenuNodes" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission order by parentId asc, sort asc, id asc
+	</select>
+
+	<!-- 动态菜单：仅 M/C 节点 -->
+	<select id="getMenuNodes" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission where menuType in ('M','C') order by parentId asc, sort asc, id asc
+	</select>
+
+	<!-- 是否存在子节点 -->
+	<select id="hasMenuChildren" resultType="boolean">
+		select count(*) > 0 from fly_admin_permission where parentId=#{id}
+	</select>
+
+	<!-- 查询直接子节点（模型内容菜单级联清理用） -->
+	<select id="findMenuChildren" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission where parentId=#{id} order by sort asc, id asc
+	</select>
+
+	<!-- ############################## -->
+	<!-- ###### 查询 ###### -->
+	<!-- ############################## -->
+	<!-- 按id查询权限节点详细信息 -->
+	<select id="findPermissionById" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission where id = #{id}
+	</select>
+
+	<!-- 按actionKey信息 -->
+	<select id="findPermissionByActionKey" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission where actionKey=#{actionKey}
+	</select>
+
+	<!-- 查询权限url是否存在 -->
+	<select id="checkPermission" resultType="Integer">
+		select count(*) from fly_admin_permission where actionKey=#{actionKey} and controller=#{controller}
+	</select>
+
+	<!-- 根据用用户ID查询用户所有权限 -->
+	<select id="findPermissionByUserId" resultType="com.flycms.module.admin.model.Permission">
+		select p.* from fly_admin_permission p , fly_admin_group_permission_merge gp, fly_admin_group_merge gm where gm.admin_id = #{adminId} and p.id = gp.permission_id and gp.group_id = gm.group_id
+	</select>
+
+	<!-- 查询permission总数量 -->
+	<select id="getPermissionCount" resultType="Integer">
+		select count(*) from fly_admin_permission
+	</select>
+
+	<!-- 查询permission列表 -->
+	<select id="getPermissionList" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission order by controller asc limit #{offset},#{rows}
+	</select>
+
+	<!-- 查询所有权限list -->
+	<select id="getAllPermissions" resultType="com.flycms.module.admin.model.Permission">
+		select * from fly_admin_permission order by controller asc
+	</select>
+
+	<!-- 检查是否有权限 -->
+	<select id="markAssignedPermissions" resultType="Integer">
+		select count(*) from fly_admin_group_permission_merge where group_id=#{groupId} and permission_id=#{permissionId} limit 1
+	</select>
+</mapper>  

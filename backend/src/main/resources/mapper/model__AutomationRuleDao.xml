@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 自动化规则 DAO（G17） -->
+<mapper namespace="com.flycms.module.model.dao.AutomationRuleDao">
+
+	<sql id="ar_column">
+		id, rule_name AS ruleName, event, model_code AS modelCode, conditions, actions,
+		status, create_time AS createTime
+	</sql>
+
+	<select id="findAll" resultType="com.flycms.module.model.model.AutomationRule">
+		select <include refid="ar_column" /> from fly_automation_rule order by create_time desc
+	</select>
+
+	<select id="findEnabledByEvent" resultType="com.flycms.module.model.model.AutomationRule">
+		select <include refid="ar_column" /> from fly_automation_rule
+		where status = 1 and event = #{event}
+	</select>
+
+	<select id="findById" resultType="com.flycms.module.model.model.AutomationRule">
+		select <include refid="ar_column" /> from fly_automation_rule where id = #{id} limit 1
+	</select>
+
+	<insert id="add">
+		insert into fly_automation_rule (id, rule_name, event, model_code, conditions, actions, status, create_time)
+		values (#{id}, #{ruleName}, #{event}, #{modelCode}, #{conditions}, #{actions}, #{status}, now())
+	</insert>
+
+	<update id="update">
+		update fly_automation_rule
+		<set>
+			rule_name = #{ruleName},
+			event = #{event},
+			model_code = #{modelCode},
+			conditions = #{conditions},
+			actions = #{actions},
+			status = #{status},
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete">
+		delete from fly_automation_rule where id = #{id}
+	</delete>
+</mapper>

@@ -21,10 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 标签聚合服务（规划 §5.1 标签页 / §9.4 {@code <@fly_tag_list/>}）。
  *
- * <p><b>为什么不是 SearchService</b>：{@code com.flycms.module.search.service.SearchService}
- * 是 Solr 移除后留下的<b>空壳</b>（所有方法返回空结果，等 Elasticsearch 接入），
- * 它<b>不能</b>作为标签页的数据源——否则标签页永远 0 结果。本服务直接利用"文件系统为事实源"
- * 之外的第二类事实源：<b>模型数据表</b> {@code fly_cmodel_*}，对全部启用的内容模型做关键词聚合。
+ * <p><b>背景</b>：原 {@code module/search} 的 Solr 空壳已随阶段 U3 退役删除；
+ * 本服务直接利用"文件系统为事实源"之外的第二类事实源：<b>模型数据表</b> {@code fly_cmodel_*}，
+ * 对全部启用的内容模型做关键词聚合。
  *
  * <p><b>命中语义</b>：{@code title} / {@code keywords} 模糊匹配；表内存在 {@code tags} 列时
  * （目前只有 {@code fly_cmodel_articles}）一并匹配。这与织梦"标签页 = 关键词聚合页"的语义一致。

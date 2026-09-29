@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
  * 同时注册带尾斜杠的变体（Spring 6 默认不匹配尾斜杠）。
  * 该前缀不与 {@code /{modelCode}/…}、{@code /{channelDir}/…} 冲突（前缀是字面量 {@code tag}）。
  *
- * <p><b>数据源</b>：{@link TagService}（跨模型关键词聚合）。不使用 {@code SearchService} ——
+ * <p><b>数据源</b>：{@link TagService}（跨模型关键词聚合）。不使用搜索引擎——
  * 那是 Solr 移除后的空壳，会让标签页永远 0 结果。
  *
  * @author sun-kaifei

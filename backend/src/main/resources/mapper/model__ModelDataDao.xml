@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.model.dao.ModelDataDao">
+
+	<!--
+	  ${suffix} = 模型 code，已过 SqlSafeUtil 标识符白名单（新建模型 safeTableSuffix 全量黑名单；
+	  存量表维护路径 safeTableSuffixForExisting，仅拦 SQL 保留字）（D7/D10）。
+	  物理表名 = fly_cmodel_{suffix}，如 fly_cmodel_articles。
+	-->
+	<update id="createTable">
+		CREATE TABLE IF NOT EXISTS `fly_cmodel_${suffix}` (
+		  `id` bigint(20) unsigned NOT NULL COMMENT '雪花ID',
+		  `short_url` varchar(10) NOT NULL COMMENT '短链接',
+		  `user_id` bigint(20) unsigned DEFAULT NULL COMMENT '发布用户',
+		  `category_id` bigint(20) DEFAULT '0' COMMENT '分类id',
+		  `title` varchar(250) DEFAULT NULL COMMENT '标题',
+		  `content` longtext COMMENT '正文(editor字段通道)',
+		  `keywords` varchar(255) DEFAULT NULL,
+		  `description` varchar(255) DEFAULT NULL,
+		  `thumbnail` bigint(20) unsigned DEFAULT NULL COMMENT '封面图(fly_images.id)',
+		  `recommend` int(5) DEFAULT '0' COMMENT '推荐权重，越大越靠前',
+		  `count_view` int(11) NOT NULL DEFAULT '0' COMMENT '浏览数',
+		  `count_comment` int(11) NOT NULL DEFAULT '0' COMMENT '评论数',
+		  `status` tinyint(2) DEFAULT '0' COMMENT '0未审核 1正常 2未通过 3删除',
+		  `create_time` datetime DEFAULT NULL,
+		  `update_time` datetime DEFAULT NULL,
+		  `publish_time` datetime DEFAULT NULL COMMENT '定时发布时间(status=4)',
+		  PRIMARY KEY (`id`,`short_url`),
+		  KEY `idx_category` (`category_id`,`status`),
+		  KEY `idx_short_url` (`short_url`),
+		  KEY `idx_user` (`user_id`,`status`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+	</update>
+
+	<update id="addColumn">
+		ALTER TABLE `fly_cmodel_${suffix}` ADD COLUMN `${columnName}` ${columnType} COMMENT '${comment}' DEFAULT NULL
+	</update>
+
+	<update id="modifyColumn">
+		ALTER TABLE `fly_cmodel_${suffix}` MODIFY COLUMN `${columnName}` ${columnType} DEFAULT NULL
+	</update>
+
+	<update id="dropColumn">
+		ALTER TABLE `fly_cmodel_${suffix}` DROP COLUMN `${columnName}`
+	</update>
+
+	<update id="dropTable">
+		DROP TABLE IF EXISTS `fly_cmodel_${suffix}`
+	</update>
+
+	<select id="tableExists" resultType="boolean">
+		SELECT COUNT(*) > 0 FROM information_schema.tables
+		WHERE table_schema = DATABASE() AND table_name = CONCAT('fly_cmodel_', #{suffix})
+	</select>
+
+	<!--
+	  表名冲突预检（D7）：判断 fly_cmodel_{suffix} 是否已被占用。
+	  在「新建模型写入元数据之前」调用，纯粹检查物理表名是否撞车。
+	-->
+	<select id="tableExistsBySuffix" resultType="boolean">
+		SELECT COUNT(*) > 0 FROM information_schema.tables
+		WHERE table_schema = DATABASE() AND table_name = CONCAT('fly_cmodel_', #{suffix})
+	</select>
+
+	<!-- ${columnName} 已过 SqlSafeUtil.safeColumnName 白名单；值一律 #{} -->
+	<insert id="insertData">
+		INSERT INTO `fly_cmodel_${suffix}` (`id`, `short_url`, `create_time`
+		<foreach collection="columns" item="c" open="," separator="," close="">`${c}`</foreach>)
+		VALUES (#{values.id}, #{values.shortUrl}, now()
+		<foreach collection="columns" item="c" open="," separator="," close="">#{values.${c}}</foreach>)
+	</insert>
+
+	<update id="updateData">
+		UPDATE `fly_cmodel_${suffix}`
+		<set>
+			<foreach collection="columns" item="c" separator=",">`${c}` = #{values.${c}}</foreach>
+			, update_time = now()
+		</set>
+		WHERE `id` = #{id}
+	</update>
+
+	<select id="findDataById" resultType="map">
+		SELECT * FROM `fly_cmodel_${suffix}` WHERE `id` = #{id} LIMIT 1
+	</select>
+
+	<select id="findByShortUrl" resultType="map">
+		SELECT * FROM `fly_cmodel_${suffix}` WHERE `short_url` = #{shortUrl} AND `status` = 1 LIMIT 1
+	</select>
+
+	<select id="existsShortUrl" resultType="boolean">
+		SELECT COUNT(*) > 0 FROM `fly_cmodel_${suffix}` WHERE `short_url` = #{shortUrl}
+	</select>
+
+	<!--
+	  G11：列表查询改为显式列投影（收敛 SELECT *），避免把 longtext 正文（content）
+	  与 text 型自定义字段整列拉回内存。
+	  columns 由 Service 依「固定列常量 + 启用模型字段（排除 text 系）」生成，
+	  每个元素均已过 SqlSafeUtil.safeColumnName 白名单，非用户输入；这里统一加反引号。
+	  columns 为空时回退全列（向后兼容）。
+	  whereSql/orderBySql 同样由 Service 依元数据白名单生成，参数占位 #{params.xxx} 预编译。
+	-->
+	<select id="selectPage" resultType="map">
+		SELECT
+		<choose>
+			<when test="columns != null and columns.size() > 0">
+				<foreach collection="columns" item="c" separator=",">`${c}`</foreach>
+			</when>
+			<otherwise>*</otherwise>
+		</choose>
+		FROM `fly_cmodel_${suffix}`
+		<where>${whereSql}</where>
+		ORDER BY ${orderBySql}
+		LIMIT #{params.offset}, #{params.rows}
+	</select>
+
+	<select id="countPage" resultType="int">
+		SELECT COUNT(*) FROM `fly_cmodel_${suffix}`
+		<where>${whereSql}</where>
+	</select>
+
+	<update id="updateStatus">
+		UPDATE `fly_cmodel_${suffix}` SET `status` = #{status}, update_time = now()
+		WHERE `id` IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</update>
+
+	<delete id="deleteData">
+		DELETE FROM `fly_cmodel_${suffix}` WHERE `id` IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</delete>
+
+	<!--
+		前台标签页（/tag/{tag}/）的跨模型检索。
+		只裁剪展示所需列，避免 SELECT * 把 longtext 正文（content）也拉回来；
+		keyword 是业务值，恒走 #{}，绝不拼进 SQL 文本。
+		hasTags 由调用方用 information_schema 探测后缓存（仅 fly_cmodel_articles 有 tags 列）。
+	-->
+	<sql id="tagKeywordWhere">
+		`status` = 1
+		AND (
+			`title` LIKE CONCAT('%', #{keyword}, '%')
+			OR `keywords` LIKE CONCAT('%', #{keyword}, '%')
+			<if test="hasTags">OR `tags` LIKE CONCAT('%', #{keyword}, '%')</if>
+		)
+	</sql>
+
+	<select id="searchByKeyword" resultType="map">
+		SELECT `id`, `short_url`, `title`, `keywords`, `description`, `thumbnail`,
+		       `count_view`, `create_time`, `publish_time`
+		FROM `fly_cmodel_${suffix}`
+		<where>
+			<include refid="tagKeywordWhere"/>
+		</where>
+		<!-- 雪花 ID 单调递增，按 id 倒序即"最新优先"，与跨模型合并排序口径一致 -->
+		ORDER BY `id` DESC
+		LIMIT #{limit}
+	</select>
+
+	<select id="countByKeyword" resultType="int">
+		SELECT COUNT(*) FROM `fly_cmodel_${suffix}`
+		<where>
+			<include refid="tagKeywordWhere"/>
+		</where>
+	</select>
+
+	<select id="columnExists" resultType="boolean">
+		SELECT COUNT(*) &gt; 0 FROM information_schema.columns
+		WHERE table_schema = DATABASE()
+		  AND table_name = CONCAT('fly_cmodel_', #{suffix})
+		  AND column_name = #{columnName}
+	</select>
+
+	<!-- 唯一约束：columnName 来自字段元数据（列名过白名单），非用户输入；value 走 #{} 预编译 -->
+	<select id="countDuplicate" resultType="int">
+		SELECT COUNT(*) FROM `fly_cmodel_${suffix}`
+		WHERE `${columnName}` = #{value}
+		<if test="excludeId != null">AND id != #{excludeId}</if>
+	</select>
+
+	<!--
+	  E1 关联展开：按 id 批量取目标内容的展示列。
+	  列按 G11 口径显式投影（不取 longtext 正文）；ids 恒走 #{} 预编译。
+	  extraColumns = P2 Lookup 展示列（字段元数据 lookupFields，逐列过 safeColumnName），可空。
+	-->
+	<select id="findRowsByIds" resultType="map">
+		SELECT `id`, `short_url`, `title`, `status`
+		<if test="extraColumns != null and extraColumns.size() > 0">
+			<foreach collection="extraColumns" item="c" separator=",">, `${c}`</foreach>
+		</if>
+		FROM `fly_cmodel_${suffix}`
+		WHERE `id` IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</select>
+
+	<!--
+	  P2 Rollup：按 id 批量取目标行的聚合源值（聚合在 Java 侧按引用行分组计算）。
+	  valueColumn 过 safeColumnName（COUNT 场景为 null，只取 id）。
+	-->
+	<select id="rollupAggregate" resultType="map">
+		SELECT `id` AS refId
+		<if test="valueColumn != null">, `${valueColumn}` AS aggVal</if>
+		FROM `fly_cmodel_${suffix}`
+		WHERE `id` IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+		AND `status` = 1
+	</select>
+
+	<!-- P2 双向标注反查：已发布来源行中 ${columnName}（RELATE 物理列，值 #{}）引用了 ids -->
+	<select id="findReverseRefs" resultType="map">
+		SELECT `${columnName}` AS refId, `id`, `short_url` AS shortUrl, `title`
+		FROM `fly_cmodel_${suffix}`
+		WHERE `${columnName}` IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+		AND `status` = 1
+	</select>
+
+	<!-- M2A（P2）：fly_relation 中间表，rows 由 Service 组装（id 雪花、值已校验） -->
+	<insert id="insertRelations">
+		INSERT INTO fly_relation (id, from_model, from_id, field_name, to_model, to_id, sort) VALUES
+		<foreach collection="rows" item="r" separator=",">
+			(#{r.id}, #{r.fromModel}, #{r.fromId}, #{r.fieldName}, #{r.toModel}, #{r.toId}, #{r.sort})
+		</foreach>
+	</insert>
+
+	<delete id="deleteRelations">
+		DELETE FROM fly_relation
+		WHERE from_model = #{fromModel} AND field_name = #{fieldName} AND from_id IN
+		<foreach collection="fromIds" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</delete>
+
+	<delete id="deleteRelationsByFromIds">
+		DELETE FROM fly_relation
+		WHERE from_model = #{fromModel} AND from_id IN
+		<foreach collection="fromIds" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</delete>
+
+	<select id="findRelations" resultType="map">
+		SELECT from_id AS fromId, to_model AS toModel, to_id AS toId, sort
+		FROM fly_relation
+		WHERE from_model = #{fromModel} AND field_name = #{fieldName} AND from_id IN
+		<foreach collection="fromIds" item="i" open="(" separator="," close=")">#{i}</foreach>
+		ORDER BY from_id ASC, sort ASC
+	</select>
+
+	<!-- 附件：fly_images（AttachmentPicker 数据源与引用计数） -->
+	<select id="attachmentList" resultType="map">
+		SELECT id, info_id AS infoId, img_url AS imgUrl, img_name AS imgName, info_count AS infoCount
+		FROM fly_images ORDER BY id DESC LIMIT #{offset}, #{rows}
+	</select>
+
+	<select id="attachmentCount" resultType="int">
+		SELECT COUNT(*) FROM fly_images
+	</select>
+
+	<select id="countImages" resultType="int">
+		SELECT COUNT(*) FROM fly_images WHERE id IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</select>
+
+	<select id="findImageUrls" resultType="map">
+		SELECT id, img_url AS imgUrl, img_name AS imgName FROM fly_images WHERE id IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</select>
+
+	<update id="incrImagesRefCount">
+		UPDATE fly_images SET info_count = info_count + 1 WHERE id IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</update>
+
+	<update id="decrImagesRefCount">
+		UPDATE fly_images SET info_count = GREATEST(info_count - 1, 0) WHERE id IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</update>
+
+	<!-- 平台评论计数（E4）：count_comment 为建表固有列，suffix 过 safeTableSuffix 白名单 -->
+	<update id="adjustCommentCount">
+		UPDATE `fly_cmodel_${suffix}` SET `count_comment` = GREATEST(`count_comment` + #{delta}, 0)
+		WHERE `id` = #{id}
+	</update>
+</mapper>
