@@ -628,6 +628,7 @@ public class ApiTemplateController extends ApiBaseController {
     }
 
     /** V5 模板片段库：删除图案 */
+    @ResponseBody
     @PostMapping("/system/pattern/delete")
     public DataVo patternDelete(@RequestParam(value = "skin", required = false) String skin,
                                 @RequestParam("name") String name) {
@@ -636,6 +637,7 @@ public class ApiTemplateController extends ApiBaseController {
         return patternService.delete(s, name);
     }
 
+    @ResponseBody
     @GetMapping("/system/pattern/read")
     public DataVo patternRead(@RequestParam("file") String file,
                               @RequestParam(value = "skin", required = false) String skin) {
