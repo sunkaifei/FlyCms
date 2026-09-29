@@ -1032,8 +1032,8 @@ CREATE TABLE fly_content_i18n (
 
 | # | 缺口 | 对标来源 | 生产机制 | 优先级 |
 |---|---|---|---|---|
-| **V1** | **flag/属性位筛选**（头条/推荐/幻灯等位标签筛选） | 帝国自定义属性 / Dede `flag` | **建模配方而非引擎改造**：group 字段或 checkbox 字段（options=属性集）+ `is_filter=1` → `fly_page_model` 现有筛选即支持 `<@fly_page_model model="articles" 属性="头条">`；手册补配方页 | P2（配方文档） |
-| **V2** | **前台投稿表单模板化**（每模型可绑定投稿页模板） | Dede diyform / 迅睿投稿 | `submit-{code}.html` 解析链挂到 `SubmitController`（GET 渲染 + POST 已有 `/ucenter/submit/{code}`）；字段由 formMeta 驱动动态渲染（复用动态表单规范） | **P2**（万能模型闭环最后一块） |
+| **V1** | **flag/属性位筛选**（头条/推荐/幻灯等位标签筛选） | 帝国自定义属性 / Dede `flag` | ✅ **配方已验证（2026-09-29）**：radio 字段（options 合法 JSON）+ `is_filter=1` → `<@fly_page_model model="articles" style="科技">` 筛选命中（探针验证）；注意 options 必须存合法 JSON（裸逗号串会致筛选失配，已修正 articles.style） | P2 ✅（配方） |
+| **V2** | **前台投稿表单模板化**（每模型可绑定投稿页模板） | Dede diyform / 迅睿投稿 | ✅ **已落地（2026-09-29）**：`GET /ucenter/submit/{code}` 渲染 `submit-{code}.html`（缺省 `submit.html` 由 formMeta 字段驱动，options 解析 optionsList 按 radio/checkbox/select 渲染）；`fly_model.enable_submit` 模型级开关（编辑页可控，关闭后投稿页 404/提交拒绝）；探针 6/6 | **P2 ✅** |
 | **V3** | **标签微缓存**（列表标签 cache 参数） | 帝国标签缓存时间 | `AbstractModelTag` 增可选 `cache="秒"` 参数，Caffeine micro-cache（key=标签+参数指纹），内容保存事件按 model 精准失效 | P3 |
 | **V4** | **聚合统计标签** `fly_stats_model`（按分类/作者/模型计数） | Directus Aggregate / 帝国统计函数 | group by 固有列（category_id/user_id）+ count，输出 `statsList`；「栏目新闻数」类侧栏需求 | P3 |
 | **V5** | **区块模式库**（Block Patterns） | WP Block Patterns | 现有图案库（3 示例）扩为可后台保存的"模板片段"库，插入任意模板；与 G15 字段组库（字段侧复用）互补（模板侧复用） | P3 |
