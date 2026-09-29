@@ -27,6 +27,52 @@ public class FavoriteController extends BaseController {
     protected FavoriteService favoriteService;
 
 
+    // E7 收藏平台化：任意模型内容收藏（modelCode 必填，如 articles/brands）
+    @ResponseBody
+    @PostMapping(value = "/ucenter/favorite/model/add")
+    public DataVo addModelFavorite(@RequestParam(value = "id", required = false) String id,
+                                   @RequestParam(value = "modelCode", required = false) String modelCode) {
+        DataVo data = DataVo.failure("操作失败");
+        try {
+            if (!org.apache.commons.lang3.math.NumberUtils.isCreatable(id)) {
+                return data = DataVo.failure("目标id参数错误");
+            }
+            if (org.apache.commons.lang3.StringUtils.isBlank(modelCode)) {
+                return data = DataVo.failure("modelCode 不能为空");
+            }
+            if (getUser() == null) {
+                return data = DataVo.failure("请登陆后收藏");
+            }
+            data = favoriteService.addFavorite(getUser().getUserId(), modelCode.trim(), Long.parseLong(id));
+        } catch (Exception e) {
+            data = DataVo.failure(e.getMessage());
+        }
+        return data;
+    }
+
+    // E7 取消收藏（平台化）
+    @ResponseBody
+    @PostMapping(value = "/ucenter/favorite/model/remove")
+    public DataVo removeModelFavorite(@RequestParam(value = "id", required = false) String id,
+                                      @RequestParam(value = "modelCode", required = false) String modelCode) {
+        DataVo data = DataVo.failure("操作失败");
+        try {
+            if (!org.apache.commons.lang3.math.NumberUtils.isCreatable(id)) {
+                return data = DataVo.failure("目标id参数错误");
+            }
+            if (org.apache.commons.lang3.StringUtils.isBlank(modelCode)) {
+                return data = DataVo.failure("modelCode 不能为空");
+            }
+            if (getUser() == null) {
+                return data = DataVo.failure("请登陆后操作");
+            }
+            data = favoriteService.removeFavorite(getUser().getUserId(), modelCode.trim(), Long.parseLong(id));
+        } catch (Exception e) {
+            data = DataVo.failure(e.getMessage());
+        }
+        return data;
+    }
+
     //处理关注信息
     @ResponseBody
     @PostMapping(value = "/ucenter/favorite/add")

@@ -24,5 +24,7 @@ public class Favorite implements Serializable {
     private Long userId;
     private Integer infoType;
     private Long infoId;
+    /** E7 收藏平台化：目标模型 code（NULL=遗留文章收藏，等价 infoType=1） */
+    private String modelCode;
     private Date createTime;
 }

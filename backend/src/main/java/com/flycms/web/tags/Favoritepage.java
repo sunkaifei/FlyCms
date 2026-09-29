@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,6 +29,12 @@ public class Favoritepage extends AbstractTagPlugin {
 	@Autowired
 	private FavoriteService favoriteService;
 
+	@Autowired
+	private com.flycms.module.model.service.ModelService modelService;
+
+	@Autowired
+	private com.flycms.module.model.service.ModelDataService modelDataService;
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void execute(Environment env, Map params, TemplateModel[] loopVars,
@@ -36,6 +44,9 @@ public class Favoritepage extends AbstractTagPlugin {
 		Long userId = null;
 
 		Integer infoType = null;
+
+		// E7 收藏平台化：限定模型 code（可选）
+		String modelCode = null;
 
 		String createTime = null;
 
@@ -55,6 +66,9 @@ public class Favoritepage extends AbstractTagPlugin {
 			}
 			if("infoType".equals(str)){
 				infoType = Integer.parseInt(paramWrap.get(str).toString());
+			}
+			if("modelCode".equals(str)){
+				modelCode = paramWrap.get(str).toString();
 			}
 			if("createTime".equals(str)){
 				createTime = paramWrap.get(str).toString();
@@ -79,6 +93,14 @@ public class Favoritepage extends AbstractTagPlugin {
 		} catch (Exception e) {
 			logTagFailure("fly_favoritepage", e);
 			env.setVariable("favorite_page", builder.build().wrap(null));
+		}
+		// E7 收藏平台化：回表输出 favList（title/url/modelCode/modelName/createTime，跨模型）
+		try {
+			List<Map<String, Object>> favList = favoriteService.listFavoriteRows(userId, modelCode, p, rows);
+			env.setVariable("favList", builder.build().wrap(favList));
+		} catch (Exception e) {
+			logTagFailure("fly_favoritepage#favList", e);
+			env.setVariable("favList", builder.build().wrap(new java.util.ArrayList<>()));
 		}
 		body.render(env.getOut());
 	}

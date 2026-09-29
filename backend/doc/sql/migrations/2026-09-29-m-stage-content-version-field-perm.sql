@@ -101,3 +101,6 @@ VALUES (0, 'fly_ai_base_url', '', 'G22 AI：OpenAI 兼容服务地址（如 http
 -- ---------- G23 MCP server 接入令牌（留空 = MCP 端点 404 关闭；填值后用 Authorization: Bearer <token> 访问 /mcp） ----------
 INSERT INTO fly_config_web (typebase, keycode, keyvalue, description)
 VALUES (0, 'fly_mcp_token', '', 'G23 MCP：接入令牌（留空=MCP 端点关闭）');
+
+-- ---------- E7 收藏平台化：fly_favorite 支持任意模型内容（model_code 空=遗留文章收藏） ----------
+ALTER TABLE `fly_favorite` ADD COLUMN `model_code` varchar(32) DEFAULT NULL COMMENT 'E7 目标模型code（NULL=遗留文章收藏）';

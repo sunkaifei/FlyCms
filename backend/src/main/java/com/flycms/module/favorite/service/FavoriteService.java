@@ -8,6 +8,7 @@ import com.flycms.module.favorite.dao.FavoriteDao;
 import com.flycms.module.model.service.ModelDataService;
 import com.flycms.module.model.service.ModelService;
 import com.flycms.module.favorite.model.Favorite;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,9 @@ import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Date;
 import java.util.List;
 
@@ -79,6 +83,108 @@ public class FavoriteService {
     // ///////////////////////////////
 
 
+
+    // ///////////////////////////////
+    // /////   E7 收藏平台化   ////////
+    // ///////////////////////////////
+
+    /**
+     * 收藏任意模型内容（E7 平台化）：目标必须存在且已发布。
+     * 幂等：重复收藏返回提示而不报错。
+     */
+    @Transactional
+    public DataVo addFavorite(Long userId, String modelCode, Long infoId) {
+        DataVo data = DataVo.failure("操作失败");
+        final String code;
+        try {
+            code = com.flycms.core.utils.SqlSafeUtil.safeModelCode(modelCode);
+        } catch (IllegalArgumentException e) {
+            return DataVo.failure("模型标识不合法");
+        }
+        com.flycms.module.model.model.Model model = modelService.findModelByCode(code);
+        if (model == null) {
+            return DataVo.failure("目标模型不存在");
+        }
+        java.util.Map<String, Object> row = modelDataService.findDataById(model.getId(), infoId);
+        if (row == null || !"1".equals(String.valueOf(row.get("status")))) {
+            return DataVo.failure("您收藏的信息不存在！");
+        }
+        // 幂等：同用户同目标（跨模型用 model_code 区分）只收藏一次
+        if (favoriteDao.checkByUserAndTarget(userId, code, infoId) > 0) {
+            return DataVo.failure("已成功收藏！");
+        }
+        Favorite favorite = new Favorite();
+        SnowFlake snowFlake = SnowFlake.getInstance();
+        favorite.setId(snowFlake.nextId());
+        favorite.setUserId(userId);
+        favorite.setInfoType(1);
+        favorite.setInfoId(infoId);
+        favorite.setModelCode(code);
+        favorite.setCreateTime(new Date());
+        favoriteDao.addFavorite(favorite);
+        return DataVo.success("已添加收藏！");
+    }
+
+    /** 取消收藏（平台化：按模型 code + 内容 id） */
+    @Transactional
+    public DataVo removeFavorite(Long userId, String modelCode, Long infoId) {
+        try {
+            com.flycms.core.utils.SqlSafeUtil.safeModelCode(modelCode);
+        } catch (IllegalArgumentException e) {
+            return DataVo.failure("模型标识不合法");
+        }
+        int n = favoriteDao.deleteByUserAndTarget(userId, modelCode, infoId);
+        return n > 0 ? DataVo.success("已取消收藏") : DataVo.failure("收藏不存在");
+    }
+
+    /** 收藏是否存在（平台化） */
+    public boolean checkFavorite(Long userId, String modelCode, Long infoId) {
+        return favoriteDao.checkByUserAndTarget(userId, modelCode, infoId) > 0;
+    }
+
+    /**
+     * 收藏列表（平台化，带内容回表）：返回行含 modelCode/infoId/title/url/createTime，
+     * title/url 按各自模型解析（legacy 无 model_code 行视作 articles）。
+     */
+    public List<Map<String, Object>> listFavoriteRows(Long userId, String modelCode,
+                                                      int page, int rows) {
+        List<Map<String, Object>> out = new ArrayList<>();
+        String mcFilter = StringUtils.trimToNull(modelCode);
+        int offset = (Math.max(page, 1) - 1) * Math.max(rows, 1);
+        List<Favorite> favs = favoriteDao.listByUser(userId, mcFilter, offset, rows);
+        // 按模型分组回表
+        Map<String, com.flycms.module.model.model.Model> modelById = new HashMap<>();
+        List<Map<String, Object>> pending = new ArrayList<>();
+        for (Favorite f : favs) {
+            String code = f.getModelCode() == null ? "articles" : f.getModelCode();
+            com.flycms.module.model.model.Model m = modelById.computeIfAbsent(code,
+                    k -> modelService.findModelByCode(k));
+            if (m == null) {
+                continue;
+            }
+            Map<String, Object> contentRow = modelDataService.findDataById(m.getId(), f.getInfoId());
+            Map<String, Object> o = new LinkedHashMap<>();
+            o.put("modelCode", code);
+            o.put("modelName", m.getName());
+            o.put("infoId", String.valueOf(f.getInfoId()));
+            o.put("createTime", f.getCreateTime());
+            if (contentRow == null) {
+                o.put("title", "（内容已删除）");
+                o.put("url", "");
+                o.put("alive", false);
+            } else {
+                o.put("title", contentRow.getOrDefault("title", ""));
+                o.put("url", "/" + code + "/" + contentRow.get("short_url") + ".html");
+                o.put("alive", true);
+            }
+            out.add(o);
+        }
+        return out;
+    }
+
+    public int countFavoriteRows(Long userId, String modelCode) {
+        return favoriteDao.countByUser(userId, StringUtils.trimToNull(modelCode));
+    }
 
     // ///////////////////////////////
     // /////        查詢      ////////

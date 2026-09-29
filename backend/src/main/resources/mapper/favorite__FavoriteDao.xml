@@ -18,6 +18,7 @@
 			<if test="userId != null and userId != ''">user_id,</if>
 			<if test="infoType != null and infoType != ''">info_type,</if>
 			<if test="infoId != null and infoId != ''">info_id,</if>
+			<if test="modelCode != null and modelCode != ''">model_code,</if>
 			<if test="createTime != null">create_time,</if>
 		</trim>
 		<!-- 注入控制层字段 -->
@@ -26,6 +27,7 @@
 			<if test="userId != null and userId != ''">#{userId},</if>
 			<if test="infoType != null and infoType != ''">#{infoType},</if>
 			<if test="infoId != null and infoId != ''">#{infoId},</if>
+			<if test="modelCode != null and modelCode != ''">#{modelCode},</if>
 			<if test="createTime != null">#{createTime},</if>
 		</trim>
 	</insert>
@@ -80,4 +82,33 @@
         limit #{offset},#{rows}
     </select>
 
+
+	<!-- E7 收藏平台化：按用户查收藏（可选限定模型；时间倒序） -->
+	<select id="listByUser" resultType="com.flycms.module.favorite.model.Favorite">
+		select id, user_id, info_type, info_id, model_code, create_time
+		from fly_favorite
+		<where>
+			user_id = #{userId}
+			<if test="modelCode != null and modelCode != ''">and model_code = #{modelCode}</if>
+		</where>
+		order by create_time desc, id desc
+		limit #{offset}, #{rows}
+	</select>
+
+	<select id="countByUser" resultType="int">
+		select count(*) from fly_favorite
+		<where>
+			user_id = #{userId}
+			<if test="modelCode != null and modelCode != ''">and model_code = #{modelCode}</if>
+		</where>
+	</select>
+
+	<delete id="deleteByUserAndTarget">
+		delete from fly_favorite where user_id = #{userId} and model_code = #{modelCode} and info_id = #{infoId}
+	</delete>
+
+	<select id="checkByUserAndTarget" resultType="int">
+		select count(*) from fly_favorite
+		where user_id = #{userId} and model_code = #{modelCode} and info_id = #{infoId}
+	</select>
 </mapper>  

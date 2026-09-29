@@ -60,6 +60,26 @@ public interface FavoriteDao {
                             @Param("createTime") String createTime);
 
     //收藏列表
+    // /////////////////// E7 收藏平台化 ///////////////////
+
+    /** 平台化收藏列表（按用户，可选限定模型；时间倒序） */
+    public List<Favorite> listByUser(@Param("userId") Long userId,
+                                     @Param("modelCode") String modelCode,
+                                     @Param("offset") int offset,
+                                     @Param("rows") int rows);
+
+    public int countByUser(@Param("userId") Long userId,
+                           @Param("modelCode") String modelCode);
+
+    public int deleteByUserAndTarget(@Param("userId") Long userId,
+                                     @Param("modelCode") String modelCode,
+                                     @Param("infoId") Long infoId);
+
+    /** 收藏是否已存在（平台化：用户+模型+目标） */
+    public int checkByUserAndTarget(@Param("userId") Long userId,
+                                    @Param("modelCode") String modelCode,
+                                    @Param("infoId") Long infoId);
+
     public List<Favorite> getFavoriteList(@Param("userId") Long userId,
                                       @Param("infoType") Integer infoType,
                                       @Param("createTime") String createTime,
