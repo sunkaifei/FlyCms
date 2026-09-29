@@ -978,3 +978,81 @@ CREATE TABLE fly_content_i18n (
 ---
 
 *本文档由 FlyCms 开发组维护。修订"五面"边界、§10 决策或阶段优先级时，先改本文档再动代码；每完成一个阶段，在 §9 表内标注状态并同步 `docs/README.md` 索引。*
+
+
+---
+
+## 13. 自定义模型引擎全景：发布表单、详情模板与万能标签（对标市面主流程序）
+
+> **本章定位**：回应用户总纲——"程序核心 = 后台在线建模生产一切内容模块"。建模层（37 字段类型 / 结构层 / 关系层）已在《自定义模型引擎对标调研与万能建模完善方案》对标闭环；本章补齐**建模之后的三件事**的整合视图与差距批次 **V**：
+> ① **发布表单**（建模后内容怎么录——后台表单布局 + 前台投稿）；
+> ② **详情/列表模板**（内容怎么显示——解析链 / 指派 / 速查）；
+> ③ **万能标签**（内容怎么被任何页面调用——一套参数通吃所有模型）。
+> 此前三份文档（前台模板引擎 / 万能建模完善方案 / 自定义模型系统开发手册）仍是细节归属地，本章是**总纲视图**，冲突时以各归属地 + 代码为准。
+
+### 13.1 三层能力框架与现状（全绿盘点）
+
+| 层 | 回答的问题 | FlyCms 实现 | 状态 |
+|---|---|---|---|
+| **建模层** | 模块有哪些字段/结构 | 37 字段类型（含 user/category 绑定、GROUP/REPEATER、relate/relates/m2a、公式、slug/rating…）；is_unique / min-max / 条件显隐 visible_when / 字段级权限 | ✅ 对标闭环（§9.5–9.7） |
+| **发布层（后台）** | 内容怎么录入 | 动态表单全元数据驱动：tab_name 选项卡分组、sort 排序、is_form 表单隐藏、必填/正则/唯一校验、字段级权限剔除、「预览表单」即时预览、AI 助手（摘要/关键词/标题） | ✅ |
+| **发布层（前台）** | 访客/会员怎么投稿 | `POST /ucenter/submit/{modelCode}`（审核开关 + 字段白名单 + user 归属），任意模型开放 | 🟡 API 已通；**前台投稿表单页模板未模板化**（V2） |
+| **展示层** | 前台怎么显示 | 模板解析链 `detail-{code}.html → detail.html` / `list-{code}.html → list.html`；模型级指派（MODEL LIST/DETAIL）+ 内容级指派（CONTENT DETAIL）；重新生成骨架（含逐字段取值速查注释块） | ✅ |
+| **调用层** | 任何页面怎么调用任何内容 | `AbstractModelTag` 万能标签族 7+3 个：`fly_page_model / fly_list_model / fly_info_model / fly_fields_model / fly_category_model / fly_rel_model / fly_hot_model / fly_search_page / fly_commentpage / fly_theme_vars`，参数通吃所有模型 | ✅ 主体；缺口见 13.4（V3–V5） |
+
+### 13.2 市面程序逐家对标（自定义模型 + 发布/详情模板 + 标签）
+
+| 程序 | 自定义模型机制 | 发布/详情模板 | 标签体系 | 值得吸取的优点 → FlyCms 落点 |
+|---|---|---|---|---|
+| **帝国 CMS** | 系统模型（内置表加字段）+ 自定义模型（新建表），字段分「系统/附加」 | 每模型独立**发布模板**（后台录入界面模板）与**内容模板/列表模板**，支持按栏目再覆盖 | **万能标签 `ecmsinfo`**（SQL 级参数组合）+ **灵动标签 `e:loop`**（任意表 SQL 循环）；标签带缓存时间参数 | ① 发布模板=我们的动态表单（✅ 更强：tab/隐藏/条件显隐）；② 内容模板=detail-{code}.html（✅ + 内容级指派）；③ **标签缓存时间参数** → V3；④ **自定义属性(flag) 位筛选** → V1（用 checkbox 字段 + is_filter 即建模配方，暂不进引擎）；⑤ 灵动标签任意表循环 → 安全代价大，以「多模型标签 + 模型可无限建」替代（定案不做任意 SQL） |
+| **DedeCMS** | 频道模型（channel/diyform），字段用 `addtable` | 每模型独立 list/detail 模板，栏目可再覆盖 | **`arclist`**（flag/typeid/infolen/subday 等丰富参数）+ `channelartlist` + `likearticle` | ① arclist 的 **infolen 摘要截断** → 模板侧已可 `fly_stringcut`（✅）；② **flag 属性筛选**（头条/h/p/f）→ 同 V1 配方；③ **likearticle 相关** → `fly_rel_model` 已覆盖（✅ 且含 m2a 手选增强）；④ `subday` 时效 → E8 timeField 已覆盖（✅ 更通用） |
+| **PHPCMS** | 模型 + 字段管理 | 每模型三套模板 | **get 标签**：模板里写只读 SQL 直查任意表 | 灵活度天花板但 = 模板层 SQL 注入面；**定案不做**（用「模型可无限建 + relate 关联」替代；若未来确需，走只读白名单视图 V6 备选） |
+| **WordPress** | CPT（自定义文章类型）+ ACF/Meta Box 字段组 | 模板层级（single-{type}.php 等）+ Page Template 下拉 + Block Patterns | **Loop / WP_Query**（参数化查询循环），Gutenberg 区块 | ① CPT ≈ 模型（✅）；② **single-{type} 解析链**（✅ 同构）；③ Page Template 下拉 = 内容级模板指派（✅ P7 已做）；④ **Block Patterns 区块模式** → 面板/碎片已有雏形（theme.json + area 区块），增强方向见 V5 |
+| **Strapi v5** | Content-Type Builder + Components/Dynamic Zone | 无前台模板（headless） | REST `populate/filter/sort/pagination` 参数化查询 | headless 语义由 REST API + 稀疏字段承担：SparseFieldAdvice（✅）/ filters（is_filter 筛选字段 ✅）；Dynamic Zone ≈ REPEATER + m2a 组合（✅） |
+| **Directus** | 数据库优先建模 + Flows | 无前台模板 | Filter/Sort/Aggregate REST 参数 | **Flows 事件编排** → G17 自动化规则（✅ 简化版）；**Aggregate(group by) 聚合查询** → V4 标签化 |
+| **Payload** | config-as-code 建模 + Blocks | 无前台模板（Next.js 渲染） | Local API `where/depth` | **depth=N 关联深度展开** → 读侧 expand 已做（relate/relates/m2a/backs，✅）；**config 导出** → G20 model/export ✅ |
+| **Craft CMS** | Section + Matrix 字段 | 每 Section 模板 + Live Preview | Element Query（entry query 全参数） | **Live Preview** → G16 草稿预览（✅）；Matrix ≈ REPEATER（✅） |
+| **Joomla** | 文章+自定义字段（扩展继承） | 每分类模板覆盖 | 模块系统 | 分类覆盖模板 → 模板指派已含栏目级（✅） |
+| **迅睿 CMS** | 模块化应用 + 自定义字段 | 每模块模板 | `chann/list/order` 等标签 | ① **按模型粒度授权**（✅ save@{modelId} 已做）；② **前台投稿含自定义字段** → V2；③ 多站点/多语言 → 定案不做 |
+| **Halo 2.x** | 主题包 + 插件包 | 主题级模板声明 | — | 主题包分发 ✅（皮肤包 zip + manifest） |
+
+**对标结论**：三层框架已对齐市面第一梯队；**真实缺口收敛为 5 项**（V1–V5，见 13.4），其余"灵活度天花板"类能力（任意 SQL 循环、可视化编排）均属定案不做或已有更安全替代。
+
+### 13.3 万能标签设计规范（定案，新增标签必须遵守）
+
+1. **注册命名**：类名 `驼峰式`，注册名 `fly_` + `toUnderline(首字母小写类名)`——**类名必须含真实驼峰分词**（ThemeVars→fly_theme_vars ✅；Themevars→fly_themevars ❌ 曾致渲染截断，2026-09-29 教训）；
+2. **模型参数通吃**：所有内容类标签以 `model="{code}"` 为第一参数——**一个标签家族调用任何模型**，不出现 `fly_article_list` 这类专模型标签（旧 9 个已随 U3 退役）；
+3. **参数全景约定**（AbstractModelTag 框架参数）：`category / title / p / rows / orderby / order / notid / userId / timeField+timeFrom+timeTo(E8)`；其余参数自动成为 is_filter 字段筛选；`q/semantic` 为 SearchPage 专属；
+4. **输出变量约定**：列表族 `dataList + pageHtml（或 search_page）`；详情族 `info + fields`；关联展开 `{field}Obj / {field}List / {field}Url(s) / {field}Backs`；绑定实体 `{field}Obj`（user/category）；
+5. **安全边界**：动态标识符一律 `SqlSafeUtil` 白名单；业务值恒 `#{}` 预编译；`fly_search_page` 语义通道失败必须回退关键词（搜索不因 AI 空转）；
+6. **手册同源**：新标签必须在 `TagManualService` 登记 SCOPES + 手册骨架（e2e 校验「手册覆盖全部真实标签」，当前 36）+ 在线手册可见；
+7. **分类覆盖通道**：模型专属模板放主题目录 `{code}/list.html|detail.html`，解析链 `detail-{code}-{id} → detail-{code} → detail → {code}/detail → cmodel/detail`。
+
+### 13.4 差距清单与 V 批次（模板/标签补全，全部可自研）
+
+| # | 缺口 | 对标来源 | 生产机制 | 优先级 |
+|---|---|---|---|---|
+| **V1** | **flag/属性位筛选**（头条/推荐/幻灯等位标签筛选） | 帝国自定义属性 / Dede `flag` | **建模配方而非引擎改造**：group 字段或 checkbox 字段（options=属性集）+ `is_filter=1` → `fly_page_model` 现有筛选即支持 `<@fly_page_model model="articles" 属性="头条">`；手册补配方页 | P2（配方文档） |
+| **V2** | **前台投稿表单模板化**（每模型可绑定投稿页模板） | Dede diyform / 迅睿投稿 | `submit-{code}.html` 解析链挂到 `SubmitController`（GET 渲染 + POST 已有 `/ucenter/submit/{code}`）；字段由 formMeta 驱动动态渲染（复用动态表单规范） | **P2**（万能模型闭环最后一块） |
+| **V3** | **标签微缓存**（列表标签 cache 参数） | 帝国标签缓存时间 | `AbstractModelTag` 增可选 `cache="秒"` 参数，Caffeine micro-cache（key=标签+参数指纹），内容保存事件按 model 精准失效 | P3 |
+| **V4** | **聚合统计标签** `fly_stats_model`（按分类/作者/模型计数） | Directus Aggregate / 帝国统计函数 | group by 固有列（category_id/user_id）+ count，输出 `statsList`；「栏目新闻数」类侧栏需求 | P3 |
+| **V5** | **区块模式库**（Block Patterns） | WP Block Patterns | 现有图案库（3 示例）扩为可后台保存的"模板片段"库，插入任意模板；与 G15 字段组库（字段侧复用）互补（模板侧复用） | P3 |
+
+> V2 完成后，「后台建模 → 前台发布 → 前台展示 → 任意调用」四环全部模板化/数据驱动，万能系统闭环无引擎缺口。
+
+### 13.5 建模配方速查（每类站怎么用现有引擎建出来）
+
+| 想做的模块 | 建模配方（现有 37 类型足够） | 备注 |
+|---|---|---|
+| 文章/资讯 | articles 模型（已建）：style(radio)+color(color)+tags(input) 已补 | 分类树 + flag 属性走 V1 配方 |
+| 下载 | downloads（已建）：file/attachment_pack(files)/needmoney(number)/hide(radio) 已补 | 积分核扣属交易系统后置 |
+| 图集 | images（已建）：images/shoot_time/location/camera | 附件平台层不下放（定案） |
+| 商品 | products：brand_id(relate→brands)、price(decimal)、stock(number)、gallery(images)、规格(REPEATER: 名称+值) | E1 已具备 |
+| 课程 | courses：teacher_id(relate→teachers 自建)、duration(number)、level(select) | 同上 |
+| 问答/回答 | questions / answers（已建）：answers.parent_id(relate→answers 自关联树) | 采纳/悬赏用 number 字段表达 |
+| 话题 | topics（已建）：count_follow(number)、isgood(radio) | 话题聚合走 TagService |
+| 品牌库 | brands（已建）：logo(image)、website(url) | 零代码生产已验证 |
+| FAQ | questions 模型 + 关闭前台投稿（E9 enableComment 独立，投稿开关同理） | 或独立 faq 模型 |
+| 单页（关于我们） | 单条内容 + detail-{code}.html 模板 | P3 单页型模型（single type）备选 |
+
+> 本章由用户总纲触发补写（2026-09-29）；V 批次完成后在 §9 增表回写。
