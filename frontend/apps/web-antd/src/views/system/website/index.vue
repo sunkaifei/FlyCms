@@ -66,6 +66,24 @@ const GROUPS: { items: { key: string; label: string; placeholder?: string }[]; t
     ],
     title: '联系方式',
   },
+  {
+    items: [
+      {
+        key: 'fly_ai_base_url',
+        label: 'AI 服务地址',
+        placeholder: 'OpenAI 兼容，如 https://api.deepseek.com/v1',
+      },
+      { key: 'fly_ai_api_key', label: 'AI API Key', placeholder: '留空 = AI 功能停用' },
+      { key: 'fly_ai_model', label: '对话模型', placeholder: '如 deepseek-chat' },
+      {
+        key: 'fly_ai_embed_model',
+        label: '向量模型（语义搜索）',
+        placeholder: '如 text-embedding-v3；留空 = 语义搜索停用',
+      },
+      { key: 'fly_mcp_token', label: 'MCP 接入令牌', placeholder: '留空 = /mcp 端点关闭' },
+    ],
+    title: 'AI 与自动化',
+  },
 ];
 
 async function load() {
