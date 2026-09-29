@@ -74,6 +74,8 @@ public class TagManualService {
         SCOPES.put("fly_block", "global");
         // G19 设计令牌（theme.json settings → CSS 变量）
         SCOPES.put("fly_theme_vars", "global");
+        // V4 聚合统计（按分类/作者分组计数）
+        SCOPES.put("fly_stats_model", "list");
         // E4 平台评论（U3 替代 fly_articlecommentpage）
         SCOPES.put("fly_commentpage", "detail");
         SCOPES.put("fly_part", "global");
@@ -311,6 +313,21 @@ public class TagManualService {
 
 
 
+
+        // /////////////////// 聚合统计（V4） ///////////////////
+
+        add(data, "模型", "fly_stats_model", "聚合统计",
+                "按固有维度（分类/作者）对已发布内容分组计数，适合侧栏「栏目文章数」「活跃作者」等。",
+                "statsList（行含 key/name/count，按 count 降序）",
+                params(p("model", true, "模型标识 code"),
+                        p("by", false, "分组维度：category（默认，分类树节点）/ author（发布者）"),
+                        p("status", false, "状态，默认 1（已发布）"),
+                        p("rows", false, "条数，默认 20")),
+                "<@fly_stats_model model=\"articles\" by=\"category\" rows=\"10\">\n"
+                        + "  <#if (statsList)?? && statsList?size gt 0>\n"
+                        + "    <#list statsList as s><a href=\"/articles/c${s.key}.html\">${s.name}（${s.count}）</a></#list>\n"
+                        + "  </#if>\n"
+                        + "</@fly_stats_model>");
 
         // /////////////////// 设计令牌（G19） ///////////////////
 

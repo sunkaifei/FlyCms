@@ -61,11 +61,14 @@ public class PageModel extends AbstractModelTag {
         int page = intVal(p, "p", 1);
         int rows = intVal(p, "rows", 10);
         try {
-            PageVo<Map<String, Object>> pageVo = modelDataService.selectPage(
-                    model.getId(), str(p, "title", null), longVal(p, "category"), 1,
-                    extractFilters(p), str(p, "orderby", null), str(p, "order", null),
-                    page, rows, longVal(p, "notid"), true, longVal(p, "userId"),
-                    str(p, "timeField", null), str(p, "timeFrom", null), str(p, "timeTo", null));
+            // V3 微缓存：cache="秒" 开启（缓存 PageVo 查询结果；内容变更事件按模型失效）
+            PageVo<Map<String, Object>> pageVo = (PageVo<Map<String, Object>>) tagCache(
+                    "fly_page_model", model.getCode(), p, intVal(p, "cache", 0),
+                    () -> modelDataService.selectPage(
+                            model.getId(), str(p, "title", null), longVal(p, "category"), 1,
+                            extractFilters(p), str(p, "orderby", null), str(p, "order", null),
+                            page, rows, longVal(p, "notid"), true, longVal(p, "userId"),
+                            str(p, "timeField", null), str(p, "timeFrom", null), str(p, "timeTo", null)));
             modelDataService.expandAttachments(model.getId(), pageVo.getList());
             vars.put("dataList", pageVo.getList());
             vars.put("model_page", pageVo);

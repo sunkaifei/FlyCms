@@ -175,4 +175,12 @@ public interface ModelDataDao {
     public void adjustCommentCount(@Param("suffix") String suffix,
                                    @Param("id") Long id,
                                    @Param("delta") int delta);
+
+    /**
+     * V4 聚合统计：按固有列（category_id/user_id）分组计数。
+     * groupCol 仅允许 category_id/user_id（Service 白名单），status 固定过滤已发布。
+     */
+    List<Map<String, Object>> statsGroup(@Param("suffix") String suffix,
+                                         @Param("groupCol") String groupCol,
+                                         @Param("status") int status);
 }

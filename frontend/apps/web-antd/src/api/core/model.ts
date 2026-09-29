@@ -23,6 +23,8 @@ export interface ModelRow {
   useSeo?: number;
   /** E9 模型级评论开关：0=关闭前台评论；undefined 视为 1 */
   enableComment?: number;
+  /** V2 前台投稿开关：0=关闭前台投稿；undefined 视为 1 */
+  enableSubmit?: number;
 }
 
 export interface ModelFieldRow {

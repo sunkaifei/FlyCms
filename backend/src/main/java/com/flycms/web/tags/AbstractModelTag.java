@@ -146,6 +146,57 @@ public abstract class AbstractModelTag extends AbstractTagPlugin {
         }
     }
 
+    // /////////////////// V3 标签微缓存 ///////////////////
+
+    private static final java.util.concurrent.ConcurrentHashMap<String, long[]> CACHE_TICK =
+            new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ConcurrentHashMap<String, Object> CACHE_DATA =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * V3 标签微缓存：模板参数 {@code cache="秒"} 开启（对标帝国标签缓存时间）。
+     * key = 标签名 : 模型 : 全参数指纹；内容变更事件（G18）按模型精准失效；
+     * 超过 512 条整体清空（微缓存宁可有价再算一次）。
+     *
+     * @param tagName   标签注册名（如 fly_page_model）
+     * @param modelCode 模型 code（失效粒度）
+     * @param params    全参数（参与指纹）
+     * @param ttlSeconds 缓存秒数，≤0 直接执行不缓存
+     * @param loader    实际查询逻辑
+     */
+    protected Object tagCache(String tagName, String modelCode, Map<String, String> params,
+                              int ttlSeconds, java.util.function.Supplier<Object> loader) {
+        if (ttlSeconds <= 0) {
+            return loader.get();
+        }
+        String key = tagName + ":" + (modelCode == null ? "" : modelCode) + ":" + params.hashCode();
+        long now = System.currentTimeMillis();
+        long[] tick = CACHE_TICK.get(key);
+        if (tick != null && now - tick[0] < ttlSeconds * 1000L) {
+            Object cached = CACHE_DATA.get(key);
+            if (cached != null) {
+                return cached;
+            }
+        }
+        Object value = loader.get();
+        CACHE_TICK.put(key, new long[]{now});
+        CACHE_DATA.put(key, value);
+        if (CACHE_DATA.size() > 512) {
+            CACHE_TICK.clear();
+            CACHE_DATA.clear();
+        }
+        return value;
+    }
+
+    /** G18 事件消费：内容变更 → 失效该模型的全部标签微缓存 */
+    @org.springframework.context.event.EventListener(
+            com.flycms.core.event.ContentChangedEvent.class)
+    public void onContentChanged(com.flycms.core.event.ContentChangedEvent event) {
+        String marker = ":" + (event.getModelCode() == null ? "" : event.getModelCode()) + ":";
+        CACHE_TICK.keySet().removeIf(k -> k.contains(marker));
+        CACHE_DATA.keySet().removeIf(k -> k.contains(marker));
+    }
+
     /**
      * 帝国/Dede 式分页条：首页/上一页/页码窗口(±5)/下一页/末页，get 方式 {@code ?p=N}。
      * 原实现内联在 PageModel 中，收敛到基类供所有分页类标签复用（D12）。

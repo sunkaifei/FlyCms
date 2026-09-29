@@ -102,7 +102,7 @@ def main():
     st, j = api(cookie, "GET", "/api/system/tags/manual")
     groups = (j.get("data") or {}).get("groups") or {}
     items = [(it.get("name"), it.get("snippet")) for v in groups.values() for it in v]
-    check("手册标签数 = 36（G15/G17/G19 新增 commentpage/theme_vars）", len(items) == 36, f"{len(items)}")
+    check("手册标签数 = 37（G15/G17/G19 新增 commentpage/theme_vars）", len(items) == 37, f"{len(items)}")
 
     hard = []      # 与上下文无关的硬缺陷
     ctx = []       # 仅因示例上下文不足

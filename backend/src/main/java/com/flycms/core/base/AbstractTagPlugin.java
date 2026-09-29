@@ -65,6 +65,7 @@ public abstract class AbstractTagPlugin extends ApplicationObjectSupport impleme
 		// 向容器反查自身，形成 `xxxModel -> xxxModel` 自循环（此前靠 allow-circular-references 侥幸启动）。
 		// 这里要注册的就是当前实例，直接用 this 即可；标签类无 AOP 代理，this 与容器内实例一致。
 		freeMarkerConfigurer.getConfiguration().setSharedVariable(tagName, this);
+		logger.info("[tag-reg] {} -> {} (@{})", tagName, this.getClass().getName(), Integer.toHexString(System.identityHashCode(this)));
 	}
 
 }

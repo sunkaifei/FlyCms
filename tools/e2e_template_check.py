@@ -247,7 +247,7 @@ def main():
     total = sum(len(v) for v in g.values())
     check("手册返回 groups+scopeOptions+scope", set(("groups", "scopeOptions", "scope")) <= set(d.keys()), f"scope={d.get('scope')}")
     check("作用域维度存在且为四态", set((d.get("scopeOptions") or {}).keys()) == {"global", "list", "detail", "module"}, f"={d.get('scopeOptions')}")
-    check("手册覆盖全部 36 个真实标签（G15/G17/G19 新增 commentpage/theme_vars）", total == 36, f"tags={total} groups={len(g)}")
+    check("手册覆盖全部 37 个真实标签（G15/G17/G19 新增 commentpage/theme_vars）", total == 37, f"tags={total} groups={len(g)}")
     st, j2 = api(cookie, "GET", "/api/system/tags/manual?scope=list")
     g2 = (j2.get("data") or {}).get("groups") or {}
     n2 = sum(len(v) for v in g2.values())

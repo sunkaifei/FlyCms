@@ -277,4 +277,13 @@
 		UPDATE `fly_cmodel_${suffix}` SET `count_comment` = GREATEST(`count_comment` + #{delta}, 0)
 		WHERE `id` = #{id}
 	</update>
+
+	<!-- V4 聚合统计：groupCol 仅允许 category_id/user_id（Service 白名单），恒定过滤已发布 -->
+	<select id="statsGroup" resultType="java.util.LinkedHashMap">
+		SELECT `${groupCol}` AS statKey, COUNT(*) AS statCount
+		FROM `fly_cmodel_${suffix}`
+		WHERE `status` = 1
+		GROUP BY `${groupCol}`
+		ORDER BY statCount DESC
+	</select>
 </mapper>

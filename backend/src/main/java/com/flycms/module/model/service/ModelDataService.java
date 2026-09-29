@@ -615,6 +615,62 @@ public class ModelDataService {
         }
     }
 
+    /**
+     * V4 聚合统计（fly_stats_model 标签用）：按固有维度分组计数，恒定过滤已发布。
+     * by 白名单：category（分类树节点，name=分类名）/ author（发布者，name=昵称）。
+     */
+    public List<Map<String, Object>> statsGroup(com.flycms.module.model.model.Model model,
+                                                String by, int status, int rows) {
+        List<Map<String, Object>> out = new ArrayList<>();
+        String col;
+        switch (StringUtils.defaultString(by, "category")) {
+            case "author" -> col = "user_id";
+            case "category" -> col = "category_id";
+            default -> {
+                return out;
+            }
+        }
+        List<Map<String, Object>> groups =
+                modelDataDao.statsGroup(tableSuffixOf(model.getId()), col, status);
+        // 归一化输出键：statKey→key、statCount→count（模板/文档口径）
+        for (Map<String, Object> g : groups) {
+            g.put("key", g.remove("statKey"));
+            g.put("count", g.remove("statCount"));
+        }
+        if ("author".equals(col)) {
+            for (Map<String, Object> g : groups) {
+                Object key = g.get("statKey");
+                String name = "";
+                try {
+                    Long uid = key == null ? null : Long.parseLong(String.valueOf(key));
+                    com.flycms.module.user.model.User u = uid == null ? null
+                            : userService.findUserById(uid, 0);
+                    if (u != null) {
+                        name = StringUtils.defaultIfBlank(u.getNickName(), u.getUserName());
+                    }
+                } catch (Exception ignored) {
+                    // 用户已删除等场景留空
+                }
+                g.put("name", name);
+                out.add(g);
+            }
+            return out;
+        }
+        // category：解析分类名
+        Map<String, com.flycms.module.model.model.ModelCategory> catById = new HashMap<>();
+        for (com.flycms.module.model.model.ModelCategory c
+                : modelCategoryService.findCategoriesByModelId(model.getId(), null)) {
+            catById.put(String.valueOf(c.getId()), c);
+        }
+        for (Map<String, Object> g : groups) {
+            String key = String.valueOf(g.get("statKey"));
+            com.flycms.module.model.model.ModelCategory c = catById.get(key);
+            g.put("name", c == null ? "未分类" : c.getName());
+            out.add(g);
+        }
+        return out;
+    }
+
     /** 按状态计数（投稿审核待审角标：跨启用模型求和用） */
     public int countByStatus(Long modelId, int status) {
         Map<String, Object> params = new HashMap<>();

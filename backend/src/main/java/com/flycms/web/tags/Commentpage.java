@@ -116,7 +116,10 @@ public class Commentpage extends AbstractTagPlugin {
         for (Map.Entry<String, Object> e : vars.entrySet()) {
             env.setVariable(e.getKey(), builder.build().wrap(e.getValue()));
         }
-        body.render(env.getOut());
+        // 自闭合调用（<@fly_commentpage .../>）body 为 null：仅设置变量不渲染
+        if (body != null) {
+            body.render(env.getOut());
+        }
     }
 
     private String buildCommentPageBar(int page, int rows, int count) {

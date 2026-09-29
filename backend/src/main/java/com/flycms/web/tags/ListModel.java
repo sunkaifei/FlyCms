@@ -47,11 +47,14 @@ public class ListModel extends AbstractModelTag {
         List<Map<String, Object>> dataList = null;
         if (model != null) {
             try {
-                dataList = modelDataService.selectPage(
-                        model.getId(), str(p, "title", null), longVal(p, "category"), 1,
-                        extractFilters(p), str(p, "orderby", null), str(p, "order", null),
-                        intVal(p, "p", 1), intVal(p, "rows", 10), longVal(p, "notid"), true,
-                        longVal(p, "userId")).getList();
+                // V3 微缓存：cache="秒" 开启（缓存 List 查询结果；内容变更事件按模型失效）
+                dataList = (java.util.List<Map<String, Object>>) tagCache(
+                        "fly_list_model", model.getCode(), p, intVal(p, "cache", 0),
+                        () -> modelDataService.selectPage(
+                                model.getId(), str(p, "title", null), longVal(p, "category"), 1,
+                                extractFilters(p), str(p, "orderby", null), str(p, "order", null),
+                                intVal(p, "p", 1), intVal(p, "rows", 10), longVal(p, "notid"), true,
+                                longVal(p, "userId")).getList());
                 modelDataService.expandAttachments(model.getId(), dataList);
             } catch (Exception e) {
             logTagFailure("fly_list_model", e);
