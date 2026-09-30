@@ -96,7 +96,7 @@ function onDelete(row: any) {
     </div>
     <Table
       :columns="[
-        { title: '名称', dataIndex: 'menuName', key: 'menuName' },
+        { title: '名称', dataIndex: 'menuName', key: 'menuName', width: 220 },
         { title: '类型', dataIndex: 'menuType', key: 'menuType', width: 80 },
         { title: '权限标识 actionKey', dataIndex: 'actionKey', key: 'actionKey' },
         { title: '路由路径', dataIndex: 'path', key: 'path' },
