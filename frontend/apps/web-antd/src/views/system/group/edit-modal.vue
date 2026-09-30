@@ -11,7 +11,7 @@ import { useVbenForm } from '#/adapter/form';
 import { saveGroupApi } from '#/api/core/system';
 
 /**
- * 新增/编辑角色组弹窗
+ * 新增/编辑角色弹窗
  */
 const editingId = ref<null | number>(null);
 let onSaved: (() => void) | undefined;
@@ -20,9 +20,9 @@ const [Form, formApi] = useVbenForm({
   schema: [
     {
       component: 'Input',
-      componentProps: { placeholder: '角色组名称' },
+      componentProps: { placeholder: '角色名称' },
       fieldName: 'name',
-      label: '角色组名',
+      label: '角色名',
       rules: 'required',
     },
   ],
@@ -47,7 +47,7 @@ const [Modal, modalApi] = useEditDrawer({
       modalApi.unlock();
     }
   },
-  title: '角色组',
+  title: '角色',
 });
 
 onMounted(() => {
@@ -57,10 +57,10 @@ onMounted(() => {
   onSaved = data?.onSaved;
   editingId.value = data?.record?.id ?? null;
   if (data?.record) {
-    modalApi.setState({ title: '编辑角色组' });
+    modalApi.setState({ title: '编辑角色' });
     formApi.setValues({ name: data.record.name });
   } else {
-    modalApi.setState({ title: '新增角色组' });
+    modalApi.setState({ title: '新增角色' });
   }
 });
 </script>

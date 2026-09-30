@@ -44,6 +44,10 @@ public class Model implements Serializable {
      * DB 缺省 1 开启。
      */
     private Integer enableSubmit;
+    /** 发布表单页签顺序（JSON 数组，如 ["基础信息","扩展信息"]；空=按字段出现顺序） */
+    private String formTabs;
+    /** 发布表单默认打开的页签名（空=第一个页签） */
+    private String formDefaultTab;
     private Date createTime;
     private Date updateTime;
 }

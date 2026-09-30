@@ -36,4 +36,7 @@ public interface ModelFieldDao {
     public int deleteFieldsByParentId(@Param("parentId") Long parentId);
 
     public int updateFieldSort(@Param("id") Long id, @Param("sort") int sort);
+
+    /** 绑定指定字典类型的字段数（字典删除前防悬空引用检查） */
+    public int countFieldsByDictType(@Param("dictType") String dictType);
 }

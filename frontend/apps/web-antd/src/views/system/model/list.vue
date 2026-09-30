@@ -6,9 +6,10 @@ import type { ModelRow } from '#/api/core/model';
 import { Page } from '@vben/common-ui';
 import { useEditDrawer } from '#/utils/edit-drawer';
 import { useAccess } from '@vben/access';
+import { useAccessStore } from '@vben/stores';
 
-import { Button, message, Modal } from 'ant-design-vue';
-import { ref } from 'vue';
+import { Button, Dropdown, Menu, message, Modal } from 'ant-design-vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -28,10 +29,60 @@ defineOptions({ name: 'SystemModel' });
 const { hasAccessByCodes } = useAccess();
 const router = useRouter();
 
+/**
+ * 通配权限码匹配（与后端 CheckUrlUtils 一致）：modelField/modelCategory 的节点
+ * 是尾星号通配（/api/system/modelField/*），hasAccessByCodes 精确匹配会漏判，
+ * 「分类」「布局设计」等按钮必须走这里。
+ */
+const accessStore = useAccessStore();
+const accessCodes = computed(() => accessStore.accessCodes as string[]);
+
+function matchCode(codes: string[], need: string): boolean {
+  return codes.some(
+    (c) => c === need || (c.endsWith('*') && need.startsWith(c.slice(0, -1))),
+  );
+}
+function canCode(need: string): boolean {
+  return hasAccessByCodes([need]) || matchCode(accessCodes.value, need);
+}
+
 const [EditModalComp, editModalApi] = useEditDrawer({
   connectedComponent: EditModal,
   destroyOnClose: true,
 });
+
+/** 「更多」菜单项按权限过滤（删除最后且标红） */
+function moreItems(row: ModelRow) {
+  const items: { key: string; label: string; danger?: boolean }[] = [];
+  items.push({ key: 'content', label: '内容管理' });
+  if (canCode('/api/system/modelField/save')) {
+    items.push({ key: 'layout', label: '布局设计' });
+  }
+  if (hasAccessByCodes(['/api/system/model/update'])) {
+    items.push({ key: 'edit', label: '编辑' });
+  }
+  if (canCode('/api/system/modelCategory/save')) {
+    items.push({ key: 'categories', label: '分类' });
+  }
+  items.push({ key: 'export', label: '导出' });
+  if (hasAccessByCodes(['/api/system/model/update'])) {
+    items.push({ key: 'regen', label: '重新生成模板' });
+  }
+  if (hasAccessByCodes(['/api/system/model/del']) && row.isSystem !== 1) {
+    items.push({ key: 'delete', label: '删除', danger: true });
+  }
+  return items;
+}
+
+function onMoreClick(row: ModelRow, key: string) {
+  if (key === 'content') openData(row);
+  else if (key === 'layout') openLayout(row);
+  else if (key === 'edit') openEdit(row);
+  else if (key === 'categories') openCategories(row);
+  else if (key === 'export') onExport(row);
+  else if (key === 'regen') onRegenTemplates(row);
+  else if (key === 'delete') onDelete(row);
+}
 
 const gridOptions: VxeTableGridOptions<ModelRow> = {
   columns: [
@@ -52,7 +103,7 @@ const gridOptions: VxeTableGridOptions<ModelRow> = {
       title: '状态',
       width: 80,
     },
-    { field: 'action', fixed: 'right', slots: { default: 'action' }, title: '操作', width: 320 },
+    { field: 'action', fixed: 'right', slots: { default: 'action' }, title: '操作', width: 150 },
   ],
   height: 'auto',
   proxyConfig: {
@@ -81,6 +132,11 @@ function openEdit(row: ModelRow) {
 
 function openFields(row: ModelRow) {
   router.push('/system/model/field/' + row.id);
+}
+
+/** 发布页面布局设计（页签/字段编排/默认页签） */
+function openLayout(row: ModelRow) {
+  router.push('/system/model/layout/' + row.id);
 }
 
 function openData(row: ModelRow) {
@@ -204,55 +260,27 @@ function onDelete(row: ModelRow) {
         />
       </template>
       <template #action="{ row }">
-        <Button class="mr-2 px-2" size="small" type="link" @click="openFields(row)">
+        <Button class="mr-1 px-2" size="small" type="link" @click="openFields(row)">
           字段管理
         </Button>
-        <Button class="mr-2 px-2" size="small" type="link" @click="openData(row)">
-          内容管理
-        </Button>
-        <Button class="mr-2 px-2" size="small" type="link" @click="onExport(row)">
-          导出
-        </Button>
-        <Button
-          v-if="hasAccessByCodes(['/api/system/modelCategory/save'])"
-          class="mr-2 px-2"
-          size="small"
-          type="link"
-          @click="openCategories(row)"
-        >
-          分类
-        </Button>
-        <Button
-          v-if="hasAccessByCodes(['/api/system/model/update'])"
-          class="mr-2 px-2"
-          size="small"
-          type="link"
-          @click="onRegenTemplates(row)"
-        >
-          重新生成模板
-        </Button>
-        <Button
-          v-if="hasAccessByCodes(['/api/system/model/update'])"
-          class="mr-2 px-2"
-          size="small"
-          type="link"
-          @click="openEdit(row)"
-        >
-          编辑
-        </Button>
-        <Button
-          v-if="hasAccessByCodes(['/api/system/model/del']) && row.isSystem !== 1"
-          class="px-2"
-          danger
-          size="small"
-          type="link"
-          @click="onDelete(row)"
-        >
-          删除
-        </Button>
+        <Dropdown v-if="moreItems(row).length > 0" :trigger="['click']">
+          <Button class="px-2" size="small" type="link">更多 ▾</Button>
+          <template #overlay>
+            <Menu @click="({ key }: any) => onMoreClick(row, String(key))">
+              <Menu.Item
+                v-for="item in moreItems(row)"
+                :key="item.key"
+                :danger="item.danger"
+              >
+                {{ item.label }}
+              </Menu.Item>
+            </Menu>
+          </template>
+        </Dropdown>
       </template>
     </Grid>
     <EditModalComp />
+    <LayoutDrawerComp />
     <CategoryDrawer
       v-if="categoryDrawerVisible && categoryModel"
       :key="`${categoryModel.id}-${categoryDrawerSeq}`"

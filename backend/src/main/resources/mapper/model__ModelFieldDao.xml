@@ -28,6 +28,7 @@
 			<if test="defaultValue != null">default_value = #{defaultValue},</if>
 			<if test="maxlength != null">maxlength = #{maxlength},</if>
 			<if test="options != null">options = #{options},</if>
+			<if test="dictType != null">dict_type = #{dictType},</if>
 			is_required = #{isRequired},
 			is_list = #{isList},
 			is_search = #{isSearch},
@@ -87,4 +88,10 @@
 	<update id="updateFieldSort">
 		update fly_model_field set sort = #{sort}, update_time = now() where id = #{id}
 	</update>
+
+	<!-- 字典删除前防悬空引用：绑定指定字典类型的字段数 -->
+	<select id="countFieldsByDictType" resultType="int">
+		select count(*) from fly_model_field
+		where dict_type = #{dictType} and status = 1
+	</select>
 </mapper>

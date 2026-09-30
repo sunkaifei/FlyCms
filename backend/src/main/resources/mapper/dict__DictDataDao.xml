@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flycms.module.dict.dao.DictDataDao">
+
+    <sql id="allColumns">
+        id, dict_type AS dictType, dict_label AS dictLabel, dict_value AS dictValue, remark, sort, status, create_time AS createTime, update_time AS updateTime
+    </sql>
+
+    <select id="findDictDatas" resultType="com.flycms.module.dict.model.DictData">
+        select <include refid="allColumns"/>
+        from fly_dict_data
+        <where>
+            dict_type = #{dictType}
+            <if test="keyword != null and keyword != ''">
+                and (dict_label like concat('%', #{keyword}, '%') or dict_value like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by sort, id
+        limit #{offset}, #{rows}
+    </select>
+
+    <select id="countDictDatas" resultType="int">
+        select count(*)
+        from fly_dict_data
+        <where>
+            dict_type = #{dictType}
+            <if test="keyword != null and keyword != ''">
+                and (dict_label like concat('%', #{keyword}, '%') or dict_value like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="findDictDataById" resultType="com.flycms.module.dict.model.DictData">
+        select <include refid="allColumns"/>
+        from fly_dict_data
+        where id = #{id}
+    </select>
+
+    <select id="checkDictValue" resultType="int">
+        select count(*)
+        from fly_dict_data
+        where dict_type = #{dictType} and dict_value = #{dictValue}
+        <if test="excludeId != null">
+            and id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="findEnabledByType" resultType="com.flycms.module.dict.model.DictData">
+        select <include refid="allColumns"/>
+        from fly_dict_data
+        where dict_type = #{dictType} and status = 1
+        order by sort, id
+    </select>
+
+    <insert id="addDictData">
+        insert into fly_dict_data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="dictType != null and dictType != ''">dict_type,</if>
+            <if test="dictLabel != null and dictLabel != ''">dict_label,</if>
+            <if test="dictValue != null and dictValue != ''">dict_value,</if>
+            <if test="remark != null">remark,</if>
+            sort,
+            status,
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
+            <if test="dictType != null and dictType != ''">#{dictType},</if>
+            <if test="dictLabel != null and dictLabel != ''">#{dictLabel},</if>
+            <if test="dictValue != null and dictValue != ''">#{dictValue},</if>
+            <if test="remark != null">#{remark},</if>
+            #{sort},
+            #{status},
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDictData">
+        update fly_dict_data
+        <set>
+            <if test="dictLabel != null and dictLabel != ''">dict_label = #{dictLabel},</if>
+            <if test="dictValue != null and dictValue != ''">dict_value = #{dictValue},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="sort >= 0">sort = #{sort},</if>
+            status = #{status},
+            update_time = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDictDataById">
+        delete from fly_dict_data
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteDictDataByType">
+        delete from fly_dict_data
+        where dict_type = #{dictType}
+    </delete>
+
+</mapper>

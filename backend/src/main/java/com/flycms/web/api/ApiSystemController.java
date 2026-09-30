@@ -234,6 +234,9 @@ public class ApiSystemController extends ApiBaseController {
         if (isProtectedSuperGroup(groupId)) {
             return DataVo.failure("超级管理员组权限不能修改");
         }
+        if (groupService.findGroupById(groupId) == null) {
+            return DataVo.failure("角色组不存在！");
+        }
         List<Long> oldIds = groupService.findGroupPermissionIds(groupId);
         List<Long> newIds = permissionIds == null ? java.util.Collections.emptyList() : permissionIds;
         int changed = 0;

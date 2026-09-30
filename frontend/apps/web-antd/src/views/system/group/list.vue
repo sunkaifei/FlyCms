@@ -33,7 +33,7 @@ const gridOptions: VxeTableGridOptions<GroupRow> = {
   columns: [
     { title: '序号', type: 'seq', width: 60 },
     { field: 'id', title: 'ID', width: 220 },
-    { field: 'name', title: '角色组名' },
+    { field: 'name', title: '角色名称' },
     { field: 'createAt', formatter: 'formatDateTime', title: '创建时间' },
     { field: 'action', fixed: 'right', slots: { default: 'action' }, title: '操作', width: 240 },
   ],
@@ -74,7 +74,7 @@ function onDelete(row: GroupRow) {
     return;
   }
   Modal.confirm({
-    content: `确定删除角色组「${row.name}」吗？其权限绑定会一并清除。`,
+    content: `确定删除角色「${row.name}」吗？其权限绑定会一并清除。`,
     onOk: async () => {
       await deleteGroupApi(row.id);
       message.success('删除成功');
@@ -87,7 +87,7 @@ function onDelete(row: GroupRow) {
 
 <template>
   <Page auto-content-height>
-    <Grid table-title="角色组列表">
+    <Grid table-title="角色列表">
       <template #toolbar-tools>
         <Button
           v-if="hasAccessByCodes(['/system/admin/add_group_save'])"
@@ -95,7 +95,7 @@ function onDelete(row: GroupRow) {
           type="primary"
           @click="openAdd"
         >
-          新增角色组
+          新增角色
         </Button>
       </template>
       <template #action="{ row }">

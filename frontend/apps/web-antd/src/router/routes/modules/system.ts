@@ -31,7 +31,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('#/views/system/group/list.vue'),
         meta: {
           icon: 'lucide:users',
-          title: '角色组管理',
+          title: '角色管理',
         },
       },
       {
@@ -61,6 +61,17 @@ const routes: RouteRecordRaw[] = [
           activePath: '/system/model',
           hideInMenu: true,
           title: '字段管理',
+        },
+      },
+      {
+        // 发布页面布局设计：页签/字段编排，从模型列表行内进入，不出现在菜单
+        name: 'SystemModelLayout',
+        path: 'model/layout/:modelId',
+        component: () => import('#/views/system/model/layout.vue'),
+        meta: {
+          activePath: '/system/model',
+          hideInMenu: true,
+          title: '发布页面布局设计',
         },
       },
     ],

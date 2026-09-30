@@ -34,6 +34,13 @@ public class ModelFieldService {
     private ModelTableService modelTableService;
     @Autowired
     private ModelService modelService;
+    @Autowired
+    private com.flycms.module.dict.service.DictService dictService;
+
+    /** 可绑定数据字典的类型（若依式）：候选项来自 fly_dict_data */
+    private static boolean supportsDict(FieldTypeEnum type) {
+        return type == FieldTypeEnum.SELECT || type == FieldTypeEnum.RADIO || type == FieldTypeEnum.CHECKBOX;
+    }
 
     public List<ModelField> findFieldsByModelId(Long modelId, Integer status) {
         return modelFieldDao.findFieldsByModelId(modelId, status);
@@ -124,6 +131,18 @@ public class ModelFieldService {
         if (vis.getCode() != DataVo.CODE_SUCCESS) {
             return vis;
         }
+        // 字典绑定（若依式）：仅 select/radio/checkbox 可绑，且键必须已存在
+        if (StringUtils.isBlank(field.getDictType())) {
+            field.setDictType(null);
+        } else {
+            if (!supportsDict(type)) {
+                return DataVo.failure("该字段类型不支持绑定字典（仅 select/radio/checkbox）");
+            }
+            field.setDictType(field.getDictType().trim());
+            if (dictService.findTypeByKey(field.getDictType()) == null) {
+                return DataVo.failure("绑定的字典类型不存在：" + field.getDictType());
+            }
+        }
         field.setColumnType(type.resolveColumnType(field.getMaxlength()));
         field.setStatus(1);
         field.setCreateTime(new Date());
@@ -212,6 +231,20 @@ public class ModelFieldService {
             }
         } else {
             form.setRollupExpr(null);
+        }
+        // 字典绑定：未传沿用原值；传空串 = 解除绑定；传键做类型与存在性校验
+        if (form.getDictType() == null) {
+            form.setDictType(old.getDictType());
+        } else if (StringUtils.isNotBlank(form.getDictType())) {
+            if (!supportsDict(oldType)) {
+                return DataVo.failure("该字段类型不支持绑定字典（仅 select/radio/checkbox）");
+            }
+            form.setDictType(form.getDictType().trim());
+            if (dictService.findTypeByKey(form.getDictType()) == null) {
+                return DataVo.failure("绑定的字典类型不存在：" + form.getDictType());
+            }
+        } else {
+            form.setDictType("");
         }
         if (modelFieldDao.updateField(form) > 0) {
             // 虚拟字段（formula/rollup/m2a）无列定义（columnType 为 NULL），无物理列可改

@@ -851,15 +851,21 @@ public class TemplateCenterService {
     /**
      * D8 模板试渲染：不落盘，直接用当前编辑内容渲染一遍，用于"写完立刻知道效果"。
      * 渲染失败返回具体错误而不是抛异常到前台。
+     *
+     * <p>templateName 必须传该文件在加载器下的完整路径（如
+     * {@code pc_theme/defalut/detail-downloads.html}）：模板内容里的相对 include
+     * （如 {@code <#include "common/macros.html">}）按所在目录解析，若用根级哑名
+     * （__preview__），相对包含会到加载器根下找而报 Template not found（与线上渲染口径不一致）。
      */
-    public DataVo preview(String content, Map<String, Object> model) {
+    public DataVo preview(String templateName, String content, Map<String, Object> model) {
         DataVo check = validateSyntax("__preview__", content == null ? "" : content);
         if (check.getCode() != DataVo.CODE_SUCCESS) {
             return check;
         }
         try {
             Configuration cfg = freeMarkerConfigurer.getConfiguration();
-            Template tpl = new Template("__preview__", new StringReader(content), cfg);
+            String name = StringUtils.isNotBlank(templateName) ? templateName : "__preview__";
+            Template tpl = new Template(name, new StringReader(content), cfg);
             java.io.StringWriter out = new java.io.StringWriter();
             tpl.process(model == null ? new java.util.HashMap<>() : model, out);
             String html = out.toString();
@@ -945,6 +951,12 @@ public class TemplateCenterService {
         }
         m.put("dataList", list);
         m.put("modelCode", modelCode);
+        // 详情类骨架的 <@fly_info_model model="${model.code}"> 宿主变量：
+        // code 取实参模型，name 给可读缺省（试渲染 detail-*.html 时不再报 model 缺失）
+        Map<String, Object> model = new LinkedHashMap<>();
+        model.put("code", modelCode);
+        model.put("name", modelCode);
+        m.put("model", model);
         // 详情/问答/分享类骨架的常用宿主变量（P4-6）：article 与 info 同构，其余给最小字段
         m.put("article", info);
         Map<String, Object> question = new LinkedHashMap<>();

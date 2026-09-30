@@ -80,9 +80,9 @@ public class PermissionService {
                                 SnowFlake snowFlake = SnowFlake.getInstance();
                                 per.setId(snowFlake.nextId());
                                 int permissionId=permissionDao.addPermission(per);
-                                if(!this.markAssignedPermissions(272835742965968896L,per.getId())){
-                                    //默认超级管理员组添加新的权限关联，272835742965968896为超级管理员组ID
-                                    groupDao.addGroupPermission(272835742965968896L,per.getId());
+                                if(!this.markAssignedPermissions(1L,per.getId())){
+                                    //默认超级管理员组添加新的权限关联（超级管理员组固定 id=1）
+                                    groupDao.addGroupPermission(1L,per.getId());
                                 }
                             }
                             //添加当前Controller里所有的权限路径到list里

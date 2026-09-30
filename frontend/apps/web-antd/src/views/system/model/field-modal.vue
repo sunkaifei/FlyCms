@@ -8,6 +8,7 @@ import { useEditDrawer } from '#/utils/edit-drawer';
 import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
+import { getDictTypeOptionsApi } from '#/api/core/dict';
 import {
   getFieldListApi,
   getModelListApi,
@@ -19,7 +20,8 @@ import {
  * 新增/编辑字段弹窗。
  * - field_name/field_type 创建后不可改（=列名与列定义）
  * - column_type 由后端 FieldTypeEnum 推导，前端不传
- * - 类型联动：maxlength 仅 input；options 仅 select/radio/checkbox；regex 仅 input；
+ * - 类型联动：maxlength 仅 input；选项仅 select/radio/checkbox 且可选「自定义选项 /
+ *   绑定字典」（若依式 dict_type，绑定后候选项由「字典管理」维护）；regex 仅 input；
  *   relateModel 仅 relate/relates（E1）；rollup 配置仅 rollup（P2）；
  *   lookupFields 仅 relate/relates（P2）；条件显隐仅顶层字段（P1）
  * - 子字段：modal data.parentId > 0 时为 GROUP/REPEATER 添加子字段（不建物理列）
@@ -64,6 +66,12 @@ const RELATION_TYPES = ['relate', 'relates'];
 /** B1 绑定数据源中复用 relateModel 配置列的类型（category 绑定目标分类树所属模型，留空=本模型） */
 const BOUND_TYPES = ['category'];
 const STRUCTURE_TYPES = ['group', 'repeater'];
+/** 可绑定数据字典的类型（若依式）：候选项优先取字典启用数据，options 作回退 */
+const OPTION_TYPES = ['select', 'radio', 'checkbox'];
+const DICT_SOURCES = [
+  { label: '自定义选项', value: 'options' },
+  { label: '绑定字典', value: 'dict' },
+];
 const VIS_OPS = [
   { label: '等于 (eq)', value: 'eq' },
   { label: '不等于 (neq)', value: 'neq' },
@@ -92,6 +100,20 @@ const relateOptions = ref<{ label: string; value: string }[]>([]);
 const visFieldOptions = ref<{ label: string; value: string }[]>([]);
 /** 本模型 relate 字段（rollup 数据源） */
 const rollupSourceOptions = ref<{ label: string; value: string }[]>([]);
+/** 平台字典类型（绑定字典下拉） */
+const dictTypeOptions = ref<{ label: string; value: string }[]>([]);
+
+async function loadDictTypeOptions() {
+  try {
+    const list = (await getDictTypeOptionsApi()) ?? [];
+    dictTypeOptions.value = list.map((t) => ({
+      label: `${t.dictName}（${t.dictType}）`,
+      value: t.dictType,
+    }));
+  } catch {
+    dictTypeOptions.value = [];
+  }
+}
 
 async function loadRelateOptions(currentModelId?: number | string) {
   try {
@@ -187,14 +209,45 @@ const [Form, formApi] = useVbenForm({
       label: '长度上限',
     },
     {
+      component: 'RadioGroup',
+      componentProps: { options: DICT_SOURCES },
+      defaultValue: 'options',
+      dependencies: {
+        show: (values: Record<string, any>) =>
+          OPTION_TYPES.includes(String(values.fieldType)),
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'dictSource',
+      label: '候选来源',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        options: [],
+        placeholder: '选择平台字典（「字典管理」里维护候选项）',
+        showSearch: true,
+        optionFilterProp: 'label',
+      },
+      dependencies: {
+        show: (values: Record<string, any>) =>
+          OPTION_TYPES.includes(String(values.fieldType)) &&
+          String(values.dictSource) === 'dict',
+        triggerFields: ['fieldType', 'dictSource'],
+      },
+      fieldName: 'dictType',
+      label: '绑定字典',
+    },
+    {
       component: 'Textarea',
       componentProps: {
         placeholder: 'JSON 数组，如 ["Windows","Linux","macOS"]',
         rows: 2,
       },
       dependencies: {
-        show: () => ['select', 'radio', 'checkbox'].includes(fieldType.value),
-        triggerFields: ['fieldType'],
+        show: (values: Record<string, any>) =>
+          OPTION_TYPES.includes(String(values.fieldType)) &&
+          String(values.dictSource) !== 'dict',
+        triggerFields: ['fieldType', 'dictSource'],
       },
       fieldName: 'options',
       label: '选项',
@@ -433,16 +486,28 @@ const [Modal, modalApi] = useEditDrawer({
       message.warning('聚合来源必须选择本模型的一个 relate 字段');
       return;
     }
+    // 字典绑定（若依式）：绑字典必须选类型；未绑定一律传空串让后端清除
+    if (
+      OPTION_TYPES.includes(String(values.fieldType)) &&
+      String(values.dictSource) === 'dict' &&
+      !values.dictType
+    ) {
+      message.warning('请选择要绑定的字典类型');
+      return;
+    }
     modalApi.lock();
     const payload: Record<string, any> = { ...values };
     payload.visibleWhen = serializeVisibleWhen(values);
     payload.rollupExpr = serializeRollupExpr(values);
+    payload.dictType =
+      String(values.dictSource) === 'dict' ? String(values.dictType ?? '') : '';
     delete payload.visField;
     delete payload.visOp;
     delete payload.visValue;
     delete payload.rollupSource;
     delete payload.rollupFunc;
     delete payload.rollupColumn;
+    delete payload.dictSource;
     try {
       if (editing.value) {
         await updateFieldApi({ ...payload, id: editing.value.id });
@@ -480,6 +545,7 @@ onMounted(async () => {
   parentLabel.value = data?.parentLabel ?? '';
   await loadRelateOptions(modelId.value);
   await loadSiblingFields(editing.value?.id);
+  await loadDictTypeOptions();
   formApi.updateSchema([
     {
       componentProps: { options: relateOptions.value },
@@ -492,6 +558,10 @@ onMounted(async () => {
     {
       componentProps: { options: rollupSourceOptions.value },
       fieldName: 'rollupSource',
+    },
+    {
+      componentProps: { options: dictTypeOptions.value },
+      fieldName: 'dictType',
     },
   ]);
   if (editing.value) {
@@ -518,6 +588,8 @@ onMounted(async () => {
       fieldType: editing.value.fieldType,
       relateModel: editing.value.relateModel,
       tabName: editing.value.tabName || '基础信息',
+      dictSource: editing.value.dictType ? 'dict' : 'options',
+      dictType: editing.value.dictType || undefined,
       isFilter: editing.value.isFilter === 1,
       isForm: editing.value.isForm === 0 ? false : true,
       isList: editing.value.isList === 1,

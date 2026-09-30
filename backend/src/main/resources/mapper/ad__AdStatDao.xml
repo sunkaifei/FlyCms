@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flycms.module.ad.dao.AdStatDao">
+
+    <insert id="upsertView">
+        insert into fly_ad_stat_daily (id, ad_id, position_id, stat_date, views, clicks, update_time)
+        values (#{id}, #{adId}, #{positionId}, curdate(), 1, 0, now())
+        on duplicate key update views = views + 1, update_time = now()
+    </insert>
+
+    <insert id="upsertClick">
+        insert into fly_ad_stat_daily (id, ad_id, position_id, stat_date, views, clicks, update_time)
+        values (#{id}, #{adId}, #{positionId}, curdate(), 0, 1, now())
+        on duplicate key update clicks = clicks + 1, update_time = now()
+    </insert>
+
+    <select id="listDaily" resultType="java.util.HashMap">
+        select
+            date_format(stat_date, '%Y-%m-%d') AS statDate,
+            sum(views) AS views,
+            sum(clicks) AS clicks
+        from fly_ad_stat_daily
+        <where>
+            stat_date &gt;= date_sub(curdate(), interval #{days} day)
+            <if test="adId != null">and ad_id = #{adId}</if>
+            <if test="positionId != null">and position_id = #{positionId}</if>
+        </where>
+        group by stat_date
+        order by stat_date desc
+    </select>
+
+</mapper>

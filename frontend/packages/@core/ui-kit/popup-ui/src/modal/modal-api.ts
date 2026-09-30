@@ -3,10 +3,28 @@ import type { ModalApiOptions, ModalState } from './modal';
 import { Store } from '@vben-core/shared/store';
 import { bindMethods, isFunction } from '@vben-core/shared/utils';
 
+// destroyOnClose 重建 connected child 时，父侧 open 拦截会把本次 setData 的 payload
+// 暂存于此；新 ModalApi 实例构造时接管（与 drawer-api 的暂存槽相互独立）。
+let pendingSharedPayload: unknown = undefined;
+
+export function setPendingModalPayload(payload: unknown) {
+  pendingSharedPayload = payload;
+}
+
+export function modalPendingPayloadAlive(): boolean {
+  return pendingSharedPayload !== undefined;
+}
+
+function takePendingModalPayload(): unknown {
+  const value = pendingSharedPayload;
+  pendingSharedPayload = undefined;
+  return value;
+}
+
 export class ModalApi<TData = unknown> {
   // 共享数据
   public sharedData: Record<'payload', TData | undefined> = {
-    payload: undefined,
+    payload: takePendingModalPayload() as TData | undefined,
   };
   public store: Store<ModalState>;
 

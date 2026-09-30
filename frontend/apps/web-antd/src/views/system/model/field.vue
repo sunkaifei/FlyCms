@@ -9,7 +9,7 @@ import { useAccess } from '@vben/access';
 
 import { Button, Input, message, Modal } from 'ant-design-vue';
 import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -27,6 +27,7 @@ defineOptions({ name: 'SystemModelField' });
 
 const { hasAccessByCodes } = useAccess();
 const route = useRoute();
+const router = useRouter();
 // 雪花 ID 必须保持字符串（Number 化会丢末位精度，导致字段列表查询落空）
 const modelId = route.params.modelId as string;
 
@@ -182,6 +183,9 @@ async function onDelete(row: ModelFieldRow) {
     <Grid table-title="模型字段（字段名即数据表列名，创建后不可改）">
       <template #toolbar-tools>
         <Button class="mr-2" @click="openPreview">预览表单</Button>
+        <Button class="mr-2" @click="router.push('/system/model/layout/' + modelId)">
+          布局设计
+        </Button>
         <Button class="mr-2" @click="openComponents">字段组库</Button>
         <Button
           v-if="hasAccessByCodes(['/api/system/modelField/*'])"

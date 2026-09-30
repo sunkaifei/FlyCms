@@ -22,7 +22,16 @@ import {
 import { usePreferences } from '@vben-core/preferences';
 import { useSelector } from '@vben-core/shared/store';
 
-import { ModalApi } from './modal-api';
+import {
+  ModalApi,
+  modalPendingPayloadAlive,
+  setPendingModalPayload,
+} from './modal-api';
+
+// open 重建重放期间置位，重建后新实例的 open 直接走原路径，避免递归重建
+let replayingModalOpen = false;
+// 最近一次构造的 child ModalApi（重建后渲染的是它，重放打开也必须落在它身上）
+let latestModalApi: ModalApi | undefined;
 import VbenModal from './modal.vue';
 
 const USER_MODAL_INJECT_KEY = Symbol('VBEN_MODAL_INJECT');
@@ -153,9 +162,31 @@ export function useVbenModal<
       injectData.reCreateModal?.();
     }
   };
-
   const api = new ModalApi<TResolvedData>(mergedOptions);
+  latestModalApi = api;
 
+  // destroyOnClose = 每次打开都是全新实例（与 use-drawer 同款兜底，注释详见彼处）。
+  // bindMethods 已把 open 绑定为实例自有方法，父侧 setData().open() 链式调用最终
+  // 落到 child 的这个 open 上，因此包装必须挂在 child 实例侧。
+  if (mergedOptions.destroyOnClose && injectData.consumed !== undefined) {
+    const stockOpen = api.open.bind(api);
+    api.open = () => {
+      if (replayingModalOpen) {
+        stockOpen();
+        return;
+      }
+      replayingModalOpen = true;
+      setPendingModalPayload(api.sharedData.payload);
+      void injectData.reCreateModal?.().then(async () => {
+        for (let i = 0; i < 10 && modalPendingPayloadAlive(); i += 1) {
+          await nextTick();
+        }
+        // 重建后渲染的是最新实例；replaying 仍置位，其包装 open 直接走原路径
+        latestModalApi?.open();
+        replayingModalOpen = false;
+      });
+    };
+  }
   const extendedApi = api as ExtendedModalApi<TResolvedData>;
 
   extendedApi.useStore = (selector) => {

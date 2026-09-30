@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flycms.module.ad.dao.AdPositionDao">
+
+    <sql id="allColumns">
+        id, name, ad_key AS adKey, description, width, height, sort, status,
+        create_time AS createTime, update_time AS updateTime
+    </sql>
+
+    <select id="findPositions" resultType="com.flycms.module.ad.model.AdPosition">
+        select p.id, p.name, p.ad_key AS adKey, p.description, p.width, p.height, p.sort, p.status,
+               p.create_time AS createTime, p.update_time AS updateTime,
+               (select count(*) from fly_ad a where a.position_id = p.id) AS adCount
+        from fly_ad_position p
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and (p.name like concat('%', #{keyword}, '%') or p.ad_key like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by p.sort, p.id
+        limit #{offset}, #{rows}
+    </select>
+
+    <select id="countPositions" resultType="int">
+        select count(*)
+        from fly_ad_position
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%') or ad_key like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="findPositionById" resultType="com.flycms.module.ad.model.AdPosition">
+        select <include refid="allColumns"/>
+        from fly_ad_position
+        where id = #{id}
+    </select>
+
+    <select id="findPositionByKey" resultType="com.flycms.module.ad.model.AdPosition">
+        select <include refid="allColumns"/>
+        from fly_ad_position
+        where ad_key = #{adKey}
+    </select>
+
+    <select id="checkAdKey" resultType="int">
+        select count(*)
+        from fly_ad_position
+        where ad_key = #{adKey}
+        <if test="excludeId != null">
+            and id != #{excludeId}
+        </if>
+    </select>
+
+    <insert id="addPosition">
+        insert into fly_ad_position
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="name != null and name != ''">name,</if>
+            <if test="adKey != null and adKey != ''">ad_key,</if>
+            <if test="description != null">description,</if>
+            <if test="width != null">width,</if>
+            <if test="height != null">height,</if>
+            sort,
+            status,
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="adKey != null and adKey != ''">#{adKey},</if>
+            <if test="description != null">#{description},</if>
+            <if test="width != null">#{width},</if>
+            <if test="height != null">#{height},</if>
+            #{sort},
+            #{status},
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePosition">
+        update fly_ad_position
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            width = #{width},
+            height = #{height},
+            <if test="sort >= 0">sort = #{sort},</if>
+            status = #{status},
+            update_time = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePositionById">
+        delete from fly_ad_position
+        where id = #{id}
+    </delete>
+
+    <select id="countAdsByPosition" resultType="int">
+        select count(*)
+        from fly_ad
+        where position_id = #{positionId}
+    </select>
+
+</mapper>

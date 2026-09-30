@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flycms.module.dict.dao.DictTypeDao">
+
+    <sql id="allColumns">
+        id, dict_name AS dictName, dict_type AS dictType, remark, sort, status, create_time AS createTime, update_time AS updateTime
+    </sql>
+
+    <select id="findDictTypes" resultType="com.flycms.module.dict.model.DictType">
+        select <include refid="allColumns"/>
+        from fly_dict_type
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and (dict_name like concat('%', #{keyword}, '%') or dict_type like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by sort, id
+        limit #{offset}, #{rows}
+    </select>
+
+    <select id="countDictTypes" resultType="int">
+        select count(*)
+        from fly_dict_type
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and (dict_name like concat('%', #{keyword}, '%') or dict_type like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="findDictTypeById" resultType="com.flycms.module.dict.model.DictType">
+        select <include refid="allColumns"/>
+        from fly_dict_type
+        where id = #{id}
+    </select>
+
+    <select id="findDictTypeByKey" resultType="com.flycms.module.dict.model.DictType">
+        select <include refid="allColumns"/>
+        from fly_dict_type
+        where dict_type = #{dictType}
+    </select>
+
+    <select id="checkDictTypeKey" resultType="int">
+        select count(*)
+        from fly_dict_type
+        where dict_type = #{dictType}
+        <if test="excludeId != null">
+            and id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="findEnabledDictTypes" resultType="com.flycms.module.dict.model.DictType">
+        select <include refid="allColumns"/>
+        from fly_dict_type
+        where status = 1
+        order by sort, id
+    </select>
+
+    <insert id="addDictType">
+        insert into fly_dict_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="dictName != null and dictName != ''">dict_name,</if>
+            <if test="dictType != null and dictType != ''">dict_type,</if>
+            <if test="remark != null">remark,</if>
+            sort,
+            status,
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
+            <if test="dictName != null and dictName != ''">#{dictName},</if>
+            <if test="dictType != null and dictType != ''">#{dictType},</if>
+            <if test="remark != null">#{remark},</if>
+            #{sort},
+            #{status},
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDictType">
+        update fly_dict_type
+        <set>
+            <if test="dictName != null and dictName != ''">dict_name = #{dictName},</if>
+            <if test="dictType != null and dictType != ''">dict_type = #{dictType},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="sort >= 0">sort = #{sort},</if>
+            status = #{status},
+            update_time = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDictTypeById">
+        delete from fly_dict_type
+        where id = #{id}
+    </delete>
+
+</mapper>

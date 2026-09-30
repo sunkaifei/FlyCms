@@ -5,7 +5,7 @@
 	<sql id="base_column">id, name, code, title_label AS titleLabel, is_system AS isSystem, list_template AS listTemplate,
 		detail_template AS detailTemplate, icon, description, sort, status,
 		use_content AS useContent, use_seo AS useSeo, enable_comment AS enableComment,
-		enable_submit AS enableSubmit,
+		enable_submit AS enableSubmit, form_tabs AS formTabs, form_default_tab AS formDefaultTab,
 		create_time AS createTime, update_time AS updateTime</sql>
 
 	<!--
@@ -32,6 +32,8 @@
 			<if test="useSeo != null">use_seo = #{useSeo},</if>
 			<if test="enableComment != null">enable_comment = #{enableComment},</if>
 			<if test="enableSubmit != null">enable_submit = #{enableSubmit},</if>
+			<if test="formTabs != null">form_tabs = #{formTabs},</if>
+			<if test="formDefaultTab != null">form_default_tab = #{formDefaultTab},</if>
 			update_time = now()
 		</set>
 		where id = #{id}

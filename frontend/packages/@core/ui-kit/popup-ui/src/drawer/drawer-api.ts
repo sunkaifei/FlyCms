@@ -3,10 +3,29 @@ import type { DrawerApiOptions, DrawerState } from './drawer';
 import { Store } from '@vben-core/shared/store';
 import { bindMethods, isFunction } from '@vben-core/shared/utils';
 
+// destroyOnClose 重建 connected child 时，父侧 open 拦截会把本次 setData 的 payload
+// 暂存于此；新 DrawerApi 实例构造时接管，保证 child 的 onMounted 能读到本次数据
+// （重建后旧实例的 sharedData 随之丢弃，无暂存槽则首次/每次打开都会读到空数据）。
+let pendingSharedPayload: unknown = undefined;
+
+export function setPendingDrawerPayload(payload: unknown) {
+  pendingSharedPayload = payload;
+}
+
+export function drawerPendingPayloadAlive(): boolean {
+  return pendingSharedPayload !== undefined;
+}
+
+function takePendingDrawerPayload(): unknown {
+  const value = pendingSharedPayload;
+  pendingSharedPayload = undefined;
+  return value;
+}
+
 export class DrawerApi<TData = unknown> {
   // 共享数据
   public sharedData: Record<'payload', TData | undefined> = {
-    payload: undefined,
+    payload: takePendingDrawerPayload() as TData | undefined,
   };
   public store: Store<DrawerState>;
 

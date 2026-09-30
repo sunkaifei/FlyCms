@@ -22,7 +22,16 @@ import {
 import { usePreferences } from '@vben-core/preferences';
 import { useSelector } from '@vben-core/shared/store';
 
-import { DrawerApi } from './drawer-api';
+import {
+  DrawerApi,
+  drawerPendingPayloadAlive,
+  setPendingDrawerPayload,
+} from './drawer-api';
+
+// open 重建重放期间置位，重建后新实例的 open 直接走原路径，避免递归重建
+let replayingDrawerOpen = false;
+// 最近一次构造的 child DrawerApi（重建后渲染的是它，重放打开也必须落在它身上）
+let latestDrawerApi: DrawerApi | undefined;
 import VbenDrawer from './drawer.vue';
 
 const USER_DRAWER_INJECT_KEY = Symbol('VBEN_DRAWER_INJECT');
@@ -152,7 +161,35 @@ export function useVbenDrawer<
     }
   };
   const api = new DrawerApi<TResolvedData>(mergedOptions);
+  latestDrawerApi = api;
 
+  // destroyOnClose = 每次打开都是全新实例。connected 组件随页面加载即挂载，其
+  // onMounted 里的 getData 只能读到上一次的数据（首次为空）——官方约定 getData
+  // 配合 onOpenChange 使用，这里在框架层兜底：open 时先重建 child 实例（重建期间
+  // 把本次 payload 经暂存槽交给新 DrawerApi 构造器），存量「onMounted 读
+  // getData」的页面写法无需任何改动即可读到本次数据。
+  // 注意 bindMethods 已把 open 绑定为实例自有方法，父侧 setData().open() 链式
+  // 调用最终落到 child 的这个 open 上，因此包装必须挂在 child 实例侧。
+  if (mergedOptions.destroyOnClose && injectData.consumed !== undefined) {
+    const stockOpen = api.open.bind(api);
+    api.open = () => {
+      if (replayingDrawerOpen) {
+        stockOpen();
+        return;
+      }
+      replayingDrawerOpen = true;
+      setPendingDrawerPayload(api.sharedData.payload);
+      void injectData.reCreateDrawer?.().then(async () => {
+        // onClosed 的 stock 重建与本次重建可能叠加，轮询到消费完暂存槽为止
+        for (let i = 0; i < 10 && drawerPendingPayloadAlive(); i += 1) {
+          await nextTick();
+        }
+        // 重建后渲染的是最新实例；replaying 仍置位，其包装 open 直接走原路径
+        latestDrawerApi?.open();
+        replayingDrawerOpen = false;
+      });
+    };
+  }
   const extendedApi = api as ExtendedDrawerApi<TResolvedData>;
 
   extendedApi.useStore = (selector) => {

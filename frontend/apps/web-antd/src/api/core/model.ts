@@ -25,6 +25,10 @@ export interface ModelRow {
   enableComment?: number;
   /** V2 前台投稿开关：0=关闭前台投稿；undefined 视为 1 */
   enableSubmit?: number;
+  /** 发布表单页签顺序（JSON 数组字符串，如 ["基础信息","扩展信息"]；空=按字段出现顺序） */
+  formTabs?: string;
+  /** 发布表单默认打开的页签名（空=第一个页签） */
+  formDefaultTab?: string;
 }
 
 export interface ModelFieldRow {
@@ -35,6 +39,8 @@ export interface ModelFieldRow {
   fieldType: string;
   id: number;
   tabName?: string;
+  /** 绑定的字典类型键（若依式，select/radio/checkbox 用；候选项优先字典，options 回退） */
+  dictType?: string;
   isFilter: number;
   isList: number;
   isRequired: number;
@@ -85,12 +91,26 @@ export interface FormMeta {
   model: ModelRow;
 }
 
-function postForm<T>(url: string, data: Record<string, unknown>) {
+/**
+ * 内容名词：标题字段名去掉「标题」后缀（资源标题→资源、文章标题→文章），
+ * 用作「添加/编辑 XX」这类动作措辞的对象；空则回退「内容」。
+ */
+export function contentNoun(titleLabel?: string): string {
+  const noun = (titleLabel ?? "").replace(/标题$/, "").trim();
+  return noun || "内容";
+}
+
+function postForm<T>(
+  url: string,
+  data: Record<string, unknown>,
+  keepEmpty = false,
+) {
   const form = new URLSearchParams();
   for (const [key, value] of Object.entries(data)) {
-    if (value !== undefined && value !== null && value !== '') {
-      form.append(key, String(value));
-    }
+    if (value === undefined || value === null) continue;
+    // 字段接口需要区分「未传=沿用」与「传空=清除」（如 dictType 解除字典绑定）
+    if (!keepEmpty && value === '') continue;
+    form.append(key, String(value));
   }
   return requestClient.post<T>(url, form, {
     headers: {
@@ -189,11 +209,11 @@ export async function getFieldListApi(modelId: number | string) {
 }
 
 export async function saveFieldApi(data: Record<string, unknown>) {
-  return postForm<void>('/system/modelField/save', data);
+  return postForm<void>('/system/modelField/save', data, true);
 }
 
 export async function updateFieldApi(data: Record<string, unknown>) {
-  return postForm<void>('/system/modelField/update', data);
+  return postForm<void>('/system/modelField/update', data, true);
 }
 
 export async function deleteFieldApi(id: number | string) {

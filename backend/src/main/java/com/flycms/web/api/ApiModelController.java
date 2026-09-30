@@ -63,12 +63,12 @@ public class ApiModelController extends ApiBaseController {
      * 自动获得菜单与按模型粒度的权限设置，无需手工在菜单管理里补录）。
      *
      * <p>锚点约定：C 菜单 actionKey = /api/system/modelData/list@{modelId}（授权即
-     * 可见+可读），F 按钮 actionKey = /api/system/modelData/save@{modelId}（发布）。
-     * 通用节点 900006（/api/system/modelData/*）的尾星号仍匹配两种锚点，旧授权平滑兼容。
+     * 可见+可读）；F 按钮 4 个——内容查询(list@)、内容新增(add@)、内容编辑(edit@，
+     * 含上下架/版本恢复/预览签发)、内容删除(del@)。通用节点 900006
+     * （/api/system/modelData/*）的尾星号仍匹配全部锚点，旧授权平滑兼容。
      */
     private void syncModelMenuNodesOnSave(com.flycms.module.model.model.Model model) {
         String listKey = modelDataListKey(model.getId());
-        String saveKey = modelDataSaveKey(model.getId());
         // 幂等：已存在（如迁移脚本预置）则只同步名称/图标/显隐
         for (com.flycms.module.admin.model.Permission p : permissionDao.findPermissionByActionKey(listKey)) {
             if (p.getParentId() != null && p.getParentId() == MODEL_MENU_PARENT_ID) {
@@ -89,14 +89,23 @@ public class ApiModelController extends ApiBaseController {
         menu.setVisible(1);
         permissionDao.addPermission(menu);
 
-        com.flycms.module.admin.model.Permission btn = new com.flycms.module.admin.model.Permission();
-        btn.setId(new com.flycms.core.utils.SnowFlake(2, 3).nextId());
-        btn.setParentId(menu.getId());
-        btn.setMenuType("F");
-        btn.setMenuName("内容发布");
-        btn.setActionKey(saveKey);
-        btn.setVisible(1);
-        permissionDao.addPermission(btn);
+        String[][] buttons = {
+                {"内容查询", modelDataListKey(model.getId())},
+                {"内容新增", modelDataAddKey(model.getId())},
+                {"内容编辑", modelDataEditKey(model.getId())},
+                {"内容删除", modelDataDelKey(model.getId())},
+        };
+        for (int i = 0; i < buttons.length; i++) {
+            com.flycms.module.admin.model.Permission btn = new com.flycms.module.admin.model.Permission();
+            btn.setId(new com.flycms.core.utils.SnowFlake(2, 3).nextId());
+            btn.setParentId(menu.getId());
+            btn.setMenuType("F");
+            btn.setMenuName(buttons[i][0]);
+            btn.setActionKey(buttons[i][1]);
+            btn.setSort(i + 1);
+            btn.setVisible(1);
+            permissionDao.addPermission(btn);
+        }
     }
 
     private void syncModelMenuNodesOnUpdate(com.flycms.module.model.model.Model model) {
@@ -143,8 +152,19 @@ public class ApiModelController extends ApiBaseController {
         return "/api/system/modelData/list@" + modelId;
     }
 
-    private String modelDataSaveKey(Long modelId) {
-        return "/api/system/modelData/save@" + modelId;
+    /** 内容新增锚点（数据 save 接口） */
+    private String modelDataAddKey(Long modelId) {
+        return "/api/system/modelData/add@" + modelId;
+    }
+
+    /** 内容编辑锚点（update / 上下架 / 版本恢复 / 预览签发） */
+    private String modelDataEditKey(Long modelId) {
+        return "/api/system/modelData/edit@" + modelId;
+    }
+
+    /** 内容删除锚点（del 接口） */
+    private String modelDataDelKey(Long modelId) {
+        return "/api/system/modelData/del@" + modelId;
     }
 
     // /////////////////// 模型定义 ///////////////////
@@ -228,6 +248,13 @@ public class ApiModelController extends ApiBaseController {
         if (params.containsKey("enableSubmit")) {
             model.setEnableSubmit(parseInt(params.get("enableSubmit"), 1));
         }
+        // 发布表单布局（布局设计页）：页签顺序 JSON 与默认打开页签（未传 = 不变更）
+        if (params.containsKey("formTabs")) {
+            model.setFormTabs(blankToNull(params.get("formTabs")));
+        }
+        if (params.containsKey("formDefaultTab")) {
+            model.setFormDefaultTab(blankToNull(params.get("formDefaultTab")));
+        }
         DataVo vo = modelService.updateModel(model);
         if (vo.getCode() == DataVo.CODE_SUCCESS) {
             syncModelMenuNodesOnUpdate(model);
@@ -266,6 +293,8 @@ public class ApiModelController extends ApiBaseController {
         field.setFieldType(params.get("fieldType"));
         field.setMaxlength(parseInteger(params.get("maxlength")));
         field.setOptions(params.get("options"));
+        // 字典绑定（若依式）：select/radio/checkbox 可绑 fly_dict_type.dict_type
+        field.setDictType(blankToNull(params.get("dictType")));
         field.setIsRequired(parseInt(params.get("isRequired"), 0));
         field.setIsList(parseInt(params.get("isList"), 1));
         field.setIsSearch(parseInt(params.get("isSearch"), 0));
@@ -308,6 +337,8 @@ public class ApiModelController extends ApiBaseController {
         field.setFieldLabel(params.get("fieldLabel"));
         field.setMaxlength(parseInteger(params.get("maxlength")));
         field.setOptions(params.get("options"));
+        // 字典绑定：未传（null）沿用原值；传空串 = 解除绑定（服务端裁决）
+        field.setDictType(params.containsKey("dictType") ? params.get("dictType") : null);
         field.setIsRequired(parseInt(params.get("isRequired"), 0));
         field.setIsList(parseInt(params.get("isList"), 1));
         field.setIsSearch(parseInt(params.get("isSearch"), 0));
@@ -432,10 +463,10 @@ public class ApiModelController extends ApiBaseController {
         // 先解析 modelId 再鉴权：未登录走 requireAdmin 401，不破坏 401 口径
         Long modelId = parseLong(params.get("modelId"));
         if (modelId == null) {
-            requirePermission("/api/system/modelData/save@0");
+            requirePermission("/api/system/modelData/add@0");
             return DataVo.failure("参数传递错误");
         }
-        requirePermission("/api/system/modelData/save@" + modelId);
+        requirePermission("/api/system/modelData/add@" + modelId);
         // G14 字段级权限：无权字段写入直接拒绝
         DataVo denied = assertFieldsWritable(modelId, params,
                 modelFieldService.findFieldsByModelId(modelId, null));
@@ -453,10 +484,10 @@ public class ApiModelController extends ApiBaseController {
         Long modelId = parseLong(params.get("modelId"));
         Long id = parseLong(params.get("id"));
         if (modelId == null || id == null) {
-            requirePermission("/api/system/modelData/save@0");
+            requirePermission("/api/system/modelData/edit@0");
             return DataVo.failure("参数传递错误");
         }
-        requirePermission("/api/system/modelData/save@" + modelId);
+        requirePermission("/api/system/modelData/edit@" + modelId);
         // G14 字段级权限：无权字段写入直接拒绝
         DataVo denied = assertFieldsWritable(modelId, params,
                 modelFieldService.findFieldsByModelId(modelId, null));
@@ -563,7 +594,7 @@ public class ApiModelController extends ApiBaseController {
     @GetMapping("/system/modelData/previewToken")
     public DataVo previewToken(@RequestParam(value = "modelId", defaultValue = "0") Long modelId,
                                @RequestParam(value = "id", defaultValue = "0") Long id) {
-        requirePermission("/api/system/modelData/save@" + modelId);
+        requirePermission("/api/system/modelData/edit@" + modelId);
         Model model = modelService.findModelById(modelId);
         if (model == null || id <= 0) {
             return DataVo.failure("参数传递错误");
@@ -587,7 +618,7 @@ public class ApiModelController extends ApiBaseController {
     public DataVo versionList(@PathVariable Long modelId, @PathVariable Long id,
                               @RequestParam(value = "p", defaultValue = "1") int pageNum,
                               @RequestParam(value = "rows", defaultValue = "10") int rows) {
-        requirePermission("/api/system/modelData/save@" + modelId);
+        requirePermission("/api/system/modelData/list@" + modelId);
         return DataVo.success("操作成功", modelDataService.listVersions(modelId, id, pageNum, rows));
     }
 
@@ -598,7 +629,7 @@ public class ApiModelController extends ApiBaseController {
                               @RequestParam(value = "id", defaultValue = "0") Long id,
                               @RequestParam(value = "from", defaultValue = "0") int from,
                               @RequestParam(value = "to", defaultValue = "0") int to) {
-        requirePermission("/api/system/modelData/save@" + modelId);
+        requirePermission("/api/system/modelData/list@" + modelId);
         if (modelId <= 0 || id <= 0 || from <= 0 || to <= 0) {
             return DataVo.failure("参数传递错误");
         }
@@ -611,7 +642,7 @@ public class ApiModelController extends ApiBaseController {
     public DataVo versionRestore(@RequestParam(value = "modelId", defaultValue = "0") Long modelId,
                                  @RequestParam(value = "id", defaultValue = "0") Long id,
                                  @RequestParam(value = "version", defaultValue = "0") int version) {
-        requirePermission("/api/system/modelData/save@" + modelId);
+        requirePermission("/api/system/modelData/edit@" + modelId);
         if (modelId <= 0 || id <= 0 || version <= 0) {
             return DataVo.failure("参数传递错误");
         }
@@ -622,7 +653,7 @@ public class ApiModelController extends ApiBaseController {
     @PostMapping("/system/modelData/del")
     public DataVo dataDel(@RequestParam(value = "modelId", defaultValue = "0") Long modelId,
                           @RequestParam(value = "ids", required = false) String ids) {
-        requirePermission("/api/system/modelData/save@" + modelId);
+        requirePermission("/api/system/modelData/del@" + modelId);
         if (modelId <= 0 || StringUtils.isBlank(ids)) {
             return DataVo.failure("参数传递错误");
         }
@@ -635,7 +666,7 @@ public class ApiModelController extends ApiBaseController {
     public DataVo dataStatus(@RequestParam(value = "modelId", defaultValue = "0") Long modelId,
                              @RequestParam(value = "ids", required = false) String ids,
                              @RequestParam(value = "status", defaultValue = "0") int status) {
-        requirePermission("/api/system/modelData/save@" + modelId);
+        requirePermission("/api/system/modelData/edit@" + modelId);
         if (modelId <= 0 || StringUtils.isBlank(ids)) {
             return DataVo.failure("参数传递错误");
         }

@@ -29,6 +29,8 @@ const props = defineProps<{
   field: ModelFieldRow;
   /** relate/relates/m2a/user 的候选项（label/value） */
   options?: { label: string; value: string }[];
+  /** 字典候选项（若依式 dictType 绑定，优先于 field.options） */
+  dictOptions?: { label: string; value: string }[];
   /** category 的分类树（B1 绑定数据源，父组件按绑定模型组好树） */
   treeData?: any[];
 }>();
@@ -59,6 +61,13 @@ function parseOptions(optionsJson?: string) {
 
 const controlOptions = computed(() => props.options ?? []);
 
+/** select/radio/checkbox 候选项：绑了字典用字典（字典无数据时回退），否则字段自带 options */
+const choiceOptions = computed(() =>
+  props.field.dictType && props.dictOptions?.length
+    ? props.dictOptions
+    : parseOptions(props.field.options),
+);
+
 function isSwitchChecked(v: any) {
   return v === true || v === '1' || v === 1;
 }
@@ -87,13 +96,13 @@ export default { inheritAttrs: false };
     v-model:value="inner"
     allow-clear
     class="w-full"
-    :options="parseOptions(field.options)"
+    :options="choiceOptions"
     :placeholder="field.placeholder || field.fieldLabel"
   />
   <CheckboxGroup
     v-else-if="field.fieldType === 'checkbox'"
     v-model:value="inner"
-    :options="parseOptions(field.options)"
+    :options="choiceOptions"
   />
   <DatePicker
     v-else-if="field.fieldType === 'date'"

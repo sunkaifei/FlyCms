@@ -26,7 +26,9 @@ import {
   type ModelCategoryRow,
   type ModelFieldRow,
   type ModelRow,
+  contentNoun,
 } from '#/api/core/model';
+import { getDictDataByTypeApi } from '#/api/core/dict';
 import {
   aiGenerateApi,
   getAiStatusApi,
@@ -59,27 +61,49 @@ const model = ref<null | ModelRow>(null);
 const fields = ref<ModelFieldRow[]>([]);
 const categories = ref<ModelCategoryRow[]>([]);
 const record = ref<null | Record<string, any>>(null);
-const activeTab = ref(TAB_BASE);
+const activeTab = ref('base');
 const values = reactive<Record<string, any>>({ status: '0' });
 let onSaved: (() => void) | undefined;
 /** 预览模式（field.vue「预览表单」按钮打开） */
 const preview = ref(false);
 
-/** 顶层字段（P1：parentId 为空或 0） */
+/** 顶层字段（P1：parentId 为空或 0；后端 Long 全局序列化为字符串，须数值化比较） */
 const topFields = computed(() =>
-  fields.value.filter((f) => !f.parentId || f.parentId === 0),
+  fields.value.filter((f) => !f.parentId || Number(f.parentId) === 0),
 );
 
-/** 自定义字段的选项卡名（保持首次出现顺序；表单隐藏字段不计入，空页签不渲染） */
+/**
+ * 自定义字段选项卡（保持出现顺序；表单隐藏字段不计入，空页签不渲染）。
+ * 布局设计页登记的页签顺序（model.formTabs）优先，未登记的 tabName 按出现顺序追加。
+ */
 const customTabs = computed(() => {
   const names: string[] = [];
+  let configured: string[] = [];
+  try {
+    configured = model.value?.formTabs ? JSON.parse(model.value.formTabs) : [];
+  } catch {
+    configured = [];
+  }
+  for (const tab of configured) {
+    if (tab === TAB_BASE || names.includes(tab)) continue;
+    names.push(tab);
+  }
   for (const f of topFields.value) {
     if (f.isForm === 0) continue;
     const tab = f.tabName || TAB_BASE;
-    if (!names.includes(tab)) names.push(tab);
+    // tabName=基础信息 的字段并入固定「基础信息」页签，不另开同名页签
+    if (tab === TAB_BASE || names.includes(tab)) continue;
+    names.push(tab);
   }
   return names;
 });
+
+/** 默认打开页签（布局设计页配置；基础信息→base 固定页签，自定义→c-前缀） */
+function resolveInitialTab(): string {
+  const def = model.value?.formDefaultTab;
+  if (!def) return 'base';
+  return def === TAB_BASE ? 'base' : `c-${def}`;
+}
 
 function fieldsOfTab(tab: string): ModelFieldRow[] {
   return topFields.value.filter(
@@ -351,6 +375,30 @@ async function loadBoundOptions(fieldsList: ModelFieldRow[], ownCode: string) {
   }
 }
 
+// /////////// 字典绑定字段（若依式 dictType）候选项 ///////////
+
+/** dictType → 候选项（label/value），顶层字段与 GROUP/REPEATER 子字段共用 */
+const dictOptionsMap = ref<Record<string, { label: string; value: string }[]>>({});
+
+async function loadDictOptions(fieldsList: ModelFieldRow[]) {
+  const keys = new Set<string>();
+  for (const f of fieldsList) {
+    if (f.dictType) keys.add(f.dictType);
+  }
+  for (const key of keys) {
+    if (dictOptionsMap.value[key]) continue;
+    try {
+      const rows = (await getDictDataByTypeApi(key)) ?? [];
+      dictOptionsMap.value[key] = rows.map((r) => ({
+        label: r.dictLabel,
+        value: r.dictValue,
+      }));
+    } catch {
+      dictOptionsMap.value[key] = [];
+    }
+  }
+}
+
 // /////////// P7 内容模板指派（§8.3，对应 WP 后台 Page Template 下拉） ///////////
 
 /** 当前内容被指派的详情模板（undefined = 未指派，走层级默认） */
@@ -530,7 +578,7 @@ onMounted(async () => {
     } catch {
       row = data.record; // 列表行兜底
     }
-    modalApi.setState({ title: `编辑${model.value?.titleLabel || '内容'}` });
+    modalApi.setState({ title: `编辑${contentNoun(model.value?.titleLabel)}` });
     values.title = pick(row, 'title') ?? '';
     values.content = pick(row, 'content') ?? '';
     values.keywords = pick(row, 'keywords') ?? '';
@@ -587,7 +635,7 @@ onMounted(async () => {
     modalApi.setState({
       title: preview.value
         ? `预览录入界面（${model.value?.name || ''}）`
-        : `添加${model.value?.titleLabel || '内容'}`,
+        : `添加${contentNoun(model.value?.titleLabel)}`,
     });
     for (const f of fields.value) {
       if (f.fieldType === 'repeater' || f.fieldType === 'm2a') {
@@ -607,7 +655,9 @@ onMounted(async () => {
       }
     }
   }
+  activeTab.value = resolveInitialTab();
   loadBoundOptions(fields.value, model.value?.code ?? '');
+  loadDictOptions(fields.value);
   checkAi();
   loadTemplateAssign();
 });
@@ -697,6 +747,102 @@ onMounted(async () => {
             <Input v-model:value="values.publish_time" placeholder="yyyy-MM-dd HH:mm:ss" />
           </div>
         </div>
+
+        <!-- tabName=基础信息 的自定义字段并入本页签（与自定义页签网格同构） -->
+        <div
+          v-if="fieldsOfTab(TAB_BASE).some((x) => x.fieldType !== 'formula')"
+          class="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-t border-gray-100 pt-4"
+        >
+          <div
+            v-for="f in fieldsOfTab(TAB_BASE).filter((x) => x.fieldType !== 'formula')"
+            v-show="isVisible(f)"
+            :key="f.id"
+            :class="['textarea', 'images', 'files', 'relates', 'image_url', 'repeater', 'm2a'].includes(f.fieldType) ? 'col-span-2' : ''"
+          >
+            <div class="mb-1 text-sm">
+              <span v-if="f.isRequired === 1" class="text-red-500">*</span>
+              {{ f.fieldLabel }}
+              <span class="ml-1 text-xs text-gray-400">{{ f.fieldName }}</span>
+            </div>
+
+            <!-- P1 GROUP 字段组：子字段网格 -->
+            <div
+              v-if="f.fieldType === 'group'"
+              class="rounded border border-gray-200 p-3"
+            >
+              <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                <div v-for="child in childrenOf(f)" :key="child.id">
+                  <div class="mb-1 text-xs text-gray-500">
+                    <span v-if="child.isRequired === 1" class="text-red-500">*</span>
+                    {{ child.fieldLabel }}
+                    <span class="ml-1 text-gray-300">{{ child.fieldName }}</span>
+                  </div>
+                  <DynamicFieldInput
+                    v-model="values[f.fieldName][child.fieldName]"
+                    :field="child"
+                    :options="child.fieldType === 'user' ? userOptions : (relationOptions[child.fieldName] ?? [])"
+                    :dict-options="dictOptionsMap[child.dictType ?? '']"
+                    :tree-data="child.fieldType === 'category' ? (categoryTrees[child.relateModel || model?.code || ''] ?? []) : undefined"
+                  />
+                </div>
+                <div v-if="childrenOf(f).length === 0" class="text-xs text-gray-400">
+                  该字段组还没有子字段（在「字段管理」里点「子字段」添加）
+                </div>
+              </div>
+            </div>
+
+            <!-- P1 REPEATER 重复行：可增删行 -->
+            <div v-else-if="f.fieldType === 'repeater'" class="space-y-3">
+              <div
+                v-for="(rowItem, rowIndex) in values[f.fieldName] || []"
+                :key="rowIndex"
+                class="relative rounded border border-gray-200 p-3"
+              >
+                <Button
+                  class="absolute right-2 top-2"
+                  danger
+                  size="small"
+                  type="link"
+                  @click="removeRepeaterRow(f, Number(rowIndex))"
+                >
+                  删除本行
+                </Button>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div v-for="child in childrenOf(f)" :key="child.id">
+                    <div class="mb-1 text-xs text-gray-500">
+                      <span v-if="child.isRequired === 1" class="text-red-500">*</span>
+                      {{ child.fieldLabel }}
+                      <span class="ml-1 text-gray-300">{{ child.fieldName }}</span>
+                    </div>
+                    <DynamicFieldInput
+                      v-model="rowItem[child.fieldName]"
+                      :field="child"
+                      :options="child.fieldType === 'user' ? userOptions : (relationOptions[child.fieldName] ?? [])"
+                      :dict-options="dictOptionsMap[child.dictType ?? '']"
+                      :tree-data="child.fieldType === 'category' ? (categoryTrees[child.relateModel || model?.code || ''] ?? []) : undefined"
+                    />
+                  </div>
+                </div>
+              </div>
+              <Button class="w-full" size="small" @click="addRepeaterRow(f)">
+                + 添加一行（{{ (values[f.fieldName] || []).length }} 行）
+              </Button>
+            </div>
+
+            <!-- 其余类型走通用控件（relate/relates/m2a/user 候选、category 树由父组件传入） -->
+            <DynamicFieldInput
+              v-else
+              v-model="values[f.fieldName]"
+              :field="f"
+              :options="f.fieldType === 'user' ? userOptions : (relationOptions[f.fieldName] ?? [])"
+              :dict-options="dictOptionsMap[f.dictType ?? '']"
+              :tree-data="f.fieldType === 'category' ? (categoryTrees[f.relateModel || model?.code || ''] ?? []) : undefined"
+            />
+            <div v-if="f.tips" class="mt-0.5 text-xs text-gray-400">
+              {{ f.tips }}
+            </div>
+          </div>
+        </div>
       </TabPane>
 
       <TabPane v-if="model?.useContent !== 0" :tab="TAB_CONTENT" key="content">
@@ -745,6 +891,7 @@ onMounted(async () => {
                     v-model="values[f.fieldName][child.fieldName]"
                     :field="child"
                     :options="child.fieldType === 'user' ? userOptions : (relationOptions[child.fieldName] ?? [])"
+                    :dict-options="dictOptionsMap[child.dictType ?? '']"
                     :tree-data="child.fieldType === 'category' ? (categoryTrees[child.relateModel || model?.code || ''] ?? []) : undefined"
                   />
                 </div>
@@ -781,6 +928,7 @@ onMounted(async () => {
                       v-model="rowItem[child.fieldName]"
                       :field="child"
                       :options="child.fieldType === 'user' ? userOptions : (relationOptions[child.fieldName] ?? [])"
+                      :dict-options="dictOptionsMap[child.dictType ?? '']"
                       :tree-data="child.fieldType === 'category' ? (categoryTrees[child.relateModel || model?.code || ''] ?? []) : undefined"
                     />
                   </div>
@@ -797,6 +945,7 @@ onMounted(async () => {
               v-model="values[f.fieldName]"
               :field="f"
               :options="f.fieldType === 'user' ? userOptions : (relationOptions[f.fieldName] ?? [])"
+              :dict-options="dictOptionsMap[f.dictType ?? '']"
               :tree-data="f.fieldType === 'category' ? (categoryTrees[f.relateModel || model?.code || ''] ?? []) : undefined"
             />
             <div v-if="f.tips" class="mt-0.5 text-xs text-gray-400">

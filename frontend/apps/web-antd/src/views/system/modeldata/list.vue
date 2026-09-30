@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
-import { useEditDrawer } from '#/utils/edit-drawer';
 import { useAccessStore } from '@vben/stores';
 
 import {
@@ -17,23 +17,25 @@ import {
   Table,
   Tag,
 } from 'ant-design-vue';
-import { useRoute } from 'vue-router';
 
+import { getDictDataByTypeApi } from '#/api/core/dict';
 import {
+  type ContentVersionRow,
   deleteDataApi,
-  getFormMetaApi,
+  type FormMeta,
   getDataListApi,
+  getFormMetaApi,
   getModelByCodeApi,
   getPreviewTokenApi,
   getVersionDiffApi,
   getVersionListApi,
-  restoreVersionApi,
-  updateDataStatusApi,
-  type ContentVersionRow,
-  type FormMeta,
   type ModelFieldRow,
   type ModelRow,
+  restoreVersionApi,
+  updateDataStatusApi,
 } from '#/api/core/model';
+import { contentNoun } from '#/api/core/model';
+import { useEditDrawer } from '#/utils/edit-drawer';
 
 import FormModal from './form-modal.vue';
 
@@ -53,11 +55,18 @@ function matchCode(codes: string[], need: string): boolean {
 }
 
 const accessStore = useAccessStore();
-const canSave = computed(() =>
-  matchCode(accessStore.accessCodes, `/api/system/modelData/save@${model.value?.id ?? 0}`),
+/** 按模型粒度的增删改查按钮权限（与后端锚点同源：add/edit/del@{modelId}） */
+const canAdd = computed(() =>
+  matchCode(accessStore.accessCodes, `/api/system/modelData/add@${model.value?.id ?? 0}`),
+);
+const canEdit = computed(() =>
+  matchCode(accessStore.accessCodes, `/api/system/modelData/edit@${model.value?.id ?? 0}`),
+);
+const canDel = computed(() =>
+  matchCode(accessStore.accessCodes, `/api/system/modelData/del@${model.value?.id ?? 0}`),
 );
 
-const model = ref<null | ModelRow>(null);
+const model = ref<ModelRow | null>(null);
 const fields = ref<ModelFieldRow[]>([]);
 const categories = ref<{ id: number; name: string }[]>([]);
 const rows = ref<Record<string, any>[]>([]);
@@ -115,6 +124,36 @@ function parseOptions(optionsJson?: string) {
   }
 }
 
+// /////////// 字典绑定字段（若依式 dictType）：筛选候选项与值→标签显示 ///////////
+
+const dictOptionsMap = ref<Record<string, { label: string; value: string }[]>>({});
+
+async function loadDictOptions() {
+  const keys = new Set<string>();
+  for (const f of fields.value) {
+    if (f.dictType) keys.add(f.dictType);
+  }
+  for (const key of keys) {
+    if (dictOptionsMap.value[key]) continue;
+    try {
+      const rows = (await getDictDataByTypeApi(key)) ?? [];
+      dictOptionsMap.value[key] = rows.map((r) => ({
+        label: r.dictLabel,
+        value: r.dictValue,
+      }));
+    } catch {
+      dictOptionsMap.value[key] = [];
+    }
+  }
+}
+
+/** 筛选下拉候选项：绑了字典用字典（字典无数据时回退），否则字段自带 options */
+function fieldOptions(f: ModelFieldRow) {
+  return f.dictType && dictOptionsMap.value[f.dictType ?? '']?.length
+    ? dictOptionsMap.value[f.dictType ?? '']
+    : parseOptions(f.options);
+}
+
 function cellText(record: Record<string, any>, column: any): string {
   const key = column?.key as string;
   // E1 关联引用：优先显示展开后的目标内容标题，而非裸 id
@@ -135,6 +174,24 @@ function cellText(record: Record<string, any>, column: any): string {
   if (v === undefined || v === null) return '-';
   if (typeof v === 'object') {
     return Array.isArray(v) ? v.join(',') : JSON.stringify(v);
+  }
+  // 字典绑定字段：值→标签显示（checkbox 为 JSON 数组串，逐项映射）
+  const f = listFields.value.find((x) => x.fieldName === key);
+  if (f?.dictType) {
+    const opts = dictOptionsMap.value[f.dictType] ?? [];
+    if (opts.length > 0) {
+      const toLabel = (val: any) =>
+        opts.find((o) => String(o.value) === String(val))?.label ?? String(val);
+      let arr: any[] = [v];
+      if (typeof v === 'string' && v.trim().startsWith('[')) {
+        try {
+          arr = JSON.parse(v);
+        } catch {
+          arr = [v];
+        }
+      }
+      return arr.map(toLabel).join(',');
+    }
   }
   return String(v);
 }
@@ -229,7 +286,7 @@ const versions = ref<ContentVersionRow[]>([]);
 const versionTotal = ref(0);
 const versionPage = ref(1);
 /** 版本恢复确认 */
-const restoreTarget = ref<null | ContentVersionRow>(null);
+const restoreTarget = ref<ContentVersionRow | null>(null);
 
 function openVersions(row: Record<string, any>) {
   versionRow.value = row;
@@ -310,6 +367,7 @@ onMounted(async () => {
   const meta: FormMeta = await getFormMetaApi(model.value.id);
   fields.value = meta.fields ?? [];
   categories.value = meta.categories ?? [];
+  loadDictOptions();
   await load();
 });
 </script>
@@ -334,7 +392,7 @@ onMounted(async () => {
           v-model:value="filterValues[f.fieldName]"
           allow-clear
           class="w-[160px]"
-          :options="parseOptions(f.options)"
+          :options="fieldOptions(f)"
           :placeholder="f.fieldLabel"
         />
         <InputNumber
@@ -375,12 +433,12 @@ onMounted(async () => {
       </Button>
       <Button @click="resetFilters">重置</Button>
       <Button
-        v-if="canSave"
+        v-if="canAdd"
         class="ml-auto"
         type="primary"
         @click="openAdd"
       >
-        添加{{ model?.titleLabel || '内容' }}
+        添加{{ contentNoun(model?.titleLabel) }}
       </Button>
     </div>
 
@@ -399,11 +457,17 @@ onMounted(async () => {
           </a>
         </template>
         <template v-else-if="column.key === 'action'">
-          <Button class="mr-1 px-2" size="small" type="link" @click="openEdit(record)">
+          <Button
+            v-if="canEdit"
+            class="mr-1 px-2"
+            size="small"
+            type="link"
+            @click="openEdit(record)"
+          >
             编辑
           </Button>
           <Button
-            v-if="canSave"
+            v-if="canEdit"
             class="mr-1 px-2"
             size="small"
             type="link"
@@ -412,7 +476,6 @@ onMounted(async () => {
             预览
           </Button>
           <Button
-            v-if="canSave"
             class="mr-1 px-2"
             size="small"
             type="link"
@@ -421,7 +484,7 @@ onMounted(async () => {
             版本
           </Button>
           <Button
-            v-if="canSave"
+            v-if="canEdit"
             class="mr-1 px-2"
             size="small"
             type="link"
@@ -430,7 +493,7 @@ onMounted(async () => {
             {{ Number(record.status) === 1 ? '下架' : '发布' }}
           </Button>
           <Button
-            v-if="canSave"
+            v-if="canDel"
             class="px-2"
             danger
             size="small"

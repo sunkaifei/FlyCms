@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.flycms.module.ad.dao.AdDao">
+
+    <sql id="allColumns">
+        id, position_id AS positionId, name, ad_type AS adType, image_url AS imageUrl, url,
+        text_content AS textContent, html_code AS htmlCode, weight, start_time AS startTime,
+        end_time AS endTime, status, count_view AS countView, count_click AS countClick,
+        remark, sort, create_time AS createTime, update_time AS updateTime
+    </sql>
+
+    <select id="findAds" resultType="com.flycms.module.ad.model.Ad">
+        select <include refid="allColumns"/>
+        from fly_ad
+        <where>
+            <if test="positionId != null">position_id = #{positionId}</if>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%') or url like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+        order by sort, id desc
+        limit #{offset}, #{rows}
+    </select>
+
+    <select id="countAds" resultType="int">
+        select count(*)
+        from fly_ad
+        <where>
+            <if test="positionId != null">position_id = #{positionId}</if>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%') or url like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="findAdById" resultType="com.flycms.module.ad.model.Ad">
+        select <include refid="allColumns"/>
+        from fly_ad
+        where id = #{id}
+    </select>
+
+    <select id="listActiveByPosition" resultType="com.flycms.module.ad.model.Ad">
+        select <include refid="allColumns"/>
+        from fly_ad
+        where position_id = #{positionId}
+          and status = 1
+          and (start_time is null or start_time &lt;= now())
+          and (end_time is null or end_time &gt;= now())
+        order by weight desc, sort, id desc
+        limit #{rows}
+    </select>
+
+    <insert id="addAd">
+        insert into fly_ad
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="positionId != null">position_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="adType != null and adType != ''">ad_type,</if>
+            <if test="imageUrl != null">image_url,</if>
+            <if test="url != null">url,</if>
+            <if test="textContent != null">text_content,</if>
+            <if test="htmlCode != null">html_code,</if>
+            <if test="weight != null">weight,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            status,
+            count_view,
+            count_click,
+            <if test="remark != null">remark,</if>
+            sort,
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
+            <if test="positionId != null">#{positionId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="adType != null and adType != ''">#{adType},</if>
+            <if test="imageUrl != null">#{imageUrl},</if>
+            <if test="url != null">#{url},</if>
+            <if test="textContent != null">#{textContent},</if>
+            <if test="htmlCode != null">#{htmlCode},</if>
+            <if test="weight != null">#{weight},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            #{status},
+            0,
+            0,
+            <if test="remark != null">#{remark},</if>
+            #{sort},
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateAd">
+        update fly_ad
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="adType != null and adType != ''">ad_type = #{adType},</if>
+            image_url = #{imageUrl},
+            url = #{url},
+            text_content = #{textContent},
+            html_code = #{htmlCode},
+            <if test="weight != null">weight = #{weight},</if>
+            start_time = #{startTime},
+            end_time = #{endTime},
+            status = #{status},
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="sort >= 0">sort = #{sort},</if>
+            update_time = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAdById">
+        delete from fly_ad
+        where id = #{id}
+    </delete>
+
+    <update id="incrementView">
+        update fly_ad set count_view = count_view + 1
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="incrementClick">
+        update fly_ad set count_click = count_click + 1
+        where id = #{id}
+    </update>
+
+</mapper>

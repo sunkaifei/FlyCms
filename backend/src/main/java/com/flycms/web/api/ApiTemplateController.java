@@ -118,7 +118,11 @@ public class ApiTemplateController extends ApiBaseController {
         if (StringUtils.isNotBlank(file)) {
             model.put("file", file);
         }
-        return templateCenterService.preview(content, model);
+        // 相对 include 按模板所在目录解析：试渲染必须用与线上一致的完整加载路径命名
+        String templateName = StringUtils.isBlank(file)
+                ? null
+                : "pc_theme/" + templateCenterService.currentSkin() + "/" + file;
+        return templateCenterService.preview(templateName, content, model);
     }
 
     /** 仅做语法校验（保存前手速检查，不渲染） */
