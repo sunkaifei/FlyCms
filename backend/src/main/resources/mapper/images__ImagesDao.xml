@@ -41,6 +41,12 @@
 		</trim>
 	</insert>
 
+	<!-- W 批次控件回显：批量 id → {id,imgUrl,imgName} -->
+	<select id="findByIds" resultType="map">
+		SELECT id, img_url AS imgUrl, img_name AS imgName FROM fly_images WHERE id IN
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</select>
+
 	<!-- 添加图片和信息关联记录 -->
 	<insert id="addImagesInfoMerge">
 		insert into fly_images_info_merge

@@ -17,6 +17,14 @@ public enum FieldTypeEnum {
     DECIMAL("decimal", "decimal(18,2)", null),
     DATE("date", "date", null),
     DATETIME("datetime", "datetime", null),
+    /**
+     * 日期范围（W 批次控件层，对标酒店入住/活动周期录入）：JSON 存 ["start","end"]，
+     * 写入校验两段均为 yyyy-MM-dd 且 start<=end；读侧展开 {field}Start/{field}End；
+     * 列表筛选支持重叠命中（start <= 存end AND end >= 存start）。
+     */
+    DATE_RANGE("date_range", "json", null),
+    /** 日期时间范围：JSON 存 ["start","end"]（yyyy-MM-dd HH:mm[:ss]），其余同 DATE_RANGE。 */
+    DATETIME_RANGE("datetime_range", "json", null),
     SELECT("select", "varchar(64)", null),
     RADIO("radio", "varchar(64)", null),
     CHECKBOX("checkbox", "json", null),

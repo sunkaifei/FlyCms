@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Open source house, All rights reserved
@@ -27,6 +28,9 @@ public interface ImagesDao {
      * @return
      */
     public int addImages(Images images);
+
+    /** 批量 id → {id,imgUrl,imgName}（W 批次控件回显） */
+    public List<Map<String, Object>> findByIds(@Param("ids") List<Long> ids);
 
     /**
      * 添加图片和信息关联记录

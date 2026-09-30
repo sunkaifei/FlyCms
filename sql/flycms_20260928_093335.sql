@@ -50767,6 +50767,7 @@ CREATE TABLE `fly_model_field` (
   `maxlength` int(11) DEFAULT NULL,
   `dict_type` varchar(64) DEFAULT NULL COMMENT 'select/radio数据来源（暂用options，预留字典）',
   `options` varchar(2000) DEFAULT NULL COMMENT '选项，JSON数组 ["A","B"] 或 [{"label":"","value":""}]',
+  `widget_conf` text COMMENT '控件配置 JSON（白名单 schema，NULL=全默认）',
   `is_required` tinyint(1) NOT NULL DEFAULT '0',
   `is_list` tinyint(1) NOT NULL DEFAULT '1' COMMENT '后台列表显示',
   `is_search` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否参与全文搜索（预留，待接 Elasticsearch）',

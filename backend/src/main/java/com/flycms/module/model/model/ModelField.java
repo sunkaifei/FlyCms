@@ -26,6 +26,12 @@ public class ModelField implements Serializable {
     private Integer maxlength;
     private String dictType;
     private String options;
+    /**
+     * 控件配置（W 批次，对标 Directus interface options）：JSON 字符串，按 fieldType 走
+     * FieldWidgetConfUtil 白名单 schema（如 image.shape / textarea.rows / date.format）。
+     * NULL/空 = 全默认行为；保存时白名单校验，非法键/越域值/坏 JSON 拒绝。
+     */
+    private String widgetConf;
     private int isRequired;
     private int isList;
     private int isSearch;

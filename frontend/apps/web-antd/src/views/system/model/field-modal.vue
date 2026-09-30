@@ -34,6 +34,8 @@ const FIELD_TYPES = [
   { label: '小数 (decimal)', value: 'decimal' },
   { label: '日期 (date)', value: 'date' },
   { label: '日期时间 (datetime)', value: 'datetime' },
+  { label: '日期范围 (date_range，存起止)', value: 'date_range' },
+  { label: '时间范围 (datetime_range，存起止)', value: 'datetime_range' },
   { label: '下拉 (select)', value: 'select' },
   { label: '单选 (radio)', value: 'radio' },
   { label: '多选 (checkbox)', value: 'checkbox' },
@@ -202,7 +204,7 @@ const [Form, formApi] = useVbenForm({
       component: 'InputNumber',
       componentProps: { min: 1, max: 4000 },
       dependencies: {
-        show: () => fieldType.value === 'input',
+        show: (values: Record<string, any>) => values.fieldType === 'input',
         triggerFields: ['fieldType'],
       },
       fieldName: 'maxlength',
@@ -256,7 +258,7 @@ const [Form, formApi] = useVbenForm({
       component: 'Input',
       componentProps: { placeholder: '正则表达式（可选）' },
       dependencies: {
-        show: () => fieldType.value === 'input',
+        show: (values: Record<string, any>) => values.fieldType === 'input',
         triggerFields: ['fieldType'],
       },
       fieldName: 'regex',
@@ -421,7 +423,7 @@ const [Form, formApi] = useVbenForm({
       component: 'InputNumber',
       componentProps: { step: 0.01 },
       dependencies: {
-        show: () => ['number', 'decimal', 'rating'].includes(fieldType.value),
+        show: (values: Record<string, any>) => ['number', 'decimal', 'rating'].includes(String(values.fieldType)),
         triggerFields: ['fieldType'],
       },
       fieldName: 'minValue',
@@ -431,11 +433,257 @@ const [Form, formApi] = useVbenForm({
       component: 'InputNumber',
       componentProps: { step: 0.01 },
       dependencies: {
-        show: () => ['number', 'decimal', 'rating'].includes(fieldType.value),
+        show: (values: Record<string, any>) => ['number', 'decimal', 'rating'].includes(String(values.fieldType)),
         triggerFields: ['fieldType'],
       },
       fieldName: 'maxValue',
       label: '最大值',
+    },
+    // /////////// W 控件设置（widget_conf，与后端 FieldWidgetConfUtil 同源） ///////////
+    {
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '方形 (square)', value: 'square' },
+          { label: '圆形 (circle，头像场景)', value: 'circle' },
+        ],
+        placeholder: '默认方形',
+        allowClear: true,
+      },
+      dependencies: {
+        show: () => fieldType.value === 'image',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_shape',
+      label: '单图形态',
+    },
+    {
+      component: 'InputNumber',
+      componentProps: { min: 1, max: 999 },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'image',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_maxSize',
+      label: '大小上限(MB)',
+    },
+    {
+      component: 'InputNumber',
+      componentProps: { min: 1, max: 50 },
+      dependencies: {
+        show: (values: Record<string, any>) => ['images', 'files'].includes(String(values.fieldType)),
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_maxCount',
+      label: '数量上限',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '拖拽排序 (drag)', value: 'drag' },
+          { label: '固定顺序 (fixed)', value: 'fixed' },
+        ],
+        placeholder: '默认拖拽排序',
+        allowClear: true,
+      },
+      dependencies: {
+        show: (values: Record<string, any>) => ['images', 'files'].includes(String(values.fieldType)),
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_sortMode',
+      label: '排序方式',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '日 (YYYY-MM-DD)', value: 'YYYY-MM-DD' },
+          { label: '月 (YYYY-MM)', value: 'YYYY-MM' },
+          { label: '年 (YYYY)', value: 'YYYY' },
+        ],
+        placeholder: '默认到日',
+        allowClear: true,
+      },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'date',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_format',
+      label: '时间格式',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '到分 (YYYY-MM-DD HH:mm)', value: 'YYYY-MM-DD HH:mm' },
+          { label: '到秒 (YYYY-MM-DD HH:mm:ss)', value: 'YYYY-MM-DD HH:mm:ss' },
+        ],
+        placeholder: '默认到分',
+        allowClear: true,
+      },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'datetime',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_format',
+      label: '时间格式',
+    },
+    {
+      component: 'InputNumber',
+      componentProps: { min: 1, max: 30 },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'textarea',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_rows',
+      label: '行数',
+    },
+    {
+      component: 'Checkbox',
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'textarea',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_autoSize',
+      label: '自动增高',
+    },
+    {
+      component: 'Checkbox',
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'textarea',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_showCount',
+      label: '字数统计',
+    },
+    {
+      component: 'Input',
+      componentProps: { placeholder: '如 https:// 或 单位“元”' },
+      dependencies: {
+        show: (values: Record<string, any>) => ['input', 'number', 'decimal'].includes(String(values.fieldType)),
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_addonAfter',
+      label: '后缀',
+    },
+    {
+      component: 'Input',
+      componentProps: { placeholder: '如 https://' },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'input',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_addonBefore',
+      label: '前缀',
+    },
+    {
+      component: 'InputNumber',
+      componentProps: { step: 0.01, min: 0.0001 },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'decimal',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_step',
+      label: '步长',
+    },
+    {
+      component: 'Input',
+      componentProps: { placeholder: '如 /downloads/（仅展示装饰）' },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'slug',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_prefix',
+      label: '展示前缀',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '下拉 (select)', value: 'select' },
+          { label: '横排单选 (row)', value: 'row' },
+          { label: '竖排单选 (column)', value: 'column' },
+          { label: '标签组 (button)', value: 'button' },
+        ],
+        placeholder: '默认下拉',
+        allowClear: true,
+      },
+      dependencies: {
+        show: (values: Record<string, any>) => ['select', 'radio'].includes(String(values.fieldType)),
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_layout',
+      label: '选项布局',
+    },
+    {
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '多选框 (checkbox)', value: 'checkbox' },
+          { label: '标签组 (button)', value: 'button' },
+        ],
+        placeholder: '默认多选框',
+        allowClear: true,
+      },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'checkbox',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_layout',
+      label: '选项布局',
+    },
+    {
+      component: 'Input',
+      componentProps: { placeholder: '如 显示' },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'switch',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_checkedText',
+      label: '激活文案',
+    },
+    {
+      component: 'Input',
+      componentProps: { placeholder: '如 隐藏' },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'switch',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_unCheckedText',
+      label: '关闭文案',
+    },
+    {
+      component: 'InputNumber',
+      componentProps: { min: 1, max: 10 },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'rating',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_count',
+      label: '星数',
+    },
+    {
+      component: 'Checkbox',
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'rating',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_allowHalf',
+      label: '允许半星',
+    },
+    {
+      component: 'Textarea',
+      componentProps: {
+        placeholder: 'JSON 颜色数组，如 ["#1677ff","#f5222d","#52c41a"]',
+        rows: 2,
+      },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'color',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_palette',
+      label: '预设色板',
     },
   ],
   showDefaultActions: false,
@@ -471,6 +719,80 @@ function serializeRollupExpr(values: Record<string, any>): string {
   return JSON.stringify(expr);
 }
 
+/** W：把 w_* 表单键收敛为 widget_conf JSON（与后端 FieldWidgetConfUtil 白名单同源） */
+function serializeWidgetConf(values: Record<string, any>): string {
+  const conf: Record<string, any> = {};
+  const put = (key: string, v: any) => {
+    if (v !== undefined && v !== null && v !== '') conf[key] = v;
+  };
+  switch (String(values.fieldType)) {
+    case 'image': {
+      put('shape', values.w_shape);
+      put('maxSize', values.w_maxSize);
+      break;
+    }
+    case 'images':
+    case 'files': {
+      put('maxCount', values.w_maxCount);
+      put('sortMode', values.w_sortMode);
+      break;
+    }
+    case 'date':
+    case 'datetime': {
+      put('format', values.w_format);
+      break;
+    }
+    case 'textarea': {
+      put('rows', values.w_rows);
+      put('autoSize', values.w_autoSize ? true : undefined);
+      put('showCount', values.w_showCount ? true : undefined);
+      break;
+    }
+    case 'input': {
+      put('addonBefore', values.w_addonBefore);
+      put('addonAfter', values.w_addonAfter);
+      break;
+    }
+    case 'number': {
+      put('addonAfter', values.w_addonAfter);
+      break;
+    }
+    case 'decimal': {
+      put('addonAfter', values.w_addonAfter);
+      put('step', values.w_step);
+      break;
+    }
+    case 'slug': {
+      put('prefix', values.w_prefix);
+      break;
+    }
+    case 'select':
+    case 'radio':
+    case 'checkbox': {
+      put('layout', values.w_layout);
+      break;
+    }
+    case 'switch': {
+      put('checkedText', values.w_checkedText);
+      put('unCheckedText', values.w_unCheckedText);
+      break;
+    }
+    case 'rating': {
+      put('count', values.w_count);
+      put('allowHalf', values.w_allowHalf ? true : undefined);
+      break;
+    }
+    case 'color': {
+      const palette = String(values.w_palette ?? '').trim();
+      if (palette) conf.palette = palette;
+      break;
+    }
+    default:
+      break;
+  }
+  return Object.keys(conf).length ? JSON.stringify(conf) : '';
+}
+
 const [Modal, modalApi] = useEditDrawer({
   async onConfirm() {
     const { valid } = await formApi.validate();
@@ -499,8 +821,13 @@ const [Modal, modalApi] = useEditDrawer({
     const payload: Record<string, any> = { ...values };
     payload.visibleWhen = serializeVisibleWhen(values);
     payload.rollupExpr = serializeRollupExpr(values);
+    payload.widgetConf = serializeWidgetConf(values);
     payload.dictType =
       String(values.dictSource) === 'dict' ? String(values.dictType ?? '') : '';
+    // w_* 中间键不入库
+    for (const key of Object.keys(payload)) {
+      if (key.startsWith('w_')) delete payload[key];
+    }
     delete payload.visField;
     delete payload.visOp;
     delete payload.visValue;
@@ -580,6 +907,13 @@ onMounted(async () => {
     } catch {
       rollup = {};
     }
+    // W 控件配置回填
+    let wConf: any = {};
+    try {
+      wConf = editing.value.widgetConf ? JSON.parse(editing.value.widgetConf) : {};
+    } catch {
+      wConf = {};
+    }
     visField.value = vis.field ?? '';
     visOp.value = vis.op ?? 'eq';
     formApi.setValues({
@@ -610,6 +944,26 @@ onMounted(async () => {
       rollupSource: rollup.source,
       rollupFunc: rollup.func ?? 'COUNT',
       rollupColumn: rollup.column,
+      w_shape: wConf.shape,
+      w_maxSize: wConf.maxSize,
+      w_maxCount: wConf.maxCount,
+      w_sortMode: wConf.sortMode,
+      w_format: wConf.format,
+      w_rows: wConf.rows,
+      w_autoSize: wConf.autoSize === true,
+      w_showCount: wConf.showCount === true,
+      w_addonBefore: wConf.addonBefore,
+      w_addonAfter: wConf.addonAfter,
+      w_step: wConf.step,
+      w_prefix: wConf.prefix,
+      w_layout: wConf.layout,
+      w_checkedText: wConf.checkedText,
+      w_unCheckedText: wConf.unCheckedText,
+      w_count: wConf.count,
+      w_allowHalf: wConf.allowHalf === true,
+      w_palette: wConf.palette
+        ? JSON.stringify(wConf.palette)
+        : undefined,
     });
     formApi.updateSchema([
       { componentProps: { disabled: true }, fieldName: 'fieldName' },

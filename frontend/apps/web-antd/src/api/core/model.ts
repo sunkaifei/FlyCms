@@ -47,6 +47,8 @@ export interface ModelFieldRow {
   isSearch: number;
   maxlength?: number;
   options?: string;
+  /** 控件配置 JSON（W 批次，按类型白名单；NULL=全默认。使用处 JSON.parse） */
+  widgetConf?: string;
   placeholder?: string;
   regex?: string;
   /** RELATE / RELATES 字段的目标模型 code（E1；关联本模型时=本模型 code） */

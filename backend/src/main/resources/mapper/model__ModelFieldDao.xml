@@ -4,6 +4,7 @@
 
 	<sql id="base_column">id, model_id AS modelId, field_name AS fieldName, field_label AS fieldLabel, field_type AS fieldType,
 		column_type AS columnType, default_value AS defaultValue, maxlength, dict_type AS dictType, options,
+		widget_conf AS widgetConf,
 		is_required AS isRequired, is_list AS isList, is_search AS isSearch, is_filter AS isFilter,
 		regex, placeholder, tips, relate_model AS relateModel, is_unique AS isUnique, min_value AS minValue,
 		max_value AS `maxValue`, tab_name AS tabName, parent_id AS parentId, visible_when AS visibleWhen,
@@ -13,10 +14,10 @@
 	<!-- 主键策略（D8）：fly_model_field.id 为 AUTO_INCREMENT，插入不带 id，由 useGeneratedKeys 回填 -->
 	<insert id="addField" useGeneratedKeys="true" keyProperty="id">
 		insert into fly_model_field (model_id, field_name, field_label, field_type, column_type, default_value, maxlength,
-			dict_type, options, is_required, is_list, is_search, is_filter, is_form, regex, placeholder, tips, relate_model,
+			dict_type, options, widget_conf, is_required, is_list, is_search, is_filter, is_form, regex, placeholder, tips, relate_model,
 			is_unique, min_value, max_value, tab_name, parent_id, visible_when, rollup_expr, lookup_fields, formula, sort, status, create_time)
 		values (#{modelId}, #{fieldName}, #{fieldLabel}, #{fieldType}, #{columnType}, #{defaultValue}, #{maxlength},
-			#{dictType}, #{options}, #{isRequired}, #{isList}, #{isSearch}, #{isFilter}, #{isForm}, #{regex}, #{placeholder}, #{tips}, #{relateModel},
+			#{dictType}, #{options}, #{widgetConf}, #{isRequired}, #{isList}, #{isSearch}, #{isFilter}, #{isForm}, #{regex}, #{placeholder}, #{tips}, #{relateModel},
 			#{isUnique}, #{minValue}, #{maxValue}, #{tabName},
 			coalesce(#{parentId}, 0), #{visibleWhen}, #{rollupExpr}, #{lookupFields}, #{formula}, #{sort}, #{status}, now())
 	</insert>
@@ -29,6 +30,7 @@
 			<if test="maxlength != null">maxlength = #{maxlength},</if>
 			<if test="options != null">options = #{options},</if>
 			<if test="dictType != null">dict_type = #{dictType},</if>
+			<if test="widgetConf != null">widget_conf = #{widgetConf},</if>
 			is_required = #{isRequired},
 			is_list = #{isList},
 			is_search = #{isSearch},

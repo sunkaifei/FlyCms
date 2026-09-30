@@ -144,6 +144,16 @@ public class ModelFieldService {
             }
         }
         field.setColumnType(type.resolveColumnType(field.getMaxlength()));
+        // W 控件配置：白名单校验 + 规范化（键序稳定紧凑 JSON）；空=默认行为存 NULL
+        if (StringUtils.isBlank(field.getWidgetConf())) {
+            field.setWidgetConf(null);
+        } else {
+            DataVo conf = FieldWidgetConfUtil.check(type.getCode(), field.getWidgetConf());
+            if (conf.getCode() != DataVo.CODE_SUCCESS) {
+                return conf;
+            }
+            field.setWidgetConf((String) conf.getData());
+        }
         field.setStatus(1);
         field.setCreateTime(new Date());
         if (modelFieldDao.addField(field) > 0) {
@@ -245,6 +255,18 @@ public class ModelFieldService {
             }
         } else {
             form.setDictType("");
+        }
+        // W 控件配置：未传沿用原值；传空串=清除；传值白名单校验（类型不可改，按 oldType 校验）
+        if (form.getWidgetConf() == null) {
+            form.setWidgetConf(old.getWidgetConf());
+        } else if (StringUtils.isNotBlank(form.getWidgetConf())) {
+            DataVo conf = FieldWidgetConfUtil.check(oldType.getCode(), form.getWidgetConf());
+            if (conf.getCode() != DataVo.CODE_SUCCESS) {
+                return conf;
+            }
+            form.setWidgetConf((String) conf.getData());
+        } else {
+            form.setWidgetConf("");
         }
         if (modelFieldDao.updateField(form) > 0) {
             // 虚拟字段（formula/rollup/m2a）无列定义（columnType 为 NULL），无物理列可改

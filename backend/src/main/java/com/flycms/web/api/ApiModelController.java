@@ -293,6 +293,8 @@ public class ApiModelController extends ApiBaseController {
         field.setFieldType(params.get("fieldType"));
         field.setMaxlength(parseInteger(params.get("maxlength")));
         field.setOptions(params.get("options"));
+        // W 控件配置：白名单 JSON（FieldWidgetConfUtil 校验）
+        field.setWidgetConf(blankToNull(params.get("widgetConf")));
         // 字典绑定（若依式）：select/radio/checkbox 可绑 fly_dict_type.dict_type
         field.setDictType(blankToNull(params.get("dictType")));
         field.setIsRequired(parseInt(params.get("isRequired"), 0));
@@ -337,6 +339,8 @@ public class ApiModelController extends ApiBaseController {
         field.setFieldLabel(params.get("fieldLabel"));
         field.setMaxlength(parseInteger(params.get("maxlength")));
         field.setOptions(params.get("options"));
+        // W 控件配置：未传（null）沿用原值；传空串 = 清除（服务端裁决）——保留原串，勿 blankToNull
+        field.setWidgetConf(params.containsKey("widgetConf") ? params.get("widgetConf") : null);
         // 字典绑定：未传（null）沿用原值；传空串 = 解除绑定（服务端裁决）
         field.setDictType(params.containsKey("dictType") ? params.get("dictType") : null);
         field.setIsRequired(parseInt(params.get("isRequired"), 0));

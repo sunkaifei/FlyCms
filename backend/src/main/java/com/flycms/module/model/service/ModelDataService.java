@@ -177,6 +177,37 @@ public class ModelDataService {
             if (StringUtils.isBlank(v)) {
                 continue;
             }
+            // W 时间范围字段：筛选值 "start,end" → 重叠命中（存起<=筛止 AND 存止>=筛起）
+            if ("date_range".equals(f.getFieldType()) || "datetime_range".equals(f.getFieldType())) {
+                String[] parts = v.split("[,;，；]", 2);
+                if (parts.length != 2 || StringUtils.isBlank(parts[0]) || StringUtils.isBlank(parts[1])) {
+                    continue;
+                }
+                String fs = parts[0].trim();
+                String fe = parts[1].trim();
+                boolean isDate = "date_range".equals(f.getFieldType());
+                if (!isDate) {
+                    // datetime 补齐到秒，保证与存储值字典序可比
+                    if (fs.length() == 10) {
+                        fs = fs + " 00:00:00";
+                    } else if (fs.length() == 16) {
+                        fs = fs + ":00";
+                    }
+                    if (fe.length() == 10) {
+                        fe = fe + " 23:59:59";
+                    } else if (fe.length() == 16) {
+                        fe = fe + ":00";
+                    }
+                }
+                String colName = "`" + SqlSafeUtil.safeColumnName(f.getFieldName()) + "`";
+                where.add("CAST(JSON_UNQUOTE(JSON_EXTRACT(" + colName + ",'$[1]')) AS CHAR) >= #{params."
+                        + f.getFieldName() + "_s}");
+                where.add("CAST(JSON_UNQUOTE(JSON_EXTRACT(" + colName + ",'$[0]')) AS CHAR) <= #{params."
+                        + f.getFieldName() + "_e}");
+                params.put(f.getFieldName() + "_s", fs);
+                params.put(f.getFieldName() + "_e", fe);
+                continue;
+            }
             where.add("`" + SqlSafeUtil.safeColumnName(f.getFieldName()) + "` = #{params." + f.getFieldName() + "}");
             params.put(f.getFieldName(), v);
         }
@@ -757,6 +788,27 @@ public class ModelDataService {
         expandBoundEntities(model, top, rows);
         // 8) E6 公式字段：行内表达式受限求值（不落库，仅读侧）
         expandFormulas(top, rows);
+        // 9) W 时间范围展开：date_range/datetime_range → {field}Start/{field}End（模板直出起止）
+        for (Map<String, Object> row : rows) {
+            for (ModelField f : top) {
+                FieldTypeEnum type;
+                try {
+                    type = FieldTypeEnum.of(f.getFieldType());
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+                if (type != FieldTypeEnum.DATE_RANGE && type != FieldTypeEnum.DATETIME_RANGE) {
+                    continue;
+                }
+                Object v = row.get(f.getFieldName());
+                if (v == null) {
+                    continue;
+                }
+                List<String> arr = parseStringArray(String.valueOf(v));
+                row.put(f.getFieldName() + "Start", arr.size() > 0 ? arr.get(0) : null);
+                row.put(f.getFieldName() + "End", arr.size() > 1 ? arr.get(1) : null);
+            }
+        }
     }
 
     /**
@@ -1740,6 +1792,45 @@ public class ModelDataService {
             case DATETIME:
                 v = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(raw.trim().replace('T', ' '));
                 break;
+            case DATE_RANGE:
+            case DATETIME_RANGE: {
+                // W 时间范围：存 ["start","end"]；两段分别校验格式且 start<=end
+                List<String> arr = parseStringArray(raw);
+                boolean isDate = type == FieldTypeEnum.DATE_RANGE;
+                SimpleDateFormat fmt = isDate
+                        ? new SimpleDateFormat("yyyy-MM-dd")
+                        : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                java.util.function.Function<String, String> norm = s -> {
+                    String t = s.trim().replace('T', ' ');
+                    if (!isDate && t.length() == 16) {
+                        t = t + ":00";
+                    }
+                    try {
+                        fmt.parse(t);
+                    } catch (java.text.ParseException e) {
+                        throw new IllegalArgumentException(
+                                f.getFieldLabel() + "时间格式不正确（" + s + "）");
+                    }
+                    return isDate ? t.substring(0, 10) : t;
+                };
+                if (arr.size() != 2) {
+                    if (arr.isEmpty() && f.getIsRequired() == 1) {
+                        throw new IllegalArgumentException(f.getFieldLabel() + "不能为空");
+                    }
+                    if (arr.isEmpty()) {
+                        v = null;
+                        break;
+                    }
+                    throw new IllegalArgumentException(f.getFieldLabel() + "需要起止两个时间");
+                }
+                String start = norm.apply(arr.get(0));
+                String end = norm.apply(arr.get(1));
+                if (start.compareTo(end) > 0) {
+                    throw new IllegalArgumentException(f.getFieldLabel() + "开始时间不能晚于结束时间");
+                }
+                v = JSON.toJSONString(Arrays.asList(start, end));
+                break;
+            }
             case RELATE: {
                 // E1 单值关联：目标内容必须存在且 status=1（防悬空引用）
                 long rid;

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,6 +82,22 @@ public class ImagesService {
 		pageVo.setList(imagesDao.getImagesLibraryList(keyword, onlyOrphan, pageVo.getOffset(), pageVo.getRows()));
 		pageVo.setCount(imagesDao.getImagesLibraryCount(keyword, onlyOrphan));
 		return pageVo;
+	}
+
+	/**
+	 * 管理端直传入库（W 批次字段控件层）：只插 fly_images 行，info_count=0 孤儿态，
+	 * 引用计数由内容保存链路（incrImagesRefCount）接管。
+	 */
+	public void addAdminUpload(Images images) {
+		imagesDao.addImages(images);
+	}
+
+	/** 批量 id → {id,imgUrl,imgName} 映射（控件回显，修「刷新后缩略图丢失」） */
+	public List<Map<String, Object>> findByIds(List<Long> ids) {
+		if (ids == null || ids.isEmpty()) {
+			return new ArrayList<>();
+		}
+		return imagesDao.findByIds(ids);
 	}
 
 	/**

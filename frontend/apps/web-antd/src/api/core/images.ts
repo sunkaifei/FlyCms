@@ -51,3 +51,25 @@ export async function deleteOrphanImagesApi(ids?: string[]) {
     ids: ids && ids.length ? ids.join(',') : '',
   });
 }
+
+// /////////////////// W 批次：控件直传与回显 ///////////////////
+
+/** 控件内直传图片（multipart），落 fly_images 孤儿态，返回 id+url */
+export async function uploadImageApi(file: globalThis.File) {
+  const form = new FormData();
+  form.append('file', file);
+  return requestClient.post<{ id: string; imgUrl: string; imgName?: string }>(
+    '/system/images/upload',
+    form,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    },
+  );
+}
+
+/** 批量 id → {id,imgUrl,imgName} 映射（编辑表单打开时回显缩略图） */
+export async function getAttachmentBatchApi(ids: string[]) {
+  return requestClient.get<
+    { id: number; imgName?: string; imgUrl?: string }[]
+  >('/system/images/batch', { params: { ids: ids.join(',') } });
+}
