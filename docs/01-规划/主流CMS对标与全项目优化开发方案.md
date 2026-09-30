@@ -957,23 +957,24 @@ CREATE TABLE fly_content_i18n (
 - **G12 版本 diff**：`GET /api/system/modelData/version/diff`（逐字段 from/to，排除 id/short_url）+ 版本抽屉每行「对比」按钮（与上一版逐字段差异表）；
 - 验收：综合探针 8/8（配置回显/掩码/掩码不覆盖真值/配置后走真实调用/搜索回退/diff/恢复/清理）、e2e PASS 51、audit PASS 16、B1 11/11、M 15/15、vue-tsc 通过。
 
-### 全项目剩余（全部需用户决策或外部条件）
+### 9.9 收尾批次落地（2026-09-30 ~ 2026-10-01，第五/六/七轮）
 
-- **G22/G21 点亮**：后台「网站设置→AI 与自动化」分组直接填写（无需 SQL）；
+- **数据字典** ✅（2026-09-30，若依式）：`fly_dict_type/fly_dict_data` + 字段 select/radio/checkbox 绑 `dict_type`（候选优先级=字典>field.options），管理页 `/system/dict`，菜单 900350~900357；下载模型三字段预绑定；
+- **广告系统** ✅（2026-09-30，对标帝国/Dede/PHPCMS）：`fly_ad_position`（ad_key 不可改）+ `fly_ad`（image/text/code 三类型、权重、时间窗、展现/点击双写按日统计）+ 前台标签 `fly_ad` + **联盟式 JS 分发 `/ad/js/{adKey}`**（跨站可投）+ 管理页取码弹窗；手册《广告系统手册》；
+- **发布页布局设计** ✅（2026-09-30）：独立设计页 `/system/model/layout/:modelId`（页签增删排序/字段归属/默认页签，`fly_model.form_tabs`+`form_default_tab`）；
+- **站点导航管理** ✅（2026-10-01）：`fly_guide` 重建为树形+三源绑定（自定义链接/栏目/模型分类，url 运行时计算）+ `ApiGuideController`（种子节点 900240~900245）+ 前台标签 `fly_guide` + 管理页 `/system/guide`；同批补齐**删模型级联清理**（分类/规则/版本/收藏/栏目解绑）与**模型导入菜单同步**；
+- **P4-9 浏览器走查补验** ✅（2026-10-01）：模板引擎执行清单 26 项全部 `[x]` 收口（布局管理/图案库/主题市场三页干净环境走查）。
+
+### 全项目剩余（2026-10-01 复核，全部需用户决策或外部条件）
+
+- **G22/G21 点亮**：后台「网站设置→AI 与自动化」分组直接填写（无需 SQL）。**2026-10-01 实测：`fly_ai_base_url/model/embed_model` 与 `fly_mcp_token` 仍为空**（仅 api_key 有值）——AI 助手/语义搜索/MCP 均未点亮，等用户开通服务填键；
 - **G24 富文本结构化**：涉及存量 HTML 迁移，建议随 AI 语义检索的段落分块（已实现）演进，暂缓存储改造；
-- **G25 清理执行**：按审计报告人工执行（直接删除模式——先按 §9.8 G25 结论收敛三类盲区路径再删，可回收 34.5MB）；
-- **G30 MySQL 8.0 升级**：生产操作，需停机窗口与回滚预案；
+- **G25 清理执行**：按审计报告人工执行（直接删除模式——先按 §9.8 G25 结论收敛三类盲区路径再删，可回收 34.5MB）；隔离区已按设计整体回滚（views_static_quarantine 已不存在）；
+- **G13 可配置工作流**：单级审核保持默认决策（用户已定），状态集可配置按需后置；
+- **G30 MySQL 8.0 升级**：生产操作，需停机窗口与回滚预案（当前仍 5.7.44）；
 - **G28 剩余**：Lucene 升级随语义检索规模演进（当前关键词+语义双通道已覆盖）。
 
-- **P 阶段 AI 原生**（G21-G24）：语义搜索需向量库（ES/OpenSearch/pgvector）与 embedding 服务选型；AI 助手需 LLM provider 与 API Key；MCP 需协议接入评审——**全部依赖用户决策与服务开通，无法单方面完成**；
-- **R 剩**：G25 剩余（views/static 39MB 老资源清理——模板经 sea.js 动态加载资源，静态 grep 不可靠，需主题级审计单独立项）、G28 剩余（Lucene 升级随 G21 向量检索一并）、G30 MySQL 8.0 升级（单独立项）；
-- **引擎仅余**：E6 已落地；E9 的 enable_version 等其余 per-model 开关按需。
-
-- N 剩：G16 Live Preview、G17 自动化规则（事件契约 G18 已就位）、G19 设计令牌；
-- P 全部（AI 原生：语义搜索/AI 助手/MCP/富文本结构化）——依赖外部服务选型，单独立项；
-- R 剩：G26 MyBatis XML 归位（需测试兜底）、G25 剩余（views/static 39MB 老资源清理）、G28 剩余（Lucene 升级随 G21）、G30 MySQL 8.0（单独立项）。
-
-**验收口径**：`module/` 下不再有 article/share/question/topic/links/announcement/message/guide 内容模块目录；后台「内容」分组只剩「内容模型 + 内容数据（通用）+ 栏目」；前台任意主题模板用 `<@fly_page_model model="{code}">` 可渲染全部内容类型；e2e 与 audit 脚本全绿。
+**验收口径**：`module/` 下不再有 article/share/question/topic/links/announcement/message/guide 内容模块目录（**2026-10-01 复核达成**：module/ 仅剩平台能力 ad/admin/adminlog/ai/block/channel/comment/config/dict/favorite/form/guide(导航管理)/images/job/model/order/other/score/tag/template/user/websocket）；后台「内容」分组只剩「内容模型 + 内容数据（通用）+ 栏目」；前台任意主题模板用 `<@fly_page_model model="{code}">` 可渲染全部内容类型；e2e 与 audit 脚本全绿。
 
 ---
 
@@ -998,7 +999,7 @@ CREATE TABLE fly_content_i18n (
 | **发布层（后台）** | 内容怎么录入 | 动态表单全元数据驱动：tab_name 选项卡分组、sort 排序、is_form 表单隐藏、必填/正则/唯一校验、字段级权限剔除、「预览表单」即时预览、AI 助手（摘要/关键词/标题） | ✅ |
 | **发布层（前台）** | 访客/会员怎么投稿 | `POST /ucenter/submit/{modelCode}`（审核开关 + 字段白名单 + user 归属），任意模型开放 | 🟡 API 已通；**前台投稿表单页模板未模板化**（V2） |
 | **展示层** | 前台怎么显示 | 模板解析链 `detail-{code}.html → detail.html` / `list-{code}.html → list.html`；模型级指派（MODEL LIST/DETAIL）+ 内容级指派（CONTENT DETAIL）；重新生成骨架（含逐字段取值速查注释块） | ✅ |
-| **调用层** | 任何页面怎么调用任何内容 | `AbstractModelTag` 万能标签族 7+3 个：`fly_page_model / fly_list_model / fly_info_model / fly_fields_model / fly_category_model / fly_rel_model / fly_hot_model / fly_search_page / fly_commentpage / fly_theme_vars`，参数通吃所有模型 | ✅ 主体；缺口见 13.4（V3–V5） |
+| **调用层** | 任何页面怎么调用任何内容 | `AbstractModelTag` 万能标签族：`fly_page_model / fly_list_model / fly_info_model / fly_fields_model / fly_category_model / fly_rel_model / fly_hot_model / fly_search_page / fly_commentpage / fly_theme_vars / fly_stats_model`，参数通吃所有模型 | ✅ 全量（V1–V5 已闭环，V3 缓存/V4 聚合/V5 片段库均落地） |
 
 ### 13.2 市面程序逐家对标（自定义模型 + 发布/详情模板 + 标签）
 
@@ -1036,9 +1037,9 @@ CREATE TABLE fly_content_i18n (
 | **V2** | **前台投稿表单模板化**（每模型可绑定投稿页模板） | Dede diyform / 迅睿投稿 | ✅ **已落地（2026-09-29）**：`GET /ucenter/submit/{code}` 渲染 `submit-{code}.html`（缺省 `submit.html` 由 formMeta 字段驱动，options 解析 optionsList 按 radio/checkbox/select 渲染）；`fly_model.enable_submit` 模型级开关（编辑页可控，关闭后投稿页 404/提交拒绝）；探针 6/6 | **P2 ✅** |
 | **V3** | **标签微缓存**（列表标签 cache 参数） | 帝国标签缓存时间 | ✅ **已落地（2026-09-30）**：`AbstractModelTag.tagCache`（TTL 指纹缓存，>512 条全清防膨胀），`fly_page_model / fly_list_model` 支持 `cache="秒"`；G18 内容事件按模型精准失效 | **P3 ✅** |
 | **V4** | **聚合统计标签** `fly_stats_model`（按分类/作者/模型计数） | Directus Aggregate / 帝国统计函数 | ✅ **已落地（2026-09-30）**：`ModelDataDao.statsGroup`（groupCol 白名单 category_id/user_id，恒定过滤已发布）+ 标签输出 `statsList`（key/name/count，name 解析分类名或作者昵称）；by=category 与 by=author 两通道预览验证 | **P3 ✅** |
-| **V5** | **区块模式库**（Block Patterns） | WP Block Patterns | 现有图案库（3 示例）扩为可后台保存的"模板片段"库，插入任意模板；与 G15 字段组库（字段侧复用）互补（模板侧复用） | P3 |
+| **V5** | **区块模式库**（Block Patterns） | WP Block Patterns | ✅ **已落地（2026-09-30）**：`pattern/save`/`pattern/delete` 端点（自定义图案保存/删除，path-traversal 防护 + SAFE_NAME 白名单）+ 前端「存为图案」弹层与图案库删除按钮；图案库弹窗 3 个种子图案 + 搜索 + 一键插入（2026-10-01 浏览器走查复核） | **P3 ✅** |
 
-> V2 完成后，「后台建模 → 前台发布 → 前台展示 → 任意调用」四环全部模板化/数据驱动，万能系统闭环无引擎缺口。
+> V 批次 **V1–V5 全部闭环（2026-09-30 收口）**：「后台建模 → 前台发布 → 前台展示 → 任意调用」四环全部模板化/数据驱动，万能系统闭环无引擎缺口。
 
 ### 13.5 建模配方速查（每类站怎么用现有引擎建出来）
 
@@ -1055,4 +1056,4 @@ CREATE TABLE fly_content_i18n (
 | FAQ | questions 模型 + 关闭前台投稿（E9 enableComment 独立，投稿开关同理） | 或独立 faq 模型 |
 | 单页（关于我们） | 单条内容 + detail-{code}.html 模板 | P3 单页型模型（single type）备选 |
 
-> 本章由用户总纲触发补写（2026-09-29）；V 批次完成后在 §9 增表回写。
+> 本章由用户总纲触发补写（2026-09-29）；**V 批次 V1–V5 已全部落地（2026-09-30 收口，状态见表），§9.9 已回写。**
