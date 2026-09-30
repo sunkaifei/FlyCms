@@ -50550,20 +50550,25 @@ CREATE TABLE `fly_form_field` (
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_guide`;
 CREATE TABLE `fly_guide` (
-  `id` bigint(20) unsigned NOT NULL COMMENT '排序',
+  `id` bigint(20) unsigned NOT NULL COMMENT '雪花ID',
+  `father_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '上级导航项，0=顶级',
   `name` varchar(255) NOT NULL COMMENT '导航名字',
-  `link` varchar(255) NOT NULL COMMENT '链接地址',
-  `sort` int(5) NOT NULL COMMENT '排序',
-  `status` tinyint(2) DEFAULT '0' COMMENT '显示状态：1导航显示，0不显示',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='首页导航栏';
+  `type` tinyint(2) NOT NULL DEFAULT '0' COMMENT '来源类型：0自定义链接 1栏目 2模型分类',
+  `ref_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '绑定对象id：栏目id/模型分类id',
+  `link` varchar(300) NOT NULL DEFAULT '' COMMENT '自定义链接（type=0 时生效）',
+  `target` varchar(10) NOT NULL DEFAULT '' COMMENT '打开方式：_blank 新窗口，空为当前窗口',
+  `sort` int(5) NOT NULL DEFAULT '0' COMMENT '排序',
+  `status` tinyint(2) DEFAULT '1' COMMENT '显示状态：1导航显示，0不显示',
+  `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_father_sort` (`father_id`,`sort`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='站点导航（导航管理页 /system/guide 维护，前台 fly_guide 标签渲染）';
 
-INSERT INTO `fly_guide` (`id`, `name`, `link`, `sort`, `status`) VALUES
-('0', '产品官网', 'http://www.28844.com', '0', '1'),
-('1', '后台管理', 'admin/index', '0', '1'),
-('2', '商家管理', 'seller/index', '0', '1');
+INSERT INTO `fly_guide` (`id`, `father_id`, `name`, `type`, `ref_id`, `link`, `target`, `sort`, `status`) VALUES
+('920000000000000001', '0', '首页', '0', '0', '/', '', '1', '1');
 
--- 3 rows for fly_guide
+-- 1 row for fly_guide
 
 -- ----------------------------
 -- Table structure for fly_images

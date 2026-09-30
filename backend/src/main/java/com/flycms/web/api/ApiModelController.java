@@ -525,7 +525,20 @@ public class ApiModelController extends ApiBaseController {
         if (StringUtils.isBlank(payload)) {
             return DataVo.failure("请传入 payload（模型定义 JSON）");
         }
-        return modelTransferService.importModel(payload);
+        DataVo vo = modelTransferService.importModel(payload);
+        // 导入（新建或更新）后与 /model/save 同口径同步菜单节点：导入的模型同样
+        // 自动获得「{模型名}管理」菜单与 4 个内容按钮（syncModelMenuNodesOnSave 幂等）。
+        if (vo.getCode() == DataVo.CODE_SUCCESS && vo.getData() instanceof Map) {
+            Object modelId = ((Map<?, ?>) vo.getData()).get("modelId");
+            if (modelId instanceof Number) {
+                com.flycms.module.model.model.Model model =
+                        modelService.findModelById(((Number) modelId).longValue());
+                if (model != null) {
+                    syncModelMenuNodesOnSave(model);
+                }
+            }
+        }
+        return vo;
     }
 
     // /////////////////// E10 重新生成骨架（D13 收尾） ///////////////////

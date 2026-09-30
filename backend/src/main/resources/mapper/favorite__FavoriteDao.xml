@@ -111,4 +111,9 @@
 		select count(*) from fly_favorite
 		where user_id = #{userId} and model_code = #{modelCode} and info_id = #{infoId}
 	</select>
+
+	<!-- 模型删除时清理对该模型内容的全部收藏 -->
+	<delete id="deleteByModelCode">
+		delete from fly_favorite where model_code = #{modelCode}
+	</delete>
 </mapper>  

@@ -26,4 +26,6 @@ public interface ModelCategoryDao {
     public List<ModelCategory> findCategoriesByModelId(@Param("modelId") Long modelId, @Param("status") Integer status);
 
     public boolean hasChildren(@Param("id") Long id);
+
+    public int deleteByModelId(@Param("modelId") Long modelId);
 }

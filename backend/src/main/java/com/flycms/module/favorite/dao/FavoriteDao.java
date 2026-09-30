@@ -80,6 +80,9 @@ public interface FavoriteDao {
                                     @Param("modelCode") String modelCode,
                                     @Param("infoId") Long infoId);
 
+    /** 模型删除时清理对该模型内容的全部收藏 */
+    public int deleteByModelCode(@Param("modelCode") String modelCode);
+
     public List<Favorite> getFavoriteList(@Param("userId") Long userId,
                                       @Param("infoType") Integer infoType,
                                       @Param("createTime") String createTime,

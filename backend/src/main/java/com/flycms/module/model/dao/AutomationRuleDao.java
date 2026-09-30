@@ -26,4 +26,6 @@ public interface AutomationRuleDao {
     int update(AutomationRule rule);
 
     int delete(@Param("id") Long id);
+
+    int deleteByModelCode(@Param("modelCode") String modelCode);
 }

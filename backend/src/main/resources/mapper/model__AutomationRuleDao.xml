@@ -43,4 +43,9 @@
 	<delete id="delete">
 		delete from fly_automation_rule where id = #{id}
 	</delete>
+
+	<!-- 模型删除时清理其规则（model_code 已随模型消亡） -->
+	<delete id="deleteByModelCode">
+		delete from fly_automation_rule where model_code = #{modelCode}
+	</delete>
 </mapper>

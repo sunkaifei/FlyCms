@@ -39,6 +39,16 @@ public class ModelService {
     @Autowired
     private ModelTableService modelTableService;
     @Autowired
+    private com.flycms.module.model.dao.ModelCategoryDao modelCategoryDao;
+    @Autowired
+    private com.flycms.module.model.dao.AutomationRuleDao automationRuleDao;
+    @Autowired
+    private com.flycms.module.model.dao.ContentVersionDao contentVersionDao;
+    @Autowired
+    private com.flycms.module.favorite.dao.FavoriteDao favoriteDao;
+    @Autowired
+    private com.flycms.module.channel.dao.ChannelDao channelDao;
+    @Autowired
     private com.flycms.module.template.service.TemplateService templateService;
     @Autowired
     private com.flycms.module.config.service.ConfigService config;
@@ -148,7 +158,10 @@ public class ModelService {
     }
 
     /**
-     * 删除模型：内置拒绝；级联 DROP 表 + 删字段定义 + 删分类。
+     * 删除模型：内置拒绝；级联清理模型维度的一切关联数据——
+     * DROP 数据表（内容随之消亡）+ 删字段定义 + 删分类 + 删自动化规则 +
+     * 删内容版本快照 + 删收藏 + 解绑栏目（model_id 归 0，栏目转未绑定态）。
+     * 菜单/按钮/角色授权节点由 ApiModelController.syncModelMenuNodesOnDelete 负责。
      */
     public DataVo deleteModel(Long id) {
         Model model = modelDao.findModelById(id);
@@ -161,9 +174,14 @@ public class ModelService {
         // 物理表名 = fly_cmodel_{code}（D7）
         modelTableService.dropTable(model.getCode());
         modelFieldDao.deleteFieldsByModelId(id);
+        modelCategoryDao.deleteByModelId(id);
+        automationRuleDao.deleteByModelCode(model.getCode());
+        contentVersionDao.deleteByTargetModel(model.getCode());
+        favoriteDao.deleteByModelCode(model.getCode());
+        channelDao.unbindModel(id);
         evictCache(model.getCode(), id);
         modelDao.deleteModelById(id);
-        return DataVo.success("模型已删除，数据表已移除");
+        return DataVo.success("模型已删除，数据表与关联数据已清理");
     }
 
     public void evictCache(String code, Long id) {

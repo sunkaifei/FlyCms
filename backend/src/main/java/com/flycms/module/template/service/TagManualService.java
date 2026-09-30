@@ -70,6 +70,8 @@ public class TagManualService {
         SCOPES.put("fly_channel_tree", "global");
         SCOPES.put("fly_channel_info", "global");
         SCOPES.put("fly_list_channel", "list");
+        // 站点导航（fly_guide，栏目/分类/自定义链接三源合一）
+        SCOPES.put("fly_guide", "global");
         // 碎片 / 部件 / 区域
         SCOPES.put("fly_block", "global");
         // G19 设计令牌（theme.json settings → CSS 变量）
@@ -258,6 +260,18 @@ public class TagManualService {
                         + "    <a href=\"/${c.channelDir}/\">${c.channelName}</a>\n"
                         + "  </#list>\n"
                         + "</@fly_channel_tree>");
+
+        add(data, "栏目", "fly_guide", "站点导航",
+                "导航管理（/system/guide）维护的站点导航项：自定义链接 / 栏目 / 模型分类三种来源，"
+                        + "url 已按来源计算好（栏目 /{dir}/、分类 /{code}/c{id}），隐藏项自动过滤。",
+                "guideList（带 children 的树，节点：name/url/target/type/children）",
+                params(p("fatherId", false, "父项 id，0=顶级，默认 0"),
+                        p("status", false, "\"0\"=含隐藏项，默认仅显示中的")),
+                "<@fly_guide fatherId=\"0\">\n"
+                        + "  <#list guideList as g>\n"
+                        + "    <a href=\"${g.url}\"<#if (g.target)?? && g.target != ''> target=\"${g.target}\"</#if>>${g.name}</a>\n"
+                        + "  </#list>\n"
+                        + "</@fly_guide>");
 
         add(data, "栏目", "fly_channel_info", "当前栏目信息",
                 "按 dir 或 id 取单个栏目；配合列表页输出栏目级 TDK。",

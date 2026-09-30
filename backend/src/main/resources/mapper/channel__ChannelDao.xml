@@ -80,4 +80,9 @@
 	<update id="updateFatherId">
 		update fly_channel set father_id = #{fatherId}, update_time = now() where id = #{id}
 	</update>
+
+	<!-- 模型删除时解绑栏目，避免前台栏目页指向已消失的模型 -->
+	<update id="unbindModel">
+		update fly_channel set model_id = 0, update_time = now() where model_id = #{modelId}
+	</update>
 </mapper>

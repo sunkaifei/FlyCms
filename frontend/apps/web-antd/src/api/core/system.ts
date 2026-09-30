@@ -97,15 +97,15 @@ export async function deleteGroupApi(id: number) {
   return postForm<void>('/system/group/delete', { id });
 }
 
-export async function getGroupPermissionIdsApi(id: number) {
+export async function getGroupPermissionIdsApi(id: number | string) {
   return requestClient.get<number[]>('/system/group/permissionIds', {
     params: { id },
   });
 }
 
 export async function assignGroupPermissionsApi(
-  groupId: number,
-  permissionIds: number[],
+  groupId: number | string,
+  permissionIds: (number | string)[],
 ) {
   const form = new URLSearchParams();
   form.append('groupId', String(groupId));

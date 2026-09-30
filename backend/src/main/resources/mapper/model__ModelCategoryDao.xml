@@ -38,4 +38,8 @@
 	<select id="hasChildren" resultType="boolean">
 		select count(*) > 0 from fly_model_category where father_id = #{id}
 	</select>
+
+	<delete id="deleteByModelId">
+		delete from fly_model_category where model_id = #{modelId}
+	</delete>
 </mapper>

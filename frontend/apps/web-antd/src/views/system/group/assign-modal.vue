@@ -34,6 +34,8 @@ interface TreeRow {
   key: string;
   menuName?: string;
   menuType: string;
+  /** 上级权限节点 id（MenuNode 原始类型），0=根；查 Map 时转字符串对齐 key */
+  parentId?: number;
   title: string;
 }
 
@@ -58,7 +60,7 @@ const fullTree = computed<TreeRow[]>(() => {
   }
   const roots: TreeRow[] = [];
   for (const row of map.values()) {
-    const parent = row.parentId ? map.get(row.parentId) : undefined;
+    const parent = row.parentId ? map.get(String(row.parentId)) : undefined;
     if (parent) {
       (parent.children ??= []).push(row);
     } else {
@@ -217,10 +219,6 @@ function cancelAll() {
   const set = new Set(checkedKeys.value);
   for (const id of visibleIds.value) set.delete(id);
   normalizeChecked(set);
-}
-
-function onExpand(keys: string[]) {
-  expandedKeys.value = keys;
 }
 
 /** 勾选事件：第一参就是勾选后的键数组；半选键取自 info（修复旧实现误用布尔的问题） */

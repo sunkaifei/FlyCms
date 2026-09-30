@@ -328,6 +328,7 @@ public class ModelTransferService {
         }
 
         Map<String, Object> result = new LinkedHashMap<>();
+        result.put("modelId", model.getId());
         result.put("modelCreated", created);
         result.put("fieldAdded", fieldAdded);
         result.put("fieldUpdated", fieldUpdated);

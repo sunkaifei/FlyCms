@@ -43,4 +43,7 @@ public interface ChannelDao {
     void updateSort(@Param("id") Long id, @Param("sort") int sort);
 
     void updateFatherId(@Param("id") Long id, @Param("fatherId") Long fatherId);
+
+    /** 模型删除时解绑：绑定该模型的栏目 model_id 归 0（channel_type 不动，转「未绑定模型」列表态） */
+    int unbindModel(@Param("modelId") Long modelId);
 }

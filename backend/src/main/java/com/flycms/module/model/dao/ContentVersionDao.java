@@ -32,6 +32,9 @@ public interface ContentVersionDao {
 
     int countVersions(@Param("targetModel") String targetModel, @Param("targetId") Long targetId);
 
+    /** 模型删除时清理其全部版本快照 */
+    int deleteByTargetModel(@Param("targetModel") String targetModel);
+
     /**
      * 恢复回写：setSql 由 Service 拼接（形如 {@code `col` = #{p0}, `col2` = #{p1}}），
      * 列名过标识符正则、参数键 p0..pn 与 setSql 一一对应，值恒走 #{} 预编译。

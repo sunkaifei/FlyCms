@@ -53,6 +53,11 @@
 		where target_model = #{targetModel} and target_id = #{targetId}
 	</select>
 
+	<!-- 模型删除时清理其全部版本快照 -->
+	<delete id="deleteByTargetModel">
+		delete from fly_content_version where target_model = #{targetModel}
+	</delete>
+
 	<!-- 恢复：整行回写（setSql 由 Service 拼接：列名过标识符正则 + 参数键 p0..pn 索引化，值恒 #{}） -->
 	<update id="restoreColumns">
 		UPDATE `fly_cmodel_${suffix}`
