@@ -1,0 +1,73 @@
+{
+  "preset": {
+    "code": "blog",
+    "name": "个人博客",
+    "version": 1,
+    "icon": "lucide:pen-line",
+    "description": "个人博客：文章分类/标签/归档，支持前台投稿（可关）。基于内置文章模型。"
+  },
+  "groups": [
+    {
+      "name": "博客",
+      "code": "blog",
+      "icon": "lucide:pen-line",
+      "sort": 7,
+      "status": 1
+    }
+  ],
+  "models": [
+    {
+      "model": {
+        "name": "文章模型",
+        "code": "articles",
+        "titleLabel": "文章标题",
+        "icon": "lucide:file-text",
+        "isSystem": 1,
+        "enableSubmit": 1
+      },
+      "fields": [],
+      "categories": [
+        {
+          "name": "技术",
+          "sort": 1
+        },
+        {
+          "name": "生活",
+          "sort": 2
+        },
+        {
+          "name": "随笔",
+          "sort": 3
+        }
+      ]
+    }
+  ],
+  "settings": [],
+  "channels": [
+    {
+      "name": "博客",
+      "dir": "blog",
+      "model": "articles",
+      "channelType": 0,
+      "listTemplate": "list-articles.html",
+      "pageSize": 10
+    }
+  ],
+  "guides": [
+    {
+      "name": "博客",
+      "type": 1,
+      "refChannelDir": "blog",
+      "sort": 3
+    }
+  ],
+  "templates": [
+    {
+      "file": "list-articles.html"
+    },
+    {
+      "file": "detail-articles.html"
+    }
+  ],
+  "sampleContent": []
+}

@@ -167,6 +167,19 @@ public class ModelTransferService {
             m.setTitleLabel(StringUtils.defaultIfBlank((String) meta.get("titleLabel"), "标题"));
             m.setIcon((String) meta.get("icon"));
             m.setDescription((String) meta.get("description"));
+            // 预设包可声明模型级开关（enableSubmit/adminCreate）
+            if (meta.get("enableSubmit") != null) {
+                m.setEnableSubmit(Integer.parseInt(String.valueOf(meta.get("enableSubmit"))));
+            }
+            if (meta.get("adminCreate") != null) {
+                m.setAdminCreate(Integer.parseInt(String.valueOf(meta.get("adminCreate"))));
+            }
+            if (meta.get("listTemplate") != null) {
+                m.setListTemplate(StringUtils.trimToNull((String) meta.get("listTemplate")));
+            }
+            if (meta.get("detailTemplate") != null) {
+                m.setDetailTemplate(StringUtils.trimToNull((String) meta.get("detailTemplate")));
+            }
             DataVo vo = modelService.addModel(m);
             if (vo.getCode() != DataVo.CODE_SUCCESS) {
                 return vo;
@@ -185,6 +198,18 @@ public class ModelTransferService {
             }
             if (meta.get("useSeo") != null) {
                 form.setUseSeo(Integer.parseInt(String.valueOf(meta.get("useSeo"))));
+            }
+            if (meta.get("enableSubmit") != null) {
+                form.setEnableSubmit(parseInt(meta.get("enableSubmit")));
+            }
+            if (meta.get("adminCreate") != null) {
+                form.setAdminCreate(parseInt(meta.get("adminCreate")));
+            }
+            if (meta.containsKey("listTemplate")) {
+                form.setListTemplate(StringUtils.trimToNull((String) meta.get("listTemplate")));
+            }
+            if (meta.containsKey("detailTemplate")) {
+                form.setDetailTemplate(StringUtils.trimToNull((String) meta.get("detailTemplate")));
             }
             modelService.updateModel(form);
         }

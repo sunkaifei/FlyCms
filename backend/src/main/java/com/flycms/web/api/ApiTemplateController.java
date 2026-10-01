@@ -602,6 +602,55 @@ public class ApiTemplateController extends ApiBaseController {
         return themeRegistry.currentSkin();
     }
 
+    // /////////////////// P-4 区块化编辑器：页面-区域映射 ///////////////////
+
+    /**
+     * 区域使用映射：扫描当前皮肤全部模板，解析 {@code <@fly_area name="xxx">} 引用，
+     * 返回 区域名 → 引用它的模板文件列表。建站者据此知道"改哪个区域生效在哪个页面"。
+     * 结果实时扫描（模板数量有限，页面打开时一次调用可接受）。
+     */
+    @ResponseBody
+    @GetMapping("/system/area/usage")
+    public DataVo areaUsage(@RequestParam(value = "theme", required = false) String theme) {
+        requirePermission("/api/system/area/list");
+        String skin = StringUtils.isNotBlank(theme) ? theme : templateRegistryCurrentSkin();
+        java.io.File root = new java.io.File("views/templates/pc_theme/" + skin);
+        Map<String, List<String>> usage = new LinkedHashMap<>();
+        if (root.exists() && root.isDirectory()) {
+            java.util.Deque<java.io.File> stack = new java.util.ArrayDeque<>();
+            stack.push(root);
+            while (!stack.isEmpty()) {
+                java.io.File dir = stack.pop();
+                java.io.File[] children = dir.listFiles();
+                if (children == null) {
+                    continue;
+                }
+                for (java.io.File f : children) {
+                    if (f.isDirectory()) {
+                        stack.push(f);
+                    } else if (f.getName().endsWith(".html")) {
+                        try {
+                            String text = new String(java.nio.file.Files.readAllBytes(f.toPath()),
+                                    java.nio.charset.StandardCharsets.UTF_8);
+                            java.util.regex.Matcher m = java.util.regex.Pattern
+                                    .compile("<@fly_area\s+name=\"([A-Za-z0-9_-]+)\"")
+                                    .matcher(text);
+                            String rel = f.getPath().replace("views\\templates\\pc_theme\\", "")
+                                    .replace('\\', '/');
+                            while (m.find()) {
+                                usage.computeIfAbsent(m.group(1), k -> new ArrayList<>()).add(rel);
+                            }
+                        } catch (Exception ignored) {
+                            // 单文件读取失败不影响整体
+                        }
+                    }
+                }
+            }
+        }
+        return DataVo.success("操作成功", usage);
+    }
+
+
     // /////////////////// P3-3 区块图案（§7.1 / §8.2 组件面板） ///////////////////
 
     /**

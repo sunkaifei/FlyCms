@@ -26,7 +26,7 @@
 			<if test="detailTemplate != null">detail_template = #{detailTemplate},</if>
 			<if test="icon != null">icon = #{icon},</if>
 			<if test="groupId != null">group_id = #{groupId},</if>
-			admin_create = #{adminCreate},
+			<if test="adminCreate != null">admin_create = #{adminCreate},</if>
 			<if test="description != null">description = #{description},</if>
 			<if test="sort != 0">sort = #{sort},</if>
 			<if test="status != 0">status = #{status},</if>

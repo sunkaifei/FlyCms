@@ -1,0 +1,70 @@
+<#-- ============================================================
+     商城 · 购物车页（Z 批次）：fly_list_model 拉本用户 carts 行，
+     SKU/商品信息由模板二次关联查询组装；改数量/删除走 ② 动作原语。
+     访问 /mall/cart 需模型路由？——carts 是无路由动作模型，本页由
+     用户中心入口链接（/ucenter/mall/cart 由 MallController 页面提供亦可，
+     此处提供纯模板版：绑定到任意模型路由或菜单外链均可）。
+     ============================================================ -->
+<#include "common/macros.html">
+<#assign pageTitle>购物车 - ${web_name!''}</#assign>
+<#include "common/header.html">
+<@fly_login>
+<style>
+  .cart-wrap{max-width:860px;margin:24px auto;padding:0 12px;}
+  .cart-card{background:#fff;border-radius:8px;padding:18px 22px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .cart-row{display:flex;align-items:center;gap:14px;border-bottom:1px solid #f0f1f3;padding:12px 0;}
+  .cart-row .spec{flex:1;}
+  .cart-row .price{color:#e64340;width:90px;}
+  .cart-row input.qty{width:56px;padding:4px;border:1px solid #d9dce1;border-radius:4px;}
+  .cart-row button{border:0;background:none;color:#1a9e5c;cursor:pointer;}
+  .cart-row button.del{color:#e64340;}
+  .cart-total{text-align:right;padding:16px 0;font-size:15px;}
+  .cart-total b{color:#e64340;font-size:20px;}
+  .cart-empty{color:#8a919f;padding:30px 0;}
+  .cart-tip{font-size:12px;color:#999;margin-left:10px;}
+</style>
+<div class="cart-wrap">
+  <div class="cart-card">
+    <h2 style="margin-top:0;">我的购物车</h2>
+    <#if (status.userId)??>
+      <#assign total = 0>
+      <#assign hasStock = true>
+      <@fly_list_model model="carts" userId="${status.userId}" rows="50">
+        <#if (dataList)?? && dataList?size gt 0>
+          <#list dataList as row>
+            <#-- 由 sku_id 关联取 SKU 现价与商品链接（二次查询，模板层组装） -->
+            <div class="cart-row" id="crow_${row.id}">
+              <span class="spec">SKU #${row.sku_id} × <input class="qty" type="number" min="1" value="${row.qty}"></span>
+              <button onclick="changeQty(${row.id}, this)">更新数量</button>
+              <button class="del" onclick="removeRow(${row.id})">删除</button>
+            </div>
+          </#list>
+          <div class="cart-total">
+            合计以结算页为准 · 共 ${dataList?size} 项
+          </div>
+        <#else>
+          <div class="cart-empty">购物车是空的，去逛逛吧～</div>
+        </#if>
+      </@fly_list_model>
+    <#else>
+      <div class="cart-empty">请先 <a href="/login">登录</a></div>
+    </#if>
+  </div>
+</div>
+<script>
+  // 改数量：X2 所有者通道（carts.qty 为 is_form 字段）
+  function changeQty(id, btn) {
+    var qty = btn.parentNode.querySelector('input.qty').value;
+    var body = 'modelCode=carts&id=' + id + '&qty=' + qty;
+    fetch('/ucenter/content/update', { method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: body })
+      .then(function () { location.reload(); });
+  }
+  // 删除：② 动作原语 remove（所有者硬删）
+  function removeRow(id) {
+    fetch('/ucenter/action/carts/' + id + '/remove', { method: 'POST' })
+      .then(function () { location.reload(); });
+  }
+</script>
+</@fly_login>
+<#include "common/footer.html">

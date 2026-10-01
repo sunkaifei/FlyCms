@@ -1,0 +1,111 @@
+<#-- ============================================================
+     问答频道 · 问题详情页（X 批次样板，前台互动闭环）
+     数据：fly_info_model（问题行）+ fly_list_model（回答两段：采纳置顶/全部）
+     回答数：(info.questionBacks)![]?size —— P2 双向标注反向引用（零查询）
+     采纳：提问者本人可见表单按钮 → POST /ucenter/content/update（X2 所有者通道）
+     回答入口：/ucenter/submit/answers?question={id}（X1 上下文预置）
+     ============================================================ -->
+<#include "common/macros.html">
+<@fly_info_model model="questions" shortUrl="${shortUrl!}">
+<#if info??>
+<#assign pageTitle>${info.title} - ${web_name!''}</#assign>
+<#include "common/header.html">
+<@fly_login>
+<#assign me = (status.userId)!(0)>
+<style>
+  .qa-wrap{max-width:960px;margin:24px auto;padding:0 12px;}
+  .qa-card{background:#fff;border-radius:8px;padding:24px 28px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px;}
+  .qa-card h1{font-size:22px;margin:0 0 10px;}
+  .qa-meta{font-size:13px;color:#8a919f;margin-bottom:14px;}
+  .qa-meta span{margin-right:14px;}
+  .qa-body{font-size:15px;line-height:1.8;color:#333;}
+  .qa-tag{display:inline-block;font-size:12px;border-radius:3px;padding:1px 8px;margin-right:8px;}
+  .qa-tag.ok{background:#e8f7ee;color:#1a9e5c;}
+  .qa-tag.ask{background:#eef4ff;color:#3a6fd8;}
+  .qa-ans{border-top:1px solid #f0f1f3;padding:16px 0;}
+  .qa-ans .who{font-size:13px;color:#8a919f;margin-bottom:6px;}
+  .qa-ans .body{font-size:14px;line-height:1.8;}
+  .qa-float{position:fixed;right:36px;bottom:80px;}
+  .qa-float a,.qa-float button{display:block;width:64px;height:64px;border-radius:50%;border:0;background:#3a6fd8;color:#fff;text-align:center;line-height:1.2;font-size:13px;cursor:pointer;text-decoration:none;box-shadow:0 2px 8px rgba(58,111,216,.4);}
+  .qa-float .acc{background:#1a9e5c;margin-bottom:12px;}
+  .qa-empty{color:#8a919f;font-size:14px;padding:18px 0;}
+</style>
+<div class="qa-wrap">
+  <div class="qa-card">
+    <h1>${info.title}</h1>
+    <div class="qa-meta">
+      <span class="qa-tag ask">问题</span>
+      <span><@dt16 (info.createTime)!'' /></span>
+      <span>回答 <b>${((info.questionBacks)![])?size}</b></span>
+      <#if (info.weight)?? && info.weight gt 0><span>悬赏 ${info.weight}</span></#if>
+      <span>浏览 <b class="num">${(info.countView)!0}</b></span>
+    </div>
+    <div class="qa-body">${(info.content)!''}</div>
+  </div>
+
+  <#-- ===== 采纳的回答（置顶段） ===== -->
+  <@fly_list_model model="answers" question="${info.id}" accepted="已采纳" rows="5" withContent="1">
+    <#if (dataList)?? && dataList?size gt 0>
+    <div class="qa-card">
+      <div class="qa-meta"><span class="qa-tag ok">采纳的回答</span></div>
+      <#list dataList as ans>
+      <div class="qa-ans">
+        <div class="who">网友${ans.userId} · <@dt16 (ans.createTime)!'' /></div>
+        <div class="body">${(ans.content)!''}</div>
+      </div>
+      </#list>
+    </div>
+    </#if>
+  </@fly_list_model>
+
+  <#-- ===== 全部回答 ===== -->
+  <div class="qa-card">
+    <div class="qa-meta">全部回答（${((info.questionBacks)![])?size}）</div>
+    <@fly_list_model model="answers" question="${info.id}" rows="50" withContent="1">
+      <#if (dataList)?? && dataList?size gt 0>
+        <#list dataList as ans>
+        <div class="qa-ans">
+          <div class="who">
+            网友${ans.userId} · <@dt16 (ans.createTime)!'' />
+            <#if (ans.accepted)?? && ans.accepted == '已采纳'><span class="qa-tag ok">已采纳</span></#if>
+            <#if me gt 0 && me == ((info.userId)!0) && ((ans.accepted)!'') != '已采纳'>
+            <#-- 提问者本人：采纳按钮（X2 所有者通道，零 JS 表单提交后 302 回本页） -->
+            <form method="post" action="/ucenter/content/update" style="display:inline;margin-left:8px;">
+              <input type="hidden" name="modelCode" value="answers">
+              <input type="hidden" name="id" value="${ans.id}">
+              <input type="hidden" name="accepted" value="已采纳">
+              <input type="hidden" name="redirect" value="/questions/${info.shortUrl}.html">
+              <button type="submit" style="border:0;background:none;color:#1a9e5c;cursor:pointer;padding:0;font-size:13px;">采纳</button>
+            </form>
+            </#if>
+          </div>
+          <div class="body">${(ans.content)!''}</div>
+        </div>
+        </#list>
+      <#else>
+        <div class="qa-empty">还没有回答，来抢沙发～</div>
+      </#if>
+    </@fly_list_model>
+  </div>
+</div>
+
+<div class="qa-float">
+  <#if me gt 0>
+  <a href="/ucenter/submit/answers?question=${info.id}">我来<br>回答</a>
+  <#else>
+  <a href="/login">登录后<br>回答</a>
+  </#if>
+</div>
+</@fly_login>
+<#include "common/footer.html">
+<#else>
+<#assign pageTitle>问题不存在 - ${web_name!''}</#assign>
+<#include "common/header.html">
+<div class="wrap"><div class="err">
+  <b class="num">404</b>
+  <p>问题不存在或未通过审核</p>
+  <a href="/">返回首页</a>
+</div></div>
+<#include "common/footer.html">
+</#if>
+</@fly_info_model>

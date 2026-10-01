@@ -20,6 +20,7 @@ import {
   Switch,
   Table,
   Tag,
+  Tooltip,
 } from 'ant-design-vue';
 
 import {
@@ -31,6 +32,8 @@ import {
   saveAreaBlockApi,
   toggleAreaBlockApi,
 } from '#/api/core/template';
+import { getAreaUsageApi } from '#/api/core/template';
+import { getBlockListApi } from '#/api/core/block';
 import type {
   AreaBlockRow,
   AreaBlockType,
@@ -83,6 +86,12 @@ const previewVisible = ref(false);
 const previewHtml = ref('');
 const previewAreaName = ref('');
 
+// P-4 区块化编辑器：页面映射 / 碎片素材库 / 行拖拽
+const usage = ref<Record<string, string[]>>({});
+const blockOptions = ref<{ label: string; value: string }[]>([]);
+const dragIndex = ref(-1);
+const overIndex = ref(-1);
+
 function blankBlock(areaName = ''): AreaBlockRow {
   return {
     areaName,
@@ -117,6 +126,9 @@ async function load() {
     regions.value = res.regions ?? [];
     blocks.value = res.blocks ?? {};
     theme.value = res.theme || theme.value;
+    getAreaUsageApi(theme.value || undefined)
+      .then((u) => (usage.value = u ?? {}))
+      .catch(() => (usage.value = {}));
   } catch {
     message.error('加载布局数据失败');
   } finally {
@@ -162,6 +174,7 @@ async function doSave() {
       message.success('已保存');
       editVisible.value = false;
       await load();
+      refreshPreviewIfOpen(e.areaName);
     } else {
       message.error(r.msg || '保存失败');
     }
@@ -221,6 +234,40 @@ async function doMove(area: string, index: number, delta: number) {
   }
 }
 
+/** P-4 拖拽排序：拖到目标位后按新顺序整表提交 */
+async function onRowDrop(area: string, target: number) {
+  if (dragIndex.value < 0 || dragIndex.value === target) {
+    dragIndex.value = -1;
+    overIndex.value = -1;
+    return;
+  }
+  const list = [...rowsOf(area)];
+  const [moved] = list.splice(dragIndex.value, 1);
+  if (!moved) return;
+  list.splice(target, 0, moved);
+  dragIndex.value = -1;
+  overIndex.value = -1;
+  const ids = list.map((r) => r.id).filter(Boolean) as string[];
+  if (ids.length !== list.length) {
+    message.warning('存在未落库的区块，请先刷新');
+    return;
+  }
+  const r = await reorderAreaBlockApi(ids);
+  if (r.code === 0) {
+    await load();
+    refreshPreviewIfOpen(area);
+  } else {
+    message.error(r.msg || '排序失败');
+  }
+}
+
+/** 预览抽屉开着时，变更后自动刷新（实时预览） */
+function refreshPreviewIfOpen(area: string) {
+  if (previewVisible.value && previewAreaName.value === area) {
+    doPreview(area);
+  }
+}
+
 async function doPreview(area: string) {
   try {
     const res = await previewAreaApi(area, theme.value || undefined);
@@ -239,6 +286,15 @@ async function onThemeChange() {
 onMounted(async () => {
   await loadThemes();
   await load();
+  try {
+    const res = await getBlockListApi({ p: 1 });
+    blockOptions.value = (res.list ?? []).map((b: any) => ({
+      label: b.blockTitle || b.blockKey || b.key || b.name,
+      value: b.blockKey || b.key || b.name,
+    }));
+  } catch {
+    blockOptions.value = [];
+  }
 });
 </script>
 
@@ -276,6 +332,12 @@ onMounted(async () => {
         <div class="mb-3 flex items-center gap-2">
           <span class="text-base font-semibold">{{ area.name }}</span>
           <Tag>{{ rowsOf(area.name).length }} 个区块</Tag>
+          <Tooltip :title="(usage[area.name] || []).join('、')">
+            <Tag v-if="(usage[area.name] || []).length" color="geekblue">
+              被 {{ (usage[area.name] || []).length }} 个页面引用
+            </Tag>
+            <Tag v-else color="default">未被模板引用</Tag>
+          </Tooltip>
           <Tag v-if="!area.declared" color="orange">
             未在 theme.json 声明
           </Tag>
@@ -298,6 +360,23 @@ onMounted(async () => {
           :pagination="false"
           row-key="id"
           size="small"
+          :custom-row="
+            (_record: any, index: number | undefined) => ({
+              draggable: canManage && index !== undefined,
+              onDragstart: () => (dragIndex = index ?? -1),
+              onDragover: (e: DragEvent) => {
+                if (dragIndex >= 0 && index !== undefined) {
+                  e.preventDefault();
+                  overIndex = index;
+                }
+              },
+              onDrop: () => onRowDrop(area.name, overIndex),
+              style:
+                overIndex === index && dragIndex >= 0 && dragIndex !== index
+                  ? 'border-top:2px solid #3a6fd8'
+                  : '',
+            })
+          "
         >
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'blockType'">
@@ -377,6 +456,22 @@ onMounted(async () => {
             v-model:value="editing.blockType"
             class="w-full"
             :options="TYPE_OPTIONS"
+          />
+        </div>
+        <div v-if="editing.blockType === 'BLOCK'" class="mb-1">
+          <div class="mb-1 text-xs text-gray-400">从碎片库选择（自动填调用键）</div>
+          <Select
+            allow-clear
+            class="w-full"
+            option-filter-prop="label"
+            :options="blockOptions"
+            placeholder="选择碎片"
+            show-search
+            @change="
+              (v: any) => {
+                if (v) editing.blockRef = String(v);
+              }
+            "
           />
         </div>
         <div>

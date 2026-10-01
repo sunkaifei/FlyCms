@@ -1,0 +1,114 @@
+{
+  "preset": {
+    "code": "classifieds",
+    "name": "分类信息",
+    "version": 1,
+    "icon": "lucide:list-filter",
+    "description": "分类信息站（如二手/便民）：前台用户发布信息，类目+地区+价格筛选，信息带时间窗自动过期下架。"
+  },
+  "groups": [
+    {
+      "name": "分类信息",
+      "code": "classifieds",
+      "icon": "lucide:list-filter",
+      "sort": 10,
+      "status": 1
+    }
+  ],
+  "models": [
+    {
+      "model": {
+        "name": "信息",
+        "code": "info",
+        "titleLabel": "信息标题",
+        "icon": "lucide:list",
+        "enableSubmit": 1,
+        "adminCreate": 0,
+        "listTemplate": "list-info.html",
+        "detailTemplate": "detail-info.html"
+      },
+      "fields": [
+        {
+          "fieldName": "price",
+          "fieldLabel": "价格",
+          "fieldType": "decimal",
+          "minValue": 0,
+          "isFilter": 1,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 1
+        },
+        {
+          "fieldName": "region",
+          "fieldLabel": "地区",
+          "fieldType": "input",
+          "isFilter": 1,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 2
+        },
+        {
+          "fieldName": "contact",
+          "fieldLabel": "联系方式",
+          "fieldType": "input",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 3
+        },
+        {
+          "fieldName": "expire_time",
+          "fieldLabel": "过期时间",
+          "fieldType": "datetime",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 4
+        }
+      ],
+      "categories": [
+        {
+          "name": "二手闲置",
+          "sort": 1
+        },
+        {
+          "name": "房屋租售",
+          "sort": 2
+        },
+        {
+          "name": "招聘求职",
+          "sort": 3
+        },
+        {
+          "name": "便民服务",
+          "sort": 4
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "key": "fly_article_audit",
+      "value": "1"
+    }
+  ],
+  "channels": [],
+  "guides": [
+    {
+      "name": "分类信息",
+      "type": 2,
+      "link": "/info/",
+      "sort": 5
+    }
+  ],
+  "templates": [
+    {
+      "file": "list-info.html"
+    },
+    {
+      "file": "detail-info.html"
+    },
+    {
+      "file": "submit-info.html"
+    }
+  ],
+  "sampleContent": []
+}

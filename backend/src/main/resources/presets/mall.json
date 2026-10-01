@@ -1,0 +1,346 @@
+{
+  "preset": {
+    "code": "mall",
+    "name": "商城",
+    "version": 1,
+    "icon": "lucide:shopping-cart",
+    "description": "商品/SKU/购物车/订单五模型交易底座 + 商品列表/详情(规格选择加购)/购物车/我的订单四页。"
+  },
+  "groups": [
+    {
+      "name": "商城",
+      "code": "mall",
+      "icon": "lucide:shopping-cart",
+      "sort": 6,
+      "status": 1
+    }
+  ],
+  "models": [
+    {
+      "model": {
+        "name": "品牌",
+        "code": "brands",
+        "titleLabel": "品牌名",
+        "icon": "lucide:award",
+        "enableSubmit": 0
+      },
+      "fields": [
+        {
+          "fieldName": "logo",
+          "fieldLabel": "品牌Logo",
+          "fieldType": "image_url",
+          "isForm": 1,
+          "isList": 1,
+          "sort": 1
+        },
+        {
+          "fieldName": "website",
+          "fieldLabel": "官网",
+          "fieldType": "url",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 2
+        }
+      ],
+      "categories": []
+    },
+    {
+      "model": {
+        "name": "商品",
+        "code": "products",
+        "titleLabel": "商品名称",
+        "icon": "lucide:package",
+        "enableSubmit": 1,
+        "useContent": 1,
+        "useSeo": 1
+      },
+      "fields": [
+        {
+          "fieldName": "brand_id",
+          "fieldLabel": "品牌",
+          "fieldType": "relate",
+          "relateModel": "brands",
+          "isForm": 1,
+          "isList": 1,
+          "sort": 1
+        },
+        {
+          "fieldName": "gallery",
+          "fieldLabel": "商品相册",
+          "fieldType": "images",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 2
+        },
+        {
+          "fieldName": "summary",
+          "fieldLabel": "商品简介",
+          "fieldType": "textarea",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 3
+        }
+      ],
+      "categories": [
+        {
+          "name": "数码",
+          "sort": 1
+        },
+        {
+          "name": "家居",
+          "sort": 2
+        },
+        {
+          "name": "服饰",
+          "sort": 3
+        }
+      ]
+    },
+    {
+      "model": {
+        "name": "SKU",
+        "code": "skus",
+        "titleLabel": "SKU",
+        "icon": "lucide:boxes",
+        "adminCreate": 0
+      },
+      "fields": [
+        {
+          "fieldName": "product",
+          "fieldLabel": "所属商品",
+          "fieldType": "relate",
+          "relateModel": "products",
+          "isFilter": 1,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 1
+        },
+        {
+          "fieldName": "spec",
+          "fieldLabel": "规格",
+          "fieldType": "input",
+          "isRequired": 1,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 2
+        },
+        {
+          "fieldName": "price",
+          "fieldLabel": "价格",
+          "fieldType": "decimal",
+          "isRequired": 1,
+          "minValue": 0,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 3
+        },
+        {
+          "fieldName": "stock",
+          "fieldLabel": "库存",
+          "fieldType": "number",
+          "isRequired": 1,
+          "minValue": 0,
+          "isForm": 1,
+          "isList": 0,
+          "sort": 4
+        }
+      ],
+      "categories": []
+    },
+    {
+      "model": {
+        "name": "购物车",
+        "code": "carts",
+        "titleLabel": "购物车行",
+        "adminCreate": 0,
+        "enableSubmit": 0
+      },
+      "fields": [
+        {
+          "fieldName": "sku_id",
+          "fieldLabel": "SKU",
+          "fieldType": "number",
+          "isRequired": 1,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 1
+        },
+        {
+          "fieldName": "qty",
+          "fieldLabel": "数量",
+          "fieldType": "number",
+          "isRequired": 1,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 2
+        }
+      ],
+      "categories": []
+    },
+    {
+      "model": {
+        "name": "订单",
+        "code": "orders",
+        "titleLabel": "订单",
+        "adminCreate": 0,
+        "enableSubmit": 0
+      },
+      "fields": [
+        {
+          "fieldName": "amount",
+          "fieldLabel": "订单总额",
+          "fieldType": "decimal",
+          "isRequired": 1,
+          "minValue": 0,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 1
+        },
+        {
+          "fieldName": "consignee",
+          "fieldLabel": "收货人",
+          "fieldType": "input",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 2
+        },
+        {
+          "fieldName": "phone",
+          "fieldLabel": "联系电话",
+          "fieldType": "input",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 3
+        },
+        {
+          "fieldName": "address",
+          "fieldLabel": "收货地址",
+          "fieldType": "input",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 4
+        },
+        {
+          "fieldName": "remark",
+          "fieldLabel": "备注",
+          "fieldType": "input",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 5
+        },
+        {
+          "fieldName": "state",
+          "fieldLabel": "订单状态",
+          "fieldType": "radio",
+          "options": "[\"待发货\",\"待收货\",\"已完成\"]",
+          "defaultValue": "待发货",
+          "isFilter": 1,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 6
+        }
+      ],
+      "categories": []
+    },
+    {
+      "model": {
+        "name": "订单明细",
+        "code": "order_items",
+        "titleLabel": "明细行",
+        "adminCreate": 0,
+        "enableSubmit": 0
+      },
+      "fields": [
+        {
+          "fieldName": "order_id",
+          "fieldLabel": "订单",
+          "fieldType": "number",
+          "isRequired": 1,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 1
+        },
+        {
+          "fieldName": "sku_id",
+          "fieldLabel": "SKU",
+          "fieldType": "number",
+          "isRequired": 1,
+          "isForm": 1,
+          "isList": 0,
+          "sort": 2
+        },
+        {
+          "fieldName": "product_id",
+          "fieldLabel": "商品",
+          "fieldType": "number",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 3
+        },
+        {
+          "fieldName": "spec",
+          "fieldLabel": "规格快照",
+          "fieldType": "input",
+          "isForm": 1,
+          "isList": 0,
+          "sort": 4
+        },
+        {
+          "fieldName": "price",
+          "fieldLabel": "成交价",
+          "fieldType": "decimal",
+          "isRequired": 1,
+          "minValue": 0,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 5
+        },
+        {
+          "fieldName": "qty",
+          "fieldLabel": "数量",
+          "fieldType": "number",
+          "isRequired": 1,
+          "isForm": 1,
+          "isList": 1,
+          "sort": 6
+        }
+      ],
+      "categories": []
+    }
+  ],
+  "settings": [],
+  "channels": [
+    {
+      "name": "商城",
+      "dir": "mall",
+      "model": "products",
+      "channelType": 0,
+      "listTemplate": "list-products.html",
+      "pageSize": 20
+    }
+  ],
+  "guides": [
+    {
+      "name": "商城",
+      "type": 1,
+      "refChannelDir": "mall",
+      "sort": 2
+    }
+  ],
+  "templates": [
+    {
+      "file": "detail-products.html"
+    },
+    {
+      "file": "list-products.html"
+    },
+    {
+      "file": "mall-cart.html"
+    },
+    {
+      "file": "mall-orders.html"
+    }
+  ],
+  "templatesInline": true,
+  "sampleContent": []
+}

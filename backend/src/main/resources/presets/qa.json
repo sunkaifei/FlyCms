@@ -1,0 +1,49 @@
+{
+  "preset": {
+    "code": "qa",
+    "name": "问答网站",
+    "version": 1,
+    "icon": "lucide:messages-square",
+    "description": "类似百度知道：前台用户提问/回答/采纳，后台只审核。含问题详情、频道列表、双投稿页与导航。"
+  },
+  "groups": [
+    { "name": "问答", "code": "qa", "icon": "lucide:messages-square", "sort": 5, "status": 1 }
+  ],
+  "models": [
+    {
+      "model": { "name": "问答", "code": "questions", "titleLabel": "问题", "icon": "lucide:help-circle", "enableSubmit": 1, "adminCreate": 0, "useContent": 1, "useSeo": 1 },
+      "fields": [
+        { "fieldName": "weight", "fieldLabel": "悬赏", "fieldType": "decimal", "minValue": 0, "isForm": 1, "isList": 1, "sort": 1 }
+      ],
+      "categories": [ { "name": "技术", "sort": 1 }, { "name": "生活", "sort": 2 }, { "name": "学习", "sort": 3 } ]
+    },
+    {
+      "model": { "name": "回答", "code": "answers", "titleLabel": "回答", "icon": "lucide:message-circle", "enableSubmit": 1, "adminCreate": 0 },
+      "fields": [
+        { "fieldName": "question", "fieldLabel": "所属问题", "fieldType": "relate", "relateModel": "questions", "isFilter": 1, "isForm": 1, "isList": 1, "sort": 1 },
+        { "fieldName": "parent", "fieldLabel": "父回答", "fieldType": "relate", "relateModel": "answers", "isForm": 1, "isList": 0, "sort": 2 },
+        { "fieldName": "accepted", "fieldLabel": "采纳状态", "fieldType": "radio", "options": "[\"待采纳\",\"已采纳\"]", "isFilter": 1, "isForm": 1, "isList": 1, "sort": 3 }
+      ],
+      "categories": []
+    }
+  ],
+  "settings": [
+    { "key": "fly_article_audit", "value": "1" }
+  ],
+  "channels": [
+    { "name": "问答", "dir": "qa", "model": "questions", "channelType": 0, "listTemplate": "list-questions.html", "pageSize": 20 }
+  ],
+  "guides": [
+    { "name": "问答", "type": 1, "refChannelDir": "qa", "sort": 1 }
+  ],
+  "templates": [
+    { "file": "detail-questions.html" },
+    { "file": "list-questions.html" },
+    { "file": "submit-questions.html" },
+    { "file": "submit-answers.html" }
+  ],
+  "templatesInline": true,
+  "sampleContent": [
+    { "model": "questions", "row": { "title": "示例问题：FlyCms 是怎么做到零代码建站的？", "content": "通过自定义模型引擎：后台建模生成数据表，预设包一键组装站点。", "status": "1" } }
+  ]
+}

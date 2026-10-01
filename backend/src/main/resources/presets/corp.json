@@ -1,0 +1,107 @@
+{
+  "preset": {
+    "code": "corp",
+    "name": "企业官网",
+    "version": 1,
+    "icon": "lucide:building-2",
+    "description": "企业官网：首页（区域编排可配区块）+ 新闻动态 + 产品展示 + 关于我们/联系方式单页。"
+  },
+  "groups": [
+    {
+      "name": "官网",
+      "code": "corp",
+      "icon": "lucide:building-2",
+      "sort": 9,
+      "status": 1
+    }
+  ],
+  "models": [
+    {
+      "model": {
+        "name": "文章模型",
+        "code": "articles",
+        "titleLabel": "文章标题",
+        "icon": "lucide:file-text",
+        "isSystem": 1
+      },
+      "fields": [],
+      "categories": [
+        {
+          "name": "公司新闻",
+          "sort": 1
+        },
+        {
+          "name": "行业动态",
+          "sort": 2
+        }
+      ]
+    }
+  ],
+  "settings": [],
+  "channels": [
+    {
+      "name": "首页",
+      "dir": "home",
+      "channelType": 3,
+      "listTemplate": "index.html",
+      "pageSize": 10
+    },
+    {
+      "name": "新闻动态",
+      "dir": "news",
+      "model": "articles",
+      "channelType": 0,
+      "listTemplate": "list-articles.html",
+      "pageSize": 15
+    },
+    {
+      "name": "关于我们",
+      "dir": "about",
+      "channelType": 1,
+      "pageContent": "<h2>关于我们</h2><p>在此填写公司介绍（后台「栏目管理」可编辑本单页内容）。</p>"
+    },
+    {
+      "name": "联系方式",
+      "dir": "contact",
+      "channelType": 1,
+      "pageContent": "<h2>联系方式</h2><p>电话：000-00000000<br/>邮箱：hello@example.com<br/>地址：在此填写地址。</p>"
+    }
+  ],
+  "guides": [
+    {
+      "name": "首页",
+      "type": 1,
+      "refChannelDir": "home",
+      "sort": 1
+    },
+    {
+      "name": "新闻动态",
+      "type": 1,
+      "refChannelDir": "news",
+      "sort": 2
+    },
+    {
+      "name": "关于我们",
+      "type": 1,
+      "refChannelDir": "about",
+      "sort": 3
+    },
+    {
+      "name": "联系方式",
+      "type": 1,
+      "refChannelDir": "contact",
+      "sort": 4
+    }
+  ],
+  "templates": [],
+  "sampleContent": [
+    {
+      "model": "articles",
+      "row": {
+        "title": "【示例】公司新闻标题",
+        "content": "在此填写新闻正文。",
+        "status": "1"
+      }
+    }
+  ]
+}

@@ -503,6 +503,13 @@ export async function toggleAreaBlockApi(id: string, status: number) {
 }
 
 /** 区域渲染预览（保存后立刻看效果） */
+/** P-4 页面-区域映射：区域名 → 引用它的模板文件列表 */
+export async function getAreaUsageApi(theme?: string) {
+  return requestClient.get<Record<string, string[]>>('/system/area/usage', {
+    params: { theme },
+  });
+}
+
 export async function previewAreaApi(area: string, theme?: string) {
   return requestClient.get<{
     area: string;

@@ -1,0 +1,73 @@
+{
+  "preset": {
+    "code": "photos",
+    "name": "图片站",
+    "version": 1,
+    "icon": "lucide:image",
+    "description": "图片/摄影站：相册图组（多图上传）、拍摄信息（时间/地点/器材），瀑布流展示。基于内置图片模型。"
+  },
+  "groups": [
+    {
+      "name": "图片",
+      "code": "photos",
+      "icon": "lucide:image",
+      "sort": 8,
+      "status": 1
+    }
+  ],
+  "models": [
+    {
+      "model": {
+        "name": "图片模型",
+        "code": "images",
+        "titleLabel": "图片标题",
+        "icon": "lucide:image",
+        "isSystem": 1,
+        "enableSubmit": 1
+      },
+      "fields": [],
+      "categories": [
+        {
+          "name": "风景",
+          "sort": 1
+        },
+        {
+          "name": "人像",
+          "sort": 2
+        },
+        {
+          "name": "街拍",
+          "sort": 3
+        }
+      ]
+    }
+  ],
+  "settings": [],
+  "channels": [
+    {
+      "name": "图片",
+      "dir": "photos",
+      "model": "images",
+      "channelType": 0,
+      "listTemplate": "list-images.html",
+      "pageSize": 24
+    }
+  ],
+  "guides": [
+    {
+      "name": "图片",
+      "type": 1,
+      "refChannelDir": "photos",
+      "sort": 4
+    }
+  ],
+  "templates": [
+    {
+      "file": "list-images.html"
+    },
+    {
+      "file": "detail-images.html"
+    }
+  ],
+  "sampleContent": []
+}

@@ -1,0 +1,54 @@
+<#-- 分类信息 · 列表页（类目/地区/价格筛选 + 时间窗由 E8 支持） -->
+<html lang="zh">
+<head><meta charset="UTF-8"><title>分类信息 - ${web_name!''}</title><style>
+  body{font-family:system-ui,"Microsoft YaHei",sans-serif;background:#f5f6f8;margin:0;}
+  .wrap{max-width:900px;margin:24px auto;padding:0 12px;}
+  .card{background:#fff;border-radius:8px;padding:18px 22px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px;}
+  .row{display:flex;gap:14px;border-bottom:1px solid #f0f1f3;padding:14px 0;}
+  .row .t a{font-size:16px;color:#333;text-decoration:none;}
+  .row .t a:hover{color:#e64340;}
+  .row .s{font-size:12px;color:#8a919f;margin-top:4px;}
+  .price{color:#e64340;font-weight:700;}
+  .cats a{display:inline-block;margin:0 10px 8px 0;color:#e64340;text-decoration:none;}
+  .btn{display:inline-block;background:#e64340;color:#fff;border-radius:4px;padding:8px 22px;text-decoration:none;margin-bottom:12px;}
+  .empty{color:#8a919f;padding:24px 0;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:14px;margin-bottom:4px;}
+  .field input,.field textarea,.field select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #d9dce1;border-radius:4px;font-size:14px;}
+  .field textarea{min-height:120px;}
+  .req{color:#e64340;margin-right:2px;}
+  .submit-btn{background:#e64340;color:#fff;border:0;border-radius:4px;padding:10px 26px;font-size:15px;cursor:pointer;}
+</style></head>
+<body>
+<div class="wrap">
+  <a class="btn" href="/ucenter/submit/info">免费发布信息</a>
+  <div class="cats">
+    <@fly_category_model model="info">
+      <#if (categoryList)?? && categoryList?size gt 0>
+        <a href="/info/">全部</a>
+        <#list categoryList as c><a href="/info/c${c.id}">${c.name}</a></#list>
+      </#if>
+    </@fly_category_model>
+  </div>
+  <@fly_page_model model="info" rows="20">
+    <#if (dataList)?? && dataList?size gt 0>
+      <#list dataList as it>
+        <div class="row">
+          <div class="t">
+            <a href="/info/${it.shortUrl}.html">${it.title}</a>
+            <div class="s">
+              <#if (it.region)?? && it.region != ''>${it.region} · </#if>
+              <@dt16 (it.createTime)!'' />
+            </div>
+          </div>
+          <#if (it.price)?? && it.price gt 0><div class="price">¥${it.price?string("0.00")}</div></#if>
+        </div>
+      </#list>
+    <#else>
+      <div class="empty">暂无信息</div>
+    </#if>
+    <#if (pageBar)?? && pageBar != ''>${pageBar}</#if>
+  </@fly_page_model>
+</div>
+</body>
+</html>

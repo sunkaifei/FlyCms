@@ -1,0 +1,81 @@
+<#-- ============================================================
+     问答频道 · 我要提问（submit-questions.html，覆盖通用 submit.html）
+     复用 V2 投稿通道：POST /ucenter/submit/questions
+     ============================================================ -->
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>我要提问 - ${web_name!''}</title>
+<style>
+  body{font-family:system-ui,"Microsoft YaHei",sans-serif;background:#f5f6f8;margin:0;}
+  .wrap{max-width:720px;margin:40px auto;background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  h1{font-size:22px;margin:0 0 18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:14px;color:#333;margin-bottom:4px;}
+  .field input[type=text],.field input[type=number],.field textarea,.field select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #d9dce1;border-radius:4px;font-size:14px;}
+  .field textarea{min-height:160px;resize:vertical;}
+  .req{color:#e64340;margin-right:2px;}
+  .btn{background:#3a6fd8;color:#fff;border:0;border-radius:4px;padding:10px 26px;font-size:15px;cursor:pointer;}
+  .btn:hover{opacity:.9;}
+  .tip{font-size:12px;color:#999;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>我要提问</h1>
+  <#if (user.userId)??>
+  <form id="askForm" method="post" action="/ucenter/submit/questions">
+    <div class="field">
+      <label><span class="req">*</span>问题标题</label>
+      <input type="text" name="title" required maxlength="100" placeholder="一句话说清你的问题，如：FlyCms 怎么新建自定义模型？">
+    </div>
+    <#list meta.fields as f>
+      <#if f.isForm == 1 && f.fieldName != 'title'>
+        <div class="field">
+          <#assign ft = f.fieldType>
+          <#if ft == 'textarea' || ft == 'editor'>
+            <label><#if f.isRequired == 1><span class="req">*</span></#if>${f.fieldLabel}</label>
+            <textarea name="${f.fieldName}" placeholder="${f.placeholder!''}"></textarea>
+          <#elseif ft == 'number' || ft == 'decimal'>
+            <label>${f.fieldLabel}</label>
+            <input type="number" name="${f.fieldName}" step="any" min="0" placeholder="${f.placeholder!''}">
+          <#elseif ft == 'select'>
+            <label>${f.fieldLabel}</label>
+            <select name="${f.fieldName}"><option value="">请选择</option><#list (f.optionsList)![] as o><option value="${o}">${o}</option></#list></select>
+          <#elseif ft == 'formula' || ft == 'rollup' || ft == 'm2a' || ft == 'relate' || ft == 'relates'>
+            <#-- 计算/聚合/关联不进提问表单 -->
+          <#else>
+            <label>${f.fieldLabel}</label>
+            <input type="text" name="${f.fieldName}" placeholder="${f.placeholder!''}">
+          </#if>
+        </div>
+      </#if>
+    </#list>
+    <div class="field">
+      <label><span class="req">*</span>问题补充</label>
+      <textarea name="content" required placeholder="详细描述你的问题：环境、已尝试的办法、期望的结果……"></textarea>
+    </div>
+    <button class="btn" type="submit">提交问题</button>
+    <span class="tip" style="margin-left:10px;">提交后进入审核（如开启），通过后公开显示</span>
+  </form>
+  <script>
+    document.getElementById('askForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var fd = new FormData(this);
+      fetch(this.action, { method: 'POST', body: new URLSearchParams(fd) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (j.code === 0) {
+            location.href = '/questions/';
+          } else {
+            alert(j.message || '提交失败');
+          }
+        });
+    });
+  </script>
+  <#else>
+  <p>请先 <a href="/login">登录</a> 后再提问。</p>
+  </#if>
+</div>
+</body>
+</html>
