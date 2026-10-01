@@ -35,8 +35,7 @@
             <#-- 由 sku_id 关联取 SKU 现价与商品链接（二次查询，模板层组装） -->
             <div class="cart-row" id="crow_${row.id}">
               <span class="spec">SKU #${row.sku_id} × <input class="qty" type="number" min="1" value="${row.qty}"></span>
-              <#-- 库存/现价由接口侧扩展展示；此处先按动作层通用渲染 -->
-              <button onclick="changeQty(${row.id}, this)">更新</button>
+              <button onclick="changeQty(${row.id}, this)">更新数量</button>
               <button class="del" onclick="removeRow(${row.id})">删除</button>
             </div>
           </#list>
@@ -53,13 +52,18 @@
   </div>
 </div>
 <script>
+  // 改数量：X2 所有者通道（carts.qty 为 is_form 字段）
   function changeQty(id, btn) {
     var qty = btn.parentNode.querySelector('input.qty').value;
-    fetch('/ucenter/action/carts/' + id + '/counter?field=qty&delta=' + qty, { method: 'POST' })
+    var body = 'modelCode=carts&id=' + id + '&qty=' + qty;
+    fetch('/ucenter/content/update', { method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: body })
       .then(function () { location.reload(); });
   }
+  // 删除：② 动作原语 remove（所有者硬删）
   function removeRow(id) {
-    fetch('/ucenter/mall/cart/remove', { method: 'POST', body: 'id=' + id });
+    fetch('/ucenter/action/carts/' + id + '/remove', { method: 'POST' })
+      .then(function () { location.reload(); });
   }
 </script>
 </@fly_login>

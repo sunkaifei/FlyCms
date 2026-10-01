@@ -27,19 +27,19 @@
         <div class="od-card">
           <div class="hd">
             <span>订单 #${(od.orderNo)!(od.id)}</span>
-            <span class="od-st s${(od.status)!1}">${(od.status)!1?string} <#switch (od.status)!1><#case 1>待发货<#break><#case 2>待收货<#break><#case 3>已完成<#break><#default>已取消</#switch></span>
+            <span class="od-st s${(od.status)!1}">${(od.state)!'待发货'}</span>
           </div>
           <div class="bd">
             收货：${(od.consignee)!'-'} · ${(od.phone)!'-'} · ${(od.address)!'-'}
           </div>
           <div class="ft">
             合计 <b>¥${(od.amount)?string("0.00")}</b>
-            <#if (od.status)!1 == 2>
-            <#-- 确认收货：X2 所有者通道更新动作层模型的 status 字段 -->
+            <#if (od.state)!'待发货' == '待收货'>
+            <#-- 确认收货：X2 所有者通道更新 state 字段（radio 候选与展示态联动） -->
             <form method="post" action="/ucenter/content/update" style="display:inline;">
               <input type="hidden" name="modelCode" value="orders">
               <input type="hidden" name="id" value="${od.id}">
-              <input type="hidden" name="orderStatus" value="3">
+              <input type="hidden" name="state" value="已完成">
               <input type="hidden" name="redirect" value="/mall/orders">
               <button type="submit">确认收货</button>
             </form>

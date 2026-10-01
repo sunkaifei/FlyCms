@@ -84,4 +84,13 @@ public class ActionController extends BaseController {
         }
         return actionService.compose(actions, getUser().getUserId());
     }
+
+    /** 删除自己提交的动作行（购物车移除/报名撤销；硬删，M2A 关系一并清理） */
+    @PostMapping("/{modelCode}/{id}/remove")
+    public DataVo remove(@PathVariable String modelCode, @PathVariable Long id) {
+        if (getUser() == null) {
+            return DataVo.failure("请登录后操作");
+        }
+        return actionService.removeOwn(modelCode, id, getUser().getUserId());
+    }
 }

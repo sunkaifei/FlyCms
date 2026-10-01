@@ -244,6 +244,31 @@ public class ActionService {
         return null;
     }
 
+    /**
+     * 删除自己的行（动作原语补集，2026-10-02）：仅限 user_id=操作者的行；
+     * 动作层模型（购物车/报名行）的"撤销"场景。硬删（动作行无回收站语义）。
+     */
+    public DataVo removeOwn(String code, Long id, Long userId) {
+        Model model = modelService.findModelByCode(safeCode(code));
+        if (model == null || model.getStatus() != 1) {
+            return DataVo.failure("模块不存在或未启用");
+        }
+        Map<String, Object> row = modelDataService.findDataById(model.getId(), id);
+        if (row == null) {
+            return DataVo.failure("目标内容不存在");
+        }
+        // findDataById 为 SELECT *（下划线原始键），直接取 user_id
+        Object owner = row.get("user_id");
+        if (owner == null || !String.valueOf(owner).equals(String.valueOf(userId))) {
+            return DataVo.failure("只能删除自己提交的记录");
+        }
+        String suffix = suffixOf(code);
+        // 动作行的 M2A 关系一并清理（与内容删除同口径）
+        modelDataDao.deleteRelationsByFromIds(model.getCode(), List.of(id));
+        modelDataDao.hardDeleteRow(suffix, id);
+        return DataVo.success("已删除");
+    }
+
     private String suffixOf(String code) {
         return com.flycms.core.utils.SqlSafeUtil.safeTableSuffixForExisting(
                 modelService.findModelByCode(safeCode(code)).getCode());
