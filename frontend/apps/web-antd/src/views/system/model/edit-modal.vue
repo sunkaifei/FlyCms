@@ -109,6 +109,20 @@ const [Form, formApi] = useVbenForm({
       fieldName: 'enableSubmit',
       label: '前台投稿',
     },
+    {
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '后台可发', value: 1 },
+          { label: '仅前台生成', value: 0 },
+        ],
+        optionType: 'button',
+      },
+      defaultValue: 1,
+      fieldName: 'adminCreate',
+      label: '后台新增',
+      extra: '选「仅前台生成」：后台隐藏该模型的内容菜单与新增入口，保留审核/编辑/删除（适合问答等前台生成内容）',
+    },
   ],
   showDefaultActions: false,
 });
@@ -154,6 +168,7 @@ onMounted(() => {
       useSeo: editing.value.useSeo === 0 ? 0 : 1,
       enableComment: editing.value.enableComment === 0 ? 0 : 1,
       enableSubmit: editing.value.enableSubmit === 0 ? 0 : 1,
+      adminCreate: editing.value.adminCreate === 0 ? 0 : 1,
     });
     // code 锁定
     formApi.updateSchema([

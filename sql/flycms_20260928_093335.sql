@@ -50732,6 +50732,7 @@ CREATE TABLE `fly_model` (
   `detail_template` varchar(100) DEFAULT NULL COMMENT '详情页模板（空=/{code}/detail.html）',
   `icon` varchar(64) DEFAULT NULL COMMENT '后台图标',
   `group_id` bigint(20) unsigned DEFAULT NULL COMMENT '所属分组（NULL=未分组）',
+  `admin_create` tinyint(1) NOT NULL DEFAULT '1' COMMENT '后台可新增：0=内容仅前台生成（隐藏新增入口与内容菜单）',
   `description` varchar(255) DEFAULT NULL,
   `sort` int(10) NOT NULL DEFAULT '0',
   `status` tinyint(2) NOT NULL DEFAULT '1' COMMENT '0禁用 1启用',

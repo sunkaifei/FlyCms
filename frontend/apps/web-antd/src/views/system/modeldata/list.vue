@@ -433,7 +433,7 @@ onMounted(async () => {
       </Button>
       <Button @click="resetFilters">重置</Button>
       <Button
-        v-if="canAdd"
+        v-if="canAdd && model?.adminCreate !== 0"
         class="ml-auto"
         type="primary"
         @click="openAdd"

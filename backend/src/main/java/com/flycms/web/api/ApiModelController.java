@@ -69,10 +69,13 @@ public class ApiModelController extends ApiBaseController {
      */
     private void syncModelMenuNodesOnSave(com.flycms.module.model.model.Model model) {
         String listKey = modelDataListKey(model.getId());
+        // admin_create=0（内容仅前台生成）→ 菜单不出现；停用同理
+        boolean hidden = (model.getAdminCreate() != null && model.getAdminCreate() == 0)
+                || model.getStatus() == 0;
         // 幂等：已存在（如迁移脚本预置）则只同步名称/图标/显隐
         for (com.flycms.module.admin.model.Permission p : permissionDao.findPermissionByActionKey(listKey)) {
             if (p.getParentId() != null && p.getParentId() == MODEL_MENU_PARENT_ID) {
-                updateModelMenuRow(p, model, 1);
+                updateModelMenuRow(p, model, hidden ? 0 : 1);
                 return;
             }
         }
@@ -86,7 +89,7 @@ public class ApiModelController extends ApiBaseController {
         menu.setComponent(MODEL_MENU_COMPONENT);
         menu.setIcon(StringUtils.defaultIfBlank(model.getIcon(), "lucide:file-text"));
         menu.setSort(model.getId() == null ? 99 : model.getId().intValue());
-        menu.setVisible(1);
+        menu.setVisible(hidden ? 0 : 1);
         permissionDao.addPermission(menu);
 
         String[][] buttons = {
@@ -110,10 +113,12 @@ public class ApiModelController extends ApiBaseController {
 
     private void syncModelMenuNodesOnUpdate(com.flycms.module.model.model.Model model) {
         String listKey = modelDataListKey(model.getId());
+        // 隐藏条件叠加：模型停用 或 admin_create=0（内容仅前台生成，菜单不出现；路由仍注册）
+        boolean hidden = model.getStatus() == 0
+                || (model.getAdminCreate() != null && model.getAdminCreate() == 0);
         for (com.flycms.module.admin.model.Permission p : permissionDao.findPermissionByActionKey(listKey)) {
             if (p.getParentId() != null && p.getParentId() == MODEL_MENU_PARENT_ID) {
-                // 模型停用 → 菜单隐藏（hideInMenu，路由仍注册）；启用 → 恢复
-                updateModelMenuRow(p, model, model.getStatus() == 0 ? 0 : 1);
+                updateModelMenuRow(p, model, hidden ? 0 : 1);
             }
         }
     }
@@ -209,6 +214,7 @@ public class ApiModelController extends ApiBaseController {
         model.setTitleLabel(StringUtils.defaultIfBlank(params.get("titleLabel"), "标题"));
         model.setIcon(params.get("icon"));
         model.setGroupId(parseLong(params.get("groupId")));
+        model.setAdminCreate(parseInt(params.get("adminCreate"), 1));
         model.setDescription(params.get("description"));
         model.setSort(parseInt(params.get("sort"), 0));
         DataVo vo = modelService.addModel(model);
@@ -236,6 +242,10 @@ public class ApiModelController extends ApiBaseController {
         // ① 组织层：分组归属（未传 = 不变更；传空串 = 移出分组）
         if (params.containsKey("groupId")) {
             model.setGroupId(parseLong(params.get("groupId")));
+        }
+        // 后台可新增开关（未传 = 不变更）
+        if (params.containsKey("adminCreate")) {
+            model.setAdminCreate(parseInt(params.get("adminCreate"), 1));
         }
         model.setDescription(params.get("description"));
         model.setSort(parseInt(params.get("sort"), 0));
@@ -476,6 +486,12 @@ public class ApiModelController extends ApiBaseController {
             return DataVo.failure("参数传递错误");
         }
         requirePermission("/api/system/modelData/add@" + modelId);
+        // 后台可新增开关（2026-10-02）：admin_create=0 的模型内容仅前台生成——
+        // 后台/管理员 API 直发一律拒绝（前台投稿走 /ucenter/submit 独立判断 enable_submit）
+        Model saveModel = modelService.findModelById(modelId);
+        if (saveModel != null && saveModel.getAdminCreate() != null && saveModel.getAdminCreate() == 0) {
+            return DataVo.failure("该模型内容由前台生成，不支持后台直接新增");
+        }
         // G14 字段级权限：无权字段写入直接拒绝
         DataVo denied = assertFieldsWritable(modelId, params,
                 modelFieldService.findFieldsByModelId(modelId, null));

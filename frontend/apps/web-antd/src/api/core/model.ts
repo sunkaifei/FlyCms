@@ -25,6 +25,8 @@ export interface ModelRow {
   enableComment?: number;
   /** V2 前台投稿开关：0=关闭前台投稿；undefined 视为 1 */
   enableSubmit?: number;
+  /** 后台可新增开关（0=内容仅前台生成：隐藏后台新增与内容菜单） */
+  adminCreate?: number;
   /** 发布表单页签顺序（JSON 数组字符串，如 ["基础信息","扩展信息"]；空=按字段出现顺序） */
   formTabs?: string;
   /** 发布表单默认打开的页签名（空=第一个页签） */

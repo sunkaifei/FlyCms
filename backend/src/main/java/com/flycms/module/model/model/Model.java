@@ -46,6 +46,12 @@ public class Model implements Serializable {
      * DB 缺省 1 开启。
      */
     private Integer enableSubmit;
+    /**
+     * 后台可新增开关（2026-10-02）：0=内容仅前台生成——后台隐藏该模型的内容管理菜单与
+     * 「添加内容」入口、modelData 保存端点兜底拒绝；列表/审核/编辑/删除保留。
+     * 与 enableSubmit 组合成四象限（常规/纯前台/动作模型/双向）。DB 缺省 1（现状不变）。
+     */
+    private Integer adminCreate;
     /** 发布表单页签顺序（JSON 数组，如 ["基础信息","扩展信息"]；空=按字段出现顺序） */
     private String formTabs;
     /** 发布表单默认打开的页签名（空=第一个页签） */
