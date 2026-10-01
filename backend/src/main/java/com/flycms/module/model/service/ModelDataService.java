@@ -98,6 +98,20 @@ public class ModelDataService {
                                                   Map<String, String> filters, String orderby, String order,
                                                   int page, int rows, Long notId, boolean front, Long userId,
                                                   String timeField, String timeFrom, String timeTo) {
+        return selectPage(modelId, title, categoryId, status, filters, orderby, order,
+                page, rows, notId, front, userId, timeField, timeFrom, timeTo, false);
+    }
+
+    /**
+     * W/X 批次：withContent=true 时列表投影追加主表 content 列——问答频道详情页需内联
+     * 渲染回答正文（content 走主表通道且默认被 G11 投影排除），由模板显式开启，
+     * 其余列表页保持轻量投影不变。
+     */
+    public PageVo<Map<String, Object>> selectPage(Long modelId, String title, Long categoryId, Integer status,
+                                                  Map<String, String> filters, String orderby, String order,
+                                                  int page, int rows, Long notId, boolean front, Long userId,
+                                                  String timeField, String timeFrom, String timeTo,
+                                                  boolean withContent) {
         Model model = modelService.findModelById(modelId);
         PageVo<Map<String, Object>> pageVo = new PageVo<>(page);
         pageVo.setRows(rows);
@@ -224,8 +238,12 @@ public class ModelDataService {
         params.put("offset", pageVo.getOffset());
         params.put("rows", pageVo.getRows());
         String whereSql = String.join(" AND ", where);
+        List<String> columns = listColumns(fields);
+        if (withContent && !columns.contains("content")) {
+            columns.add("content");
+        }
         pageVo.setList(modelDataDao.selectPage(tableSuffixOf(modelId), whereSql, orderBySql,
-                listColumns(fields), params));
+                columns, params));
         pageVo.setCount(modelDataDao.countPage(tableSuffixOf(modelId), whereSql, params));
         return pageVo;
     }
@@ -299,6 +317,121 @@ public class ModelDataService {
         meta.put("fields", fields);
         meta.put("categories", categories);
         return meta;
+    }
+
+    // /////////////////// X 批次：前台互动闭环 ///////////////////
+
+    /**
+     * X1 投稿上下文预置的行校验：目标模型下该行存在且已发布（status=1），返回行（含 title
+     * 供只读条展示）；模型/行不存在或未发布返回 null。调用方决定 404/失败语义。
+     */
+    public Map<String, Object> findPublishedRow(String code, Long id) {
+        Model model = modelService.findModelByCode(code);
+        if (model == null) {
+            return null;
+        }
+        Map<String, Object> row = modelDataDao.findDataById(tableSuffixOf(model.getId()), id);
+        if (row == null) {
+            return null;
+        }
+        normalizeKeys(List.of(row));
+        Object status = row.get("status");
+        if (status == null || !"1".equals(String.valueOf(status))) {
+            return null;
+        }
+        return row;
+    }
+
+    /**
+     * X2 内容所有者操作：登录用户更新 user_id=自己的内容行的白名单字段。
+     *
+     * <p>白名单口径：is_form=1 的非关联自定义字段（relate/relates/m2a 关联边所有者不可
+     * 改——防把回答挪到别的问题；editor 走主表 content 通道不在动态列；虚拟字段不落列）。
+     * 硬约束：行必须存在且 user_id=操作者；status/title 等固有列不在白名单（不绕审核流）。
+     * 落库复用 convertFieldValue 全量校验，附件引用计数调整 + G12 快照 + G18 事件与
+     * updateData 同口径。
+     */
+    public DataVo ownerUpdate(Long modelId, Long id, Map<String, String> form, Long userId) {
+        Model model = modelService.findModelById(modelId);
+        if (model == null || model.getStatus() != 1) {
+            return DataVo.failure("模型不存在或已禁用");
+        }
+        Map<String, Object> row = modelDataDao.findDataById(tableSuffixOf(modelId), id);
+        if (row == null) {
+            return DataVo.failure("内容不存在");
+        }
+        normalizeKeys(List.of(row));
+        Object owner = row.get("userId");
+        if (owner == null || !String.valueOf(owner).equals(String.valueOf(userId))) {
+            return DataVo.failure("只能操作自己发布的内容");
+        }
+        String selfSuffix = tableSuffixOf(modelId);
+        List<ModelField> fields = topFields(modelFieldDao.findFieldsByModelId(modelId, 1));
+        List<String> columns = new ArrayList<>();
+        Map<String, Object> values = new HashMap<>();
+        List<Long> newRefs = new ArrayList<>();
+        boolean changed = false;
+        for (ModelField f : fields) {
+            if (f.getIsForm() == 0) {
+                continue;
+            }
+            FieldTypeEnum type;
+            try {
+                type = FieldTypeEnum.of(f.getFieldType());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            if (type.isVirtual() || type == FieldTypeEnum.EDITOR
+                    || type == FieldTypeEnum.RELATE || type == FieldTypeEnum.RELATES
+                    || type == FieldTypeEnum.M2A) {
+                continue;
+            }
+            String raw = form.get(f.getFieldName());
+            if (raw == null) {
+                continue;
+            }
+            if (StringUtils.isBlank(raw)) {
+                if (f.getIsRequired() == 1) {
+                    return DataVo.failure(f.getFieldLabel() + "不能为空");
+                }
+                columns.add(f.getFieldName());
+                values.put(f.getFieldName(), null);
+                changed = true;
+                continue;
+            }
+            Object v;
+            try {
+                v = convertFieldValue(f, type, raw, newRefs, selfSuffix);
+            } catch (IllegalArgumentException e) {
+                return DataVo.failure(StringUtils.defaultIfBlank(e.getMessage(), f.getFieldLabel() + "格式不正确"));
+            } catch (Exception e) {
+                log.error("所有者更新字段[{}]({})失败: {}", f.getFieldName(), f.getFieldType(), e.getMessage(), e);
+                return DataVo.failure(f.getFieldLabel() + "处理失败");
+            }
+            putColumn(columns, values, f.getFieldName(), v);
+            changed = true;
+        }
+        if (!changed) {
+            return DataVo.failure("没有可更新的字段");
+        }
+        // 附件引用计数调整（旧引用取整行附件字段，与 updateData 同口径）
+        List<Long> oldRefs = new ArrayList<>();
+        for (ModelField f : fields) {
+            FieldTypeEnum type;
+            try {
+                type = FieldTypeEnum.of(f.getFieldType());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            if (type.isAttachment()) {
+                oldRefs.addAll(readReferenceIds(type, f, row));
+            }
+        }
+        modelDataDao.updateData(selfSuffix, id, columns, values);
+        adjustRefCounts(oldRefs, distinct(newRefs));
+        snapshotContentVersion(model, id, userId, "所有者更新");
+        publishContentEvent("update", model, List.of(id), userId);
+        return DataVo.success("更新成功");
     }
 
     // /////////////////// 写入 ///////////////////

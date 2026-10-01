@@ -58,6 +58,10 @@ public class SubmitController extends BaseController {
     @Autowired
     private ConfigService configService;
     @Autowired
+    private com.flycms.module.model.service.ModelCategoryService modelCategoryService;
+    @Autowired
+    private com.flycms.module.user.service.UserService userService;
+    @Autowired
     private ThemeRegistry themeRegistry;
 
     /**
@@ -66,7 +70,9 @@ public class SubmitController extends BaseController {
      * 模型未开放投稿（enable_submit=0）或未登录一律 404/登录语义拒绝。
      */
     @GetMapping("/ucenter/submit/{modelCode}")
-    public String submitPage(@PathVariable String modelCode, ModelMap modelMap) {
+    public String submitPage(@PathVariable String modelCode,
+                             @RequestParam Map<String, String> params,
+                             ModelMap modelMap) {
         if (getUser() == null) {
             return "redirect:/login";
         }
@@ -93,10 +99,26 @@ public class SubmitController extends BaseController {
         }
         modelMap.addAttribute("model", model);
         Map<String, Object> meta = modelDataService.formMeta(model.getId());
+        // X1 投稿上下文预置：URL 白名单参数（id 类字段）校验后转只读上下文条
+        List<Map<String, Object>> fixed;
+        try {
+            fixed = resolveFixed(model, params);
+        } catch (IllegalArgumentException e) {
+            modelMap.addAttribute("message", e.getMessage());
+            return theme.getPcTemplate("message_tip");
+        }
         // 模板友好化：fields 转.Map 并解析 options → optionsList（radio/checkbox 直接渲染）
         if (meta.get("fields") instanceof List) {
             List<Map<String, Object>> fieldMaps = new ArrayList<>();
+            Set<String> fixedNames = new HashSet<>();
+            for (Map<String, Object> f : fixed) {
+                fixedNames.add(String.valueOf(f.get("name")));
+            }
             for (ModelField f : (List<ModelField>) meta.get("fields")) {
+                // 已作上下文预置的字段不再进可编辑字段循环（由 fixed 条 + hidden 呈现）
+                if (fixedNames.contains(f.getFieldName())) {
+                    continue;
+                }
                 Map<String, Object> m = new HashMap<>();
                 m.put("fieldName", f.getFieldName());
                 m.put("fieldLabel", f.getFieldLabel());
@@ -119,6 +141,7 @@ public class SubmitController extends BaseController {
             }
             meta.put("fields", fieldMaps);
         }
+        meta.put("fixed", fixed);
         modelMap.addAttribute("meta", meta);
         modelMap.addAttribute("user", getUser());
         return r.view;
@@ -161,11 +184,156 @@ public class SubmitController extends BaseController {
             return DataVo.failure(model.getTitleLabel() + "不能为空");
         }
 
+        // X1 投稿上下文：白名单 id 类参数校验存在性后强制写入（服务端为唯一事实源，
+        // 存在性/发布态校验在 resolveFixed + insertData 双保险）
+        try {
+            for (Map<String, Object> f : resolveFixed(model, form)) {
+                filtered.put(String.valueOf(f.get("name")), String.valueOf(f.get("value")));
+            }
+        } catch (IllegalArgumentException e) {
+            return DataVo.failure(e.getMessage());
+        }
+
         // 状态不由前台指定：审核开关（0=直接发布 1=先审后发）
         filtered.put("status", configService.getIntKey("fly_article_audit", 0) == 1 ? "0" : "1");
 
         // userId=内容归属（user_id 列）；editorId=版本快照操作人（同为投稿人）
         Long uid = getUser().getUserId();
         return modelDataService.insertData(model.getId(), filtered, uid, uid);
+    }
+
+    // /////////////////// X2 内容所有者操作（采纳/编辑/下架自己的内容） ///////////////////
+
+    /**
+     * 所有者更新：行 user_id=当前用户 时可更新该模型 is_form=1 的非关联自定义字段
+     * （relate 关联边不可改，status 固有列不可经此通道修改——不绕审核流）。
+     * 表单可带 redirect（同站路径）供零 JS 模板表单 302 回详情页；否则返回 JSON。
+     */
+    @PostMapping("/ucenter/content/update")
+    public void ownerUpdate(@RequestParam Map<String, String> form,
+                            jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        DataVo vo;
+        try {
+            if (getUser() == null) {
+                vo = DataVo.failure("请登录后操作");
+            } else {
+                String code = null;
+                try {
+                    code = SqlSafeUtil.safeModelCode(form.get("modelCode"));
+                } catch (IllegalArgumentException ignored) {
+                    // 非法标识按参数错误处理
+                }
+                Model model = code == null ? null : modelService.findModelByCode(code);
+                Long id = parseLongSafely(form.get("id"));
+                if (model == null || id == null) {
+                    vo = DataVo.failure("参数传递错误");
+                } else {
+                    vo = modelDataService.ownerUpdate(model.getId(), id, form, getUser().getUserId());
+                }
+            }
+        } catch (Exception e) {
+            vo = DataVo.failure("操作失败");
+        }
+        String redirect = StringUtils.trimToEmpty(form.get("redirect"));
+        if (redirect.startsWith("/") && !redirect.startsWith("//")) {
+            response.sendRedirect(redirect + (vo.getCode() == DataVo.CODE_SUCCESS ? "?ok=1" : "?err=1"));
+            return;
+        }
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(com.alibaba.fastjson2.JSON.toJSONString(vo));
+    }
+
+    // /////////////////// X1 上下文预置解析 ///////////////////
+
+    /**
+     * 解析并校验投稿上下文预置参数：仅 id 类字段（is_form=1 的 relate/user/category
+     * + 固有 categoryId）可预置，值必须通过存在性/归属/发布态校验（校验失败抛
+     * IllegalArgumentException，消息面向用户）。
+     *
+     * @return fixed 列表：{name, label, value, display}（display 供只读条展示）
+     */
+    private List<Map<String, Object>> resolveFixed(Model model, Map<String, String> params) {
+        List<Map<String, Object>> out = new ArrayList<>();
+        List<ModelField> fields = modelFieldService.findFieldsByModelId(model.getId(), 1);
+        List<String> candidates = new ArrayList<>();
+        candidates.add("categoryId");
+        for (ModelField f : fields) {
+            if (f.getIsForm() == 0) {
+                continue;
+            }
+            String t = f.getFieldType();
+            if ("relate".equals(t) || "user".equals(t) || "category".equals(t)) {
+                candidates.add(f.getFieldName());
+            }
+        }
+        for (String name : candidates) {
+            String raw = params.get(name);
+            if (StringUtils.isBlank(raw)) {
+                continue;
+            }
+            Long id = parseLongSafely(raw);
+            Map<String, Object> item = new HashMap<>();
+            item.put("name", name);
+            if (id == null) {
+                throw new IllegalArgumentException("参数不合法：" + name);
+            }
+            if ("categoryId".equals(name)) {
+                var cat = modelCategoryService.findCategoryById(id);
+                if (cat == null || !String.valueOf(cat.getModelId()).equals(String.valueOf(model.getId()))) {
+                    throw new IllegalArgumentException("所选分类不存在或不属于该模型");
+                }
+                item.put("label", "分类");
+                item.put("value", id);
+                item.put("display", cat.getName());
+            } else {
+                ModelField field = fields.stream()
+                        .filter(f -> f.getFieldName().equals(name))
+                        .findFirst().orElse(null);
+                if (field == null) {
+                    continue;
+                }
+                String type = field.getFieldType();
+                if ("relate".equals(type)) {
+                    String target = StringUtils.defaultIfBlank(field.getRelateModel(), model.getCode());
+                    Map<String, Object> row = modelDataService.findPublishedRow(target, id);
+                    if (row == null) {
+                        throw new IllegalArgumentException(field.getFieldLabel() + "不存在或未发布");
+                    }
+                    item.put("label", field.getFieldLabel());
+                    item.put("value", id);
+                    item.put("display", StringUtils.defaultIfBlank(String.valueOf(row.get("title")), raw));
+                    item.put("shortUrl", StringUtils.trimToEmpty(String.valueOf(row.get("shortUrl"))));
+                } else if ("user".equals(type)) {
+                    var user = userService.findUserById(id, 0);
+                    if (user == null) {
+                        throw new IllegalArgumentException(field.getFieldLabel() + "对应的用户不存在");
+                    }
+                    item.put("label", field.getFieldLabel());
+                    item.put("value", id);
+                    item.put("display", StringUtils.defaultIfBlank(user.getNickName(), user.getUserName()));
+                } else {
+                    String bound = StringUtils.defaultIfBlank(field.getRelateModel(), model.getCode());
+                    var boundModel = modelService.findModelByCode(bound);
+                    var cat = modelCategoryService.findCategoryById(id);
+                    if (cat == null || boundModel == null
+                            || !String.valueOf(cat.getModelId()).equals(String.valueOf(boundModel.getId()))) {
+                        throw new IllegalArgumentException(field.getFieldLabel() + "所选分类不存在或不属于绑定模型");
+                    }
+                    item.put("label", field.getFieldLabel());
+                    item.put("value", id);
+                    item.put("display", cat.getName());
+                }
+            }
+            out.add(item);
+        }
+        return out;
+    }
+
+    private Long parseLongSafely(String raw) {
+        try {
+            return Long.parseLong(StringUtils.trimToEmpty(raw));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }

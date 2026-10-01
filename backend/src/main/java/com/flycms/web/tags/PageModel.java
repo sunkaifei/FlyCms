@@ -68,7 +68,8 @@ public class PageModel extends AbstractModelTag {
                             model.getId(), str(p, "title", null), longVal(p, "category"), 1,
                             extractFilters(p), str(p, "orderby", null), str(p, "order", null),
                             page, rows, longVal(p, "notid"), true, longVal(p, "userId"),
-                            str(p, "timeField", null), str(p, "timeFrom", null), str(p, "timeTo", null)));
+                            str(p, "timeField", null), str(p, "timeFrom", null), str(p, "timeTo", null),
+                            "1".equals(str(p, "withContent", null))));
             modelDataService.expandAttachments(model.getId(), pageVo.getList());
             vars.put("dataList", pageVo.getList());
             vars.put("model_page", pageVo);
