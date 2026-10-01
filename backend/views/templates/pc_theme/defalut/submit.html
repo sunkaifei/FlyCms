@@ -28,6 +28,14 @@
   <#if (user.userId)??>
 
   <form method="post" action="/ucenter/submit/${model.code}">
+    <#-- X1 投稿上下文预置（通用约定）：URL 携带的 id 类字段经服务端校验后转只读条 + hidden，
+         这些字段已从 meta.fields 剔除，由本块负责随表单回传 -->
+    <#list (meta.fixed)![] as fx>
+    <div class="field ctx" style="background:#eef4ff;border:1px solid #d8e4ff;border-radius:6px;padding:10px 14px;">
+      <label style="margin-bottom:0;">${fx.label}：${fx.display}</label>
+      <input type="hidden" name="${fx.name}" value="${fx.value}">
+    </div>
+    </#list>
     <#list meta.fields as f>
       <#if f.isForm == 1>
         <div class="field">

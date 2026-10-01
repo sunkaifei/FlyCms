@@ -72,6 +72,22 @@ public interface ModelDataDao {
 
     public int deleteData(@Param("suffix") String suffix, @Param("ids") List<Long> ids);
 
+    // /////////////////// ② 动作原语（W/Z 批次动作层） ///////////////////
+
+    /**
+     * 字段原子增减（并发安全）：{@code field = field + delta}，minGuard 为附加 WHERE
+     * 条件（如库存下限 " AND `stock` + #{delta} >= 0"，由 Service 按字段 min_value 拼白名单片段）。
+     *
+     * @return 影响行数（0 = 行不存在或条件不满足）
+     */
+    int incrementColumn(@Param("suffix") String suffix, @Param("field") String field,
+                        @Param("delta") java.math.BigDecimal delta,
+                        @Param("minGuard") String minGuard,
+                        @Param("params") Map<String, Object> params);
+
+    /** 组合事务补偿：硬删单行（动作层 insert 的逆向） */
+    int hardDeleteRow(@Param("suffix") String suffix, @Param("id") Long id);
+
     // /////////////////// 标签聚合（前台 /tag/{tag}/，§5.1 标签页） ///////////////////
 
     /**

@@ -1,0 +1,42 @@
+<#-- ============================================================
+     订单明细（order_items）模型速查 · 自动生成，可随字段增删后点「重新生成骨架」更新
+     -----------------------------------------------------------
+     可用标签：
+       <@fly_page_model model="order_items" p="${p!1}" rows="10">  分页列表（dataList/pageHtml）
+       <@fly_list_model model="order_items" rows="5" orderby="count_view">  非分页列表（dataList）
+       <@fly_info_model model="order_items" shortUrl="${shortUrl!}">  详情（info）
+       <@fly_category_model model="order_items">  分类导航（categoryList）
+       <@fly_hot_model model="order_items" rows="8">  热点排行
+       <@fly_rel_model model="order_items" category="${categoryId}" notid="${info.id}">  相关内容
+     -----------------------------------------------------------
+     字段取值（列表行 item / 详情 info）：
+       固有：${item.title} ${item.shortUrl}（链接 /order_items/${item.shortUrl}.html） ${item.countView} ${(item.createTime)!''}
+     ============================================================ -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>${model.name} - ${web_name!''}</title>
+</head>
+<body>
+<header><h1><a href="/">${web_name!''}</a> · ${model.name}</h1></header>
+<#-- 分类导航（无分类时自动为空） -->
+<@fly_category_model model="order_items">
+<nav><a href="/order_items/">全部</a>
+<#if categoryList??><#list categoryList as c> <a href="/order_items/c${c.id}">${c.name}</a></#list></#if>
+</nav>
+</@fly_category_model>
+<main>
+<@fly_page_model model="order_items" p="${p!1}" rows="10">
+<ul>
+<#if dataList?? && dataList?size gt 0><#list dataList as item>
+  <li>
+    <a href="/order_items/${item.shortUrl}.html">${(item.title)!''}</a>
+  </li>
+</#list><#else><li>暂无内容</li></#if>
+</ul>
+<#if pageHtml?? && pageHtml != ''>${pageHtml}</#if>
+</@fly_page_model>
+</main>
+</body>
+</html>

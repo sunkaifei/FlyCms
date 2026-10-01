@@ -124,6 +124,18 @@
 		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
 	</update>
 
+	<!-- ② 动作原语：字段原子增减（field 由 Service 过 safeColumnName 白名单；
+	     minGuard 为 Service 拼接的附加条件片段，值恒走 #{params.delta} 参数化） -->
+	<update id="incrementColumn">
+		UPDATE `fly_cmodel_${suffix}` SET `${field}` = `${field}` + #{params.delta}
+		WHERE `id` = #{params.id}${minGuard}
+	</update>
+
+	<!-- ② 组合事务补偿：硬删动作 insert 的行 -->
+	<delete id="hardDeleteRow">
+		DELETE FROM `fly_cmodel_${suffix}` WHERE `id` = #{id}
+	</delete>
+
 	<delete id="deleteData">
 		DELETE FROM `fly_cmodel_${suffix}` WHERE `id` IN
 		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>

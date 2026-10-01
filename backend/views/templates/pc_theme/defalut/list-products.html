@@ -1,0 +1,59 @@
+<#-- ============================================================
+     商城 · 商品列表页（Z 批次：纯自定义模型组装）
+     数据：fly_category_model（分类条）+ fly_page_model（商品列表）
+     ============================================================ -->
+<#include "common/macros.html">
+<#if channel??>
+  <#assign pageTitle = (title)!(channel.channelName)>
+<#else>
+  <#assign pageTitle = ((model.name)!'商城') + " - " + (web_name)!''>
+</#if>
+<#include "common/header.html">
+<style>
+  .mall-wrap{max-width:1080px;margin:24px auto;padding:0 12px;}
+  .mall-cats{margin-bottom:16px;}
+  .mall-cats a{display:inline-block;margin:0 10px 8px 0;color:#e64340;text-decoration:none;font-size:14px;}
+  .mall-grid{display:flex;flex-wrap:wrap;gap:16px;}
+  .mall-card{width:245px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);text-decoration:none;display:block;color:inherit;}
+  .mall-card img{width:100%;height:180px;object-fit:cover;display:block;}
+  .mall-card .body{padding:12px 14px;}
+  .mall-card .t{font-size:15px;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .mall-card .p{color:#e64340;font-size:18px;font-weight:700;}
+  .mall-card .b{font-size:12px;color:#8a919f;margin-top:4px;}
+  .mall-empty{color:#8a919f;padding:40px 0;text-align:center;}
+</style>
+<div class="mall-wrap">
+  <@fly_category_model model="products">
+    <#if (categoryList)?? && categoryList?size gt 0>
+    <div class="mall-cats">
+      <a href="/products/">全部</a>
+      <#list categoryList as c><a href="/products/c${c.id}">${c.name}</a></#list>
+    </div>
+    </#if>
+  </@fly_category_model>
+  <div class="mall-grid">
+    <@fly_page_model model="products" rows="20">
+      <#if (dataList)?? && dataList?size gt 0>
+        <#list dataList as g>
+        <a class="mall-card" href="/products/${g.shortUrl}.html">
+          <#if (g.galleryUrls)?? && g.galleryUrls?size gt 0>
+            <img src="${g.galleryUrls[0]}" alt="${g.title}">
+          <#else>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNDUiIGhlaWdodD0iMTgwIj48cmVjdCB3aWR0aD0iMjQ1IiBoZWlnaHQ9IjE4MCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg==" alt="${g.title}">
+          </#if>
+          <div class="body">
+            <div class="t">${g.title}</div>
+            <#if (g.brandIdObj)??>
+            <div class="b">${(g.brandIdObj.name)!''}</div>
+            </#if>
+          </div>
+        </a>
+        </#list>
+      <#else>
+        <div class="mall-empty">商城暂无商品</div>
+      </#if>
+      <#if (pageBar)?? && pageBar != ''>${pageBar}</#if>
+    </@fly_page_model>
+  </div>
+</div>
+<#include "common/footer.html">

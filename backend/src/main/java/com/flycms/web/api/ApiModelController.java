@@ -208,6 +208,7 @@ public class ApiModelController extends ApiBaseController {
         model.setCode(params.get("code"));
         model.setTitleLabel(StringUtils.defaultIfBlank(params.get("titleLabel"), "标题"));
         model.setIcon(params.get("icon"));
+        model.setGroupId(parseLong(params.get("groupId")));
         model.setDescription(params.get("description"));
         model.setSort(parseInt(params.get("sort"), 0));
         DataVo vo = modelService.addModel(model);
@@ -232,6 +233,10 @@ public class ApiModelController extends ApiBaseController {
         model.setListTemplate(params.get("listTemplate"));
         model.setDetailTemplate(params.get("detailTemplate"));
         model.setIcon(params.get("icon"));
+        // ① 组织层：分组归属（未传 = 不变更；传空串 = 移出分组）
+        if (params.containsKey("groupId")) {
+            model.setGroupId(parseLong(params.get("groupId")));
+        }
         model.setDescription(params.get("description"));
         model.setSort(parseInt(params.get("sort"), 0));
         model.setStatus(parseInt(params.get("status"), 1));
@@ -543,6 +548,40 @@ public class ApiModelController extends ApiBaseController {
             }
         }
         return vo;
+    }
+
+    // /////////////////// ① 模型分组（组织层，2026-10-01） ///////////////////
+
+    /** 分组列表（status 可选过滤），装填组内模型 */
+    @ResponseBody
+    @GetMapping("/system/modelGroup/list")
+    public DataVo groupList(@RequestParam(value = "status", required = false) Integer status) {
+        requirePermission("/api/system/model/list");
+        return DataVo.success("操作成功", modelService.findGroups(status));
+    }
+
+    /** 新增/修改分组（id 空=新增；code 创建后不可改） */
+    @ResponseBody
+    @PostMapping("/system/modelGroup/save")
+    public DataVo groupSave(@RequestParam Map<String, String> params) {
+        requirePermission("/api/system/model/save");
+        com.flycms.module.model.model.ModelGroup group = new com.flycms.module.model.model.ModelGroup();
+        group.setId(parseLong(params.get("id")));
+        group.setName(params.get("name"));
+        group.setCode(params.get("code"));
+        group.setIcon(params.get("icon"));
+        group.setDescription(params.get("description"));
+        group.setSort(parseInt(params.get("sort"), 0));
+        group.setStatus(parseInt(params.get("status"), 1));
+        return modelService.saveGroup(group);
+    }
+
+    /** 删除分组（组内模型须先移出） */
+    @ResponseBody
+    @PostMapping("/system/modelGroup/del")
+    public DataVo groupDel(@RequestParam(value = "id", defaultValue = "0") Long id) {
+        requirePermission("/api/system/model/save");
+        return modelService.deleteGroup(id);
     }
 
     // /////////////////// E10 重新生成骨架（D13 收尾） ///////////////////

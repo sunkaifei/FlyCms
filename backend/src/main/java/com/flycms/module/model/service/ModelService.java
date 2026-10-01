@@ -35,6 +35,8 @@ public class ModelService {
     @Autowired
     private ModelDao modelDao;
     @Autowired
+    private com.flycms.module.model.dao.ModelGroupDao modelGroupDao;
+    @Autowired
     private ModelFieldDao modelFieldDao;
     @Autowired
     private ModelTableService modelTableService;
@@ -194,6 +196,65 @@ public class ModelService {
                 cache.evict("code_" + code);
             }
         }
+    }
+
+    // /////////////////// ① 模型分组（组织层，2026-10-01） ///////////////////
+
+    /** 全部分组（status 非空过滤），装填组内模型 */
+    public List<com.flycms.module.model.model.ModelGroup> findGroups(Integer status) {
+        List<com.flycms.module.model.model.ModelGroup> groups = modelGroupDao.findAll(status);
+        for (com.flycms.module.model.model.ModelGroup g : groups) {
+            g.setModels(modelDao.findModelsByGroup(g.getId()));
+        }
+        return groups;
+    }
+
+    public com.flycms.module.model.model.ModelGroup findGroupById(Long id) {
+        return modelGroupDao.findById(id);
+    }
+
+    public DataVo saveGroup(com.flycms.module.model.model.ModelGroup form) {
+        if (org.apache.commons.lang3.StringUtils.isBlank(form.getName())) {
+            return DataVo.failure("分组名不能为空");
+        }
+        String code = org.apache.commons.lang3.StringUtils.trimToEmpty(form.getCode());
+        if (form.getId() == null || form.getId() <= 0) {
+            if (code.isEmpty()) {
+                return DataVo.failure("分组标识不能为空");
+            }
+            try {
+                code = SqlSafeUtil.safeModelCode(code);
+            } catch (IllegalArgumentException e) {
+                return DataVo.failure(e.getMessage());
+            }
+            if (modelGroupDao.findByCode(code) != null) {
+                return DataVo.failure("分组标识已存在");
+            }
+            form.setCode(code);
+            form.setId(com.flycms.core.utils.SnowFlake.getInstance().nextId());
+            form.setStatus(form.getStatus() == 0 ? 0 : 1);
+            modelGroupDao.insert(form);
+            return DataVo.success("分组已创建");
+        }
+        com.flycms.module.model.model.ModelGroup old = modelGroupDao.findById(form.getId());
+        if (old == null) {
+            return DataVo.failure("分组不存在");
+        }
+        form.setCode(old.getCode());
+        modelGroupDao.update(form);
+        return DataVo.success("分组已更新");
+    }
+
+    /** 删除分组：组内模型须先移出（不级联删模型——分组只是组织层） */
+    public DataVo deleteGroup(Long id) {
+        if (modelGroupDao.findById(id) == null) {
+            return DataVo.failure("分组不存在");
+        }
+        if (modelGroupDao.countModels(id) > 0) {
+            return DataVo.failure("分组内还有模型，请先移出");
+        }
+        modelGroupDao.deleteById(id);
+        return DataVo.success("分组已删除");
     }
 
     /**

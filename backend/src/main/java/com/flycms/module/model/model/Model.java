@@ -24,6 +24,8 @@ public class Model implements Serializable {
     private String listTemplate;
     private String detailTemplate;
     private String icon;
+    /** 所属分组（① 组织层：NULL=未分组；分组聚合菜单与管理页展示，不动存储语义） */
+    private Long groupId;
     private String description;
     private int sort;
     private int status;

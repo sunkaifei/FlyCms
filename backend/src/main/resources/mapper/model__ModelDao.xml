@@ -3,7 +3,7 @@
 <mapper namespace="com.flycms.module.model.dao.ModelDao">
 
 	<sql id="base_column">id, name, code, title_label AS titleLabel, is_system AS isSystem, list_template AS listTemplate,
-		detail_template AS detailTemplate, icon, description, sort, status,
+		detail_template AS detailTemplate, icon, group_id AS groupId, description, sort, status,
 		use_content AS useContent, use_seo AS useSeo, enable_comment AS enableComment,
 		enable_submit AS enableSubmit, form_tabs AS formTabs, form_default_tab AS formDefaultTab,
 		create_time AS createTime, update_time AS updateTime</sql>
@@ -13,8 +13,8 @@
 	  由 useGeneratedKeys 回填到实体，供后续建表/缓存使用。
 	-->
 	<insert id="addModel" useGeneratedKeys="true" keyProperty="id">
-		insert into fly_model (name, code, title_label, is_system, list_template, detail_template, icon, description, sort, status, create_time)
-		values (#{name}, #{code}, #{titleLabel}, #{isSystem}, #{listTemplate}, #{detailTemplate}, #{icon}, #{description}, #{sort}, #{status}, now())
+		insert into fly_model (name, code, title_label, is_system, list_template, detail_template, icon, group_id, description, sort, status, create_time)
+		values (#{name}, #{code}, #{titleLabel}, #{isSystem}, #{listTemplate}, #{detailTemplate}, #{icon}, #{groupId}, #{description}, #{sort}, #{status}, now())
 	</insert>
 
 	<update id="updateModel">
@@ -25,6 +25,7 @@
 			<if test="listTemplate != null">list_template = #{listTemplate},</if>
 			<if test="detailTemplate != null">detail_template = #{detailTemplate},</if>
 			<if test="icon != null">icon = #{icon},</if>
+			group_id = #{groupId},
 			<if test="description != null">description = #{description},</if>
 			<if test="sort != 0">sort = #{sort},</if>
 			<if test="status != 0">status = #{status},</if>
@@ -42,7 +43,6 @@
 	<delete id="deleteModelById">
 		delete from fly_model where id = #{id}
 	</delete>
-
 	<select id="findModelById" resultType="com.flycms.module.model.model.Model">
 		select <include refid="base_column"/> from fly_model where id = #{id}
 	</select>
@@ -69,5 +69,12 @@
 			<if test="status != null">status = #{status}</if>
 		</where>
 		order by sort asc, id desc
+	</select>
+
+	<!-- ① 组织层：分组内模型（sort asc, id asc） -->
+	<select id="findModelsByGroup" resultType="com.flycms.module.model.model.Model">
+		select <include refid="base_column"/> from fly_model
+		where group_id = #{groupId}
+		order by sort asc, id asc
 	</select>
 </mapper>

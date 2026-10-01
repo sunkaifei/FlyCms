@@ -1,0 +1,59 @@
+<#-- ============================================================
+     商城 · 我的订单页（Z 批次）：fly_list_model 拉本用户 orders 行；
+     确认收货 = X2 所有者通道改 status 语义字段（动作层模型无审核语义）。
+     ============================================================ -->
+<#include "common/macros.html">
+<#assign pageTitle>我的订单 - ${web_name!''}</#assign>
+<#include "common/header.html">
+<@fly_login>
+<style>
+  .od-wrap{max-width:860px;margin:24px auto;padding:0 12px;}
+  .od-card{background:#fff;border-radius:8px;padding:18px 22px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:14px;}
+  .od-card .hd{display:flex;justify-content:space-between;font-size:13px;color:#8a919f;border-bottom:1px solid #f0f1f3;padding-bottom:8px;margin-bottom:10px;}
+  .od-st{padding:1px 8px;border-radius:3px;font-size:12px;}
+  .od-st.s1{background:#fff7e6;color:#e6a23c;} .od-st.s2{background:#eef4ff;color:#3a6fd8;}
+  .od-st.s3{background:#e8f7ee;color:#1a9e5c;} .od-st.s4{background:#f5f5f5;color:#999;}
+  .od-card .bd{font-size:14px;line-height:1.9;}
+  .od-card .ft{text-align:right;padding-top:10px;}
+  .od-card .ft b{color:#e64340;font-size:17px;}
+  .od-card .ft button{border:1px solid #e64340;background:#fff;color:#e64340;border-radius:4px;padding:6px 16px;cursor:pointer;margin-left:10px;}
+  .od-empty{color:#8a919f;padding:30px 0;}
+</style>
+<div class="od-wrap">
+  <#if (status.userId)??>
+    <@fly_list_model model="orders" userId="${status.userId}" rows="20">
+      <#if (dataList)?? && dataList?size gt 0>
+        <#list dataList as od>
+        <div class="od-card">
+          <div class="hd">
+            <span>订单 #${(od.orderNo)!(od.id)}</span>
+            <span class="od-st s${(od.status)!1}">${(od.status)!1?string} <#switch (od.status)!1><#case 1>待发货<#break><#case 2>待收货<#break><#case 3>已完成<#break><#default>已取消</#switch></span>
+          </div>
+          <div class="bd">
+            收货：${(od.consignee)!'-'} · ${(od.phone)!'-'} · ${(od.address)!'-'}
+          </div>
+          <div class="ft">
+            合计 <b>¥${(od.amount)?string("0.00")}</b>
+            <#if (od.status)!1 == 2>
+            <#-- 确认收货：X2 所有者通道更新动作层模型的 status 字段 -->
+            <form method="post" action="/ucenter/content/update" style="display:inline;">
+              <input type="hidden" name="modelCode" value="orders">
+              <input type="hidden" name="id" value="${od.id}">
+              <input type="hidden" name="orderStatus" value="3">
+              <input type="hidden" name="redirect" value="/mall/orders">
+              <button type="submit">确认收货</button>
+            </form>
+            </#if>
+          </div>
+        </div>
+        </#list>
+      <#else>
+        <div class="od-empty">还没有订单</div>
+      </#if>
+    </@fly_list_model>
+  <#else>
+    <div class="od-empty">请先 <a href="/login">登录</a></div>
+  </#if>
+</div>
+</@fly_login>
+<#include "common/footer.html">

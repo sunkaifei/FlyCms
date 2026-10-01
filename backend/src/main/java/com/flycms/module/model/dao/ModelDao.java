@@ -32,4 +32,7 @@ public interface ModelDao {
     public int getModelCount();
 
     public List<Model> getAllModelList(@Param("status") Integer status);
+
+    /** 分组内模型（sort asc, id asc；① 组织层聚合展示） */
+    public List<Model> findModelsByGroup(@Param("groupId") Long groupId);
 }

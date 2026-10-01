@@ -50700,6 +50700,25 @@ INSERT INTO `fly_message` (`id`, `from_id`, `to_id`, `subject`, `message`, `send
 -- 2 rows for fly_message
 
 -- ----------------------------
+-- Table structure for fly_model_group
+-- ----------------------------
+DROP TABLE IF EXISTS `fly_model_group`;
+CREATE TABLE `fly_model_group` (
+  `id` bigint(20) unsigned NOT NULL COMMENT '雪花ID',
+  `name` varchar(64) NOT NULL COMMENT '分组名（如：商城）',
+  `code` varchar(32) NOT NULL COMMENT '分组标识（小写字母/数字），唯一',
+  `icon` varchar(64) DEFAULT NULL COMMENT '图标（lucide）',
+  `description` varchar(255) DEFAULT NULL,
+  `sort` int(10) NOT NULL DEFAULT '0',
+  `status` tinyint(2) NOT NULL DEFAULT '1' COMMENT '0停用 1启用（停用仅隐藏聚合菜单，不动模型）',
+  `create_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型分组（业务模块组织层）';
+
+-- 0 rows for fly_model_group
+
+-- ----------------------------
 -- Table structure for fly_model
 -- ----------------------------
 DROP TABLE IF EXISTS `fly_model`;
@@ -50712,6 +50731,7 @@ CREATE TABLE `fly_model` (
   `list_template` varchar(100) DEFAULT NULL COMMENT '列表页模板（pc_theme下相对路径，空=/{code}/list.html）',
   `detail_template` varchar(100) DEFAULT NULL COMMENT '详情页模板（空=/{code}/detail.html）',
   `icon` varchar(64) DEFAULT NULL COMMENT '后台图标',
+  `group_id` bigint(20) unsigned DEFAULT NULL COMMENT '所属分组（NULL=未分组）',
   `description` varchar(255) DEFAULT NULL,
   `sort` int(10) NOT NULL DEFAULT '0',
   `status` tinyint(2) NOT NULL DEFAULT '1' COMMENT '0禁用 1启用',
