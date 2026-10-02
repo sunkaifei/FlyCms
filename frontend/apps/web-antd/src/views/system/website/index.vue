@@ -113,6 +113,14 @@ const GROUPS: { items: { key: string; label: string; placeholder?: string }[]; t
     ],
     title: '图片上传与水印',
   },
+  {
+    items: [
+      { key: 'fly_pay_gateway', label: '支付网关', placeholder: 'mock = 内置模拟（真实接入需填密钥）' },
+      { key: 'fly_pay_merchant_id', label: '商户号', placeholder: '支付网关商户 ID' },
+      { key: 'fly_pay_api_key', label: '支付密钥', placeholder: '网关签名密钥' },
+    ],
+    title: '支付设置',
+  },
 ];
 
 async function load() {

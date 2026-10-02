@@ -54,7 +54,9 @@ public class ApiWebsiteController extends ApiBaseController {
             // R 批次图片水印（fly_wm_*，详见 ImageWatermarkUtil.Config）
             "fly_wm_enabled", "fly_wm_type", "fly_wm_text", "fly_wm_font_size",
             "fly_wm_font_color", "fly_wm_image", "fly_wm_position", "fly_wm_opacity",
-            "fly_wm_margin", "fly_wm_min_width", "fly_wm_quality");
+            "fly_wm_margin", "fly_wm_min_width", "fly_wm_quality",
+            // 支付网关（U2：mock=内置模拟，alipay/wechat 需密钥）
+            "fly_pay_gateway", "fly_pay_merchant_id", "fly_pay_api_key");
 
     /** SMTP 密码（授权码）掩码：GET 时用它替换真实值，保存时遇它跳过 */
     private static final String SMTP_PASSWORD_MASK = "******";

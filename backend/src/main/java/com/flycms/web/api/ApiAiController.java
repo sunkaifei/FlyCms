@@ -31,13 +31,32 @@ public class ApiAiController extends ApiBaseController {
     @Autowired
     private AiProviderService aiProviderService;
     @Autowired
+    private com.flycms.module.config.service.ConfigService configService;
+    @Autowired
     private com.flycms.module.ai.service.EmbeddingService embeddingService;
 
     @ResponseBody
     @GetMapping("/system/ai/status")
     public DataVo status() {
         requirePermission("/api/system/ai/generate");
-        return DataVo.success("操作成功", Map.of("configured", aiProviderService.isConfigured()));
+        boolean configured = aiProviderService.isConfigured();
+        return DataVo.success("操作成功", Map.of(
+                "configured", configured,
+                "baseUrl", StringUtils.defaultString(configService.getStringByKey("fly_ai_base_url")),
+                "model", StringUtils.defaultString(configService.getStringByKey("fly_ai_model")),
+                "embedModel", StringUtils.defaultString(configService.getStringByKey("fly_ai_embed_model")),
+                "apiKeySet", StringUtils.isNotBlank(configService.getStringByKey("fly_ai_api_key"))));
+    }
+
+    /** U1 AI 连通测试：真实调 chat，回报结果或具体错误（超时/401/网络），管理端「测试」按钮用 */
+    @ResponseBody
+    @PostMapping("/system/ai/test")
+    public DataVo test() {
+        requirePermission("/api/system/ai/generate");
+        if (!aiProviderService.isConfigured()) {
+            return DataVo.failure("AI 未配置完整：请在站点设置填齐 base_url / api_key / model");
+        }
+        return aiProviderService.chat("你是连通测试助手", "请回复：连接成功");
     }
 
     @ResponseBody
