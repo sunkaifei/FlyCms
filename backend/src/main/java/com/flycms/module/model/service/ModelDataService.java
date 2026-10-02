@@ -57,6 +57,10 @@ public class ModelDataService {
     @Autowired
     private com.flycms.module.user.service.UserService userService;
     @Autowired
+    private com.flycms.module.images.service.ImagesService imagesService;
+    @Autowired
+    private com.flycms.module.config.service.ConfigService configService;
+    @Autowired
     private com.flycms.module.model.dao.ContentVersionDao contentVersionDao;
     @Autowired
     private org.springframework.context.ApplicationEventPublisher eventPublisher;
@@ -477,7 +481,9 @@ public class ModelDataService {
         putColumn(columns, values, "title", form.get("title"));
         putColumn(columns, values, "keywords", form.get("keywords"));
         putColumn(columns, values, "description", form.get("description"));
-        putColumn(columns, values, "content", form.get("content"));
+        // Q3 内容图片本地化：模型开启后，编辑器外站图抓取到本地并替换地址
+        putColumn(columns, values, "content",
+                localizeContentIfEnabled(model, form.get("content"), userId != null ? userId : editorId));
         putColumn(columns, values, "category_id", form.get("categoryId"));
         putColumn(columns, values, "thumbnail", form.get("thumbnail"));
         if (form.get("thumbnail") != null && StringUtils.isNotBlank(form.get("thumbnail"))) {
@@ -538,7 +544,9 @@ public class ModelDataService {
         putColumn(columns, values, "title", form.get("title"));
         putColumn(columns, values, "keywords", form.get("keywords"));
         putColumn(columns, values, "description", form.get("description"));
-        putColumn(columns, values, "content", form.get("content"));
+        // Q3 内容图片本地化：模型开启后，编辑器外站图抓取到本地并替换地址
+        putColumn(columns, values, "content",
+                localizeContentIfEnabled(model, form.get("content"), editorId));
         putColumn(columns, values, "category_id", form.get("categoryId"));
         putColumn(columns, values, "thumbnail", form.get("thumbnail"));
         if (form.get("thumbnail") != null && StringUtils.isNotBlank(form.get("thumbnail"))) {
@@ -1512,6 +1520,25 @@ public class ModelDataService {
      * {@code row[fieldName + "Backs"]} = [{id, shortUrl, title}]（来源行，仅已发布）。
      * 无物理列、无需目标模型预定义反向字段。
      */
+    /**
+     * Q3 内容图片本地化：模型开启 localize_images=1 时，content 里的外站 <img>
+     * 抓取到本地（登记 fly_images）并把 src 替换为本地地址；域名取站点参数
+     * fly_img_domain（空=相对路径）。失败静默降级为原 content（不阻塞保存）。
+     */
+    private String localizeContentIfEnabled(Model model, String content, Long userId) {
+        if (content == null || content.isBlank()
+                || model.getLocalizeImages() == null || model.getLocalizeImages() != 1) {
+            return content;
+        }
+        try {
+            String domain = configService.getStringByKey("fly_img_domain");
+            return imagesService.localizeContent(userId, content, domain);
+        } catch (Exception e) {
+            log.warn("内容图片本地化失败（model={}）：{}", model.getCode(), e.getMessage());
+            return content;
+        }
+    }
+
     /**
      * Q1 媒体库多尺寸：单图 {field}Srcset 生成（sizes JSON → "u 150w, u 320w, …" 按宽升序）。
      * sizes 缺失/损坏静默跳过（读侧回退原图），不阻塞行展开。

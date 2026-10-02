@@ -5,7 +5,7 @@
 	<sql id="base_column">id, name, code, title_label AS titleLabel, is_system AS isSystem, list_template AS listTemplate,
 		detail_template AS detailTemplate, icon, group_id AS groupId, description, sort, status,
 		use_content AS useContent, use_seo AS useSeo, enable_comment AS enableComment,
-		enable_submit AS enableSubmit, admin_create AS adminCreate, form_tabs AS formTabs, form_default_tab AS formDefaultTab,
+		enable_submit AS enableSubmit, localize_images AS localizeImages, admin_create AS adminCreate, form_tabs AS formTabs, form_default_tab AS formDefaultTab,
 		create_time AS createTime, update_time AS updateTime</sql>
 
 	<!--
@@ -27,6 +27,7 @@
 			<if test="icon != null">icon = #{icon},</if>
 			<if test="groupId != null">group_id = #{groupId},</if>
 			<if test="adminCreate != null">admin_create = #{adminCreate},</if>
+			<if test="localizeImages != null">localize_images = #{localizeImages},</if>
 			<if test="description != null">description = #{description},</if>
 			<if test="sort != 0">sort = #{sort},</if>
 			<if test="status != 0">status = #{status},</if>

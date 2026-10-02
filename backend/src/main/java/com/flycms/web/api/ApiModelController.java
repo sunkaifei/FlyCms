@@ -215,6 +215,7 @@ public class ApiModelController extends ApiBaseController {
         model.setIcon(params.get("icon"));
         model.setGroupId(parseLong(params.get("groupId")));
         model.setAdminCreate(parseInt(params.get("adminCreate"), 1));
+        model.setLocalizeImages(parseInt(params.get("localizeImages"), 0));
         model.setDescription(params.get("description"));
         model.setSort(parseInt(params.get("sort"), 0));
         DataVo vo = modelService.addModel(model);
@@ -246,6 +247,9 @@ public class ApiModelController extends ApiBaseController {
         // 后台可新增开关（未传 = 不变更）
         if (params.containsKey("adminCreate")) {
             model.setAdminCreate(parseInt(params.get("adminCreate"), 1));
+        }
+        if (params.containsKey("localizeImages")) {
+            model.setLocalizeImages(parseInt(params.get("localizeImages"), 0));
         }
         model.setDescription(params.get("description"));
         model.setSort(parseInt(params.get("sort"), 0));

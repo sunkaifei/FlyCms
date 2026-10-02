@@ -47,6 +47,12 @@ public class Model implements Serializable {
      */
     private Integer enableSubmit;
     /**
+     * 内容图片本地化（Q3）：1=保存内容时自动抓取编辑器（content）里的外站图片到本地，
+     * 登记 fly_images（进附件库/引用计数）并把 img src 替换为本地地址；
+     * 替换域名取站点参数 fly_img_domain（空=相对路径/当前域名）。DB 缺省 0 关闭。
+     */
+    private Integer localizeImages;
+    /**
      * 后台可新增开关（2026-10-02）：0=内容仅前台生成——后台隐藏该模型的内容管理菜单与
      * 「添加内容」入口、modelData 保存端点兜底拒绝；列表/审核/编辑/删除保留。
      * 与 enableSubmit 组合成四象限（常规/纯前台/动作模型/双向）。DB 缺省 1（现状不变）。

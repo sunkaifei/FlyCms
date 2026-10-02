@@ -113,6 +113,19 @@ const [Form, formApi] = useVbenForm({
       component: 'RadioGroup',
       componentProps: {
         options: [
+          { label: '开启', value: 1 },
+          { label: '关闭', value: 0 },
+        ],
+        optionType: 'button',
+      },
+      defaultValue: 0,
+      fieldName: 'localizeImages',
+      label: '图片本地化（保存时自动抓取编辑器外站图片到本地）',
+    },
+    {
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
           { label: '后台可发', value: 1 },
           { label: '仅前台生成', value: 0 },
         ],
@@ -168,6 +181,7 @@ onMounted(() => {
       enableComment: editing.value.enableComment === 0 ? 0 : 1,
       enableSubmit: editing.value.enableSubmit === 0 ? 0 : 1,
       adminCreate: editing.value.adminCreate === 0 ? 0 : 1,
+      localizeImages: editing.value.localizeImages === 1 ? 1 : 0,
     });
     // code 锁定
     formApi.updateSchema([

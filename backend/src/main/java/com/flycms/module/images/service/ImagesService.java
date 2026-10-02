@@ -214,6 +214,31 @@ public class ImagesService {
 		return imagesDao.countOrphanImages();
 	}
 
+	/**
+	 * Q3 内容图片本地化：抓取 content 里所有外站 <img> 到本地 /upload/content/，
+	 * 登记 fly_images（进附件库/引用计数），并把 img src 替换为本地地址；
+	 * targetDomain 非空时本地地址前缀该域名（如 https://img.example.com），空=相对路径。
+	 * 站内/相对路径图片不动（避免重复搬移）。
+	 *
+	 * @return 本地化后的 content（无外站图片时原样返回）
+	 */
+	public String localizeContent(Long userId, String content, String targetDomain) throws Exception {
+		if (content == null || content.isBlank() || !content.contains("<img")) {
+			return content;
+		}
+		String localized = replaceContent(0, 0L, userId == null ? 0L : userId, content);
+		if (targetDomain != null && !targetDomain.isBlank()) {
+			String dom = targetDomain.trim();
+			if (!dom.startsWith("http")) {
+				dom = "https://" + dom;
+			}
+			dom = dom.endsWith("/") ? dom.substring(0, dom.length() - 1) : dom;
+			// /upload/content/... → {dom}/upload/content/...
+			localized = localized.replace("src=\"/upload/content/", "src=\"" + dom + "/upload/content/");
+		}
+		return localized;
+	}
+
 	public String replaceContent(Integer typeId,Long infoId,Long userId,String content) throws Exception {
 		SnowFlake snowFlake = SnowFlake.getInstance();
 		Pattern pRemoteFileurl = Pattern.compile("<img.*?src=\"?(.*?)(\"|>|\\s+)");
