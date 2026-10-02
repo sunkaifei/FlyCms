@@ -35,8 +35,8 @@ import java.util.regex.Pattern;
 @RequestMapping("/api")
 public class ApiWebsiteController extends ApiBaseController {
 
-    /** 网站管理页可编辑的配置键白名单 */
-    private static final List<String> CONFIG_KEYS = Arrays.asList(
+    /** 网站管理页可编辑的配置键白名单（包级：图片上传水印键同包复用） */
+    static final List<String> CONFIG_KEYS = Arrays.asList(
             "fly_title", "fly_url", "fly_logo", "fly_status",
             "fly_seo_title", "fly_seo_keywords", "fly_seo_description",
             "fly_robots", "fly_sitemap_status", "fly_sitemap_limit",
@@ -48,7 +48,13 @@ public class ApiWebsiteController extends ApiBaseController {
             // G23 MCP 接入令牌（留空 = /mcp 端点关闭）
             "fly_mcp_token",
             // G22/G21 AI 服务（OpenAI 兼容；key 留空 = AI 功能停用）
-            "fly_ai_base_url", "fly_ai_api_key", "fly_ai_model", "fly_ai_embed_model");
+            "fly_ai_base_url", "fly_ai_api_key", "fly_ai_model", "fly_ai_embed_model",
+            // 图片本地化替换域名（Q3：空=相对路径/当前域名）
+            "fly_img_domain",
+            // R 批次图片水印（fly_wm_*，详见 ImageWatermarkUtil.Config）
+            "fly_wm_enabled", "fly_wm_type", "fly_wm_text", "fly_wm_font_size",
+            "fly_wm_font_color", "fly_wm_image", "fly_wm_position", "fly_wm_opacity",
+            "fly_wm_margin", "fly_wm_min_width", "fly_wm_quality");
 
     /** SMTP 密码（授权码）掩码：GET 时用它替换真实值，保存时遇它跳过 */
     private static final String SMTP_PASSWORD_MASK = "******";

@@ -84,6 +84,35 @@ const GROUPS: { items: { key: string; label: string; placeholder?: string }[]; t
     ],
     title: 'AI 与自动化',
   },
+  {
+    items: [
+      { key: 'fly_wm_enabled', label: '水印开关（1 开 / 0 关）', placeholder: '1 = 上传图片自动加水印' },
+      {
+        key: 'fly_wm_type',
+        label: '水印类型（text 文字 / image 图片）',
+        placeholder: 'text',
+      },
+      { key: 'fly_wm_text', label: '水印文字', placeholder: '如 @ 我的网站' },
+      { key: 'fly_wm_font_size', label: '文字字号（12–72）', placeholder: '16' },
+      { key: 'fly_wm_font_color', label: '文字颜色', placeholder: '#FFFFFF' },
+      {
+        key: 'fly_wm_image',
+        label: '水印图片路径（type=image 用）',
+        placeholder: '/upload/...（附件库里的水印图）',
+      },
+      {
+        key: 'fly_wm_position',
+        label: '位置（1 左上 2 上中 3 右上 4 左中 5 居中 6 右中 7 左下 8 下中 9 右下 10 随机）',
+        placeholder: '9',
+      },
+      { key: 'fly_wm_opacity', label: '透明度 %（10–100）', placeholder: '60' },
+      { key: 'fly_wm_margin', label: '边距 px（0–100）', placeholder: '10' },
+      { key: 'fly_wm_min_width', label: '加印最小图宽（小于跳过）', placeholder: '300' },
+      { key: 'fly_wm_quality', label: 'JPG 压缩质量（50–100）', placeholder: '85' },
+      { key: 'fly_img_domain', label: '图片本地化域名（Q3，空=当前域名）', placeholder: 'img.example.com' },
+    ],
+    title: '图片上传与水印',
+  },
 ];
 
 async function load() {

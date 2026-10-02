@@ -4,6 +4,7 @@ import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
 import com.flycms.module.images.model.Images;
 import com.flycms.module.images.service.ImagesService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,8 @@ public class ApiImagesController extends ApiBaseController {
 
     @Autowired
     private ImagesService imagesService;
+    @Autowired
+    private com.flycms.module.config.service.ConfigService configService;
 
     /**
      * 附件分页列表
@@ -108,6 +111,8 @@ public class ApiImagesController extends ApiBaseController {
             images.setSort(0);
             images.setCreateTime(new java.util.Date());
             images.setInfoCount(0);
+            // R 批次水印：站点设置开启时给原图加水印（跳过 gif/小图，失败保留原图）
+            boolean watermarked = applyWatermarkIfEnabled(dest);
             imagesService.addAdminUpload(images);
             // Q1 媒体库多尺寸：原图落盘后生成 150/320/768 缩放副本（只缩不放），sizes JSON 回填
             imagesService.generateMultiSizes(images);
@@ -116,6 +121,9 @@ public class ApiImagesController extends ApiBaseController {
             data.put("imgUrl", images.getImgUrl());
             data.put("imgName", images.getImgName());
             data.put("sizes", images.getSizes());
+            data.put("width", images.getImgWidth());
+            data.put("height", images.getImgHeight());
+            data.put("watermarked", watermarked);
             return DataVo.success("上传成功", data);
         } catch (Exception e) {
             return DataVo.failure("上传失败：" + e.getMessage());
@@ -139,6 +147,28 @@ public class ApiImagesController extends ApiBaseController {
         }
         List<Map<String, Object>> list = imagesService.findByIds(idList);
         return DataVo.success("操作成功", list);
+    }
+
+    /** R 批次水印：读 fly_wm_* 站点参数 → 组装 Config → 原地加水印；总开关关闭直接跳过 */
+    private boolean applyWatermarkIfEnabled(java.io.File dest) {
+        try {
+            Map<String, String> kv = new HashMap<>();
+            for (String key : ApiWebsiteController.CONFIG_KEYS) {
+                if (key.startsWith("fly_wm_")) {
+                    kv.put(key, StringUtils.trimToEmpty(configService.getStringByKey(key)));
+                }
+            }
+            if (!"1".equals(kv.get("fly_wm_enabled"))) {
+                return false;
+            }
+            var cfg = com.flycms.core.utils.ImageWatermarkUtil.Config.fromSiteParams(kv);
+            if ("image".equals(cfg.type) && cfg.imagePath != null && cfg.imagePath.startsWith("/upload/")) {
+                cfg.imagePath = "uploadfiles" + cfg.imagePath.substring(cfg.imagePath.indexOf('/'));
+            }
+            return com.flycms.core.utils.ImageWatermarkUtil.apply(dest, cfg);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private List<Long> parseIds(String ids) {
