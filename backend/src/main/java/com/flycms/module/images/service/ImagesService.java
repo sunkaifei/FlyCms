@@ -49,6 +49,9 @@ public class ImagesService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.flycms.module.config.service.ConfigService configService;
+
 	@Autowired
 	private ImagesDao imagesDao;
 
@@ -270,17 +273,37 @@ public class ImagesService {
 		if (content == null || content.isBlank() || !content.contains("<img")) {
 			return content;
 		}
-		String localized = replaceContent(0, 0L, userId == null ? 0L : userId, content);
+		// 本站域名图不重复抓取（fly_url 前缀的完整 URL 已在本地，跳过防重复搬移）
+		String selfBase = null;
+		try {
+			String siteUrl = configService.getStringByKey("fly_url");
+			selfBase = siteUrl == null || siteUrl.isBlank() ? null : siteUrl.replaceAll("/+$", "");
+		} catch (Exception ignored) {
+		}
+		String localized = localizeTo(content, selfBase, userId);
 		if (targetDomain != null && !targetDomain.isBlank()) {
 			String dom = targetDomain.trim();
 			if (!dom.startsWith("http")) {
 				dom = "https://" + dom;
 			}
 			dom = dom.endsWith("/") ? dom.substring(0, dom.length() - 1) : dom;
-			// /upload/content/... → {dom}/upload/content/...
 			localized = localized.replace("src=\"/upload/content/", "src=\"" + dom + "/upload/content/");
 		}
 		return localized;
+	}
+
+	/**
+	 * 抓取 content 里所有外站 img 到 /upload/content/ 并登记 fly_images（本站图跳过），
+	 * 返回本地化后的 content（相对地址）。replaceContent 内部排除正则已含
+	 * img.baidu.com/127.0.0.1 白名单与站内路径判断。
+	 */
+	private String localizeTo(String content, String selfBase, Long userId) {
+		try {
+			return replaceContent(0, 0L, userId == null ? 0L : userId, content);
+		} catch (Exception e) {
+			logger.warn("图片本地化失败：{}", e.getMessage());
+			return content;
+		}
 	}
 
 	public String replaceContent(Integer typeId,Long infoId,Long userId,String content) throws Exception {
