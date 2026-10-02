@@ -912,13 +912,20 @@ public class ModelDataService {
                     }
                 } else {
                     List<String> urls = new ArrayList<>();
+                    List<String> srcsets = new ArrayList<>();
                     for (String s : parseStringArray(String.valueOf(v))) {
                         try {
-                            urls.add(urlMap.getOrDefault(Long.parseLong(s), ""));
+                            long iid = Long.parseLong(s);
+                            urls.add(urlMap.getOrDefault(iid, ""));
+                            // S2：多图逐图 Srcset（与 Urls 下标对齐，模板 ${g.gallerySrcsets[i]}）
+                            Map<String, Object> sub = new HashMap<>();
+                            putImageSrcset(sub, "s", iid, sizesMap);
+                            srcsets.add(String.valueOf(sub.getOrDefault("sSrcset", "")));
                         } catch (NumberFormatException ignored) {
                         }
                     }
                     row.put(f.getFieldName() + "Urls", urls);
+                    row.put(f.getFieldName() + "Srcsets", srcsets);
                 }
             }
         }

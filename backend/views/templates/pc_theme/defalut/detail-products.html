@@ -28,7 +28,9 @@
 <div class="pd-wrap">
   <div class="pd-l">
     <#if (info.galleryUrls)?? && info.galleryUrls?size gt 0>
-      <img src="${info.galleryUrls[0]}" alt="${info.title}">
+      <#-- S2：懒加载 + 多尺寸响应式（gallery 首图与 gallerySrcset 由读侧展开） -->
+      <img src="${info.galleryUrls[0]}" alt="${info.title}" loading="lazy"
+        <#if (info.gallerySrcset)?? && info.gallerySrcset != ''>srcset="${info.gallerySrcset}"</#if>>
     <#else>
       <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg==" alt="商品图">
     </#if>

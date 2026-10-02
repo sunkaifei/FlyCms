@@ -85,6 +85,9 @@ public class UpLoadController extends BaseController {
                 dirFile.getParentFile().mkdir();
             }
             imagesService.uploadFile(file.getBytes(), path, fileName);
+            // S6 编辑器通道统一：登记 fly_images + 水印 + 多尺寸（与 /api 直传同口径）
+            String webUrl = "http://" + request.getServerName() + (request.getServerPort() > 0 ? ":" + request.getServerPort() : "") + "/upload/usertmp/" + getUser().getUserId() + "/" + fileName;
+            imagesService.registerEditorUpload(webUrl, getUser().getUserId());
             int port=request.getServerPort();
             String portstr="";
             if(port>0){
@@ -123,6 +126,9 @@ public class UpLoadController extends BaseController {
                 dirFile.getParentFile().mkdir();
             }
             imagesService.uploadFile(file.getBytes(), path, fileName);
+            // S6 编辑器通道统一：登记 fly_images + 水印 + 多尺寸
+            String webUrl = "http://" + request.getServerName() + (request.getServerPort() > 0 ? ":" + request.getServerPort() : "") + "/upload/usertmp/" + getUser().getUserId() + "/" + fileName;
+            imagesService.registerEditorUpload(webUrl, getUser().getUserId());
             int port=request.getServerPort();
             String portstr="";
             if(port>0){
@@ -162,6 +168,9 @@ public class UpLoadController extends BaseController {
                 dirFile.getParentFile().mkdir();
             }
             imagesService.uploadFile(file.getBytes(), path, fileName);
+            // S6 编辑器通道统一：登记 fly_images + 水印 + 多尺寸
+            String webUrl = "http://" + request.getServerName() + (request.getServerPort() > 0 ? ":" + request.getServerPort() : "") + "/upload/usertmp/" + getUser().getUserId() + "/" + fileName;
+            imagesService.registerEditorUpload(webUrl, getUser().getUserId());
             int port=request.getServerPort();
             String portstr="";
             if(port>0){

@@ -3,7 +3,7 @@
 <mapper namespace="com.flycms.module.template.dao.AreaBlockDao">
 
 	<sql id="area_block_column">id, theme_code AS themeCode, area_name AS areaName, block_type AS blockType,
-		block_title AS blockTitle, block_ref AS blockRef, sort, status</sql>
+		block_title AS blockTitle, block_ref AS blockRef, wrapper_class AS wrapperClass, sort, status</sql>
 
 	<select id="listByTheme" resultType="com.flycms.module.template.model.AreaBlock">
 		select <include refid="area_block_column"/>
@@ -26,9 +26,9 @@
 	<!-- id 是自增列，插入时不写 -->
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
 		insert into fly_area_block
-			(theme_code, area_name, block_type, block_title, block_ref, sort, status)
+			(theme_code, area_name, block_type, block_title, block_ref, wrapper_class, sort, status)
 		values
-			(#{themeCode}, #{areaName}, #{blockType}, #{blockTitle}, #{blockRef},
+			(#{themeCode}, #{areaName}, #{blockType}, #{blockTitle}, #{blockRef}, #{wrapperClass},
 			 ifnull(#{sort}, 0), ifnull(#{status}, 1))
 	</insert>
 
@@ -40,6 +40,7 @@
 			<if test="blockType != null">block_type = #{blockType},</if>
 			block_title = #{blockTitle},
 			<if test="blockRef != null">block_ref = #{blockRef},</if>
+			<if test="wrapperClass != null">wrapper_class = #{wrapperClass},</if>
 			<if test="sort != null">sort = #{sort},</if>
 			<if test="status != null">status = #{status},</if>
 			<!-- 恒定兜底项：保证任何入参下 SET 子句都不为空（同 ConfigDao.updagteConfigByKey 的教训） -->

@@ -38,6 +38,9 @@ public class FlyFilter implements Filter {
     private UserService userService;
 
     @Autowired
+    private com.flycms.module.redirect.service.RedirectService redirectService;
+
+    @Autowired
     private UserSessionUtils userSessionUtils;
     @Autowired
     private SiteConst siteConst;
@@ -52,6 +55,18 @@ public class FlyFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession(false);
+
+        // T-b SEO 重定向：命中规则的请求 301 到目标地址（缓存全表，未命中走原流程）
+        try {
+            String target = redirectService.match(httpRequest.getRequestURI());
+            if (target != null) {
+                httpResponse.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+                httpResponse.setHeader("Location", target);
+                return;
+            }
+        } catch (Exception e) {
+            // 重定向查询失败不阻塞请求
+        }
 
         //用户被邀请uid创建cookie记录
         String invite=request.getParameter("invite");

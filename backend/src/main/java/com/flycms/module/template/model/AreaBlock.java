@@ -23,12 +23,22 @@ public class AreaBlock implements Serializable {
     /** 区块类型：自定义 HTML（原样输出） */
     public static final String TYPE_HTML = "HTML";
 
+    public String getWrapperClass() {
+        return wrapperClass;
+    }
+
+    public void setWrapperClass(String wrapperClass) {
+        this.wrapperClass = wrapperClass;
+    }
+
     private Long id;
     private String themeCode;
     private String areaName;
     private String blockType;
     private String blockTitle;
     private String blockRef;
+    /** S1-a 区块属性：包装器 CSS 类（渲染时附加到区块外层 div，如 "card shadow-lg"） */
+    private String wrapperClass;
     private Integer sort;
     private Integer status;
 

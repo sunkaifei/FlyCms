@@ -98,6 +98,7 @@ function blankBlock(areaName = ''): AreaBlockRow {
     blockRef: '',
     blockTitle: '',
     blockType: 'BLOCK',
+    wrapperClass: '',
     sort: 0,
     status: 1,
   };
@@ -486,6 +487,10 @@ onMounted(async () => {
             class="w-full"
             :options="TYPE_OPTIONS"
           />
+        </div>
+        <div>
+          <div class="mb-1 text-sm">包装器 CSS 类（S1-a：外层 div 附加类，多个空格分隔）</div>
+          <Input v-model:value="editing.wrapperClass" placeholder="如 card shadow-lg" />
         </div>
         <div v-if="editing.blockType === 'BLOCK'" class="mb-1">
           <div class="mb-1 text-xs text-gray-400">从碎片库选择（自动填调用键）</div>

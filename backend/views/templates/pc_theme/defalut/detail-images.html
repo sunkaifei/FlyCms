@@ -29,7 +29,8 @@
         <#if urls?size gt 0>
         <div class="gal">
           <#list urls as u>
-          <img src="${u}" alt="${info.title} - 图 ${u?counter}">
+          <img src="${u}" alt="${info.title} - 图 ${u?counter}" loading="lazy"
+             <#if (info.gallerySrcsets)?? && info.gallerySrcsets?size gt 0 && (info.gallerySrcsets[u?index])?? && info.gallerySrcsets[u?index] != ''>srcset="${info.gallerySrcsets[u?index]}"</#if>>
           </#list>
         </div>
         <#else>

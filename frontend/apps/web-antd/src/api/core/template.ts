@@ -442,6 +442,8 @@ export type AreaBlockType = 'BLOCK' | 'TAG' | 'HTML';
 export interface AreaBlockRow {
   areaName: string;
   blockRef: string;
+  /** S1-a 包装器 CSS 类（渲染时附加到区块外层 div） */
+  wrapperClass?: string;
   blockTitle?: string;
   blockType: AreaBlockType;
   id?: string;
@@ -475,6 +477,7 @@ export async function saveAreaBlockApi(data: AreaBlockRow) {
   return postForm<{ code: number; msg: string }>('/system/area/save', {
     areaName: data.areaName,
     blockRef: data.blockRef,
+    wrapperClass: data.wrapperClass || undefined,
     blockTitle: data.blockTitle,
     blockType: data.blockType,
     id: data.id,

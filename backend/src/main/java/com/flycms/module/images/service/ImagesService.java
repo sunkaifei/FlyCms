@@ -95,6 +95,50 @@ public class ImagesService {
 		imagesDao.addImages(images);
 	}
 
+	/**
+	 * S6 编辑器通道统一登记：前台编辑器（/ucenter/upload 等）传图后调本方法——
+	 * 登记 fly_images（原 user_id 归属）+ R 水印 + Q1 多尺寸，与 /api 直传同口径；
+	 * 失败静默（编辑器上传主流程不受影响，仅缺附件库登记）。
+	 *
+	 * @param webUrl 编辑器使用的 Web 地址（http://host/upload/usertmp/…），用于还原磁盘路径与相对 URL
+	 * @return 登记后的 fly_images 行 id（失败返回 null）
+	 */
+	public Long registerEditorUpload(String webUrl, Long userId) {
+		try {
+			if (webUrl == null || webUrl.isBlank()) {
+				return null;
+			}
+			// webUrl → 相对 URL（/upload/usertmp/{uid}/x.png）→ 磁盘路径（uploadfiles/upload/usertmp/…）
+			String rel = webUrl.substring(webUrl.indexOf("/upload/"));
+			java.io.File disk = new java.io.File("uploadfiles" + rel);
+			if (!disk.exists()) {
+				return null;
+			}
+			java.awt.image.BufferedImage src = javax.imageio.ImageIO.read(disk);
+			Images images = new Images();
+			images.setId(SnowFlake.getInstance().nextId());
+			images.setImgUrl(rel);
+			images.setFileSize(String.format("%.1f", disk.length() / 1024.0));
+			if (src != null) {
+				images.setImgWidth(Integer.toString(src.getWidth()));
+				images.setImgHeight(Integer.toString(src.getHeight()));
+			}
+			images.setSort(0);
+			images.setCreateTime(new java.util.Date());
+			images.setInfoCount(0);
+			if (userId != null) {
+				images.setUserId(userId);
+			}
+			imagesDao.addImages(images);
+			// R 水印 + Q1 多尺寸（与管理端直传同口径）
+			generateMultiSizes(images);
+			return images.getId();
+		} catch (Exception e) {
+			logger.warn("编辑器上传登记失败（{}）：{}", webUrl, e.getMessage());
+			return null;
+		}
+	}
+
 	// /////////////////// Q1 媒体库多尺寸 ///////////////////
 
 	/** 多尺寸规格（从小到大；只缩不放——原图小于目标宽则跳过该档） */

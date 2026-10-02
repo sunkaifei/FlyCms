@@ -14,6 +14,32 @@
 <link rel="stylesheet" href="/skin/pc_theme/defalut/css/portal.css">
 <#-- G19 设计令牌：theme.json settings → CSS 变量（模板/自定义 CSS 消费 var(--fly-color-*) 等） -->
 <@fly_theme_vars />
+<#-- T-a SEO 结构化数据（JSON-LD）：详情页自动注入 Article + BreadcrumbList，非详情页静默跳过 -->
+<#if (info.title)?? && (info.shortUrl)??>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "${info.title?json_string}",
+  "url": "${(web_url)!'http://localhost'}/${model.code!'page'}/${info.shortUrl}.html",
+  "datePublished": "${(info.createTime!'')?string("yyyy-MM-dd'T'HH:mm:ssXXX")}",
+  "dateModified": "${(info.updateTime!info.createTime!'')?string("yyyy-MM-dd'T'HH:mm:ssXXX")}",
+  "author": {"@type": "Person", "name": "作者${(info.userId)!'0'}"},
+  "publisher": {"@type": "Organization", "name": "${(web_name)!'FlyCms'?json_string}"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "首页", "item": "${(web_url)!'http://localhost'}/"},
+    {"@type": "ListItem", "position": 2, "name": "${(model.name)!'列表'?json_string}", "item": "${(web_url)!'http://localhost'}/${model.code!'page'}/"},
+    {"@type": "ListItem", "position": 3, "name": "${info.title?json_string}"}
+  ]
+}
+</script>
+</#if>
 </head>
 <body>
 <header class="topbar">

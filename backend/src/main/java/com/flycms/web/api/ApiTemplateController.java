@@ -538,6 +538,7 @@ public class ApiTemplateController extends ApiBaseController {
                            @RequestParam("areaName") String areaName,
                            @RequestParam("blockType") String blockType,
                            @RequestParam(value = "blockTitle", required = false) String blockTitle,
+                           @RequestParam(value = "wrapperClass", required = false) String wrapperClass,
                            @RequestParam("blockRef") String blockRef,
                            @RequestParam(value = "sort", required = false) Integer sort,
                            @RequestParam(value = "status", required = false) Integer status) {
@@ -548,6 +549,7 @@ public class ApiTemplateController extends ApiBaseController {
         b.setAreaName(StringUtils.trim(areaName));
         b.setBlockType(StringUtils.upperCase(StringUtils.trim(blockType)));
         b.setBlockTitle(blockTitle);
+        b.setWrapperClass(wrapperClass);
         b.setBlockRef(blockRef);
         b.setSort(sort);
         b.setStatus(status);

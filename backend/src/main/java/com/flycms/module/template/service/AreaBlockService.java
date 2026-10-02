@@ -309,7 +309,15 @@ public class AreaBlockService {
             }
             src.append("\n<!-- area-block:").append(b.getBlockType())
                     .append(" #").append(b.getId()).append(" -->\n");
-            src.append(snippet);
+            // S1-a 区块属性：wrapper_class 非空时包一层 div（多类空格分隔，字符白名单防注入）
+            if (StringUtils.isNotBlank(b.getWrapperClass())) {
+                String cls = b.getWrapperClass().replaceAll("[^A-Za-z0-9_ \\\\-]", "");
+                src.append("<div class=\"").append(cls).append("\">");
+                src.append(snippet);
+                src.append("</div>");
+            } else {
+                src.append(snippet);
+            }
         }
         if (src.length() == 0) {
             return view;

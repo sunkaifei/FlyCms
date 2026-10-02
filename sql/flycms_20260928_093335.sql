@@ -1450,6 +1450,7 @@ CREATE TABLE `fly_area_block` (
   `block_type` varchar(20) NOT NULL COMMENT 'BLOCK/TAG/HTML',
   `block_title` varchar(100) DEFAULT NULL COMMENT '后台展示用标题（仅UI）',
   `block_ref` text NOT NULL COMMENT '碎片key/标签代码/HTML片段',
+  `wrapper_class` varchar(200) DEFAULT NULL COMMENT '包装器 CSS 类（渲染时附加到区块外层 div）',
   `sort` int(11) DEFAULT '0' COMMENT '排序',
   `status` tinyint(4) DEFAULT '1' COMMENT '状态 1启用 0停用',
   PRIMARY KEY (`id`),

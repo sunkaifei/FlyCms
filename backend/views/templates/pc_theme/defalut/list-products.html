@@ -37,7 +37,7 @@
         <#list dataList as g>
         <a class="mall-card" href="/products/${g.shortUrl}.html">
           <#if (g.galleryUrls)?? && g.galleryUrls?size gt 0>
-            <img src="${g.galleryUrls[0]}" alt="${g.title}">
+            <img src="${g.galleryUrls[0]}" alt="${g.title}" loading="lazy">
           <#else>
             <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNDUiIGhlaWdodD0iMTgwIj48cmVjdCB3aWR0aD0iMjQ1IiBoZWlnaHQ9IjE4MCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg==" alt="${g.title}">
           </#if>

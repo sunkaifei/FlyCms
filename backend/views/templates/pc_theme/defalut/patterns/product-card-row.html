@@ -1,0 +1,23 @@
+<#-- name: 商品卡横排（商城） | desc: 取某商品模型最新 4 条做商品卡（首图+名称），挂关联模型字段。把 model 参数换成你的商品模型 code -->
+<div class="pt-prod-grid" style="display:flex;flex-wrap:wrap;gap:14px;">
+  <@fly_page_model model="products" rows="4">
+  <#if dataList?? && dataList?size gt 0>
+    <#list dataList as g>
+    <a class="pt-prod-card" href="/products/${g.shortUrl}.html"
+       style="width:220px;background:#fff;border-radius:8px;overflow:hidden;text-decoration:none;color:inherit;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+      <#if (g.galleryUrls)?? && g.galleryUrls?size gt 0>
+        <img src="${g.galleryUrls[0]}" alt="${g.title?html}" style="width:100%;height:160px;object-fit:cover;display:block;" loading="lazy">
+      </#if>
+      <div style="padding:10px 12px;">
+        <b style="font-size:14px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${g.title?html}</b>
+        <#if (g.brandIdObj)??>
+        <span style="font-size:12px;color:#8a919f;">${(g.brandIdObj.name)!''}</span>
+        </#if>
+      </div>
+    </a>
+    </#list>
+  <#else>
+    <div class="empty"><b>0</b>暂无商品</div>
+  </#if>
+  </@fly_page_model>
+</div>

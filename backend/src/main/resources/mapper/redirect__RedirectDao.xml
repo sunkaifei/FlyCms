@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycms.module.redirect.dao.RedirectDao">
+
+	<select id="allEnabledRows" resultType="map">
+		select lower(source_path) as src, target_url as target
+		from fly_redirect where status = 1
+	</select>
+
+	<select id="findIdBySource" resultType="string">
+		select id from fly_redirect where source_path = #{sourcePath} limit 1
+	</select>
+
+	<insert id="insert">
+		insert into fly_redirect (id, source_path, target_url, status, create_time)
+		values (#{id}, #{sourcePath}, #{targetUrl}, #{status}, now())
+	</insert>
+
+	<update id="update">
+		update fly_redirect set target_url = #{targetUrl}, status = #{status} where id = #{id}
+	</update>
+
+	<delete id="delete">
+		delete from fly_redirect where id = #{id}
+	</delete>
+</mapper>
