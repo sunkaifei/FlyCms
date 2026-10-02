@@ -21,6 +21,7 @@
 			<if test="imgWidth != null">img_width,</if>
 			<if test="imgHeight != null">img_height,</if>
 			<if test="signature != null">signature,</if>
+			<if test="sizes != null">sizes,</if>
 			<if test="createTime != null">create_time,</if>
 			<if test="sort != null">sort,</if>
 			<if test="infoCount != null">info_count,</if>
@@ -35,15 +36,21 @@
 			<if test="imgWidth != null">#{imgWidth},</if>
 			<if test="imgHeight != null">#{imgHeight},</if>
 			<if test="signature != null">#{signature},</if>
+			<if test="sizes != null">#{sizes},</if>
 			<if test="createTime != null">#{createTime},</if>
 			<if test="sort != null">#{sort},</if>
 			<if test="infoCount != null">#{infoCount},</if>
 		</trim>
 	</insert>
 
+	<!-- Q1 多尺寸副本 JSON 回填 -->
+	<update id="updateSizesById">
+		update fly_images set sizes = #{sizes} where id = #{id}
+	</update>
+
 	<!-- W 批次控件回显：批量 id → {id,imgUrl,imgName} -->
 	<select id="findByIds" resultType="map">
-		SELECT id, img_url AS imgUrl, img_name AS imgName FROM fly_images WHERE id IN
+		SELECT id, img_url AS imgUrl, img_name AS imgName, sizes FROM fly_images WHERE id IN
 		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
 	</select>
 

@@ -867,6 +867,8 @@ public class ModelDataService {
         }
         Map<Long, String> urlMap = new HashMap<>();
         Map<Long, String> nameMap = new HashMap<>();
+        // Q1 多尺寸：id → sizes JSON
+        Map<Long, String> sizesMap = new HashMap<>();
         if (!ids.isEmpty()) {
             for (Map<String, Object> img : modelDataDao.findImageUrls(new ArrayList<>(ids))) {
                 long id = ((Number) img.get("id")).longValue();
@@ -874,6 +876,9 @@ public class ModelDataService {
                 urlMap.put(id, url == null ? "" : String.valueOf(url));
                 Object name = img.get("imgName");
                 nameMap.put(id, name == null ? "" : String.valueOf(name));
+                // Q1 多尺寸：id → sizes JSON（供 {field}Srcset 响应式输出）
+                Object sz = img.get("sizes");
+                sizesMap.put(id, sz == null ? "" : String.valueOf(sz));
             }
         }
         for (Map<String, Object> row : rows) {
@@ -894,6 +899,9 @@ public class ModelDataService {
                 if (type == FieldTypeEnum.IMAGE || type == FieldTypeEnum.FILE) {
                     long id = Long.parseLong(String.valueOf(v));
                     row.put(f.getFieldName() + "Url", urlMap.getOrDefault(id, ""));
+                    if (type == FieldTypeEnum.IMAGE) {
+                        putImageSrcset(row, f.getFieldName(), id, sizesMap);
+                    }
                 } else {
                     List<String> urls = new ArrayList<>();
                     for (String s : parseStringArray(String.valueOf(v))) {
@@ -1504,6 +1512,35 @@ public class ModelDataService {
      * {@code row[fieldName + "Backs"]} = [{id, shortUrl, title}]（来源行，仅已发布）。
      * 无物理列、无需目标模型预定义反向字段。
      */
+    /**
+     * Q1 媒体库多尺寸：单图 {field}Srcset 生成（sizes JSON → "u 150w, u 320w, …" 按宽升序）。
+     * sizes 缺失/损坏静默跳过（读侧回退原图），不阻塞行展开。
+     */
+    private void putImageSrcset(Map<String, Object> row, String fieldName, Long id,
+                                Map<Long, String> sizesMap) {
+        String szJson = sizesMap.getOrDefault(id, "");
+        if (StringUtils.isBlank(szJson)) {
+            return;
+        }
+        try {
+            List<String> parts = new ArrayList<>();
+            for (Object o : JSON.parseArray(szJson)) {
+                if (o instanceof Map) {
+                    Object w = ((Map<?, ?>) o).get("w");
+                    Object u = ((Map<?, ?>) o).get("u");
+                    if (w != null && u != null) {
+                        parts.add(u + " " + w + "w");
+                    }
+                }
+            }
+            if (!parts.isEmpty()) {
+                row.put(fieldName + "Srcset", String.join(", ", parts));
+            }
+        } catch (Exception ignored) {
+            // sizes 损坏按无副本处理
+        }
+    }
+
     private void expandBackRefs(Model self, List<Map<String, Object>> rows) {
         List<ModelField> incoming;
         try {

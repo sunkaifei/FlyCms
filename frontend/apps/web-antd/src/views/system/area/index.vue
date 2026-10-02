@@ -261,6 +261,28 @@ async function onRowDrop(area: string, target: number) {
   }
 }
 
+/** Q2 区块复制：复制标题/类型/引用/状态，排序插到原区块之后 */
+async function doCopy(area: string, index: number) {
+  const list = [...rowsOf(area)];
+  const src = list[index];
+  if (!src) return;
+  const copy = {
+    areaName: src.areaName,
+    blockType: src.blockType,
+    blockRef: src.blockRef,
+    blockTitle: (src.blockTitle || '区块') + ' 副本',
+    sort: (src.sort || 0) + 1,
+    status: src.status,
+  };
+  const r = await saveAreaBlockApi(copy);
+  if (r.code === 0) {
+    message.success('已复制');
+    await load();
+  } else {
+    message.error(r.msg || '复制失败');
+  }
+}
+
 /** 预览抽屉开着时，变更后自动刷新（实时预览） */
 function refreshPreviewIfOpen(area: string) {
   if (previewVisible.value && previewAreaName.value === area) {
@@ -422,6 +444,13 @@ onMounted(async () => {
                   @click="openEdit(area.name, record)"
                 >
                   编辑
+                </Button>
+                <Button
+                  v-if="canManage"
+                  size="small"
+                  @click="doCopy(area.name, index)"
+                >
+                  复制
                 </Button>
                 <Button
                   v-if="canManage"

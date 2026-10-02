@@ -109,10 +109,13 @@ public class ApiImagesController extends ApiBaseController {
             images.setCreateTime(new java.util.Date());
             images.setInfoCount(0);
             imagesService.addAdminUpload(images);
+            // Q1 媒体库多尺寸：原图落盘后生成 150/320/768 缩放副本（只缩不放），sizes JSON 回填
+            imagesService.generateMultiSizes(images);
             Map<String, Object> data = new HashMap<>();
             data.put("id", String.valueOf(images.getId()));
             data.put("imgUrl", images.getImgUrl());
             data.put("imgName", images.getImgName());
+            data.put("sizes", images.getSizes());
             return DataVo.success("上传成功", data);
         } catch (Exception e) {
             return DataVo.failure("上传失败：" + e.getMessage());

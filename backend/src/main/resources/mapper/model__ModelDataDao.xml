@@ -270,7 +270,7 @@
 	</select>
 
 	<select id="findImageUrls" resultType="map">
-		SELECT id, img_url AS imgUrl, img_name AS imgName FROM fly_images WHERE id IN
+		SELECT id, img_url AS imgUrl, img_name AS imgName, sizes FROM fly_images WHERE id IN
 		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
 	</select>
 

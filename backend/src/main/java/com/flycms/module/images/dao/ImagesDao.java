@@ -32,6 +32,9 @@ public interface ImagesDao {
     /** 批量 id → {id,imgUrl,imgName}（W 批次控件回显） */
     public List<Map<String, Object>> findByIds(@Param("ids") List<Long> ids);
 
+    /** 回填多尺寸副本 JSON（Q1 媒体库多尺寸） */
+    int updateSizesById(@Param("id") Long id, @Param("sizes") String sizes);
+
     /**
      * 添加图片和信息关联记录
      *

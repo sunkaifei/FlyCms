@@ -47,6 +47,11 @@ public class Images implements Serializable {
     public String imgHeight;
     /**  图片指纹 */
     public String signature;
+    /**
+     * 多尺寸副本（Q1 媒体库多尺寸）：JSON 数组 [{"n":"thumb","u":"…","w":150,"h":112},…]，
+     * 从小到大只缩不放；NULL = 无副本（旧记录），读侧回退原图。
+     */
+    public String sizes;
     /** 添加时间 */
     public Date createTime;
     /** 删除设置 */

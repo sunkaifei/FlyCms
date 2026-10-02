@@ -50583,6 +50583,7 @@ CREATE TABLE `fly_images` (
   `img_width` int(11) DEFAULT NULL,
   `img_height` int(11) DEFAULT NULL,
   `signature` varchar(255) DEFAULT NULL,
+  `sizes` text COMMENT '多尺寸副本 JSON：[{"n":"thumb","u":"…","w":150,"h":112},…]（NULL=无副本）',
   `create_time` datetime DEFAULT NULL,
   `img_delete` int(1) DEFAULT NULL,
   `sort` int(5) DEFAULT NULL,

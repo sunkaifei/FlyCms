@@ -9,8 +9,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.alibaba.fastjson2.JSONObject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,6 +93,78 @@ public class ImagesService {
 	 */
 	public void addAdminUpload(Images images) {
 		imagesDao.addImages(images);
+	}
+
+	// /////////////////// Q1 媒体库多尺寸 ///////////////////
+
+	/** 多尺寸规格（从小到大；只缩不放——原图小于目标宽则跳过该档） */
+	private static final int[][] SIZE_SPECS = {{150, 150}, {320, 320}, {768, 768}};
+	private static final String[] SIZE_NAMES = {"thumb", "mid", "large"};
+
+	/**
+	 * 为已落盘的原图生成多尺寸副本并回填 fly_images.sizes（JSON 数组，从小到大）。
+	 * 保持原格式（png 保透明/gif 首帧/jpg），副本命名 原名_{宽}.{ext}，与原图同目录。
+	 *
+	 * @return sizes JSON 字符串（无可生成档位时返回 null）
+	 */
+	public String generateMultiSizes(Images images) {
+		try {
+			String imgUrl = images.getImgUrl();
+			if (imgUrl == null || imgUrl.isBlank()) {
+				return null;
+			}
+			// imgUrl 形如 /upload/admin/20261002/x.png → 磁盘 ./uploadfiles/upload/admin/20261002/x.png
+			String diskPath = "uploadfiles" + imgUrl.substring(imgUrl.indexOf('/'));
+			java.io.File original = new java.io.File(diskPath);
+			if (!original.exists()) {
+				return null;
+			}
+			String ext = imgUrl.substring(imgUrl.lastIndexOf('.') + 1).toLowerCase();
+			String format = ext.equals("jpg") ? "jpg" : ext; // ImageIO 规范名
+			java.awt.image.BufferedImage src = javax.imageio.ImageIO.read(original);
+			if (src == null) {
+				return null;
+			}
+			int srcW = src.getWidth(), srcH = src.getHeight();
+			if (srcW <= 0 || srcH <= 0) {
+				return null;
+			}
+			com.alibaba.fastjson2.JSONArray arr = new com.alibaba.fastjson2.JSONArray();
+			for (int i = 0; i < SIZE_SPECS.length; i++) {
+				int targetW = SIZE_SPECS[i][0];
+				int targetH = Math.max(1, srcH * targetW / srcW);
+				if (targetW >= srcW) {
+					continue; // 只缩不放
+				}
+				String suffix = "_" + targetW;
+				String diskName = original.getName().replaceFirst("\\.[A-Za-z0-9]+$", suffix + "." + ext);
+				java.io.File out = new java.io.File(original.getParent(), diskName);
+				java.awt.image.BufferedImage scaled = new java.awt.image.BufferedImage(
+						targetW, targetH, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+				java.awt.Graphics2D g = scaled.createGraphics();
+				g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
+						java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+				g.drawImage(src, 0, 0, targetW, targetH, null);
+				g.dispose();
+				javax.imageio.ImageIO.write(scaled, format, out);
+				JSONObject item = new com.alibaba.fastjson2.JSONObject(new LinkedHashMap<String, Object>());
+				item.put("n", SIZE_NAMES[i]);
+				item.put("u", imgUrl.replaceFirst("\\.[A-Za-z0-9]+$", suffix + "." + ext));
+				item.put("w", targetW);
+				item.put("h", targetH);
+				arr.add(item);
+			}
+			if (arr.isEmpty()) {
+				return null;
+			}
+			String json = arr.toJSONString();
+			images.setSizes(json);
+			imagesDao.updateSizesById(images.getId(), json);
+			return json;
+		} catch (Exception e) {
+			logger.warn("多尺寸生成失败（{}）：{}", images.getImgUrl(), e.getMessage());
+			return null;
+		}
 	}
 
 	/** 批量 id → {id,imgUrl,imgName} 映射（控件回显，修「刷新后缩略图丢失」） */
