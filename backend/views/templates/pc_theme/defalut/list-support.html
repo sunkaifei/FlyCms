@@ -1,0 +1,97 @@
+<#-- ============================================================
+     技术支持 · 文档列表页
+     列出所有支持文档，按分类分组
+     ============================================================ -->
+<#include "common/macros.html">
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>技术支持 - ${web_name!''}</title>
+<style>
+  body{font-family:system-ui,"Microsoft YaHei",sans-serif;background:#f5f6f8;margin:0;}
+  .wrap{max-width:900px;margin:24px auto;padding:0 12px;}
+  h1{font-size:24px;margin:0 0 16px;}
+  .cat-section{margin-bottom:28px;}
+  .cat-title{font-size:17px;font-weight:700;color:#16324A;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #16324A;}
+  .doc-row{display:flex;gap:14px;background:#fff;border-radius:8px;padding:14px 18px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);align-items:center;}
+  .doc-row .icon{font-size:22px;width:32px;text-align:center;flex-shrink:0;}
+  .doc-row .info{flex:1;}
+  .doc-row .t{font-size:15px;font-weight:600;color:#333;margin-bottom:2px;}
+  .doc-row .t a{color:#333;text-decoration:none;}
+  .doc-row .t a:hover{color:#16324A;}
+  .doc-row .d{font-size:13px;color:#8a919f;}
+  .doc-row .date{font-size:12px;color:#b0b0b0;flex-shrink:0;}
+  .search-box{margin-bottom:20px;}
+  .search-box input{width:100%;box-sizing:border-box;padding:10px 14px;border:1px solid #d9dce1;border-radius:6px;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📚 技术支持</h1>
+  <div class="search-box">
+    <input type="text" placeholder="搜索文档…" onkeydown="if(event.key==='Enter')this.form&&this.form.submit()">
+  </div>
+
+  <#-- 快速入门 -->
+  <div class="cat-section">
+    <div class="cat-title">🚀 快速入门</div>
+    <@fly_page_model model="articles" category="0" rows="5" orderby="id" order="desc">
+    <#if dataList?? && dataList?size gt 0>
+      <#list dataList as doc>
+        <#if doc.title?starts_with("【入门】")>
+        <div class="doc-row">
+          <span class="icon">📖</span>
+          <div class="info">
+            <div class="t"><a href="/articles/${doc.shortUrl}.html">${doc.title?replace("【入门】","")}</a></div>
+            <div class="d">${(doc.description)!'点击阅读'}</div>
+          </div>
+        </div>
+        </#if>
+      </#list>
+    </#if>
+    </@fly_page_model>
+  </div>
+
+  <#-- 功能说明 -->
+  <div class="cat-section">
+    <div class="cat-title">⚙️ 功能说明</div>
+    <@fly_page_model model="articles" rows="50">
+      <#if dataList?? && dataList?size gt 0>
+        <#list dataList as doc>
+          <#if doc.title?starts_with("【功能】")>
+          <div class="doc-row">
+            <span class="icon">📄</span>
+            <div class="info">
+              <div class="t"><a href="/articles/${doc.shortUrl}.html">${doc.title?replace("【功能】","")}</a></div>
+              <div class="d">${(doc.description)!''}</div>
+            </div>
+            <span class="date"><@dt16 (doc.createTime)!'' /></span>
+          </div>
+          </#if>
+        </#list>
+      </#if>
+    </@fly_page_model>
+  </div>
+
+  <#-- 常见问题 -->
+  <div class="cat-section">
+    <div class="cat-title">❓ 常见问题</div>
+    <@fly_page_model model="articles" rows="50">
+      <#if dataList?? && dataList?size gt 0>
+        <#list dataList as doc>
+          <#if doc.title?starts_with("【FAQ】")>
+          <div class="doc-row">
+            <span class="icon">💡</span>
+            <div class="info">
+              <div class="t"><a href="/articles/${doc.shortUrl}.html">${doc.title?replace("【FAQ】","")}</a></div>
+              <div class="d">${(doc.description)!''}</div>
+            </div>
+          </div>
+          </#if>
+        </#list>
+      </#if>
+    </@fly_page_model>
+  </div>
+</div>
+</body>
+</html>
