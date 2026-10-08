@@ -166,19 +166,23 @@
       </#if>
       </@fly_login>
     </div>
-    <a class="nav-toggle" href="#nav-drawer" aria-label="打开导航菜单">
+    <a class="nav-toggle" href="javascript:void(0)" aria-label="打开导航菜单"
+       onclick="var d=document.getElementById('nav-drawer');d.style.display=d.style.display==='block'?'none':'block'">
       <svg class="ic" aria-hidden="true"><use href="#i-menu"></use></svg>
     </a>
   </div>
 </header>
 
-<#-- 窄屏抽屉（纯 CSS :target 打开，零 JS 可用；点遮罩或右上 × 关闭） -->
-<div class="nav-drawer" id="nav-drawer" role="dialog" aria-label="导航菜单">
-  <a class="nav-drawer-mask" href="#" aria-label="关闭导航菜单" data-no-smooth></a>
+<#-- 窄屏抽屉（JS 切换，不依赖 :target 伪类；点遮罩或右上 × 关闭） -->
+<div class="nav-drawer" id="nav-drawer" role="dialog" aria-label="导航菜单"
+     style="display:none">
+  <a class="nav-drawer-mask" href="javascript:void(0)" aria-label="关闭导航菜单"
+     onclick="this.parentElement.style.display='none'"></a>
   <div class="nav-drawer-in">
     <div class="dh">
       <b>导航</b>
-      <a href="#" aria-label="关闭"><svg class="ic" aria-hidden="true"><use href="#i-close"></use></svg></a>
+      <a href="javascript:void(0)" aria-label="关闭"
+         onclick="document.getElementById('nav-drawer').style.display='none'"><svg class="ic" aria-hidden="true"><use href="#i-close"></use></svg></a>
     </div>
     <nav>
       <a href="/"<#if ((page_type)!'') == 'INDEX'> class="on"</#if>>首页</a>
