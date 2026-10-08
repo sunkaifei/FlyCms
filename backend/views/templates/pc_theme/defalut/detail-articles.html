@@ -30,7 +30,7 @@
             <p>本文为外部转载，<a href="${info.redirecturl}" rel="nofollow" target="_blank">阅读原文 →</a></p>
             <p>${(info.description)!''}</p>
           <#else>
-            ${(info.content)!''}
+            <@artBody v=(info.content)!'' mc=(model.code)!'' mn=(model.name)!'' />
           </#if>
         </div>
         <#if (info.tags)?? && info.tags != ''>

@@ -779,6 +779,13 @@ html > body.no-js .to-top { display: none; }
   border-left: 3px solid var(--gold-400); padding: 4px 0 4px 18px; color: var(--dust);
   background: linear-gradient(90deg, var(--gold-50), transparent 70%);
 }
+/* 正文为空时的占位（见 common/macros.html 的 <@artBody>）：给一句可操作的话，
+   比留一大片空白更让人确信页面是正常的。 */
+.art-empty {
+  color: var(--dust); font-size: 14px; padding: 18px 20px; border: 1px dashed var(--line);
+  border-radius: var(--r-sm); background: var(--paper-2, #faf8f4);
+}
+.art-empty a { color: var(--gold-600); }
 .art-body code {
   background: var(--mist-2); border: 1px solid var(--line); border-radius: 3px;
   padding: 1px 6px; font-family: Menlo, Consolas, monospace; font-size: .88em; color: #9C4221;

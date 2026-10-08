@@ -36,7 +36,7 @@
           <#else>
           <span class="ph" data-label="图集"></span>
           </#if>
-          ${(info.content)!''}
+          <@artBody v=(info.content)!'' mc=(model.code)!'' mn=(model.name)!'' />
         </div>
         <@shareBar />
       </article>

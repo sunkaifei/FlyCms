@@ -28,7 +28,7 @@
         <#if (info.weight)?? && info.weight gt 0><span class="bounty">悬赏 ${info.weight}</span></#if>
         <span>浏览 <b class="num">${(info.countView)!0}</b></span>
       </div>
-      <div class="art-body">${(info.content)!''}</div>
+      <div class="art-body"><@artBody v=(info.content)!'' mc=(model.code)!'' mn=(model.name)!'' /></div>
     </article>
 
     <#-- ===== 采纳的回答（置顶段） ===== -->

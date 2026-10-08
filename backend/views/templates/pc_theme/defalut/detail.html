@@ -25,7 +25,7 @@
           <#if (info.thumbnailUrl)?? && info.thumbnailUrl != ''>
           <img src="${info.thumbnailUrl}" alt="${info.title?html}" loading="lazy">
           </#if>
-          ${(info.content)!''}
+          <@artBody v=(info.content)!'' mc=(model.code)!'' mn=(model.name)!'' />
         </div>
         <@shareBar />
       </article>

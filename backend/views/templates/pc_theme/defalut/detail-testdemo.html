@@ -34,7 +34,7 @@
             </#list>
           </dl>
           </@fly_fields_model>
-          ${(info.content)!''}
+          <@artBody v=(info.content)!'' mc=(model.code)!'' mn=(model.name)!'' />
         </div>
         <@shareBar />
       </article>

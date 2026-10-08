@@ -365,3 +365,15 @@
 <div class="panel"><@emptyState title="暂无记录" desc="这里会显示你的账户变动明细。" /></div>
 </#if>
 </#macro>
+
+<#-- 正文兜底（全部详情页共用）
+     ⚠ 数据里存在「有标题无正文」的条目（articles 18 条中 2 条 content 为空）。原先各详情页
+       直接写 ${(info.content)!''}，正文为空时页面留出一大片空白，用户会以为页面坏了。
+       这里给一句可操作的占位；有正文则原样输出（正文是富文本，必须【不转义】）。
+     用法：<@artBody v=(info.content)!'' mc=model.code mn=(model.name)!'' /> -->
+<#macro artBody v mc='' mn='更多内容'>
+<#if v?is_string && v?trim != ''>${v}
+<#else>
+<p class="art-empty">本文暂无正文内容。<#if mc != ''>可先浏览 <a href="/${mc}/">${mn?html}</a>，或</#if>返回 <a href="/">首页</a> 浏览其他内容。</p>
+</#if>
+</#macro>

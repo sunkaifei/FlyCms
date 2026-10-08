@@ -41,7 +41,7 @@
             <span class="tag">资源整理中</span>
             </#if>
           </div>
-          ${(info.content)!''}
+          <@artBody v=(info.content)!'' mc=(model.code)!'' mn=(model.name)!'' />
         </div>
         <@shareBar />
       </article>

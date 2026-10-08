@@ -23,7 +23,7 @@
         <div class="pd-price">¥${info.price?string('0.00')} <small>转让价</small></div>
         </#if>
         <div class="art-body">
-          ${(info.content)!''}
+          <@artBody v=(info.content)!'' mc=(model.code)!'' mn=(model.name)!'' />
           <#if (info.contact)?? && info.contact != ''>
           <div class="alert alert-warn" style="margin-top:20px">
             <b>联系方式</b>
