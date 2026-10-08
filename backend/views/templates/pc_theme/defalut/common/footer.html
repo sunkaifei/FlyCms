@@ -99,7 +99,9 @@
   <svg class="ic" aria-hidden="true"><use href="#i-up"></use></svg>
 </button>
 
-<script src="/skin/pc_theme/defalut/js/portal.js" defer></script>
+<#-- ⚠ 同 common/header.html 的 CSS：必须带 ?v=<主题版本> 才能让持有旧 JS 的浏览器重新拉取
+     （改版后如果 JS 是旧的、HTML 是新的，交互会"点了没反应"，比样式错乱更难排查）。 -->
+<script src="/skin/pc_theme/defalut/js/portal.js?v=${((theme.version)!'2.0.0')?url}" defer></script>
 <#-- 模板调试条（template_debug=1 时输出，默认零输出） -->
 <#include "debug-bar.html">
 </body>

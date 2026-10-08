@@ -5,6 +5,7 @@ import com.flycms.interceptor.UserInterceptor;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -111,6 +112,21 @@ public class WebMvcConfig implements WebMvcConfigurer {
      * <p>Boot 的 {@code WebMvcAutoConfiguration} 已按
      * {@code spring.web.resources.static-locations} 注册默认静态资源处理；
      * 此处保留 {@code classpath:/resources/} 与 {@code /*} 的补充映射以维持既有可达性。
+     *
+     * <p><b>主题静态资源必须显式声明缓存策略</b>（2026-10-08 修「改了模板却整页错乱」）：
+     * 原先 {@code /skin/**} 只由默认资源处理兜底，响应里<b>既没有 {@code Cache-Control}
+     * 也没有 {@code ETag}</b>，只有 {@code Last-Modified}。没有显式新鲜度时浏览器按启发式规则
+     * 自行推算（约为 {@code 10% × 距 Last-Modified 的时长}）——主题长期不动时该时长可达数小时，
+     * 于是改版后客户端**拿不到新 CSS 也不会来校验**：新 HTML 配旧 CSS。
+     * 实测首页新 HTML 用到的 66 个 class 里有 34 个（52%）在旧 CSS 中根本不存在
+     * （{@code .hero-sub} / {@code .foot-col} / {@code .qa-row} / {@code .sec-white} …），
+     * 表现就是「排版全是乱的」，且每次改版都更严重。
+     *
+     * <p>{@code no-cache} 不等于不缓存：副本仍会存，但每次请求都带
+     * {@code If-Modified-Since} 回源校验，未变则 304——既保证改动立刻生效，也不浪费带宽。
+     * 与之配合，模板侧给资源 URL 带 {@code ?v=${theme.version}}（见 {@code common/header.html}
+     * / {@code common/footer.html}）：换 URL 才能让<b>已经持有旧副本</b>的浏览器重新拉取
+     * （仅加响应头无法打破已缓存副本，因为浏览器根本不会发请求）。
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -118,5 +134,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/*").addResourceLocations("classpath:/resources/",
                 "file:./uploadfiles/",
                 "file:./views/static/");
+
+        // 主题皮肤资源：/skin/** 是当前主题约定，/assets/skin/** 是 WordPress 转换主题的约定
+        registry.addResourceHandler("/skin/**", "/assets/**")
+                .addResourceLocations("file:./views/static/skin/",
+                        "file:./views/static/assets/",
+                        "classpath:/resources/skin/",
+                        "classpath:/resources/assets/")
+                .setCacheControl(CacheControl.noCache());
     }
 }

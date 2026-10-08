@@ -1,11 +1,11 @@
 {
 	"name": "墨章",
 	"code": "defalut",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"author": "FlyCms",
 	"parent": "",
 	"thumbnail": "/skin/pc_theme/defalut/screenshot.png",
-	"description": "FlyCms 默认门户主题「墨章」：墨青底 + 铜金强调色的中文门户设计系统，零 JS、零外部依赖、960px 响应式，适配列表/详情/单页/搜索/错误页全页面类型。",
+	"description": "FlyCms 默认门户主题「墨章」：墨青底 + 铜金强调色的中文门户设计系统（CSS 变量层 + 组件层 + 页面层），1200px 栅格，含 ≤1080/960/720/420px 四档响应式适配，覆盖列表/详情/单页/搜索/用户中心/错误页全页面类型。",
 	"engine": "freemarker",
 	"minAppVersion": "2.0.0",
 	"supports": {

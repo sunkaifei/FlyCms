@@ -429,6 +429,35 @@ def main():
             trunc.append(f"{u}:{probs}")
     check("关键页渲染结果结构完整（未被 FreeMarker 静默截断）", not trunc, f"异常={trunc}")
 
+    # ---------------------------------------------------------------
+    # 静态资源缓存策略 —— 2026-10-08「首页排版全是乱的」事故的回归门禁
+    #
+    # 现象：改版后用户浏览器拿的是**旧 CSS + 新 HTML**（实测首页新 HTML 用到的 66 个 class
+    #       里有 34 个 / 52% 在旧 CSS 中根本不存在）→ 整页错乱，且每次改版都更严重；
+    #       而本机无缓存浏览器看完全正常，极易被误判成"模板被改坏了"。
+    # 根因有两个，缺一不可：
+    #   ① /skin/** 原先既没有 Cache-Control 也没有 ETag，只有 Last-Modified。没有显式新鲜度时
+    #      浏览器按启发式规则自行推算（≈10% × 距 Last-Modified 的时长）——主题长期不变时该值
+    #      可达数小时，期间浏览器**根本不发请求**，服务端怎么改都影响不到它。
+    #   ② 资源 URL 不带版本号：URL 不变，即使浏览器回源也会命中本地副本。
+    # 下面两道断言分别锁住这两个条件（只锁一个都不够）。
+    _, home_b, _ = raw("GET", "/")
+    home_txt = home_b.decode("utf-8", "replace")
+    refs = re.findall(r'(?:href|src)="(/skin/[^"]*?\.(?:css|js))(\?v=[^"&]+)?"', home_txt)
+    no_ver = [u for u, v in refs if not v]
+    check("首页引用的 /skin 下 css/js 均带 ?v= 版本号（URL 不变则浏览器永不回源）",
+          bool(refs) and not no_ver, f"资源数={len(refs)} 缺版本号={no_ver}")
+
+    hc = http.client.HTTPConnection(HOST, PORT, timeout=20)
+    hc.request("GET", "/skin/pc_theme/defalut/css/portal.css")
+    hr = hc.getresponse()
+    cc = hr.getheader("Cache-Control") or ""
+    hr.read()
+    hc.close()
+    check("/skin/** 响应显式带 Cache-Control（缺省时按启发式缓存，旧 CSS 可驻留数小时）",
+          any(k in cc for k in ("no-cache", "no-store", "must-revalidate")),
+          f"Cache-Control={cc!r}")
+
     # 栏目表 list_template 曾属"后台能填、后端不读"的假功能（getListTemplate() 全仓 0 调用点），
     # 现接在 TemplateResolver 的第 0 档（优先于 DB 指派与候选链）。库中 qa 栏目配了
     # list-questions.html，正好作为该链路的现成探针：候选链会出现来源「调用方指定」。

@@ -18,7 +18,15 @@
 <meta name="keywords" content="${__kw?html}">
 <meta name="description" content="${__desc?html}">
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="/skin/pc_theme/defalut/css/portal.css">
+<#-- ⚠ 静态资源 URL 必须带 ?v=<主题版本>：
+     ① 浏览器缓存以「完整 URL」为键，带参数才能让【已经持有旧 CSS 的浏览器】重新拉取；
+        只加服务端 Cache-Control 头没用 —— 旧副本还在新鲜期内时浏览器压根不会发请求。
+     ② 版本号取自 fly_theme.version / theme.json（当前 2.0.0，改版时同步 +1）。
+     ③ 必须写 ((theme.version)!) 整链括号：user/* 与 people/* 走 TemplateService 直出，
+        上下文里没有 theme，写成 theme.version!'x' 会因 theme 缺失而直接抛异常。
+     背景：2026-10-08 首页「排版全是乱的」= 浏览器拿旧 CSS 配新 HTML
+     （新 HTML 66 个 class 里 34 个在旧 CSS 中不存在）。服务端配合见 WebMvcConfig.addResourceHandlers。 -->
+<link rel="stylesheet" href="/skin/pc_theme/defalut/css/portal.css?v=${((theme.version)!'2.0.0')?url}">
 <#-- G19 设计令牌：theme.json settings → CSS 变量（模板/自定义 CSS 消费 var(--fly-color-*) 等） -->
 <@fly_theme_vars />
 <#-- T-a SEO 结构化数据（JSON-LD）：详情页自动注入 Article + BreadcrumbList，非详情页静默跳过
