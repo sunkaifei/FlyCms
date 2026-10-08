@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -57,8 +58,11 @@ public class ModelController extends BaseController {
     @GetMapping(value = {"/{modelCode}/", "/{modelCode}/index", "/{modelCode}/p{page:\\d+}"})
     public String list(@PathVariable String modelCode,
                        @PathVariable(value = "page", required = false) Integer page,
+                       // 分页条 buildPageBar 输出的是 ?p=N（get 方式），而路径形态是 /{modelCode}/p{n}，
+                       // 早前只声明了 @PathVariable 导致点页码始终回到第 1 页——两种形态都要认。
+                       @RequestParam(value = "p", required = false) Integer queryPage,
                        ModelMap modelMap, HttpServletResponse response) {
-        int p = page == null ? 1 : page;
+        int p = resolvePage(page, queryPage);
         String channelView = channelRenderService.render(modelCode, p, modelMap);
         if (channelView != null) {
             return channelView;
@@ -80,6 +84,8 @@ public class ModelController extends BaseController {
     public String categoryList(@PathVariable String modelCode,
                                @PathVariable Long categoryId,
                                @PathVariable(value = "page", required = false) Integer page,
+                               // 分类页的分页条同样输出 ?p=N（分类由路径 c{categoryId} 携带，不会被 ?p= 冲掉）
+                               @RequestParam(value = "p", required = false) Integer queryPage,
                                ModelMap modelMap, HttpServletResponse response) {
         Model model = resolveModel(modelCode);
         if (model == null) {
@@ -89,7 +95,7 @@ public class ModelController extends BaseController {
             modelMap.addAttribute("user", getUser());
         }
         modelMap.addAttribute("model", model);
-        modelMap.addAttribute("p", page == null ? 1 : page);
+        modelMap.addAttribute("p", resolvePage(page, queryPage));
         modelMap.addAttribute("categoryId", categoryId);
         return templateResolver.resolveAndExpose(
                 com.flycms.module.template.model.TemplateContext.list(model.getCode(), null), modelMap);
@@ -115,6 +121,12 @@ public class ModelController extends BaseController {
         // 浏览计数在模板 InfoModel 取数时由 ModelDataService 处理（略，前台查询强制 status=1）
         return templateResolver.resolveAndExpose(
                 com.flycms.module.template.model.TemplateContext.detail(model.getCode(), shortUrl, null, null), modelMap);
+    }
+
+    /** 页码取用顺序：路径 /p{n} 优先，其次查询串 ?p=N（分页条形态），最后回落 1；非法值一律按 1。 */
+    private int resolvePage(Integer pathPage, Integer queryPage) {
+        Integer v = pathPage != null ? pathPage : queryPage;
+        return (v == null || v < 1) ? 1 : v;
     }
 
     private String notFound(HttpServletResponse response) {

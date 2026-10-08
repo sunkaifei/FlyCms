@@ -1,51 +1,58 @@
 <#-- 分类信息 · 免费发布（V2 投稿通道，status 由审核开关决定） -->
-<html lang="zh">
-<head><meta charset="UTF-8"><title>免费发布信息 - ${web_name!''}</title><style>
-  body{font-family:system-ui,"Microsoft YaHei",sans-serif;background:#f5f6f8;margin:0;}
-  .wrap{max-width:900px;margin:24px auto;padding:0 12px;}
-  .card{background:#fff;border-radius:8px;padding:18px 22px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px;}
-  .row{display:flex;gap:14px;border-bottom:1px solid #f0f1f3;padding:14px 0;}
-  .row .t a{font-size:16px;color:#333;text-decoration:none;}
-  .row .t a:hover{color:#e64340;}
-  .row .s{font-size:12px;color:#8a919f;margin-top:4px;}
-  .price{color:#e64340;font-weight:700;}
-  .cats a{display:inline-block;margin:0 10px 8px 0;color:#e64340;text-decoration:none;}
-  .btn{display:inline-block;background:#e64340;color:#fff;border-radius:4px;padding:8px 22px;text-decoration:none;margin-bottom:12px;}
-  .empty{color:#8a919f;padding:24px 0;}
-  .field{margin-bottom:14px;}
-  .field label{display:block;font-size:14px;margin-bottom:4px;}
-  .field input,.field textarea,.field select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #d9dce1;border-radius:4px;font-size:14px;}
-  .field textarea{min-height:120px;}
-  .req{color:#e64340;margin-right:2px;}
-  .submit-btn{background:#e64340;color:#fff;border:0;border-radius:4px;padding:10px 26px;font-size:15px;cursor:pointer;}
-</style></head>
-<body>
-<div class="wrap">
-  <h1 style="font-size:22px;">免费发布信息</h1>
-  <#if (user.userId)??>
-  <form method="post" action="/ucenter/submit/info">
-    <div class="field"><label><span class="req">*</span>信息标题</label>
-      <input type="text" name="title" required maxlength="60" placeholder="一句话描述，如：转让九成新自行车"></div>
-    <div class="field"><label>类目</label>
-      <@fly_category_model model="info">
-        <select name="categoryId"><option value="">请选择</option>
-          <#list (categoryList)![] as c><option value="${c.id}">${c.name}</option></#list>
-        </select>
-      </@fly_category_model></div>
-    <div class="field"><label>价格（元，无则留空）</label>
-      <input type="number" name="price" step="any" min="0"></div>
-    <div class="field"><label>地区</label>
-      <input type="text" name="region" placeholder="如：朝阳区"></div>
-    <div class="field"><label>联系方式</label>
-      <input type="text" name="contact" placeholder="电话/微信"></div>
-    <div class="field"><label><span class="req">*</span>详细信息</label>
-      <textarea name="content" required placeholder="详细描述（成色、原因、交易方式……）"></textarea></div>
-    <button class="submit-btn" type="submit">提交发布</button>
-    <span class="tip" style="font-size:12px;color:#999;margin-left:10px;">提交后经审核展示</span>
-  </form>
-  <#else>
-  <p>请先 <a href="/login">登录</a> 后发布。</p>
-  </#if>
+<#include "common/macros.html">
+<#assign pageTitle = '免费发布信息 - ' + ((web_name)!'')>
+<#include "common/header.html">
+
+<main id="main">
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i><a href="/info/">分类信息</a><i>/</i>免费发布
+</div></div>
+
+<div class="form-page">
+  <div class="card">
+    <h1>免费发布信息</h1>
+    <p class="lead">描述越完整，越容易找到合适的对接人。</p>
+
+    <#if (user.userId)??>
+    <form method="post" action="/ucenter/submit/info">
+      <div class="field">
+        <label><span class="req">*</span>信息标题</label>
+        <input type="text" name="title" required maxlength="60" placeholder="一句话描述，如：转让九成新自行车">
+      </div>
+      <div class="field">
+        <label>类目</label>
+        <@fly_category_model model="info">
+          <select name="categoryId"><option value="">请选择</option>
+            <#list (categoryList)![] as c><option value="${c.id}">${c.name?html}</option></#list>
+          </select>
+        </@fly_category_model>
+      </div>
+      <div class="field">
+        <label>价格（元，无则留空）</label>
+        <input type="number" name="price" step="any" min="0">
+      </div>
+      <div class="field">
+        <label>地区</label>
+        <input type="text" name="region" placeholder="如：朝阳区">
+      </div>
+      <div class="field">
+        <label>联系方式</label>
+        <input type="text" name="contact" placeholder="电话 / 微信">
+      </div>
+      <div class="field">
+        <label><span class="req">*</span>详细信息</label>
+        <textarea name="content" required placeholder="详细描述（成色、原因、交易方式……）"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary btn-lg" type="submit">提交发布</button>
+        <span class="text-muted" style="font-size:12.5px">提交后经审核展示</span>
+      </div>
+    </form>
+    <#else>
+    <div class="comment-login">请先 <a href="/login">登录</a> 后发布。</div>
+    </#if>
+  </div>
 </div>
-</body>
-</html>
+</main>
+
+<#include "common/footer.html">

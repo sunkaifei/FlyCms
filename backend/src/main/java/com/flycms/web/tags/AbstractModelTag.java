@@ -169,7 +169,7 @@ public abstract class AbstractModelTag extends AbstractTagPlugin {
         if (ttlSeconds <= 0) {
             return loader.get();
         }
-        String key = tagName + ":" + (modelCode == null ? "" : modelCode) + ":" + params.hashCode();
+        String key = tagName + ":" + (modelCode == null ? "" : modelCode) + ":" + fingerprint(params);
         long now = System.currentTimeMillis();
         long[] tick = CACHE_TICK.get(key);
         if (tick != null && now - tick[0] < ttlSeconds * 1000L) {
@@ -195,6 +195,24 @@ public abstract class AbstractModelTag extends AbstractTagPlugin {
         String marker = ":" + (event.getModelCode() == null ? "" : event.getModelCode()) + ":";
         CACHE_TICK.keySet().removeIf(k -> k.contains(marker));
         CACHE_DATA.keySet().removeIf(k -> k.contains(marker));
+    }
+
+    /**
+     * 参数指纹：按键名排序后拼接成稳定字符串。
+     *
+     * <p>原实现直接用 {@code Map.hashCode()} 作缓存 key——哈希碰撞会让两组不同参数的
+     * 标签命中同一条缓存，返回错误数据（Map 的 hashCode 只有 32 位，且是异或累加，
+     * 极易构造碰撞）。改为可读的排序拼接，正确性优先于几个字节的 key 长度。
+     */
+    private static String fingerprint(Map<String, String> params) {
+        if (params == null || params.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> e : new java.util.TreeMap<>(params).entrySet()) {
+            sb.append(e.getKey()).append('=').append(e.getValue()).append(';');
+        }
+        return sb.toString();
     }
 
     /**

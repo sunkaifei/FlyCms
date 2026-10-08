@@ -1,47 +1,69 @@
-<#-- 分类信息 · 详情页 -->
-<html lang="zh">
-<head><meta charset="UTF-8"><title>${(info.title)!''} - ${web_name!''}</title><style>
-  body{font-family:system-ui,"Microsoft YaHei",sans-serif;background:#f5f6f8;margin:0;}
-  .wrap{max-width:900px;margin:24px auto;padding:0 12px;}
-  .card{background:#fff;border-radius:8px;padding:18px 22px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px;}
-  .row{display:flex;gap:14px;border-bottom:1px solid #f0f1f3;padding:14px 0;}
-  .row .t a{font-size:16px;color:#333;text-decoration:none;}
-  .row .t a:hover{color:#e64340;}
-  .row .s{font-size:12px;color:#8a919f;margin-top:4px;}
-  .price{color:#e64340;font-weight:700;}
-  .cats a{display:inline-block;margin:0 10px 8px 0;color:#e64340;text-decoration:none;}
-  .btn{display:inline-block;background:#e64340;color:#fff;border-radius:4px;padding:8px 22px;text-decoration:none;margin-bottom:12px;}
-  .empty{color:#8a919f;padding:24px 0;}
-  .field{margin-bottom:14px;}
-  .field label{display:block;font-size:14px;margin-bottom:4px;}
-  .field input,.field textarea,.field select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #d9dce1;border-radius:4px;font-size:14px;}
-  .field textarea{min-height:120px;}
-  .req{color:#e64340;margin-right:2px;}
-  .submit-btn{background:#e64340;color:#fff;border:0;border-radius:4px;padding:10px 26px;font-size:15px;cursor:pointer;}
-</style></head>
-<body>
-<div class="wrap">
-  <@fly_info_model model="info" shortUrl="${shortUrl!}">
-  <#if info??>
-    <div class="card">
-      <h1 style="font-size:20px;margin:0 0 10px;">${info.title}</h1>
-      <div class="s" style="font-size:12px;color:#8a919f;">
-        <#if (it)??><#else></#if>
-        <@dt16 (info.createTime)!'' />
-        <#if (info.region)?? && info.region != ''> · ${info.region}</#if>
-        <#if (info.price)?? && info.price gt 0> · <span class="price">¥${info.price?string("0.00")}</span></#if>
-      </div>
-      <div style="font-size:15px;line-height:1.8;">${(info.content)!''}</div>
-      <#if (info.contact)?? && info.contact != ''>
-        <div style="margin-top:14px;padding:10px;background:#fafafa;border-radius:6px;">
-          联系方式：<b>${info.contact}</b>
+<#-- ============================================================
+     ⚠ 本文件与「defalut」主题同源，由主题文件
+        views/templates/pc_theme/defalut/detail-info.html 同步而来。
+     ------------------------------------------------------------
+     预设包应用（PresetService.apply）会把它写到当前主题下同名路径，
+     而 list-xxx.html / detail-xxx.html 正好命中 TemplateResolver 的
+     「模型级候选」→ **会真的被前台渲染**。所以它必须与主题设计体系保持一致。
+     依赖：主题的 common/macros.html（@listHead/@qaRows/@pager/@emptyState…）
+           与 static/skin/.../css/portal.css 的组件类。
+     换到没有这些公共组件的主题使用时，需自行改为自包含写法。
+     ============================================================ -->
+<#-- 分类信息 · 详情页（类目 / 价格 / 地区 / 联系方式） -->
+<#include "common/macros.html">
+<@fly_info_model model="info" shortUrl="${shortUrl!}">
+<#if info??>
+<#assign pageTitle>${info.title} - ${(web_name)!''}</#assign>
+<#include "common/header.html">
+<main id="main">
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i><a href="/info/">分类信息</a><i>/</i>详情
+</div></div>
+<div class="wrap art">
+  <div class="art-lay">
+    <main>
+      <article>
+        <div class="art-hd"><h1>${info.title}</h1></div>
+        <div class="art-meta">
+          <span><@dt16 (info.createTime)!'' /></span>
+          <#if (info.region)?? && info.region != ''><span>${info.region?html}</span></#if>
+          <#if (info.categoryName)?? && info.categoryName != ''><span>${info.categoryName?html}</span></#if>
+          <span>浏览 <b class="num">${(info.countView)!0}</b></span>
         </div>
-      </#if>
-    </div>
-  <#else>
-    <div class="card">信息不存在或已过期</div>
-  </#if>
-  </@fly_info_model>
+        <#if (info.price)?? && info.price gt 0>
+        <div class="pd-price">¥${info.price?string('0.00')} <small>转让价</small></div>
+        </#if>
+        <div class="art-body">
+          ${(info.content)!''}
+          <#if (info.contact)?? && info.contact != ''>
+          <div class="alert alert-warn" style="margin-top:20px">
+            <b>联系方式</b>
+            <span>${info.contact?html}</span>
+          </div>
+          </#if>
+          <#if (info.expire_time)?? && info.expire_time != ''>
+          <p class="text-muted" style="font-size:13px;margin-top:14px">信息有效期至：<@date10 info.expire_time /></p>
+          </#if>
+        </div>
+        <@shareBar />
+      </article>
+      <#include "common/comments.html">
+    </main>
+    <@detailAside mc="info" catId=(info.categoryId)!0 notid=(info.id)!0 />
+  </div>
 </div>
-</body>
-</html>
+</main>
+<#include "common/footer.html">
+<#else>
+<#assign pageTitle>信息不存在 - ${(web_name)!''}</#assign>
+<#include "common/header.html">
+<main id="main">
+<div class="wrap"><div class="err">
+  <b class="num">404</b>
+  <p>信息不存在或已过期</p>
+  <a href="/info/">返回列表</a><a href="/">返回首页</a>
+</div></div>
+</main>
+<#include "common/footer.html">
+</#if>
+</@fly_info_model>

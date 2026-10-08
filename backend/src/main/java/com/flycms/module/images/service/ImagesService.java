@@ -317,14 +317,20 @@ public class ImagesService {
 		StringBuffer imgBuffer = new StringBuffer();
 		while (mRemoteFileurl.find()) {
 			remoteFileurl = mRemoteFileurl.group(1);
-			String extension = StringHelperUtils.getImageUrlSuffix(remoteFileurl);
-			extension = "." + extension;
-			SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-			String filename = Md5Utils.code(df.format(new Date()) + nFileNum, 16) + "_"+ nFileNum + extension;
 			String reg = "(?!.*((img.baidu.com)|(127.0.0.1)|(^/upload/content/))).*$";
 			String pathac ="";
+			// 落盘扩展名以文件头魔数为准（不由 URL 后缀决定），故先声明再在分支内赋值
+			String filename = null;
 			if (remoteFileurl.matches(reg)) {
-				saveUrlAs(remoteFileurl, Const.UPLOAD_PATH+imgpath + filename);
+				SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+				String baseName = Md5Utils.code(df.format(new Date()) + nFileNum, 16) + "_" + nFileNum;
+				// 安全抓取：协议白名单 + 内网地址拒绝 + 超时 + 大小上限 + 魔数校验
+				String ext = fetchRemoteImage(remoteFileurl, Const.UPLOAD_PATH + imgpath + baseName);
+				if (ext == null) {
+					// 目标不安全或抓取失败：保留原始外链，不重写 src、不登记
+					continue;
+				}
+				filename = baseName + "." + ext;
 				pathac = imgpath + filename;
 				mRemoteFileurl.appendReplacement(sb, "<img src=\"" + pathac+"\" ");
 				if (imgBuffer.toString().length() < 1) {
@@ -335,6 +341,13 @@ public class ImagesService {
 				nFileNum = nFileNum + 1;
 			} else {
 				if (getContentUrl(remoteFileurl)) {
+					String extension = StringHelperUtils.getImageUrlSuffix(remoteFileurl);
+					if (!REMOTE_IMAGE_EXT.contains(extension.toLowerCase(java.util.Locale.ROOT))) {
+						// 站内历史文件扩展名不在图片白名单内（如 .html/.svg）：不搬移、不重写
+						continue;
+					}
+					SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+					filename = Md5Utils.code(df.format(new Date()) + nFileNum, 16) + "_"+ nFileNum + "." + extension;
 					if(FileUtils.isFile(Const.UPLOAD_PATH + "/" + StringHelperUtils.getImageRootUrl(remoteFileurl))){  //判断文件是否存在，不存在则不执行
 						FileUtils.moveFile(Const.UPLOAD_PATH + "/" + StringHelperUtils.getImageRootUrl(remoteFileurl),Const.UPLOAD_PATH + imgpath + filename);//开始移动文件
 					}
@@ -343,6 +356,11 @@ public class ImagesService {
 				}
 
 				nFileNum = nFileNum + 1;
+			}
+			if (filename == null) {
+				// 既非外站图也非站内 content 图：没有可落盘的文件名，跳过登记
+				// （原先会在下面 new FileInputStream 抛 FileNotFoundException 并中断整篇本地化）
+				continue;
 			}
 			String pictureUrl= null;
 			if (remoteFileurl.matches(reg)) {
@@ -572,13 +590,17 @@ public class ImagesService {
 		String pathac ="";
 		while (mRemoteFileurl.find()) {
 			remoteFileurl = mRemoteFileurl.group(1);
-			String extension = StringHelperUtils.getImageUrlSuffix(remoteFileurl);
-			extension = "." + extension;
-			SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-			String filename = Md5Utils.code(df.format(new Date()) + nFileNum, 16) + "_"+ nFileNum + extension;
 			String reg = "(?!.*((127.0.0.1)|(^/upload/content/))).*$";
 			if (remoteFileurl.matches(reg)) {
-				saveUrlAs(remoteFileurl, sitedirect + imgpath + filename);
+				SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+				String baseName = Md5Utils.code(df.format(new Date()) + nFileNum, 16) + "_" + nFileNum;
+				// 安全抓取：协议白名单 + 内网地址拒绝 + 超时 + 大小上限 + 魔数校验
+				String ext = fetchRemoteImage(remoteFileurl, sitedirect + imgpath + baseName);
+				if (ext == null) {
+					// 目标不安全或抓取失败：保留原始外链，不重写 src
+					continue;
+				}
+				String filename = baseName + "." + ext;
 				pathac = imgpath + filename;
 				mRemoteFileurl.appendReplacement(sb, "<img src=\"" + pathac+"\" ");
 				if (imgPath.toString().length() < 1) {
@@ -589,7 +611,16 @@ public class ImagesService {
 				nFileNum = nFileNum + 1;
 			} else {
 				if (getContentUrl(remoteFileurl)) {
-					FileUtils.moveFile(sitedirect + StringHelperUtils.getImageRootUrl(remoteFileurl),sitedirect + imgpath + filename);
+					String extension = StringHelperUtils.getImageUrlSuffix(remoteFileurl);
+					if (!REMOTE_IMAGE_EXT.contains(extension.toLowerCase(java.util.Locale.ROOT))) {
+						// 站内历史文件扩展名不在图片白名单内：不搬移、不重写
+						continue;
+					}
+					SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+					String filename = Md5Utils.code(df.format(new Date()) + nFileNum, 16) + "_"+ nFileNum + "." + extension;
+					if (FileUtils.isFile(sitedirect + StringHelperUtils.getImageRootUrl(remoteFileurl))) {
+						FileUtils.moveFile(sitedirect + StringHelperUtils.getImageRootUrl(remoteFileurl),sitedirect + imgpath + filename);
+					}
 					pathac = imgpath + filename;
 					mRemoteFileurl.appendReplacement(sb, "<img src=\"" + pathac+"\" ");
 				}
@@ -644,32 +675,230 @@ public class ImagesService {
         out.close();
     }
 
-	/**
-	 * @param fileUrl
-	 *            文件来源地址
-	 * @param savePath
-	 *            文件保存地址
-	 * @return
-	 */
-	public static boolean saveUrlAs(String fileUrl, String savePath) {
-		try {
-			URL url = new URL(fileUrl);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			DataInputStream in = new DataInputStream(connection.getInputStream());
-			DataOutputStream out = new DataOutputStream(new FileOutputStream(savePath));
-			byte[] buffer = new byte[4096];
-			int count = 0;
-			while ((count = in.read(buffer)) > 0) {
-				out.write(buffer, 0, count);
-			}
-			out.close();
-			in.close();
-			connection.disconnect();
-			return true;
+	// /////////////////// 远程图片安全抓取（SSRF / 本地文件读取 / 慢速 URL 防护） ///////////////////
 
+	/** 允许落盘的图片扩展名白名单（用于站内历史文件初筛；外站图最终以文件头魔数判定） */
+	private static final java.util.Set<String> REMOTE_IMAGE_EXT =
+			java.util.Set.of("jpg", "jpeg", "png", "gif", "bmp", "webp");
+
+	/** 单张远程图片大小上限 5MB，防止超大文件打爆内存与磁盘 */
+	private static final long MAX_REMOTE_IMAGE_BYTES = 5L * 1024 * 1024;
+
+	/** 连接/读取超时，防止慢速 URL 长期占用 Tomcat 工作线程与数据库连接 */
+	private static final int REMOTE_CONNECT_TIMEOUT_MS = 3000;
+	private static final int REMOTE_READ_TIMEOUT_MS = 5000;
+
+	/** 手动跟随的最大重定向跳数（每一跳都重新做协议与内网校验） */
+	private static final int MAX_REDIRECTS = 3;
+
+	/**
+	 * 安全抓取远程图片并落盘为 {@code basePath + "." + 实际扩展名}。
+	 *
+	 * <p><b>为什么必须这么写</b>：本方法处理的是「内容里出现的外站 img src」，
+	 * 该值完全由编辑内容的人控制。此前的实现是
+	 * {@code new URL(fileUrl).openConnection()} 直接下载，存在四类问题：
+	 * <ol>
+	 *   <li><b>协议不限</b>：{@code file:///etc/passwd} 会被下载并落到对外公开的
+	 *       uploadfiles 目录 → 本地任意文件读取；</li>
+	 *   <li><b>主机不限</b>：可访问内网、云元数据（169.254.169.254）等只对服务器
+	 *       可见的地址 → SSRF；</li>
+	 *   <li><b>无超时</b>：慢速/不响应的 URL 会一直占住请求线程；</li>
+	 *   <li><b>落盘扩展名取自 URL 后缀</b>：{@code x.html} / {@code x.svg} 会被当作
+	 *       静态页提供 → 存储型 XSS。</li>
+	 * </ol>
+	 * 现按「协议白名单 → DNS 解析后拒绝内网/保留地址（含逐跳重定向复检）→ 超时 →
+	 * 大小上限 → 魔数判定扩展名 → 落盘路径必须在上传根目录内」依次校验，
+	 * 任一环节不通过即返回 null，调用方保留原始外链（而非中断整篇本地化）。
+	 *
+	 * @param fileUrl  内容里出现的外站图片地址
+	 * @param basePath 落盘基名（不含扩展名），扩展名由魔数决定
+	 * @return 实际扩展名（不含点）；校验不通过或抓取失败返回 null
+	 */
+	private String fetchRemoteImage(String fileUrl, String basePath) {
+		try {
+			String current = fileUrl;
+			for (int hop = 0; hop <= MAX_REDIRECTS; hop++) {
+				URL url = new URL(current);
+				if (!isHttpProtocol(url) || isInternalHost(url.getHost())) {
+					logger.warn("图片本地化已拦截（协议或内网地址）：{}", current);
+					return null;
+				}
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				connection.setConnectTimeout(REMOTE_CONNECT_TIMEOUT_MS);
+				connection.setReadTimeout(REMOTE_READ_TIMEOUT_MS);
+				// 关闭自动跳转：重定向目标同样可能是内网地址，必须逐跳复检
+				connection.setInstanceFollowRedirects(false);
+				connection.setRequestProperty("User-Agent", "FlyCms-ImageLocalizer");
+				int code = connection.getResponseCode();
+				if (code >= 300 && code < 400) {
+					String location = connection.getHeaderField("Location");
+					connection.disconnect();
+					if (location == null || location.isEmpty()) {
+						return null;
+					}
+					current = new URL(url, location).toString();
+					continue;
+				}
+				if (code != 200) {
+					connection.disconnect();
+					logger.warn("图片本地化放弃：HTTP {} {}", code, current);
+					return null;
+				}
+				byte[] data = readCapped(connection.getInputStream(), MAX_REMOTE_IMAGE_BYTES);
+				connection.disconnect();
+				if (data == null) {
+					logger.warn("图片本地化放弃：读取为空或超过 {} 字节 {}", MAX_REMOTE_IMAGE_BYTES, current);
+					return null;
+				}
+				String ext = detectImageExt(data);
+				if (ext == null) {
+					logger.warn("图片本地化已拦截：响应内容不是白名单图片格式 {}", current);
+					return null;
+				}
+				File target = new File(basePath + "." + ext);
+				// 纵深防御：落盘路径必须仍在上传根目录内（basePath 由服务端拼装，此处兜底）
+				java.nio.file.Path uploadRoot = new File(Const.UPLOAD_PATH).getCanonicalFile().toPath();
+				if (!target.getCanonicalFile().toPath().startsWith(uploadRoot)) {
+					logger.warn("图片本地化已拦截：落盘路径越出上传目录 {}", target.getPath());
+					return null;
+				}
+				File parent = target.getParentFile();
+				if (parent != null && !parent.exists()) {
+					parent.mkdirs();
+				}
+				try (FileOutputStream out = new FileOutputStream(target)) {
+					out.write(data);
+				}
+				return ext;
+			}
+			logger.warn("图片本地化已拦截：重定向超过 {} 跳", MAX_REDIRECTS);
+			return null;
 		} catch (Exception e) {
+			logger.warn("图片本地化抓取失败：{}（{}）", fileUrl, e.getMessage());
+			return null;
+		}
+	}
+
+	/** 仅放行 http/https，阻断 file:// 等本地文件读取协议 */
+	private static boolean isHttpProtocol(URL url) {
+		String protocol = url.getProtocol();
+		return "http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol);
+	}
+
+	/**
+	 * 主机是否解析到内网/保留地址。解析失败一律按不安全处理。
+	 * 注意：本方法与连接之间仍存在 DNS rebinding 的理论窗口，属于本场景可接受的残余风险。
+	 */
+	private static boolean isInternalHost(String host) {
+		if (host == null || host.isEmpty()) {
+			return true;
+		}
+		String h = host;
+		if (h.startsWith("[") && h.endsWith("]")) {
+			h = h.substring(1, h.length() - 1);
+		}
+		String lower = h.toLowerCase(java.util.Locale.ROOT);
+		if ("localhost".equals(lower) || lower.endsWith(".localhost")
+				|| lower.endsWith(".local") || lower.endsWith(".internal")) {
+			return true;
+		}
+		try {
+			for (java.net.InetAddress addr : java.net.InetAddress.getAllByName(h)) {
+				if (isUnsafeAddress(addr)) {
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			return true;
+		}
+		return false;
+	}
+
+	/** 回环 / 任意本地 / 站点本地(10、172.16-31、192.168) / 链路本地(169.254、fe80) / 组播 / CGNAT / 保留段 */
+	private static boolean isUnsafeAddress(java.net.InetAddress addr) {
+		if (addr.isLoopbackAddress() || addr.isAnyLocalAddress() || addr.isSiteLocalAddress()
+				|| addr.isLinkLocalAddress() || addr.isMulticastAddress()) {
+			return true;
+		}
+		byte[] b = addr.getAddress();
+		if (b.length == 4) {
+			int first = b[0] & 0xFF;
+			int second = b[1] & 0xFF;
+			if (first == 0 || first == 127) {
+				return true;                                  // 0.0.0.0/8、127.0.0.0/8
+			}
+			if (first == 100 && second >= 64 && second <= 127) {
+				return true;                                  // 100.64.0.0/10 CGNAT
+			}
+			if (first == 192 && second == 0) {
+				return true;                                  // 192.0.0.0/24
+			}
+			if (first == 198 && (second == 18 || second == 19)) {
+				return true;                                  // 198.18.0.0/15 基准测试段
+			}
 			return false;
 		}
+		if (b.length == 16) {
+			if ((b[0] & 0xFE) == 0xFC) {
+				return true;                                  // fc00::/7 唯一本地地址
+			}
+			boolean mapped = true;
+			for (int i = 0; i < 10; i++) {
+				if (b[i] != 0) {
+					mapped = false;
+					break;
+				}
+			}
+			if (mapped && (b[10] & 0xFF) == 0xFF && (b[11] & 0xFF) == 0xFF) {
+				try {                                         // ::ffff:a.b.c.d 按 IPv4 规则复检
+					return isUnsafeAddress(java.net.InetAddress.getByAddress(
+							new byte[]{b[12], b[13], b[14], b[15]}));
+				} catch (Exception e) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/** 带总量上限的读取：超限返回 null，不留下半截文件 */
+	private static byte[] readCapped(java.io.InputStream in, long maxBytes) throws IOException {
+		if (in == null) {
+			return null;
+		}
+		try (java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream()) {
+			byte[] buffer = new byte[4096];
+			long total = 0;
+			int count;
+			while ((count = in.read(buffer)) > 0) {
+				total += count;
+				if (total > maxBytes) {
+					return null;
+				}
+				bos.write(buffer, 0, count);
+			}
+			return bos.size() == 0 ? null : bos.toByteArray();
+		} finally {
+			try {
+				in.close();
+			} catch (IOException ignored) {
+				// 关闭失败不影响主流程
+			}
+		}
+	}
+
+	/** 按文件头魔数判定图片类型（复用上传侧 UploadSafeUtil 的同一份白名单） */
+	private static String detectImageExt(byte[] data) {
+		if (data == null) {
+			return null;
+		}
+		for (com.flycms.core.utils.UploadSafeUtil.ImageType t
+				: com.flycms.core.utils.UploadSafeUtil.ImageType.values()) {
+			if (t.magicMatches(data)) {
+				return t.getExt();
+			}
+		}
+		return null;
 	}
 
 

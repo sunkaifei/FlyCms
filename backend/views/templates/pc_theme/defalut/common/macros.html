@@ -1,8 +1,21 @@
 <#-- ============================================================
-     共享宏（include 于各页面头部）
+     共享宏（各页面 include 于头部）
      ⚠ 模型数据 map 类型约定：DATETIME 列是 ISO 字符串（2026-09-21T05:55:28），
         只能截取/替换，不能 ?string(pattern)；数字列判空不能与 '' 比较。
+     ⚠ header.html 不 include 本文件（部分模板只 include header），
+        因此 header 内不得调用这里的宏。
      ============================================================ -->
+
+<#-- 模型码 → 封面占位文案 -->
+<#assign PH_LABELS = {
+  "articles": "文章", "news": "文章", "blog": "随笔", "downloads": "下载",
+  "images": "图集", "products": "商品", "questions": "问答", "answers": "回答",
+  "info": "分类信息", "testdemo": "演示", "guides": "指南", "announcements": "公告",
+  "shares": "分享", "messages": "留言", "links": "链接", "brands": "品牌", "skus": "规格"
+}>
+
+<#-- 图标：引用 header.html 内联的 SVG sprite（零请求、随文字色） -->
+<#macro icon name><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-${name}"></use></svg></#macro>
 
 <#-- 日期部分：ISO 字符串取 yyyy-MM-dd -->
 <#macro date10 dt><#if dt?? && dt?length gte 10>${dt?substring(0, 10)}<#else>${(dt)!''}</#if></#macro>
@@ -10,22 +23,26 @@
 <#-- 日期时间：ISO 字符串转 yyyy-MM-dd HH:mm -->
 <#macro dt16 dt><#if dt?? && dt?length gte 16>${dt?replace("T", " ")?substring(0, 16)}<#else>${(dt)!''}</#if></#macro>
 
-<#-- 封面图：有真实附件图用真图，否则用模型几何题图（SVG 占位）
-     ⚠ 模型码 → SVG 文件映射：articles 模型用 news 题图，其余同码 -->
-<#macro cover mc url>
-<#if url?? && url != ''><img src="${url}" alt=""><#else><img src="/skin/pc_theme/defalut/images/cover-<#if mc == 'articles'>news<#else>${mc!'news'}</#if>.svg" alt=""></#if>
+<#-- 封面：有真实附件图用真图；否则用 CSS 图案占位（零请求、不会破图、随主题换色）
+     用法：<@cover mc="articles" url=(r.thumbnailUrl)!'' label=(r.title)!'' /> -->
+<#macro cover mc url label='' cls=''>
+<#if (url)?? && url != ''><img src="${url}" alt="${(label)?html}" loading="lazy" decoding="async"<#if cls != ''> class="${cls}"</#if>><#else><span class="ph<#if cls != ''> ${cls}</#if>" data-label="${(PH_LABELS[mc])!mc}" role="img" aria-label="${(PH_LABELS[mc])!'内容'}"></span></#if>
 </#macro>
 
-<#-- 列表行卡片（首页板块 / 列表页共用）：rows 为行集合，mc 为默认模型码 -->
+<#-- 列表行卡片（列表页 / 首页板块共用）：rows 行集合，mc 默认模型码 -->
 <#macro artRows rows mc>
 <#list rows as r>
 <#assign link = "/" + ((r['__modelCode'])!mc) + "/" + r.shortUrl + ".html">
 <article class="card-x">
-  <a href="${link}"><@cover mc=mc url=(r.thumbnailUrl)!'' /></a>
+  <a href="${link}" tabindex="-1" aria-hidden="true"><@cover mc=mc url=(r.thumbnailUrl)!'' label=(r.title)!'' /></a>
   <div>
-    <h2><a href="${link}">${r.title}</a></h2>
-    <#if (r.description)?? && r.description != ''><p>${r.description}</p></#if>
-    <div class="meta"><time><@date10 (r.createTime)!'' /></time> · 阅读 <b class="num">${(r.countView)!0}</b></div>
+    <h2><a href="${link}">${(r.title)?html}</a></h2>
+    <#if (r.description)?? && r.description != ''><p>${r.description?html}</p></#if>
+    <div class="meta">
+      <time><@date10 (r.createTime)!'' /></time>
+      <span class="sep">·</span>
+      <span>阅读 <b class="num">${(r.countView)!0}</b></span>
+    </div>
   </div>
 </article>
 </#list>
@@ -38,53 +55,147 @@
 <#assign rmc = (r['__modelCode'])!'articles'>
 <#assign rlink = "/" + rmc + "/" + r.shortUrl + ".html">
 <article class="card-x">
-  <a href="${rlink}"><@cover mc=rmc url=(r.thumbnailUrl)!'' /></a>
+  <a href="${rlink}" tabindex="-1" aria-hidden="true"><@cover mc=rmc url=(r.thumbnailUrl)!'' label=(r.title)!'' /></a>
   <div>
-    <h2><a href="${rlink}">${r.title?html}</a></h2>
+    <h2><a href="${rlink}">${(r.title)?html}</a></h2>
     <#if (r.description)?? && r.description != ''><p>${r.description?html}</p></#if>
-    <div class="meta"><time><@date10 (r.createTime)!'' /></time> · <span>${(r['__modelName'])!'内容'}</span> · 阅读 <b class="num">${(r.countView)!0}</b></div>
+    <div class="meta">
+      <span class="src">${(r['__modelName'])!'内容'?html}</span>
+      <time><@date10 (r.createTime)!'' /></time>
+      <span class="sep">·</span>
+      <span>阅读 <b class="num">${(r.countView)!0}</b></span>
+    </div>
   </div>
 </article>
 </#list>
 </#macro>
 
-<#-- 分页（路径式：{base}/p{n}；PageVo.pageCount 可直接用） -->
+<#-- 分页（路径式：{base}/p{n}）。带首尾页 + 当前页 ±2 的窗口收窄，避免上百页刷屏 -->
 <#macro pager base count rows cur>
 <#if count gt 0 && rows gt 0>
   <#assign pages = (count / rows)?ceiling>
   <#if pages gt 1>
-  <nav class="pg">
+  <#assign c = (cur)?number>
+  <nav class="pg" aria-label="分页导航">
+    <#if c gt 1><a href="${base}/p${c - 1}" rel="prev">上一页</a></#if>
     <#list 1..pages as i>
-      <#if i == cur><span class="cur">${i}</span><#else><a href="${base}/p${i}">${i}</a></#if>
+      <#if i == 1 || i == pages || (i >= c - 2 && i <= c + 2)>
+        <#if i == c><span class="cur" aria-current="page">${i}</span><#else><a href="${base}/p${i}">${i}</a></#if>
+      <#elseif i == c - 3 || i == c + 3>
+        <span class="gap">…</span>
+      </#if>
     </#list>
-    <span class="tot">共 ${count} 篇</span>
+    <#if c lt pages><a href="${base}/p${c + 1}" rel="next">下一页</a></#if>
+    <span class="tot">共 ${count} 条<#if pages gt 5> / ${pages} 页</#if></span>
   </nav>
   </#if>
 </#if>
 </#macro>
 
+<#-- 列表页标题条（必须放在取数标签体内调用，因为 count 来自标签体作用域变量 model_page） -->
+<#macro listHead title count cur desc=''>
+<div class="list-hd">
+  <h1>${(title)?html}</h1>
+  <small>第 <span class="num">${cur}</span> 页 · 共 <span class="num">${count}</span> 条</small>
+</div>
+<#if desc != ''><p class="list-desc">${(desc)?html}</p></#if>
+</#macro>
+
+<#-- 图文卡网格：kind = images（图集，显示张数/拍摄日期） | generic（通用，显示日期/阅读） -->
+<#macro gridRows rows kind>
+<div class="grid-cards">
+<#list rows as r>
+<#assign rmc = (r['__modelCode'])!((model.code)!'articles')>
+<a class="gcard" href="/${rmc}/${r.shortUrl}.html">
+  <div class="thumb">
+    <#if (r.imagesUrls)?? && r.imagesUrls?size gt 0>
+    <img src="${r.imagesUrls[0]}" alt="${(r.title)?html}" loading="lazy" decoding="async">
+    <#else>
+    <span class="ph" data-label="${(PH_LABELS[rmc])!'图集'}"></span>
+    </#if>
+    <#if kind == 'images' && (r.imagesUrls)?? && r.imagesUrls?size gt 1><span class="n">${r.imagesUrls?size} 图</span></#if>
+  </div>
+  <div class="bd">
+    <div class="t">${(r.title)?html}</div>
+    <div class="m">
+      <span><@date10 (r.shootTime)!(r.createTime)!'' /></span>
+      <#if kind != 'images'><span>阅读 ${(r.countView)!0}</span></#if>
+    </div>
+  </div>
+</a>
+</#list>
+</div>
+</#macro>
+
+<#-- 商品卡网格（商城）：图 + 名称 + 品牌 + 价格 -->
+<#macro prodGrid rows>
+<div class="grid-cards">
+<#list rows as g>
+<a class="gcard" href="/${(model.code)!'products'}/${g.shortUrl}.html">
+  <div class="thumb">
+    <#if (g.galleryUrls)?? && g.galleryUrls?size gt 0>
+    <img src="${g.galleryUrls[0]}" alt="${(g.title)?html}" loading="lazy" decoding="async">
+    <#else>
+    <span class="ph" data-label="商品"></span>
+    </#if>
+  </div>
+  <div class="bd">
+    <div class="t">${(g.title)?html}</div>
+    <div class="m">
+      <#if (g.brandIdObj)?? && (g.brandIdObj.name)??><span>${g.brandIdObj.name?html}</span><#else><span>${(g.categoryName)!'商品'}</span></#if>
+      <#if (g.price)??><span class="price">¥${g.price?string('0.##')}</span></#if>
+    </div>
+  </div>
+</a>
+</#list>
+</div>
+</#macro>
+
+<#-- 问答行列表（问题列表 / 频道页共用） -->
+<#macro qaRows rows>
+<#list rows as q>
+<div class="qa-row">
+  <div class="qa-num">
+    <b<#if ((q.questionBacks)![])?size gt 0> class="solved"</#if>>${((q.questionBacks)![])?size}</b>
+    <span>回答</span>
+  </div>
+  <div class="t">
+    <a href="/questions/${q.shortUrl}.html">${(q.title)?html}</a>
+    <div class="s">
+      <span><@dt16 (q.createTime)!'' /></span>
+      <#if (q.weight)?? && q.weight gt 0><span class="bounty">悬赏 ${q.weight}</span></#if>
+      <#if (q.categoryName)?? && q.categoryName != ''><span>${q.categoryName?html}</span></#if>
+      <span><svg class="ic" aria-hidden="true"><use href="#i-eye"></use></svg> ${(q.countView)!0}</span>
+    </div>
+  </div>
+</div>
+</#list>
+</#macro>
+
+<#-- 空态 -->
+<#macro emptyState title desc='' link='' linkText=''>
+<div class="empty">
+  <div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#16324A" stroke-width="1.2" stroke-linecap="round"><path d="M3 7.5h18v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z"/><path d="M3 7.5 5 4h14l2 3.5"/><path d="M9.5 12h5"/></svg></div>
+  <b>${(title)?html}</b>
+  <#if desc != ''><span>${(desc)?html}</span></#if>
+  <#if link != ''><div style="margin-top:12px"><a href="${link}">${(linkText)!'去看看'?html}</a></div></#if>
+</div>
+</#macro>
+
 <#-- 侧栏·相关阅读（fly_rel_model：同栏目同模型内容） -->
 <#macro relList mc catId notid>
-<div class="side-hd"><h2>相关阅读</h2></div>
+<div class="side-hd"><h2>相关阅读</h2><a href="/${mc}/">更多</a></div>
 <ul class="rows">
 <@fly_rel_model model=mc category=catId notid=notid rows="6">
 <#if dataList?? && dataList?size gt 0>
 <#list dataList as it>
-<li><a href="/${mc}/${it.shortUrl}.html" title="${it.title}">${it.title}</a><time><@date10 (it.createTime)!'' /></time></li>
+<li><a href="/${mc}/${it.shortUrl}.html" title="${(it.title)?html}">${(it.title)?html}</a><time><@date10 (it.createTime)!'' /></time></li>
 </#list>
 <#else>
-<li>暂无相关内容</li>
+<li class="text-muted">暂无相关内容</li>
 </#if>
 </@fly_rel_model>
 </ul>
-</#macro>
-
-<#-- 详情页侧栏（热点排行 + 相关阅读），detail 家族共用 -->
-<#macro detailAside mc catId notid>
-<aside class="rit">
-  <div><@hotRank model=mc rows=8 /></div>
-  <div style="margin-top:30px"><@relList mc=mc catId=catId notid=notid /></div>
-</aside>
 </#macro>
 
 <#-- 侧栏·热点排行 -->
@@ -94,11 +205,163 @@
 <@fly_hot_model model=model rows=rows>
 <#if dataList?? && dataList?size gt 0>
 <#list dataList as it>
-<li><i>${it?counter}</i><a href="/${model}/${it.shortUrl}.html" title="${it.title}">${it.title}</a><b>${(it.countView)!0}</b></li>
+<li><i>${it?counter}</i><a href="/${model}/${it.shortUrl}.html" title="${(it.title)?html}">${(it.title)?html}</a><b>${(it.countView)!0}</b></li>
 </#list>
 <#else>
-<li>暂无数据</li>
+<li class="text-muted">暂无数据</li>
 </#if>
 </@fly_hot_model>
 </ol>
+</#macro>
+
+<#-- 详情页侧栏（热点排行 + 相关阅读），detail 家族共用 -->
+<#macro detailAside mc catId notid>
+<aside class="rit sticky">
+  <div><@hotRank model=mc rows=8 /></div>
+  <div><@relList mc=mc catId=catId notid=notid /></div>
+</aside>
+</#macro>
+
+<#-- 详情页操作条：复制链接 + 分享（行为由 portal.js 接管；无 JS 时按钮静默无效，不影响阅读） -->
+<#macro shareBar>
+<div class="share">
+  <span class="lb">分享</span>
+  <button type="button" data-copy=""><@icon name="link" /><span class="tx">复制链接</span></button>
+  <button type="button" data-share="weibo"><@icon name="share" /><span class="tx">分享到微博</span></button>
+</div>
+</#macro>
+
+<#-- ============================================================
+     用户中心 / 个人主页（user/* 与 people/* 共用）
+     ⚠ 这两类页面由 theme.getPcTemplate() 直出，不走 TemplateResolver，
+       故没有 page_type / __tpl 变量，导航高亮一律靠调用方传 nav 参数。
+     ============================================================ -->
+
+<#-- 日期时间：自动兼容 java.util.Date（实体对象，走 ?string）与 ISO 字符串（map 行，只能截取）
+     用户中心的行是实体（Date），模型行是字符串，两者必须都能显示 -->
+<#macro ts v kind='d'>
+<#if (v)??><#if v?is_string><#if kind == 'dt'><#if v?length gte 16>${v?replace("T", " ")?substring(0, 16)}</#if><#else><#if v?length gte 10>${v?substring(0, 10)}</#if></#if><#else><#if kind == 'dt'>${v?string('yyyy-MM-dd HH:mm')}<#else>${v?string('yyyy-MM-dd')}</#if></#if></#if>
+</#macro>
+
+<#-- 头像：有图用图，无图用昵称首字（永不破图） -->
+<#macro uAvatar url name cls=''>
+<span class="av<#if cls != ''> ${cls}</#if>"><#if (url)?? && url != ''><img src="${url}" alt="${((name)!'用户')?html}" loading="lazy" decoding="async"><#else><#if (name)?? && name?length gt 0>${name[0]}<#else>用</#if></#if></span>
+</#macro>
+
+<#-- 用户中心外壳：左侧账号卡 + 分组导航，右侧标题条 + 调用方内容
+     用法：<@userDash nav="account" title="基本资料" desc="…">表单…</@userDash> -->
+<#macro userDash nav title desc=''>
+<div class="wrap"><div class="dash">
+  <aside class="dash-side">
+    <div class="dash-user">
+      <@uAvatar url=(user.avatar)!'' name=(user.nickName)!'我' />
+      <b>${((user.nickName)!'未登录')?html}</b>
+      <small>${((user.userName)!'')?html}</small>
+      <div class="meta">
+        <span>金币 <b>${(user.score)!0}</b></span>
+        <span>余额 <b><#if (user.balance)??>¥${user.balance?string('0.00')}<#else>¥0.00</#if></b></span>
+      </div>
+    </div>
+    <nav class="dash-nav" aria-label="个人中心导航">
+      <div class="grp">账号</div>
+      <a href="/ucenter/account"<#if nav == 'account'> class="on"</#if>><@icon name="user" />基本资料</a>
+      <a href="/ucenter/password"<#if nav == 'password'> class="on"</#if>><@icon name="edit" />修改密码</a>
+      <a href="/ucenter/safe_mobile"<#if nav == 'mobile'> class="on"</#if>><@icon name="check" />安全手机</a>
+      <a href="/ucenter/safe_email"<#if nav == 'email'> class="on"</#if>><@icon name="mail" />安全邮箱</a>
+      <div class="grp">我的内容</div>
+      <a href="/ucenter/favorite"<#if nav == 'favorite'> class="on"</#if>><@icon name="star" />我的收藏</a>
+      <a href="/ucenter/integral"<#if nav == 'integral'> class="on"</#if>><@icon name="gold" />积分明细</a>
+      <a href="/ucenter/account_log"<#if nav == 'account_log'> class="on"</#if>><@icon name="trend" />账户流水</a>
+      <a href="/ucenter/invite"<#if nav == 'invite'> class="on"</#if>><@icon name="share" />推广邀请</a>
+      <div class="grp">交易与服务</div>
+      <a href="/ucenter/address"<#if nav == 'address'> class="on"</#if>><@icon name="box" />收货地址</a>
+      <a href="/ucenter/online_recharge"<#if nav == 'recharge'> class="on"</#if>><@icon name="cart" />在线充值</a>
+      <a href="/ucenter/withdraw"<#if nav == 'withdraw'> class="on"</#if>><@icon name="download" />提现申请</a>
+      <a href="/ucenter/refunds"<#if nav == 'refunds'> class="on"</#if>><@icon name="help" />退款申请</a>
+      <a href="/ucenter/complain"<#if nav == 'complain'> class="on"</#if>><@icon name="comment" />网站建议</a>
+      <a href="/logout"><@icon name="logout" />退出登录</a>
+    </nav>
+  </aside>
+  <div class="dash-main">
+    <div class="dash-hd"><h1>${(title)?html}</h1><#if desc != ''><span class="sub">${(desc)?html}</span></#if></div>
+    <#nested>
+  </div>
+</div></div>
+</#macro>
+
+<#-- 个人主页头卡：头像 + 昵称签名 + 五项统计 -->
+<#macro peopleHero people count>
+<div class="profile-hero">
+  <@uAvatar url=(people.avatar)!'' name=(people.nickName)!'用户' />
+  <div class="who">
+    <h1>${((people.nickName)!'匿名用户')?html}</h1>
+    <p>${((people.signature)!'这个家伙很懒，什么也没留下。')?html}</p>
+  </div>
+  <div class="profile-stats">
+    <a href="/people/${(people.shortUrl)!''}/article"><b>${(count.countArticle)!0}</b><span>文章</span></a>
+    <a href="/people/${(people.shortUrl)!''}/question"><b>${(count.countQuestion)!0}</b><span>提问</span></a>
+    <a href="/people/${(people.shortUrl)!''}/answers"><b>${(count.countAnswer)!0}</b><span>回答</span></a>
+    <a href="/people/${(people.shortUrl)!''}/follow"><b>${(count.countFollw)!0}</b><span>关注</span></a>
+    <a href="/people/${(people.shortUrl)!''}/fans"><b>${(count.countFans)!0}</b><span>粉丝</span></a>
+  </div>
+</div>
+</#macro>
+
+<#-- 个人主页标签导航：on ∈ index|article|question|answers|share|follow|fans -->
+<#macro peopleTabs shortUrl on count>
+<nav class="tabs" aria-label="个人主页导航">
+  <a href="/people/${shortUrl}"<#if on == 'index'> class="on"</#if>>动态</a>
+  <a href="/people/${shortUrl}/article"<#if on == 'article'> class="on"</#if>>文章 <b class="num">${(count.countArticle)!0}</b></a>
+  <a href="/people/${shortUrl}/question"<#if on == 'question'> class="on"</#if>>提问 <b class="num">${(count.countQuestion)!0}</b></a>
+  <a href="/people/${shortUrl}/answers"<#if on == 'answers'> class="on"</#if>>回答 <b class="num">${(count.countAnswer)!0}</b></a>
+  <a href="/people/${shortUrl}/share"<#if on == 'share'> class="on"</#if>>分享 <b class="num">${(count.countShare)!0}</b></a>
+  <a href="/people/${shortUrl}/follow"<#if on == 'follow'> class="on"</#if>>关注</a>
+  <a href="/people/${shortUrl}/fans"<#if on == 'fans'> class="on"</#if>>粉丝</a>
+</nav>
+</#macro>
+
+<#-- 用户卡片网格（粉丝 / 关注页共用）
+     rows = UserFans 行集合；idField = 取「对方」id 的字段名（userFans / userFollow）；
+     me = 当前登录用户 id 字符串（空串=未登录，此时不渲染关注按钮） -->
+<#macro userCards rows idField me>
+<#if rows?? && rows?size gt 0>
+<div class="user-cards">
+<#list rows as r>
+<#assign uidc = ((r[idField])!0)?c>
+<@fly_userinfo userId="${uidc}">
+<div class="ucard">
+  <@uAvatar url=(userinfo.avatar)!'' name=(userinfo.nickName)!'用户' />
+  <div class="bd">
+    <b><a href="/people/${(userinfo.shortUrl)!''}">${((userinfo.nickName)!'匿名用户')?html}</a></b>
+    <small>${((userinfo.signature)!'这个家伙很懒，什么也没留下。')?html}</small>
+  </div>
+  <#if (me)?? && me != '' && me != uidc>
+  <@fly_checkfollow userFollow="${uidc}" userFans="${me}">
+  <#if result gt 0>
+  <span class="fbtn"><span class="tag tag-ok">已关注</span></span>
+  <#else>
+  <button type="button" class="btn btn-outline btn-sm fbtn" data-follow="${uidc}">关注</button>
+  </#if>
+  </@fly_checkfollow>
+  </#if>
+</div>
+</@fly_userinfo>
+</#list>
+</div>
+<#else>
+<@emptyState title="这里还空着" desc="暂时没有可展示的用户。" />
+</#if>
+</#macro>
+
+<#-- 用户中心表格外壳（积分流水 / 邀请记录共用）
+     heads = 表头文案列表；rows = 行集合（用于空态判断）；行内容由 <#nested> 提供 -->
+<#macro dashTable heads rows>
+<#if rows?? && rows?size gt 0>
+<div class="panel"><table class="table">
+<thead><tr><#list heads as h><th>${(h)?html}</th></#list></tr></thead>
+<tbody><#nested></tbody>
+</table></div>
+<#else>
+<div class="panel"><@emptyState title="暂无记录" desc="这里会显示你的账户变动明细。" /></div>
+</#if>
 </#macro>

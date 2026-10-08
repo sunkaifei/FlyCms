@@ -39,6 +39,32 @@ import java.util.*;
 @Slf4j
 @Service
 public class UserService {
+
+    /**
+     * 用户列表允许的排序列白名单（= fly_user 实际列）。
+     * 刻意排除 password / attempts / attempts_time：仅靠结构校验仍允许
+     * {@code ORDER BY password} 这类"按敏感列排序"的侧信道 oracle。
+     */
+    private static final Set<String> USER_SORT_COLUMNS = OrderbyUtils.columns(
+            "user_id", "short_url", "user_name", "user_mobile", "user_email", "nick_name",
+            "true_name", "sex", "avatar", "work", "signature", "description", "telephone",
+            "province", "city", "area", "contact_addr", "zip", "qq", "birthday", "custom",
+            "last_login", "login_ip", "create_time", "status");
+
+    /** 粉丝列表排序列白名单（= fly_user_fans 实际列） */
+    private static final Set<String> USER_FANS_SORT_COLUMNS =
+            OrderbyUtils.columns("id", "user_follow", "user_fans", "create_time");
+
+    /** 热门用户列表排序列白名单（fly_user u ⋈ fly_user_count c ⋈ fly_user_account a 三表可选列） */
+    private static final Set<String> USER_HOT_SORT_COLUMNS;
+    static {
+        Set<String> hot = new HashSet<>(USER_SORT_COLUMNS);
+        hot.addAll(OrderbyUtils.columns("count_question", "count_question_follw", "count_topic",
+                "count_answer", "count_share", "count_article", "count_fans", "count_follw",
+                "balance", "score", "exp"));
+        USER_HOT_SORT_COLUMNS = Collections.unmodifiableSet(hot);
+    }
+
     @Autowired
     private UserDao userDao;
     @Autowired
@@ -1051,11 +1077,11 @@ public class UserService {
         if(orderby==null){
             orderby="user_id";
             }
-        orderby = OrderbyUtils.check(orderby, "user_id");
+        orderby = OrderbyUtils.check(orderby, "user_id", USER_SORT_COLUMNS);
         if(order==null){
             order="desc";
             }
-        order = OrderbyUtils.check(order, "desc");
+        order = OrderbyUtils.direction(order, "desc");
         pageVo.setList(userDao.getUserList(username, trueName, mobile, email,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(userDao.getUserCount(username, trueName, mobile, email));
         return pageVo;
@@ -1088,11 +1114,11 @@ public class UserService {
         if(orderby==null){
             orderby="id";
             }
-        orderby = OrderbyUtils.check(orderby, "id");
+        orderby = OrderbyUtils.check(orderby, "id", USER_FANS_SORT_COLUMNS);
         if(order==null){
             order="desc";
             }
-        order = OrderbyUtils.check(order, "desc");
+        order = OrderbyUtils.direction(order, "desc");
         pageVo.setList(userDao.getUserFansList(userFollow, userFans, createTime,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(userDao.getUserFansCount(userFollow, userFans, createTime));
         return pageVo;
@@ -1113,11 +1139,11 @@ public class UserService {
         if(orderby==null){
             orderby="a.score";
             }
-        orderby = OrderbyUtils.check(orderby, "a.score");
+        orderby = OrderbyUtils.check(orderby, "a.score", USER_HOT_SORT_COLUMNS);
         if(order==null){
             order="desc";
             }
-        order = OrderbyUtils.check(order, "desc");
+        order = OrderbyUtils.direction(order, "desc");
         pageVo.setList(userDao.getUserHotList(userName, nickName, mobile, email,province,city,area,status,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(userDao.getUserHotCount(userName, nickName, mobile, email,province,city,area,status));
         return pageVo;

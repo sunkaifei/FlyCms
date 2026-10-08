@@ -1,13 +1,17 @@
-<#-- name: 问答卡两列（问答频道） | desc: 取问答模型最新 8 条，含回答数（questionBacks 反向引用），适合频道首页/侧栏。把 model 参数换成你的问题模型 code -->
-<div class="pt-qa-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+<#-- name: 问答卡两列（问答频道） | desc: 取问答模型最新 8 条，含回答数（questionBacks 反向引用）。把 model 参数换成你的问题模型 code -->
+<#-- 素材说明：同 product-card-row，只用 fly_* 标签 + 全局 CSS 类，自包含、可插入任意模板。 -->
+<div class="pt-qa-list">
   <@fly_page_model model="questions" rows="8">
   <#if dataList?? && dataList?size gt 0>
     <#list dataList as q>
-    <a class="pt-qa-card" href="/questions/${q.shortUrl}.html"
-       style="background:#fff;border-radius:8px;padding:12px 14px;text-decoration:none;color:inherit;box-shadow:0 1px 4px rgba(0,0,0,.08);display:block;">
-      <b style="font-size:14px;display:block;margin-bottom:6px;">${q.title?html}</b>
-      <span style="font-size:12px;color:#3a6fd8;">回答 ${((q.questionBacks)![])?size}</span>
-      <span style="font-size:12px;color:#8a919f;margin-left:10px;">${(q.createTime!'')?replace('T',' ')}</span>
+    <a class="pt-qa-card" href="/questions/${q.shortUrl}.html">
+      <b>${q.title?html}</b>
+      <span class="m">
+        <span class="a">回答 ${((q.questionBacks)![])?size}</span>
+        <#-- map 行的 createTime 是 ISO 字符串（带 T），只能 replace/截取。
+             不要写 q.createTime?string('yyyy-MM-dd')：?string(pattern) 只对 java.util.Date 有效。 -->
+        <span>${(q.createTime!'')?replace('T',' ')}</span>
+      </span>
     </a>
     </#list>
   <#else>

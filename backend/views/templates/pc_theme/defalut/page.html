@@ -3,31 +3,36 @@
      上下文：channel（含 pageContent 单页正文）+ children
      ============================================================ -->
 <#include "common/macros.html">
-<#assign pageTitle>${(channel.channelName)!''} - ${web_name!''}</#assign>
+<#assign pageTitle>${((channel.channelName)!'')} - ${((web_name)!'')}</#assign>
 <#include "common/header.html">
+
+<main id="main">
 <div class="wrap"><div class="crumb">
   <a href="/">首页</a><i>/</i>${(channel.channelName)!''}
 </div></div>
+
 <div class="wrap art">
   <div class="art-lay">
     <main>
       <div class="art-hd"><h1>${(channel.channelName)!''}</h1></div>
       <#if (children)?? && children?size gt 0>
-      <div class="art-meta">
+      <div class="art-tags">
+        <span class="lb">子栏目</span>
         <#list children as c>
-        <span><a href="/${c.channelDir}/">${c.channelName}</a></span>
+        <a href="/${c.channelDir}/">${c.channelName}</a>
         </#list>
       </div>
       </#if>
-      <div class="art-body">${(channel.pageContent)!''}</div>
+      <div class="art-body" style="margin-top:24px">${(channel.pageContent)!''}</div>
     </main>
-    <aside class="rit">
+    <aside class="rit sticky">
       <#if (children)?? && children?size gt 0>
       <div>
         <div class="side-hd"><h2>子栏目</h2></div>
         <ul class="rows">
         <#list children as c>
-        <li><a href="/${c.channelDir}/">${c.channelName}</a><time>${(c.modelCode)!'栏目'}</time></li>
+        <#-- 用 modelName（模型中文名）而非 modelCode：给用户看的是「文章模型」不是「articles」 -->
+        <li><a href="/${c.channelDir}/">${c.channelName}</a><time>${(c.modelName)!'栏目'}</time></li>
         </#list>
         </ul>
       </div>
@@ -37,4 +42,6 @@
     </aside>
   </div>
 </div>
+</main>
+
 <#include "common/footer.html">

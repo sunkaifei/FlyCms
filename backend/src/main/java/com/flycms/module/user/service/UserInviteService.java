@@ -24,6 +24,11 @@ import java.util.List;
  */
 @Service
 public class UserInviteService {
+
+    /** 邀请记录列表允许的排序列白名单（= fly_user_invite 实际列） */
+    private static final java.util.Set<String> SORT_COLUMNS = OrderbyUtils.columns(
+            "id", "to_user_id", "form_user_id", "status", "create_time");
+
     @Autowired
     private UserInviteDao userInviteDao;
     // ///////////////////////////////
@@ -90,11 +95,11 @@ public class UserInviteService {
         if(orderby==null){
             orderby="create_time";
             }
-        orderby = OrderbyUtils.check(orderby, "create_time");
+        orderby = OrderbyUtils.check(orderby, "create_time", SORT_COLUMNS);
         if(order==null){
             order="desc";
             }
-        order = OrderbyUtils.check(order, "desc");
+        order = OrderbyUtils.direction(order, "desc");
         pageVo.setList(userInviteDao.getUserInviteList(userId, status,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(userInviteDao.getUserInviteCount(userId, status));
         return pageVo;

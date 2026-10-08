@@ -40,13 +40,6 @@
   "settings": [],
   "channels": [
     {
-      "name": "首页",
-      "dir": "home",
-      "channelType": 3,
-      "listTemplate": "index.html",
-      "pageSize": 10
-    },
-    {
       "name": "新闻动态",
       "dir": "news",
       "model": "articles",
@@ -68,12 +61,6 @@
     }
   ],
   "guides": [
-    {
-      "name": "首页",
-      "type": 1,
-      "refChannelDir": "home",
-      "sort": 1
-    },
     {
       "name": "新闻动态",
       "type": 1,

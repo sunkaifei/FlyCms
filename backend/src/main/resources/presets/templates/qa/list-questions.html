@@ -1,74 +1,82 @@
 <#-- ============================================================
-     问答频道 · 频道首页/列表页（X 批次样板）
+     ⚠ 本文件与「defalut」主题同源，由主题文件
+        views/templates/pc_theme/defalut/list-questions.html 同步而来。
+     ------------------------------------------------------------
+     预设包应用（PresetService.apply）会把它写到当前主题下同名路径，
+     而 list-xxx.html / detail-xxx.html 正好命中 TemplateResolver 的
+     「模型级候选」→ **会真的被前台渲染**。所以它必须与主题设计体系保持一致。
+     依赖：主题的 common/macros.html（@listHead/@qaRows/@pager/@emptyState…）
+           与 static/skin/.../css/portal.css 的组件类。
+     换到没有这些公共组件的主题使用时，需自行改为自包含写法。
+     ============================================================ -->
+<#-- ============================================================
+     问答频道 · 频道首页 / 列表页
      数据：fly_page_model（问题列表，行内 questionBacks 计回答数）
           + fly_category_model（分类条）+ 高悬赏侧栏
-     栏目绑定：后台栏目管理建「问答」栏目绑定 questions 模型，列表模板=list-questions.html
+     栏目绑定：后台栏目管理建「问答」栏目绑定 questions 模型，列表模板 = list-questions.html
+     或直接由 /questions/ 模型路由命中（list-questions 是模型级候选）。
      ============================================================ -->
 <#include "common/macros.html">
 <#if channel??>
   <#assign pageTitle = (title)!(channel.channelName)>
 <#else>
-  <#assign pageTitle = ((model.name)!'问答') + " - " + (web_name)!''>
+  <#assign pageTitle = ((model.name)!'问答') + " - " + ((web_name)!'')>
 </#if>
 <#include "common/header.html">
-<style>
-  .qa-wrap{max-width:960px;margin:24px auto;padding:0 12px;display:flex;gap:16px;align-items:flex-start;}
-  .qa-main{flex:1;background:#fff;border-radius:8px;padding:8px 24px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
-  .qa-side{width:260px;flex-shrink:0;}
-  .qa-row{display:flex;gap:12px;border-bottom:1px solid #f0f1f3;padding:16px 0;}
-  .qa-num{width:48px;flex-shrink:0;text-align:center;color:#8a919f;font-size:12px;}
-  .qa-num b{display:block;font-size:18px;color:#3a6fd8;}
-  .qa-row .t a{font-size:16px;color:#333;text-decoration:none;}
-  .qa-row .t a:hover{color:#3a6fd8;}
-  .qa-row .s{font-size:12px;color:#8a919f;margin-top:4px;}
-  .qa-card{background:#fff;border-radius:8px;padding:16px 20px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px;font-size:14px;}
-  .qa-card h3{margin:0 0 10px;font-size:15px;}
-  .qa-card li{padding:4px 0;list-style:none;}
-  .qa-card ul{margin:0;padding:0;}
-  .qa-cats a{display:inline-block;margin:0 8px 8px 0;color:#3a6fd8;text-decoration:none;}
-  .qa-ask{display:inline-block;background:#3a6fd8;color:#fff!important;border-radius:4px;padding:8px 22px;text-decoration:none;margin-bottom:12px;}
-</style>
-<div class="qa-wrap">
+
+<main id="main">
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i>
+  <#if channel??><a href="/${channel.channelDir}/">${channel.channelName}</a><#else>问答</#if>
+</div></div>
+
+<div class="wrap qa-wrap">
   <div class="qa-main">
-    <a class="qa-ask" href="/ucenter/submit/questions">我要提问</a>
-    <@fly_category_model model="questions">
-      <#if (categoryList)?? && categoryList?size gt 0>
-      <div class="qa-cats">
-        <a href="/questions/">全部</a>
-        <#list categoryList as c><a href="/questions/c${c.id}">${c.name}</a></#list>
-      </div>
-      </#if>
-    </@fly_category_model>
-    <@fly_page_model model="questions" rows="15">
-      <#if (dataList)?? && dataList?size gt 0>
-        <#list dataList as q>
-        <div class="qa-row">
-          <div class="qa-num"><b>${((q.questionBacks)![])?size}</b>回答</div>
-          <div class="t">
-            <a href="/questions/${q.shortUrl}.html">${q.title}</a>
-            <div class="s"><@dt16 (q.createTime)!'' /><#if (q.weight)?? && q.weight gt 0> · 悬赏 ${q.weight}</#if> · 浏览 ${(q.countView)!0}</div>
-          </div>
-        </div>
+    <div class="qa-bar">
+      <div class="chips">
+        <@fly_category_model model="questions">
+        <#if (categoryList)?? && categoryList?size gt 0>
+        <a href="/questions/"<#if ((categoryId)!0) == 0> class="on"</#if>>全部</a>
+        <#list categoryList as c>
+        <a href="/questions/c${c.id}"<#if ((categoryId)!0) == c.id> class="on"</#if>>${c.name?html}</a>
         </#list>
+        </#if>
+        </@fly_category_model>
+      </div>
+      <a class="btn btn-primary" href="/ucenter/submit/questions"><svg class="ic" aria-hidden="true"><use href="#i-edit"></use></svg>我要提问</a>
+    </div>
+
+    <#-- p：承接 /questions/p{n} 与 ?p=N；category：承接 /questions/c{id}（分类条上的链接） -->
+    <@fly_page_model model="questions" p="${p!1}" category="${(categoryId)!0}" rows="15">
+      <@listHead title="全部问题" count=(model_page.count)!0 cur=(p)!1 />
+      <#if (dataList)?? && dataList?size gt 0>
+        <@qaRows rows=dataList />
+        <@pager base="/questions" count=(model_page.count)!0 rows=(model_page.rows)!15 cur=(p)!1 />
       <#else>
-        <div style="color:#8a919f;padding:24px 0;">暂无问题，快来提问吧～</div>
+        <@emptyState title="0" desc="还没有问题，来提第一个吧" link="/ucenter/submit/questions" linkText="我要提问" />
       </#if>
-      <#if (pageBar)?? && pageBar != ''>${pageBar}</#if>
     </@fly_page_model>
   </div>
-  <div class="qa-side">
-    <div class="qa-card">
-      <h3>高悬赏</h3>
-      <ul>
+
+  <aside class="qa-side sticky">
+    <div class="card">
+      <div class="side-hd"><h2>高悬赏</h2></div>
+      <ul class="rows">
         <@fly_list_model model="questions" orderby="weight" order="desc" rows="8">
           <#if (dataList)?? && dataList?size gt 0>
             <#list dataList as q>
-            <li><a href="/questions/${q.shortUrl}.html">${q.title}</a> <span style="color:#e6a23c;">${(q.weight)!0}</span></li>
+            <li>
+              <a href="/questions/${q.shortUrl}.html" title="${(q.title)?html}">${(q.title)?html}</a>
+              <b class="num" style="color:var(--gold-600)">${(q.weight)!0}</b>
+            </li>
             </#list>
           </#if>
         </@fly_list_model>
       </ul>
     </div>
-  </div>
+    <div><@hotRank model="questions" rows=8 /></div>
+  </aside>
 </div>
+</main>
+
 <#include "common/footer.html">

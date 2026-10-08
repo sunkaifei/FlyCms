@@ -1,37 +1,64 @@
 <#-- ============================================================
-     首页（仿 JeecMS 门户结构，墨章主题）：
-     头条区（1 大 N 次 + 竖线分隔） | 热点排行 → 宣灰分区内容板块 → 图集带
+     首页（墨章 v2）：
+     站点主张 → 头条区（1 主 3 次 + 热点排行）→ 区域编排位
+       → 文章 / 下载双栏板块 → 问答 → 图集 → 演示模型
+     ⚠ 标签输出变量只在标签体内可见（body 在子 Environment 中渲染），
+       因此"有数据才输出整段"的判断必须写在标签体的 <#if> 里，不能在外层算标志位。
      ============================================================ -->
 <#include "common/macros.html">
+<#assign pageTitle = (web_name)!'FlyCms' + " · " + ((seo_description)!'自定义模型驱动的内容管理系统')>
 <#include "common/header.html">
 
+<main id="main">
+
+<#-- ---------- 站点主张与快捷入口 ---------- -->
+<section class="home-lead">
+  <div class="wrap">
+    <h1>内容由<em>模型</em>定义，版面由<em>模板</em>说话</h1>
+    <p>栏目、字段、模板、区块全部在后台可视化配置；前台由 FreeMarker 模板引擎按主题渲染，零外部依赖、开箱即用。</p>
+    <div class="quick">
+      <a href="/articles/"><svg class="ic" aria-hidden="true"><use href="#i-edit"></use></svg>文章</a>
+      <a href="/downloads/"><svg class="ic" aria-hidden="true"><use href="#i-download"></use></svg>下载</a>
+      <a href="/images/"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg>图集</a>
+      <a href="/questions/"><svg class="ic" aria-hidden="true"><use href="#i-help"></use></svg>问答</a>
+      <a href="/ucenter/submit/articles"><svg class="ic" aria-hidden="true"><use href="#i-trend"></use></svg>我要投稿</a>
+      <a href="/search"><svg class="ic" aria-hidden="true"><use href="#i-search"></use></svg>站内搜索</a>
+    </div>
+  </div>
+</section>
+
+<#-- ---------- 头条区 ---------- -->
 <div class="wrap hero">
   <div class="hero-main">
     <@fly_list_channel rows="4">
     <#if dataList?? && dataList?size gt 0>
-      <#assign subs = []>
-      <#list dataList as r>
-        <#if r_index == 0>
-          <a class="hero-top" href="/${r['__modelCode']!''}/${r.shortUrl}.html">
-            <h1>${r.title}</h1>
-            <#if (r.description)?? && r.description != ''><p>${r.description}</p></#if>
-          </a>
-        <#else>
-          <#assign subs = subs + [r]>
-        </#if>
-      </#list>
-      <#if subs?size gt 0>
-      <div class="hero-sub">
-        <#list subs as r>
-        <div>
-          <a href="/${r['__modelCode']!''}/${r.shortUrl}.html">${r.title}</a>
-          <span><@date10 (r.createTime)!'' /></span>
+      <#assign top = dataList[0]>
+      <#assign topMc = (top['__modelCode'])!'articles'>
+      <a class="hero-top" href="/${topMc}/${top.shortUrl}.html">
+        <@cover mc=topMc url=(top.thumbnailUrl)!'' label=(top.title)!'' />
+        <h1>${(top.title)?html}</h1>
+        <#if (top.description)?? && top.description != ''><p>${top.description?html}</p></#if>
+        <div class="hm">
+          <span><@date10 (top.createTime)!'' /></span>
+          <span>阅读 ${(top.countView)!0}</span>
         </div>
+      </a>
+      <#if dataList?size gt 1>
+      <div class="hero-sub">
+        <#list dataList as r>
+        <#if r_index gt 0>
+        <#assign rMc = (r['__modelCode'])!'articles'>
+        <a class="hs" href="/${rMc}/${r.shortUrl}.html">
+          <@cover mc=rMc url=(r.thumbnailUrl)!'' label=(r.title)!'' />
+          <b>${(r.title)?html}</b>
+          <span><@date10 (r.createTime)!'' /></span>
+        </a>
+        </#if>
         </#list>
       </div>
       </#if>
     <#else>
-      <div class="empty"><b>0</b>暂无内容，先到后台发布一篇文章吧</div>
+      <@emptyState title="0" desc="暂无内容，先到后台发布一篇吧" />
     </#if>
     </@fly_list_channel>
   </div>
@@ -50,39 +77,40 @@
 </#if>
 </@fly_area>
 
+<#-- ---------- 文章 / 下载 ---------- -->
 <section class="sec">
   <div class="wrap">
     <div class="boards">
       <#-- 文章板块：1 题图头条 + 4 行列表 -->
       <div class="board">
-        <div class="board-hd"><h2><a href="/articles/">文章</a></h2><small>ARTICLES</small></div>
+        <div class="board-hd"><h2><a href="/articles/">文章</a></h2><a class="more" href="/articles/">更多 →</a></div>
         <@fly_page_model model="articles" rows="5">
         <#if dataList?? && dataList?size gt 0>
           <#list dataList as r>
           <#if r_index == 0>
           <div class="feat">
-            <a href="/articles/${r.shortUrl}.html"><@cover mc="articles" url=(r.thumbnailUrl)!'' /></a>
+            <a href="/articles/${r.shortUrl}.html" tabindex="-1" aria-hidden="true"><@cover mc="articles" url=(r.thumbnailUrl)!'' label=(r.title)!'' /></a>
             <div>
-              <h3><a href="/articles/${r.shortUrl}.html">${r.title}</a></h3>
-              <#if (r.description)?? && r.description != ''><p>${r.description}</p></#if>
-              <time><@date10 (r.createTime)!'' /></time>
+              <h3><a href="/articles/${r.shortUrl}.html">${(r.title)?html}</a></h3>
+              <#if (r.description)?? && r.description != ''><p>${r.description?html}</p></#if>
+              <time><@date10 (r.createTime)!'' /> · 阅读 ${(r.countView)!0}</time>
             </div>
           </div>
           <#else>
           <ul class="rows"><li>
-            <a href="/articles/${r.shortUrl}.html">${r.title}</a>
+            <a href="/articles/${r.shortUrl}.html">${(r.title)?html}</a>
             <time><@date10 (r.createTime)!'' /></time>
           </li></ul>
           </#if>
           </#list>
         <#else>
-          <div class="empty"><b>0</b>文章栏目暂无内容</div>
+          <@emptyState title="0" desc="文章栏目暂无内容" />
         </#if>
         </@fly_page_model>
       </div>
       <#-- 下载板块：表格式 -->
       <div class="board">
-        <div class="board-hd"><h2><a href="/downloads/">下载</a></h2><small>DOWNLOADS</small></div>
+        <div class="board-hd"><h2><a href="/downloads/">下载</a></h2><a class="more" href="/downloads/">更多 →</a></div>
         <@fly_page_model model="downloads" rows="6">
         <#if dataList?? && dataList?size gt 0>
         <table class="tbl">
@@ -90,7 +118,7 @@
           <tbody>
           <#list dataList as r>
           <tr>
-            <td class="t"><a href="/downloads/${r.shortUrl}.html">${r.title}</a></td>
+            <td class="t"><a href="/downloads/${r.shortUrl}.html">${(r.title)?html}</a></td>
             <td class="n">${(r.auth)!'-'}</td>
             <td class="n"><#if (r.fileSize)??>${r.fileSize} KB<#else>-</#if></td>
             <td class="n"><@date10 (r.createTime)!'' /></td>
@@ -99,47 +127,98 @@
           </tbody>
         </table>
         <#else>
-          <div class="empty"><b>0</b>下载栏目暂无资源</div>
+          <@emptyState title="0" desc="下载栏目暂无资源" />
         </#if>
         </@fly_page_model>
       </div>
     </div>
+  </div>
+</section>
 
-    <#-- 图集带：无数据自动隐藏 -->
-    <@fly_page_model model="images" rows="8">
-    <#if dataList?? && dataList?size gt 0>
-    <div style="margin-top:38px">
-      <div class="board-hd"><h2><a href="/images/">图集</a></h2><a class="more" href="/images/">全部图集</a></div>
-      <div class="strip">
+<#-- ---------- 问答（无数据整段不输出） ---------- -->
+<@fly_page_model model="questions" rows="6">
+<#if dataList?? && dataList?size gt 0>
+<section class="sec sec-white">
+  <div class="wrap">
+    <div class="board">
+      <div class="board-hd">
+        <h2><a href="/questions/">问答社区</a></h2>
+        <a class="more" href="/questions/">去提问 →</a>
+      </div>
+      <#list dataList as q>
+      <div class="qa-row">
+        <div class="qa-num">
+          <b<#if ((q.questionBacks)![])?size gt 0> class="solved"</#if>>${((q.questionBacks)![])?size}</b>
+          <span>回答</span>
+        </div>
+        <div class="t">
+          <a href="/questions/${q.shortUrl}.html">${(q.title)?html}</a>
+          <div class="s">
+            <span><@dt16 (q.createTime)!'' /></span>
+            <#if (q.weight)?? && q.weight gt 0><span class="bounty">悬赏 ${q.weight}</span></#if>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-eye"></use></svg> ${(q.countView)!0}</span>
+          </div>
+        </div>
+      </div>
+      </#list>
+    </div>
+  </div>
+</section>
+</#if>
+</@fly_page_model>
+
+<#-- ---------- 图集（无数据整段不输出） ---------- -->
+<@fly_page_model model="images" rows="8">
+<#if dataList?? && dataList?size gt 0>
+<section class="sec">
+  <div class="wrap">
+    <div class="board">
+      <div class="board-hd"><h2><a href="/images/">图集</a></h2><a class="more" href="/images/">全部图集 →</a></div>
+      <div class="grid-cards">
         <#list dataList as r>
-        <a href="/images/${r.shortUrl}.html">
-          <#if (r.imagesUrls)?? && r.imagesUrls?size gt 0><img src="${r.imagesUrls[0]}" alt=""><#else><img src="/skin/pc_theme/defalut/images/cover-images.svg" alt=""></#if>
-          <b>${r.title}</b>
-          <time><@date10 (r.shootTime)!(r.createTime)!'' /></time>
+        <a class="gcard" href="/images/${r.shortUrl}.html">
+          <div class="thumb">
+            <#if (r.imagesUrls)?? && r.imagesUrls?size gt 0>
+            <img src="${r.imagesUrls[0]}" alt="${(r.title)?html}" loading="lazy">
+            <#else>
+            <span class="ph" data-label="图集"></span>
+            </#if>
+            <#if (r.imagesUrls)?? && r.imagesUrls?size gt 1><span class="n">${r.imagesUrls?size} 图</span></#if>
+          </div>
+          <div class="bd">
+            <div class="t">${(r.title)?html}</div>
+            <div class="m"><span><@date10 (r.shootTime)!(r.createTime)!'' /></span></div>
+          </div>
         </a>
         </#list>
       </div>
     </div>
-    </#if>
-    </@fly_page_model>
+  </div>
+</section>
+</#if>
+</@fly_page_model>
 
-    <#-- 演示模型板块（动态字段展示） -->
-    <@fly_page_model model="testdemo" rows="3">
-    <#if dataList?? && dataList?size gt 0>
-    <div style="margin-top:38px">
-      <div class="board-hd"><h2><a href="/testdemo/">演示模型</a></h2><a class="more" href="/testdemo/">全部</a></div>
+<#-- ---------- 演示模型（动态字段；无数据整段不输出） ---------- -->
+<@fly_page_model model="testdemo" rows="3">
+<#if dataList?? && dataList?size gt 0>
+<section class="sec sec-white">
+  <div class="wrap">
+    <div class="board">
+      <div class="board-hd"><h2><a href="/testdemo/">演示模型</a></h2><a class="more" href="/testdemo/">全部 →</a></div>
       <ul class="kv">
         <#list dataList as r>
         <li>
-          <a href="/testdemo/${r.shortUrl}.html">${r.title}</a>
+          <a href="/testdemo/${r.shortUrl}.html">${(r.title)?html}</a>
           <dl><dd>价格 <b>${(r.price)!'-'}</b> · 更新 <@date10 (r.createTime)!'' /></dd></dl>
         </li>
         </#list>
       </ul>
     </div>
-    </#if>
-    </@fly_page_model>
   </div>
 </section>
+</#if>
+</@fly_page_model>
+
+</main>
 
 <#include "common/footer.html">

@@ -1,82 +1,84 @@
 <#-- ============================================================
-     问答频道 · 我来回答（submit-answers.html）
+     问答频道 · 我来回答
      X1 上下文预置：/ucenter/submit/answers?question={id} 进入，
      meta.fixed = 已校验的只读上下文（问题标题），hidden 随表单提交，
      服务端存在性校验为唯一事实源（URL 篡改无效）。
      提交成功跳回问题详情页（fixed.shortUrl）。
      ============================================================ -->
-<html lang="zh">
-<head>
-<meta charset="UTF-8">
-<title>我来回答 - ${web_name!''}</title>
-<style>
-  body{font-family:system-ui,"Microsoft YaHei",sans-serif;background:#f5f6f8;margin:0;}
-  .wrap{max-width:720px;margin:40px auto;background:#fff;border-radius:8px;padding:28px 32px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
-  h1{font-size:22px;margin:0 0 18px;}
-  .ctx{background:#eef4ff;border:1px solid #d8e4ff;border-radius:6px;padding:10px 14px;margin-bottom:18px;font-size:14px;color:#3a6fd8;}
-  .ctx a{color:#3a6fd8;}
-  .field{margin-bottom:14px;}
-  .field label{display:block;font-size:14px;color:#333;margin-bottom:4px;}
-  .field textarea{width:100%;box-sizing:border-box;min-height:180px;padding:8px 10px;border:1px solid #d9dce1;border-radius:4px;font-size:14px;resize:vertical;}
-  .req{color:#e64340;margin-right:2px;}
-  .btn{background:#3a6fd8;color:#fff;border:0;border-radius:4px;padding:10px 26px;font-size:15px;cursor:pointer;}
-  .btn:hover{opacity:.9;}
-  .tip{font-size:12px;color:#999;}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <h1>我来回答</h1>
-  <#if (user.userId)??>
-  <#-- X1：只读上下文条 + hidden（服务端强制校验覆写） -->
-  <#list (meta.fixed)![] as fx>
-  <div class="ctx">回答问题：<a href="/questions/${(fx.shortUrl)!''}.html">${(fx.display)!''}</a></div>
-  </#list>
-  <form id="ansForm" method="post" action="/ucenter/submit/answers">
+<#include "common/macros.html">
+<#assign pageTitle = '我来回答 - ' + ((web_name)!'')>
+<#include "common/header.html">
+
+<main id="main">
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i><a href="/questions/">问答</a><i>/</i>我来回答
+</div></div>
+
+<div class="form-page">
+  <div class="card">
+    <h1>我来回答</h1>
+    <p class="lead">言之有物即可，不必长篇大论。</p>
+
+    <#if (user.userId)??>
+    <#-- X1：只读上下文条 + hidden（服务端强制校验覆写） -->
     <#list (meta.fixed)![] as fx>
-    <input type="hidden" name="${fx.name}" value="${fx.value}">
-    <#-- title 为必填固有列：回答场景自动派生，无需用户填写 -->
-    <input type="hidden" name="title" value="Re：${(fx.display)!''}">
+    <div class="field ctx">正在回答：<a href="/questions/${(fx.shortUrl)!''}.html">${(fx.display)!''}</a></div>
     </#list>
-    <div class="field">
-      <label><span class="req">*</span>你的回答</label>
-      <textarea name="content" required placeholder="认真回答，帮助别人的同时也能沉淀知识～"></textarea>
-    </div>
-    <#list meta.fields as f>
-      <#if f.isForm == 1 && f.fieldName != 'question' && f.fieldName != 'content' && f.fieldName != 'accepted'>
-        <div class="field">
-          <label>${f.fieldLabel}</label>
-          <input type="text" name="${f.fieldName}" placeholder="${f.placeholder!''}">
-        </div>
-      </#if>
-    </#list>
-    <button class="btn" type="submit">提交回答</button>
-    <span class="tip" style="margin-left:10px;">提交后进入审核（如开启），通过后展示在问题页</span>
-  </form>
-  <script>
-    document.getElementById('ansForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      var fd = new FormData(this);
-      var back = '/questions/';
+
+    <form id="ansForm" method="post" action="/ucenter/submit/answers">
       <#list (meta.fixed)![] as fx>
-      <#if (fx.shortUrl)?? && fx.shortUrl != ''>
-      back = '/questions/${fx.shortUrl}.html';
-      </#if>
+      <input type="hidden" name="${fx.name}" value="${fx.value}">
+      <#-- title 为必填固有列：回答场景自动派生，无需用户填写 -->
+      <input type="hidden" name="title" value="Re：${(fx.display)!''}">
       </#list>
-      fetch(this.action, { method: 'POST', body: new URLSearchParams(fd) })
-        .then(function (r) { return r.json(); })
-        .then(function (j) {
-          if (j.code === 0) {
-            location.href = back;
-          } else {
-            alert(j.message || '提交失败');
-          }
+      <div class="field">
+        <label><span class="req">*</span>你的回答</label>
+        <textarea name="content" required style="min-height:180px"
+                  placeholder="认真回答，帮助别人的同时也能沉淀知识～"></textarea>
+      </div>
+      <#-- question：由 meta.fixed 上下文预置（服务端强制校验覆写），不暴露给用户
+           content：上面的 textarea 手写
+           accepted：采纳只能由提问者本人操作（详情页按钮），用户不能自填
+           parent：楼层指向，暂无交互入口，避免渲染成裸输入框 -->
+      <#list meta.fields as f>
+        <#if f.isForm == 1 && f.fieldName != 'question' && f.fieldName != 'content'
+              && f.fieldName != 'accepted' && f.fieldName != 'parent'>
+          <div class="field">
+            <label>${f.fieldLabel}</label>
+            <input type="text" name="${f.fieldName}" placeholder="${f.placeholder!''}">
+          </div>
+        </#if>
+      </#list>
+      <div class="form-actions">
+        <button class="btn btn-primary btn-lg" type="submit">提交回答</button>
+        <span class="text-muted" style="font-size:12.5px">提交后进入审核（如开启），通过后展示在问题页</span>
+      </div>
+    </form>
+    <script>
+      (function () {
+        var form = document.getElementById('ansForm');
+        if (!form || !window.fetch) { return; }
+        var back = '/questions/';
+        <#list (meta.fixed)![] as fx>
+        <#if (fx.shortUrl)?? && fx.shortUrl != ''>back = '/questions/${fx.shortUrl}.html';</#if>
+        </#list>
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          fetch(this.action, { method: 'POST', body: new URLSearchParams(new FormData(this)) })
+            .then(function (r) { return r.json(); })
+            .then(function (j) {
+              if (j.code === 0) { location.href = back; }
+              else { alert(j.message || '提交失败'); }
+            })
+            .catch(function () { form.submit(); });
         });
-    });
-  </script>
-  <#else>
-  <p>请先 <a href="/login">登录</a> 后再回答。</p>
-  </#if>
+      })();
+    </script>
+    <#else>
+    <div class="comment-login">请先 <a href="/login">登录</a> 后再回答。</div>
+    </#if>
+  </div>
 </div>
-</body>
-</html>
+</main>
+
+<#include "common/footer.html">

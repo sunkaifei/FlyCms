@@ -1,17 +1,21 @@
-<#-- name: 商品卡横排（商城） | desc: 取某商品模型最新 4 条做商品卡（首图+名称），挂关联模型字段。把 model 参数换成你的商品模型 code -->
-<div class="pt-prod-grid" style="display:flex;flex-wrap:wrap;gap:14px;">
+<#-- name: 商品卡横排（商城） | desc: 取某商品模型最新 4 条做商品卡（封面+名称+品牌），无封面自动降级为 .ph 占位。把 model 参数换成你的商品模型 code -->
+<#-- 素材说明：本文件按"一键插入到任意模板"使用，故只用 fly_* 标签 + 全局 CSS 类，
+     不依赖 @宏（插入目标模板未必 include 了 common/macros.html），也不写内联样式。 -->
+<div class="pt-prod-grid">
   <@fly_page_model model="products" rows="4">
   <#if dataList?? && dataList?size gt 0>
     <#list dataList as g>
-    <a class="pt-prod-card" href="/products/${g.shortUrl}.html"
-       style="width:220px;background:#fff;border-radius:8px;overflow:hidden;text-decoration:none;color:inherit;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+    <a class="pt-prod-card" href="/products/${g.shortUrl}.html">
       <#if (g.galleryUrls)?? && g.galleryUrls?size gt 0>
-        <img src="${g.galleryUrls[0]}" alt="${g.title?html}" style="width:100%;height:160px;object-fit:cover;display:block;" loading="lazy">
+      <img src="${g.galleryUrls[0]}" alt="${g.title?html}" loading="lazy">
+      <#else>
+      <#-- .ph 是纯 CSS 图案占位（零请求、不破图），data-label 渲染成居中字 -->
+      <div class="ph ph-neutral" data-label="商品"></div>
       </#if>
-      <div style="padding:10px 12px;">
-        <b style="font-size:14px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${g.title?html}</b>
+      <div class="bd">
+        <b>${g.title?html}</b>
         <#if (g.brandIdObj)??>
-        <span style="font-size:12px;color:#8a919f;">${(g.brandIdObj.name)!''}</span>
+        <span>${(g.brandIdObj.name)!''}</span>
         </#if>
       </div>
     </a>

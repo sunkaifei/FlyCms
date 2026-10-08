@@ -96,9 +96,12 @@ public class ChannelRenderService {
             map.addAttribute("dataList", new ArrayList<>());
             map.addAttribute("model_page", new PageVo<>(p));
         }
+        // 栏目显式指定的列表模板（fly_channel.list_template）优先于候选链：
+        // 后台「栏目管理」有此输入框且能存库，但渲染层历史上从不消费，属"配了不生效"的假功能。
         return templateResolver.resolveAndExpose(
                 com.flycms.module.template.model.TemplateContext.list(
-                        model != null ? model.getCode() : null, channel.getChannelDir()), map);
+                        model != null ? model.getCode() : null, channel.getChannelDir())
+                        .withOverride(channel.getListTemplate()), map);
     }
 
     /**
@@ -172,7 +175,8 @@ public class ChannelRenderService {
         map.addAttribute("dataList", pageVo.getList());
         map.addAttribute("model_page", pageVo);
         return templateResolver.resolveAndExpose(
-                com.flycms.module.template.model.TemplateContext.list(null, channel.getChannelDir()), map);
+                com.flycms.module.template.model.TemplateContext.list(null, channel.getChannelDir())
+                        .withOverride(channel.getListTemplate()), map);
     }
 
     private long toLong(Object v) {

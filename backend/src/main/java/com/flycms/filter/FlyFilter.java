@@ -69,8 +69,10 @@ public class FlyFilter implements Filter {
         }
 
         //用户被邀请uid创建cookie记录
+        // 只接受纯数字邀请人 id：该值来自 URL 参数且会被写入 Set-Cookie，
+        // 不做白名单则属于「用户可控内容进响应头」，可造成 Cookie 注入/500
         String invite=request.getParameter("invite");
-        if(!StringUtils.isBlank(invite)){
+        if(!StringUtils.isBlank(invite) && invite.matches("\\d{1,19}")){
             CookieUtils.writeCookie(httpResponse,"invite",invite,60*60*24*7);
         }
         String sessionKey=CookieUtils.getCookie(httpRequest,siteConst.getSessionKey());
@@ -111,8 +113,10 @@ public class FlyFilter implements Filter {
                     }
                 }
             }
-        }else{
-            //过期得话注销cookie、session和登录保持记录
+        }else if(session != null){
+            // 无会话 cookie 且「当前确实存在会话」才需要注销；
+            // 原实现在此分支无条件调用 signOutLogin，而它内部用 request.getSession()
+            // 会为每个匿名请求（含全部静态资源）新建 session —— 本站最大的固定开销来源。
             userService.signOutLogin(httpRequest,httpResponse);
         }
         //System.out.println("MyFilter doFilter.........before");

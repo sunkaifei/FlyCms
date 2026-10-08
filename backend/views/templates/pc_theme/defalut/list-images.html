@@ -1,10 +1,13 @@
-<#-- 图集模型列表页 -->
+<#-- 图集模型列表页：走通用网格骨架（common/list-grid.html） -->
 <#include "common/macros.html">
 <#if channel??>
   <#assign pageTitle = (title)!(channel.channelName)>
 <#else>
-  <#assign pageTitle = ((model.name)!'图集') + " - " + (web_name)!''>
+  <#assign pageTitle = ((model.name)!'图集') + " - " + ((web_name)!'')>
 </#if>
 <#include "common/header.html">
-<#include "common/list-main.html">
+<main id="main">
+<#assign gridKind = "images">
+<#include "common/list-grid.html">
+</main>
 <#include "common/footer.html">

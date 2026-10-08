@@ -310,6 +310,37 @@ public class ModelDataService {
     }
 
     /**
+     * 批量取内容标题（id → title），一次查询解决列表页的 N+1。
+     *
+     * <p>调用方（如后台评论列表逐行回显「所属内容标题」）此前每行调一次
+     * {@link #findDataById}，一页 20 条即 20 次查询；本方法按模型分组后一次取回。
+     *
+     * @param modelId 模型 id（内部转 code 拼表名）
+     * @param ids     内容 id 集合，空集合直接返回空 Map（不发 SQL）
+     * @return id → title；不存在的 id 不在结果中（调用方自行兜底空串）
+     */
+    public Map<Long, String> findTitlesByIds(Long modelId, java.util.Collection<Long> ids) {
+        Map<Long, String> result = new HashMap<>();
+        if (ids == null || ids.isEmpty()) {
+            return result;
+        }
+        List<Long> distinct = new ArrayList<>(new java.util.LinkedHashSet<>(ids));
+        List<Map<String, Object>> rows = modelDataDao.findRowsByIds(tableSuffixOf(modelId), distinct, null);
+        if (rows == null) {
+            return result;
+        }
+        for (Map<String, Object> r : rows) {
+            Object id = r.get("id");
+            if (id == null) {
+                continue;
+            }
+            Object title = r.get("title");
+            result.put(Long.valueOf(String.valueOf(id)), title == null ? "" : String.valueOf(title));
+        }
+        return result;
+    }
+
+    /**
      * 动态表单元数据：模型 + 启用字段 + 分类（vben schema 据此渲染）
      */
     public Map<String, Object> formMeta(Long modelId) {

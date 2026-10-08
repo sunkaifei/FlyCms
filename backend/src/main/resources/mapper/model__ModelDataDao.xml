@@ -48,6 +48,21 @@
 		DROP TABLE IF EXISTS `fly_cmodel_${suffix}`
 	</update>
 
+	<!--
+	  筛选字段索引（P3）：is_filter=1 的自定义字段建单列索引，让列表筛选/排序走索引。
+	  ${indexName} 由服务端拼装（"idx_c_" + safeColumnName 产物），${columnName} 已过
+	  SqlSafeUtil.safeColumnName —— 两者都是标识符白名单产物，非用户输入。
+	-->
+	<update id="addIndex">
+		ALTER TABLE `fly_cmodel_${suffix}` ADD INDEX `${indexName}` (`${columnName}`)
+	</update>
+
+	<select id="indexExists" resultType="boolean">
+		SELECT COUNT(*) > 0 FROM information_schema.statistics
+		WHERE table_schema = DATABASE() AND table_name = CONCAT('fly_cmodel_', #{suffix})
+		  AND index_name = #{indexName}
+	</select>
+
 	<select id="tableExists" resultType="boolean">
 		SELECT COUNT(*) > 0 FROM information_schema.tables
 		WHERE table_schema = DATABASE() AND table_name = CONCAT('fly_cmodel_', #{suffix})

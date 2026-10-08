@@ -32,6 +32,13 @@ public class TemplateContext {
     private String shortUrl;
     private Integer errorCode;
 
+    /**
+     * 调用方显式指定的模板文件（如栏目表 {@code fly_channel.list_template}），
+     * 优先级高于 DB 指派与候选链——"我就是要这个模板"是比"按规则挑"更强的意图。
+     * <p>命中失败（文件不存在）时静默回退候选链，不抛异常：配置错误不该让页面 500。
+     */
+    private String overrideFile;
+
     // 解析结果（由 TemplateResolver 回填，供调试条/UI 使用）
     private String resolved;       // 最终视图名，如 pc_theme/corp/list-news
     private String resolvedTheme;  // 命中的主题（子主题覆盖时为父主题）
@@ -161,5 +168,19 @@ public class TemplateContext {
 
     public void setResolvedFile(String resolvedFile) {
         this.resolvedFile = resolvedFile;
+    }
+
+    public String getOverrideFile() {
+        return overrideFile;
+    }
+
+    public void setOverrideFile(String overrideFile) {
+        this.overrideFile = overrideFile;
+    }
+
+    /** 链式设置显式模板（可空；空值等价于不指定） */
+    public TemplateContext withOverride(String file) {
+        this.overrideFile = file;
+        return this;
     }
 }

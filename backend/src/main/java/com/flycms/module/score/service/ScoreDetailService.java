@@ -35,6 +35,12 @@ import java.util.List;
  */
 @Service
 public class ScoreDetailService{
+
+    /** 积分明细列表允许的排序列白名单（= fly_score_detail 实际列） */
+    private static final java.util.Set<String> SORT_COLUMNS = OrderbyUtils.columns(
+            "id", "type", "user_id", "score", "balance", "remark",
+            "foreign_id", "score_rule_id", "create_time", "status");
+
     @Resource
     private ScoreDetailDao scoreDetailDao;
     @Autowired
@@ -116,11 +122,11 @@ public class ScoreDetailService{
         if(orderby==null){
             orderby="id";
             }
-        orderby = OrderbyUtils.check(orderby, "id");
+        orderby = OrderbyUtils.check(orderby, "id", SORT_COLUMNS);
         if(order==null){
             order="desc";
             }
-        order = OrderbyUtils.check(order, "desc");
+        order = OrderbyUtils.direction(order, "desc");
 		pageVo.setCount(scoreDetailDao.scoreDetailCount(userId,status));
 		
 		List<ScoreDetail> detaillist = scoreDetailDao.scoreDetaillist(userId,status,orderby,order, pageVo.getOffset(), pageVo.getRows());

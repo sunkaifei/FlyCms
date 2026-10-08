@@ -102,7 +102,18 @@ public class TemplateResolver {
         String skin = activeSkin();
         List<Candidate> chain = buildChain(ctx);
 
-        // 1) DB 指派最高优先级
+        // 0) 调用方显式指定（栏目 list_template）：比"按规则挑"更强的意图，优先于 DB 指派。
+        //    文件不存在时只告警并继续走候选链——配置写错不该让页面 500。
+        if (StringUtils.isNotBlank(ctx.getOverrideFile())) {
+            ThemeRegistry.Resolved r = registry.locate(skin, ctx.getOverrideFile());
+            if (r != null) {
+                fill(ctx, r, ctx.getOverrideFile(), "调用方指定");
+                return r.view;
+            }
+            logger.warn("指定的模板不存在，回退候选链：{}（皮肤 {}）", ctx.getOverrideFile(), skin);
+        }
+
+        // 1) DB 指派
         String assign = assignedTemplate(ctx);
         if (StringUtils.isNotBlank(assign)) {
             ThemeRegistry.Resolved r = registry.locate(skin, assign);
@@ -199,6 +210,12 @@ public class TemplateResolver {
         String model = ctx.getModelCode();
         String channel = ctx.getChannelDir();
         String ch = StringUtils.isNotBlank(channel) ? channel : null;
+
+        // 调用方显式指定排候选链首位，与 resolve() 的第 0 档保持一致；
+        // 用无后缀短名，好让 debugChain 的命中判定（c.file + ".html"）能正确标中。
+        if (StringUtils.isNotBlank(ctx.getOverrideFile())) {
+            c.add(new Candidate(stripHtmlSuffix(ctx.getOverrideFile()), "调用方指定"));
+        }
 
         if (type == TemplateContext.PageType.LIST) {
             if (ch != null && StringUtils.isNotBlank(model)) {
@@ -358,6 +375,11 @@ public class TemplateResolver {
      */
     public String resolveAndExpose(TemplateContext ctx, org.springframework.ui.ModelMap modelMap) {
         String view = resolve(ctx);
+        if (modelMap != null) {
+            // 常驻暴露当前页面类型（PageType 枚举名，如 INDEX/LIST/DETAIL）：
+            // 模板用它做导航高亮等判断，与调试开关无关。取值口径与 __tpl.type 完全一致。
+            modelMap.addAttribute("page_type", ctx.getPageType() == null ? "" : ctx.getPageType().name());
+        }
         if (modelMap != null && debugEnabled()) {
             java.util.Map<String, Object> tpl = new java.util.LinkedHashMap<>();
             tpl.put("file", ctx.getResolvedFile());

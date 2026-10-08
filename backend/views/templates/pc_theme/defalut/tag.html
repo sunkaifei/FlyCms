@@ -6,9 +6,10 @@
      ============================================================ -->
 <#include "common/macros.html">
 <#assign tg = (tag)!''>
-<#assign pageTitle = "「" + tg + "」标签 - " + (web_name)!''>
+<#assign pageTitle = "「" + tg + "」标签 - " + ((web_name)!'')>
 <#include "common/header.html">
 
+<main id="main">
 <div class="wrap"><div class="crumb">
   <a href="/">首页</a><i>/</i>标签
   <#if tg != ''><i>/</i>${tg?html}</#if>
@@ -18,12 +19,12 @@
   <main>
     <div class="list-hd">
       <h1>「${tg?html}」</h1>
-      <small>PAGE <span class="num">${(p)!1}</span> · 共 <span class="num">${(tag_total)!0}</span> 篇</small>
+      <small>第 <span class="num">${(p)!1}</span> 页 · 共 <span class="num">${(tag_total)!0}</span> 条</small>
     </div>
 
     <#-- 来源分布：跨模型命中数（>1 个模型时才展示，避免单模型时噪音） -->
     <#if (modelHits)?? && modelHits?size gt 1>
-    <div class="tag-src">
+    <div class="tag-src" style="margin-top:18px">
       <#list modelHits as h>
       <span class="chip">${(h.name)!''} <b class="num">${(h.count)!0}</b></span>
       </#list>
@@ -34,23 +35,24 @@
       <@mixRows rows=dataList />
       <@pager base="/tag/" + tg count=(tag_total)!0 rows=(pageRows)!10 cur=(p)!1 />
     <#else>
-      <div class="empty"><b>0</b>暂无与「${tg?html}」相关的内容，去<a href="/">首页</a>看看别的？</div>
+      <@emptyState title="0" desc="暂无与该标签相关的内容" link="/" linkText="返回首页" />
     </#if>
   </main>
 
   <aside class="rit">
     <#if (relatedTags)?? && relatedTags?size gt 0>
-    <div class="side-hd"><h2>相关标签</h2></div>
-    <div class="tag-cloud">
-      <#list relatedTags as t>
-      <a href="/tag/${t.name?url('UTF-8')}">${t.name?html}<b class="num">${(t.count)!0}</b></a>
-      </#list>
+    <div>
+      <div class="side-hd"><h2>相关标签</h2></div>
+      <div class="tag-cloud">
+        <#list relatedTags as t>
+        <a href="/tag/${t.name?url('UTF-8')}">${t.name?html}<b class="num">${(t.count)!0}</b></a>
+        </#list>
+      </div>
     </div>
-    <div style="margin-top:30px"><@hotRank model="articles" rows=8 /></div>
-    <#else>
-    <div><@hotRank model="articles" rows=8 /></div>
     </#if>
+    <div><@hotRank model="articles" rows=8 /></div>
   </aside>
 </div>
+</main>
 
 <#include "common/footer.html">

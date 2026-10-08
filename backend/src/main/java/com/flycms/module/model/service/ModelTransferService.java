@@ -104,6 +104,8 @@ public class ModelTransferService {
             fm.put("maxValue", f.getMaxValue());
             fm.put("tabName", f.getTabName());
             fm.put("sort", f.getSort());
+            // 启用态也随导出往返：早前导出漏写该键 → 导入侧读不到 → 已存在字段被写 0（禁用）
+            fm.put("status", f.getStatus());
             fm.put("visibleWhen", f.getVisibleWhen());
             fm.put("rollupExpr", f.getRollupExpr());
             fm.put("lookupFields", f.getLookupFields());
@@ -580,6 +582,10 @@ public class ModelTransferService {
         if (f.getIsUnique() == null) {
             f.setIsUnique(0);
         }
+        // status 未声明时补 1（启用）。ModelField.status 是原始 int，缺省会落成 0=禁用；
+        // 预设包的字段定义全部不写 status，早前因此让「已存在字段」在重新导入后被整批禁用
+        // （见 sql/migrations/2026-10-08-model-field-status.sql 的数据修复）。
+        f.setStatus(fm.get("status") != null ? java.util.Objects.requireNonNullElse(parseInt(fm.get("status")), 1) : 1);
         return f;
     }
 

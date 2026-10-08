@@ -6,47 +6,55 @@
 <#include "common/macros.html">
 <@fly_info_model model="${model.code}" shortUrl="${shortUrl!}">
 <#if info??>
-<#assign pageTitle>${info.title} - ${web_name!''}</#assign>
+<#assign pageTitle>${info.title} - ${(web_name)!''}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="crumb">
   <a href="/">首页</a><i>/</i><a href="/${model.code}/">${(model.name)!'演示模型'}</a><i>/</i>详情
 </div></div>
 <div class="wrap art">
   <div class="art-lay">
     <main>
-      <div class="art-hd"><h1>${info.title}</h1></div>
-      <div class="art-meta">
-        <span><@dt16 (info.createTime)!'' /></span>
-        <span>阅读 <b class="num">${(info.countView)!0}</b></span>
-      </div>
-      <div class="art-body">
-        <@fly_fields_model model="${model.code}">
-        <dl class="flds">
-          <#list fieldsList as f>
-          <#if (info[f.fieldName])??>
-          <#assign v = info[f.fieldName]>
-          <#if !(v?is_string) || v != ''>
-          <div><dt>${f.fieldLabel}</dt><dd>${v}</dd></div>
-          </#if>
-          </#if>
-          </#list>
-        </dl>
-        </@fly_fields_model>
-        ${(info.content)!''}
-      </div>
+      <article>
+        <div class="art-hd"><h1>${info.title}</h1></div>
+        <div class="art-meta">
+          <span><@dt16 (info.createTime)!'' /></span>
+          <span>阅读 <b class="num">${(info.countView)!0}</b></span>
+        </div>
+        <div class="art-body">
+          <@fly_fields_model model="${model.code}">
+          <dl class="flds">
+            <#list fieldsList as f>
+            <#if (info[f.fieldName])??>
+            <#assign v = info[f.fieldName]>
+            <#if !(v?is_string) || v != ''>
+            <div><dt>${f.fieldLabel}</dt><dd>${v}</dd></div>
+            </#if>
+            </#if>
+            </#list>
+          </dl>
+          </@fly_fields_model>
+          ${(info.content)!''}
+        </div>
+        <@shareBar />
+      </article>
+      <#include "common/comments.html">
     </main>
     <@detailAside mc=model.code catId=(info.categoryId)!0 notid=(info.id)!0 />
   </div>
 </div>
+</main>
 <#include "common/footer.html">
 <#else>
-<#assign pageTitle>内容不存在 - ${web_name!''}</#assign>
+<#assign pageTitle>内容不存在 - ${(web_name)!''}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="err">
   <b class="num">404</b>
   <p>内容不存在或未通过审核，可能已被删除</p>
-  <a href="/">返回首页</a>
+  <a href="/${model.code}/">返回列表</a><a href="/">返回首页</a>
 </div></div>
+</main>
 <#include "common/footer.html">
 </#if>
 </@fly_info_model>

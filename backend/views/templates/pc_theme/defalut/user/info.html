@@ -1,0 +1,41 @@
+<#-- 我的资料（只读总览） -->
+<#assign pageTitle = "我的资料">
+<#include "../common/macros.html">
+<#include "../common/header.html">
+<main id="main">
+<@userDash nav="info" title="我的资料" desc="账号基本信息总览">
+  <div class="panel">
+    <div class="panel-bd">
+      <div class="list-toolbar">
+        <div class="grow" style="display:flex;align-items:center;gap:16px">
+          <@uAvatar url=(user.avatar)!'' name=(user.nickName)!'我' cls="av-box" />
+          <div>
+            <div style="font-size:17px;font-weight:600">${((user.nickName)!'—')?html}</div>
+            <div style="font-size:13px;color:var(--dust);margin-top:4px">${((user.signature)!'这个家伙很懒，什么也没留下。')?html}</div>
+          </div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="/ucenter/account">编辑资料</a>
+      </div>
+      <dl class="info-list">
+        <div><dt>用户名</dt><dd>${((user.userName)!'—')?html}</dd></div>
+        <div><dt>用户 ID</dt><dd class="num">${(user.userId)!'—'}</dd></div>
+        <div><dt>个人主页</dt><dd><#if (user.shortUrl)?? && user.shortUrl != ''><a href="/people/${user.shortUrl}/">/people/${user.shortUrl}/</a><#else>未分配</#if></dd></div>
+        <div><dt>性别</dt><dd><#if ((user.sex)!0) == 1>男<#elseif ((user.sex)!0) == 2>女<#else>保密</#if></dd></div>
+        <div><dt>生日</dt><dd><@ts v=(user.birthday)!'' /></dd></div>
+        <div><dt>职业</dt><dd>${((user.work)!'—')?html}</dd></div>
+        <div><dt>手机</dt><dd><#if (user.userMobile)?? && user.userMobile != ''>${user.userMobile?html}<#else><span class="tag">未绑定</span></#if></dd></div>
+        <div><dt>邮箱</dt><dd><#if (user.userEmail)?? && user.userEmail != ''>${user.userEmail?html}<#else><span class="tag">未绑定</span></#if></dd></div>
+        <div><dt>注册时间</dt><dd><@ts v=(user.createTime)!'' kind='dt' /></dd></div>
+        <div><dt>上次登录</dt><dd><@ts v=(user.lastLogin)!'' kind='dt' /></dd></div>
+      </dl>
+      <#if (user.description)?? && user.description != ''>
+      <div style="margin-top:18px">
+        <div style="font-size:13.5px;color:var(--dust);margin-bottom:6px">自我介绍</div>
+        <div>${user.description?html}</div>
+      </div>
+      </#if>
+    </div>
+  </div>
+</@userDash>
+</main>
+<#include "../common/footer.html">

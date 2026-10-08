@@ -119,8 +119,19 @@ public class PageVo<T> implements Serializable {
 		return rows;
 	}
 
+	/**
+	 * 单页条数硬上限（收口点）。
+	 *
+	 * <p>rows 一路来自模板标签参数 / URL 查询串，此前无任何上限：
+	 * 传 rows=1000000 会让查询把整表拉回内存（并连带 offset 溢出），是一条公开的
+	 * 内存耗尽路径。这里统一钳制，所有分页调用方自动受保护；
+	 * 500 高于现有业务上限（API 200、标签 100），不影响任何既有用法。
+	 */
+	public static final int MAX_ROWS = 500;
+
 	public void setRows(int rows) {
-		this.rows = rows;
+		// 负数归零（历史行为：getPageCount 对 rows<=0 返回 0 页），上限钳制到 MAX_ROWS
+		this.rows = Math.min(Math.max(rows, 0), MAX_ROWS);
 	}
 
 	public List<T> getList() {

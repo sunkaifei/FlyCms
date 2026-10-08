@@ -79,6 +79,24 @@ public class TemplateCenterService {
     public static final long MAX_TEMPLATE_BYTES = 512 * 1024;
     /** 皮肤包总大小上限 50MB */
     public static final long MAX_PACK_BYTES = 50L * 1024 * 1024;
+
+    /**
+     * 单个条目解压后的字节上限 5MB。
+     * 皮肤包只包含文本模板与静态资源，任何单文件超过此值都属异常。
+     */
+    private static final long MAX_ENTRY_BYTES = 5L * 1024 * 1024;
+
+    /**
+     * 整包累计解压字节上限 200MB。
+     *
+     * <p><b>为什么必须限制累计值</b>：{@link #MAX_PACK_BYTES} 校验的是<b>压缩包</b>大小，
+     * 而高压缩比 zip（如 50MB 的全零数据）可解压到数十 GB；导入逻辑把每个条目
+     * 全量读成 String 常驻内存，一旦是压缩炸弹会直接 OOM 打死进程。
+     */
+    private static final long MAX_UNZIP_BYTES = 200L * 1024 * 1024;
+
+    /** 皮肤包条目数上限：防止用海量极小条目耗尽内存与 inode */
+    private static final int MAX_PACK_ENTRIES = 5000;
     /** 版本历史默认返回条数 */
     private static final int VERSION_ROWS = 100;
 
@@ -539,9 +557,15 @@ public class TemplateCenterService {
             List<String[]> rawEntries = new ArrayList<>();
             // FlyCms 导出包（exportSkin）的首条目是根级 manifest.json，皮肤名以它的 name 字段为准
             String manifestName = null;
+            // 解压总预算（压缩炸弹防护）：每个条目读取时扣减，扣成负数即中止
+            long[] budget = {MAX_UNZIP_BYTES};
+            int parsed = 0;
             while ((entry = zis.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
+                }
+                if (++parsed > MAX_PACK_ENTRIES) {
+                    return DataVo.failure("皮肤包条目数超过 " + MAX_PACK_ENTRIES + "，已中止导入");
                 }
                 String name = entry.getName();
                 String rel = stripName(name);
@@ -550,10 +574,10 @@ public class TemplateCenterService {
                 }
                 // 根级清单：只读皮肤名，不参与文件写入（P4-1：否则导出的包会因首个条目无 '/' 而被拒）
                 if (!rel.contains("/") && "manifest.json".equalsIgnoreCase(rel)) {
-                    manifestName = manifestSkinName(readAll(zis));
+                    manifestName = manifestSkinName(readAll(zis, MAX_ENTRY_BYTES, budget));
                     continue;
                 }
-                rawEntries.add(new String[]{rel, readAll(zis)});
+                rawEntries.add(new String[]{rel, readAll(zis, MAX_ENTRY_BYTES, budget)});
             }
             if (rawEntries.isEmpty()) {
                 return DataVo.failure("皮肤包为空");
@@ -1059,11 +1083,28 @@ public class TemplateCenterService {
         return null;
     }
 
-    private String readAll(InputStream in) throws IOException {
+    /**
+     * 解压包内单个条目的读取，带「单条目 + 整包累计」双上限。
+     *
+     * @param in         当前 zip 条目流
+     * @param entryLimit 单条目上限（字节）
+     * @param budget     剩余整包预算（单元素数组，读取时原地扣减；为负即超限）
+     * @throws IOException 超出任一上限时抛出，由 importSkin 的 catch 转为业务失败提示
+     */
+    private String readAll(InputStream in, long entryLimit, long[] budget) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] buf = new byte[8192];
+        long entryBytes = 0;
         int n;
         while ((n = in.read(buf)) > 0) {
+            entryBytes += n;
+            budget[0] -= n;
+            if (entryBytes > entryLimit) {
+                throw new IOException("压缩包内单个文件解压后超过 " + (entryLimit >> 20) + "MB，已中止导入");
+            }
+            if (budget[0] < 0) {
+                throw new IOException("压缩包解压后总大小超过 " + (MAX_UNZIP_BYTES >> 20) + "MB，已中止导入");
+            }
             bos.write(buf, 0, n);
         }
         return bos.toString(StandardCharsets.UTF_8);

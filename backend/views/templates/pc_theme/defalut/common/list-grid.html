@@ -1,0 +1,66 @@
+<#-- ============================================================
+     网格型列表页主体（图集 / 商品共用）
+     调用方需先 <#assign gridKind = "images"> 或 "products" 再 include 本文件。
+     与 list-main.html 同理：兼容「栏目预取数据」与「模型直访取数」两种上下文。
+     ============================================================ -->
+<#assign mc = (modelCode)!(model.code)!''>
+<#assign base = "/" + ((channel.channelDir)!mc)>
+<#assign gTitle = ((channel.channelName)!(model.name)!'列表')>
+<#if gridKind == 'products'><#assign rowsPer = 24><#else><#assign rowsPer = 12></#if>
+
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i>
+  <#if channel??><a href="/${channel.channelDir}/">${channel.channelName}</a><#else>${(model.name)!''}</#if>
+</div></div>
+
+<div class="wrap lay">
+  <main>
+    <@fly_category_model model=mc>
+    <#if (categoryList)?? && categoryList?size gt 0>
+    <div class="filters">
+      <span class="fl">分类</span>
+      <div class="chips">
+        <a href="/${mc}/"<#if ((categoryId)!0) == 0> class="on"</#if>>全部</a>
+        <#list categoryList as c>
+        <a href="/${mc}/c${c.id}"<#if ((categoryId)!0) == c.id> class="on"</#if>>${c.name?html}</a>
+        </#list>
+      </div>
+    </div>
+    </#if>
+    </@fly_category_model>
+
+    <#if (dataList)??>
+      <@listHead title=gTitle count=(model_page.count)!0 cur=(p)!1 />
+      <#if dataList?size gt 0>
+        <#if gridKind == 'products'><@prodGrid rows=dataList /><#else><@gridRows rows=dataList kind=gridKind /></#if>
+        <@pager base=base count=(model_page.count)!0 rows=(model_page.rows)!rowsPer cur=(p)!1 />
+      <#else>
+        <@emptyState title="0" desc="该栏目暂无内容" link="/" linkText="返回首页" />
+      </#if>
+    <#else>
+      <@fly_page_model model=mc p="${p!1}" category="${(categoryId)!0}" rows="${rowsPer}">
+      <@listHead title=gTitle count=(model_page.count)!0 cur=(p)!1 />
+      <#if dataList?? && dataList?size gt 0>
+        <#if gridKind == 'products'><@prodGrid rows=dataList /><#else><@gridRows rows=dataList kind=gridKind /></#if>
+        <@pager base=base count=(model_page.count)!0 rows=(model_page.rows)!rowsPer cur=(p)!1 />
+      <#else>
+        <@emptyState title="0" desc="暂无内容" link="/" linkText="返回首页" />
+      </#if>
+      </@fly_page_model>
+    </#if>
+  </main>
+
+  <aside class="rit">
+    <div><@hotRank model=mc rows=8 /></div>
+    <@fly_category_model model=mc>
+    <#if (categoryList)?? && categoryList?size gt 0>
+    <div>
+      <div class="side-hd"><h2>全部分类</h2></div>
+      <div class="tag-cloud">
+        <#list categoryList as c><a href="/${mc}/c${c.id}">${c.name?html}</a></#list>
+      </div>
+    </div>
+    </#if>
+    </@fly_category_model>
+  </aside>
+</div>

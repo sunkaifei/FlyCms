@@ -1,25 +1,29 @@
 <#-- ============================================================
-     商城 · 我的订单页（Z 批次）：fly_list_model 拉本用户 orders 行；
-     确认收货 = X2 所有者通道改 status 语义字段（动作层模型无审核语义）。
+     ⚠ 本文件与「defalut」主题同源，由主题文件
+        views/templates/pc_theme/defalut/mall-orders.html 同步而来。
+     ------------------------------------------------------------
+     预设包应用（PresetService.apply）会把它写到当前主题下同名路径，
+     而 list-xxx.html / detail-xxx.html 正好命中 TemplateResolver 的
+     「模型级候选」→ **会真的被前台渲染**。所以它必须与主题设计体系保持一致。
+     依赖：主题的 common/macros.html（@listHead/@qaRows/@pager/@emptyState…）
+           与 static/skin/.../css/portal.css 的组件类。
+     换到没有这些公共组件的主题使用时，需自行改为自包含写法。
+     ============================================================ -->
+<#-- ============================================================
+     商城 · 我的订单页：fly_list_model 拉本用户 orders 行；
+     确认收货 = 所有者通道改 state 语义字段（动作层模型无审核语义）。
      ============================================================ -->
 <#include "common/macros.html">
-<#assign pageTitle>我的订单 - ${web_name!''}</#assign>
+<#assign pageTitle = '我的订单 - ' + ((web_name)!'')>
 <#include "common/header.html">
 <@fly_login>
-<style>
-  .od-wrap{max-width:860px;margin:24px auto;padding:0 12px;}
-  .od-card{background:#fff;border-radius:8px;padding:18px 22px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:14px;}
-  .od-card .hd{display:flex;justify-content:space-between;font-size:13px;color:#8a919f;border-bottom:1px solid #f0f1f3;padding-bottom:8px;margin-bottom:10px;}
-  .od-st{padding:1px 8px;border-radius:3px;font-size:12px;}
-  .od-st.s1{background:#fff7e6;color:#e6a23c;} .od-st.s2{background:#eef4ff;color:#3a6fd8;}
-  .od-st.s3{background:#e8f7ee;color:#1a9e5c;} .od-st.s4{background:#f5f5f5;color:#999;}
-  .od-card .bd{font-size:14px;line-height:1.9;}
-  .od-card .ft{text-align:right;padding-top:10px;}
-  .od-card .ft b{color:#e64340;font-size:17px;}
-  .od-card .ft button{border:1px solid #e64340;background:#fff;color:#e64340;border-radius:4px;padding:6px 16px;cursor:pointer;margin-left:10px;}
-  .od-empty{color:#8a919f;padding:30px 0;}
-</style>
-<div class="od-wrap">
+<main id="main">
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i><a href="/products/">商城</a><i>/</i>我的订单
+</div></div>
+
+<div class="form-page" style="max-width:860px">
+  <div class="dash-hd"><h1>我的订单</h1><span class="sub">确认收货后可在此查看状态变化</span></div>
   <#if (status.userId)??>
     <@fly_list_model model="orders" userId="${status.userId}" rows="20">
       <#if (dataList)?? && dataList?size gt 0>
@@ -29,14 +33,12 @@
             <span>订单 #${(od.orderNo)!(od.id)}</span>
             <span class="od-st s${(od.status)!1}">${(od.state)!'待发货'}</span>
           </div>
-          <div class="bd">
-            收货：${(od.consignee)!'-'} · ${(od.phone)!'-'} · ${(od.address)!'-'}
-          </div>
+          <div class="bd">收货：${(od.consignee)!'-'} · ${(od.phone)!'-'} · ${(od.address)!'-'}</div>
           <div class="ft">
-            合计 <b>¥${(od.amount)?string("0.00")}</b>
-            <#if (od.state)!'待发货' == '待收货'>
-            <#-- 确认收货：X2 所有者通道更新 state 字段（radio 候选与展示态联动） -->
-            <form method="post" action="/ucenter/content/update" style="display:inline;">
+            合计 <b>¥${(od.amount)?string('0.00')}</b>
+            <#if ((od.state)!'待发货') == '待收货'>
+            <#-- 确认收货：所有者通道更新 state 字段（radio 候选与展示态联动） -->
+            <form method="post" action="/ucenter/content/update" style="display:inline">
               <input type="hidden" name="modelCode" value="orders">
               <input type="hidden" name="id" value="${od.id}">
               <input type="hidden" name="state" value="已完成">
@@ -48,12 +50,13 @@
         </div>
         </#list>
       <#else>
-        <div class="od-empty">还没有订单</div>
+        <@emptyState title="0" desc="还没有订单" link="/products/" linkText="去商城逛逛" />
       </#if>
     </@fly_list_model>
   <#else>
-    <div class="od-empty">请先 <a href="/login">登录</a></div>
+    <div class="comment-login">请先 <a href="/login">登录</a></div>
   </#if>
 </div>
+</main>
 </@fly_login>
 <#include "common/footer.html">

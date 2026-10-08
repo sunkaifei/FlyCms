@@ -39,6 +39,13 @@ public interface ModelDataDao {
     /** 表名冲突预检（新建模型前调用，D7） */
     public boolean tableExistsBySuffix(@Param("suffix") String suffix);
 
+    /** 建单列索引（indexName/columnName 均为服务端标识符白名单产物） */
+    public void addIndex(@Param("suffix") String suffix, @Param("indexName") String indexName,
+                         @Param("columnName") String columnName);
+
+    /** 索引是否已存在（幂等建索引前调用） */
+    public boolean indexExists(@Param("suffix") String suffix, @Param("indexName") String indexName);
+
     // /////////////////// DML ///////////////////
 
     public void insertData(@Param("suffix") String suffix, @Param("columns") List<String> columns,

@@ -1,9 +1,11 @@
 <#-- 403 无权限 -->
-<#assign pageTitle>403 - ${web_name!''}</#assign>
+<#assign pageTitle>403 - ${((web_name)!'')}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="err">
   <b class="num">403</b>
   <p>没有访问此页面的权限，请登录后再试</p>
-  <a href="/login">去登录</a> · <a href="/">返回首页</a>
+  <a href="/login">去登录</a><a href="/">返回首页</a>
 </div></div>
+</main>
 <#include "common/footer.html">

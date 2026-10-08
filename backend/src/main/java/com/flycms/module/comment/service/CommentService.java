@@ -2,6 +2,7 @@ package com.flycms.module.comment.service;
 
 import com.flycms.core.entity.DataVo;
 import com.flycms.core.entity.PageVo;
+import com.flycms.core.utils.JsoupUtils;
 import com.flycms.core.utils.SnowFlake;
 import com.flycms.core.utils.SqlSafeUtil;
 import com.flycms.module.comment.dao.CommentDao;
@@ -88,7 +89,10 @@ public class CommentService {
         if (userId == null || userId <= 0) {
             return DataVo.failure("请登录后评论");
         }
-        String text = StringUtils.trimToEmpty(content);
+        // XSS 清洗：评论允许基础富文本（a/b/i/img 等 jsoup 白名单标签），
+        // 但必须剥离 script/iframe 与 on* 事件属性——前台模板 ${c.content} 不做
+        // HTML 转义，不清洗即为存储型 XSS。与公开表单通道 FormService 同口径。
+        String text = JsoupUtils.clean(StringUtils.trimToEmpty(content)).trim();
         if (text.isEmpty()) {
             return DataVo.failure("评论内容不能为空");
         }
@@ -187,6 +191,9 @@ public class CommentService {
         pageVo.setCount(commentDao.countPage(whereSql, params));
         List<Comment> list = commentDao.selectPage(whereSql, "id desc",
                 pageVo.getOffset(), pageVo.getRows(), params);
+        // 目标标题批量回显：按 target_model 分组，每模型一次 findRowsByIds。
+        // 此前逐行调用 resolveTargetTitle → 一页 N 条评论就是 N 次（模型查询 + 内容查询）。
+        Map<String, Map<Long, String>> titleByModel = batchTargetTitles(list);
         List<Map<String, Object>> rowsList = new ArrayList<>();
         for (Comment c : list) {
             Map<String, Object> row = new LinkedHashMap<>();
@@ -198,11 +205,60 @@ public class CommentService {
             row.put("content", c.getContent());
             row.put("status", c.getStatus());
             row.put("createTime", c.getCreateTime());
-            row.put("targetTitle", resolveTargetTitle(c.getTargetModel(), c.getTargetId()));
+            row.put("targetTitle", lookupTargetTitle(titleByModel, c.getTargetModel(), c.getTargetId()));
             rowsList.add(row);
         }
         pageVo.setList(rowsList);
         return pageVo;
+    }
+
+    /**
+     * 按 target_model 分组批量取内容标题：每个模型只发一次
+     * {@code findModelByCode} + 一次 {@code findRowsByIds}。
+     *
+     * @return model code → (内容 id → 标题)；解析失败的模型映射为空 Map（标题回落空串）
+     */
+    private Map<String, Map<Long, String>> batchTargetTitles(List<Comment> list) {
+        Map<String, Map<Long, String>> cache = new HashMap<>();
+        if (list == null) {
+            return cache;
+        }
+        for (Comment c : list) {
+            String code = c.getTargetModel();
+            if (code == null || cache.containsKey(code)) {
+                continue;
+            }
+            Map<Long, String> titles = new HashMap<>();
+            try {
+                Model model = modelService.findModelByCode(SqlSafeUtil.safeModelCode(code));
+                if (model != null) {
+                    List<Long> ids = new ArrayList<>();
+                    for (Comment x : list) {
+                        if (code.equals(x.getTargetModel()) && x.getTargetId() != null) {
+                            ids.add(x.getTargetId());
+                        }
+                    }
+                    titles = modelDataService.findTitlesByIds(model.getId(), ids);
+                }
+            } catch (Exception e) {
+                logger.debug("批量解析评论目标标题失败：{}", code);
+            }
+            cache.put(code, titles);
+        }
+        return cache;
+    }
+
+    /** 从批量结果取单条标题，缺失回落空串（与旧 resolveTargetTitle 的失败语义一致） */
+    private String lookupTargetTitle(Map<String, Map<Long, String>> cache, String modelCode, Long targetId) {
+        if (cache == null || modelCode == null || targetId == null) {
+            return "";
+        }
+        Map<Long, String> titles = cache.get(modelCode);
+        if (titles == null) {
+            return "";
+        }
+        String title = titles.get(targetId);
+        return title == null ? "" : title;
     }
 
     /** 审核单条：1=通过（计数 +1）2=未通过（已通过的计数 -1） */
@@ -306,19 +362,5 @@ public class CommentService {
     private void adjustTargetCommentCount(String modelCode, Long targetId, int delta) {
         // 由 ModelDataService 提供的固有列计数调整（列名/表名均过白名单）
         modelDataService.adjustCommentCount(modelCode, targetId, delta);
-    }
-
-    private String resolveTargetTitle(String modelCode, Long targetId) {
-        try {
-            Model model = modelService.findModelByCode(SqlSafeUtil.safeModelCode(modelCode));
-            if (model == null) {
-                return "";
-            }
-            Map<String, Object> row = modelDataService.findDataById(model.getId(), targetId);
-            return row == null ? "" : String.valueOf(row.get("title"));
-        } catch (Exception e) {
-            logger.debug("解析评论目标标题失败：{}#{}", modelCode, targetId);
-            return "";
-        }
     }
 }

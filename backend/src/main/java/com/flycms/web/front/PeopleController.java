@@ -27,7 +27,7 @@ public class PeopleController extends BaseController {
     private static Logger logger = LoggerFactory.getLogger(PeopleController.class);
 
     //用户首页页面
-    @GetMapping(value = "/people/{shortUrl}")
+    @GetMapping(value = {"/people/{shortUrl}", "/people/{shortUrl}/"})
     public String people(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
         if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
@@ -46,7 +46,7 @@ public class PeopleController extends BaseController {
     }
 
     //用户问题列表页面
-    @GetMapping(value = "/people/{shortUrl}/question")
+    @GetMapping(value = {"/people/{shortUrl}/question", "/people/{shortUrl}/question/"})
     public String peopleQuestion(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
         if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
@@ -65,7 +65,7 @@ public class PeopleController extends BaseController {
     }
 
     //用户问题列表页面
-    @GetMapping(value = "/people/{shortUrl}/answers")
+    @GetMapping(value = {"/people/{shortUrl}/answers", "/people/{shortUrl}/answers/"})
     public String peopleAnswers(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
         if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
@@ -84,7 +84,7 @@ public class PeopleController extends BaseController {
     }
 
     //用户问题列表页面
-    @GetMapping(value = "/people/{shortUrl}/article")
+    @GetMapping(value = {"/people/{shortUrl}/article", "/people/{shortUrl}/article/"})
     public String peopleArticle(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
         if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
@@ -103,7 +103,7 @@ public class PeopleController extends BaseController {
     }
 
     //用户问题列表页面
-    @GetMapping(value = "/people/{shortUrl}/share")
+    @GetMapping(value = {"/people/{shortUrl}/share", "/people/{shortUrl}/share/"})
     public String peopleShare(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
         if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
@@ -122,7 +122,7 @@ public class PeopleController extends BaseController {
     }
 
     //用户关注列表页面
-    @GetMapping(value = "/people/{shortUrl}/follow")
+    @GetMapping(value = {"/people/{shortUrl}/follow", "/people/{shortUrl}/follow/"})
     public String peopleFollow(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
         if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");
@@ -140,7 +140,7 @@ public class PeopleController extends BaseController {
         return theme.getPcTemplate("/people/list_follow");
     }
     //用户问题列表页面
-    @GetMapping(value = "/people/{shortUrl}/fans")
+    @GetMapping(value = {"/people/{shortUrl}/fans", "/people/{shortUrl}/fans/"})
     public String peopleFans(@RequestParam(value = "p", defaultValue = "1") int p, @PathVariable(value = "shortUrl", required = false) String shortUrl, ModelMap modelMap){
         if (StringUtils.isBlank(shortUrl)) {
             return theme.getPcTemplate("404");

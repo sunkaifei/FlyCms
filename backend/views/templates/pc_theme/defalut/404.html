@@ -1,9 +1,11 @@
 <#-- 404 页面不存在 -->
-<#assign pageTitle>404 - ${web_name!''}</#assign>
+<#assign pageTitle>404 - ${((web_name)!'')}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="err">
   <b class="num">404</b>
   <p>页面不存在或已被移除，看看首页有什么新鲜内容</p>
-  <a href="/">返回首页</a>
+  <a href="/">返回首页</a><a href="/search">站内搜索</a>
 </div></div>
+</main>
 <#include "common/footer.html">

@@ -34,6 +34,15 @@ import java.util.List;
  */
 @Service
 public class FavoriteService {
+
+    /**
+     * 收藏列表允许的排序列白名单（= fly_favorite 的实际列）。
+     * 原默认片段 "a.score" 引用了该表不存在的别名与列（getFavoriteList 是
+     * {@code select * from fly_favorite}），会直接 SQL 报错，故一并修正为 id。
+     */
+    private static final java.util.Set<String> SORT_COLUMNS =
+            OrderbyUtils.columns("id", "user_id", "info_type", "info_id", "model_code", "create_time");
+
     @Resource
     private FavoriteDao favoriteDao;
     @Autowired
@@ -218,13 +227,13 @@ public class FavoriteService {
         pageVo.setRows(rows);
         List<Favorite> list = new ArrayList<Favorite>();
         if(orderby==null){
-            orderby="a.score";
+            orderby="id";
             }
-        orderby = OrderbyUtils.check(orderby, "a.score");
+        orderby = OrderbyUtils.check(orderby, "id", SORT_COLUMNS);
         if(order==null){
             order="desc";
             }
-        order = OrderbyUtils.check(order, "desc");
+        order = OrderbyUtils.direction(order, "desc");
         pageVo.setList(favoriteDao.getFavoriteList(userId, infoType,createTime,orderby,order,pageVo.getOffset(), pageVo.getRows()));
         pageVo.setCount(favoriteDao.getFavoriteCount(userId, infoType,createTime));
         return pageVo;

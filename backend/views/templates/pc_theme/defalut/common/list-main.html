@@ -1,41 +1,60 @@
 <#-- ============================================================
      列表页主体（被 list.html / list-{model}.html include）
      兼容两种上下文：
-     1) 栏目渲染（/news/ 等）：dataList/model_page/model/modelCode/children 已备
+     1) 栏目渲染（/news/ 等）：dataList / model_page / modelCode / children 已备
      2) 模型直访（/articles/ 等）：仅 model，需 fly_page_model 自取数
+     ⚠ 「共 N 条」必须写在取数标签体内（model_page 是标签体作用域变量），
+       写在外面会静默走 !0 兜底 —— 历史上这里恒显示 0。
      ============================================================ -->
 <#assign mc = (modelCode)!(model.code)!''>
 <#assign base = "/" + ((channel.channelDir)!mc)>
+<#assign listTitle = ((channel.channelName)!(model.name)!'列表')>
+
 <div class="wrap"><div class="crumb">
   <a href="/">首页</a><i>/</i>
   <#if channel??><a href="/${channel.channelDir}/">${channel.channelName}</a><#else>${(model.name)!''}</#if>
 </div></div>
+
 <div class="wrap lay">
   <main>
-    <div class="list-hd">
-      <h1><#if channel??>${channel.channelName}<#else>${(model.name)!''}</#if></h1>
-      <small>PAGE <span class="num">${(p)!1}</span> · 共 ${(model_page.count)!0} 条</small>
+    <#-- 分类筛选条：模型无分类时整段不渲染 -->
+    <@fly_category_model model=mc>
+    <#if (categoryList)?? && categoryList?size gt 0>
+    <div class="filters">
+      <span class="fl">分类</span>
+      <div class="chips">
+        <a href="/${mc}/"<#if ((categoryId)!0) == 0> class="on"</#if>>全部</a>
+        <#list categoryList as c>
+        <a href="/${mc}/c${c.id}"<#if ((categoryId)!0) == c.id> class="on"</#if>>${c.name?html}</a>
+        </#list>
+      </div>
     </div>
+    </#if>
+    </@fly_category_model>
+
     <#if (dataList)??>
       <#-- 栏目渲染：直接用预取数据 -->
+      <@listHead title=listTitle count=(model_page.count)!0 cur=(p)!1 />
       <#if dataList?size gt 0>
         <@artRows rows=dataList mc=mc />
         <@pager base=base count=(model_page.count)!0 rows=(model_page.rows)!10 cur=(p)!1 />
       <#else>
-        <div class="empty"><b>0</b>该栏目暂无内容，欢迎先浏览<a href="/">首页</a>其他精彩内容</div>
+        <@emptyState title="0" desc="该栏目暂无内容，欢迎先浏览其他精彩内容" link="/" linkText="返回首页" />
       </#if>
     <#else>
       <#-- 模型直访：标签取数（每页 10 条，路径式分页） -->
-      <@fly_page_model model=mc p="${p!1}" rows="10">
+      <@fly_page_model model=mc p="${p!1}" category="${(categoryId)!0}" rows="10">
+      <@listHead title=listTitle count=(model_page.count)!0 cur=(p)!1 />
       <#if dataList?? && dataList?size gt 0>
         <@artRows rows=dataList mc=mc />
         <@pager base=base count=(model_page.count)!0 rows=(model_page.rows)!10 cur=(p)!1 />
       <#else>
-        <div class="empty"><b>0</b>暂无内容，欢迎先浏览<a href="/">首页</a>其他精彩内容</div>
+        <@emptyState title="0" desc="暂无内容，欢迎先浏览其他精彩内容" link="/" linkText="返回首页" />
       </#if>
       </@fly_page_model>
     </#if>
   </main>
+
   <aside class="rit">
     <div><@hotRank model=mc rows=8 /></div>
     <#if (children)?? && children?size gt 0>
@@ -43,10 +62,21 @@
       <div class="side-hd"><h2>子栏目</h2></div>
       <ul class="rows">
       <#list children as c>
-      <li><a href="/${c.channelDir}/">${c.channelName}</a><time>${(c.modelCode)!'栏目'}</time></li>
+      <#-- 用 modelName（模型中文名）而非 modelCode：给用户看的是「文章模型」不是「articles」 -->
+      <li><a href="/${c.channelDir}/">${c.channelName}</a><time>${(c.modelName)!'栏目'}</time></li>
       </#list>
       </ul>
     </div>
     </#if>
+    <@fly_category_model model=mc>
+    <#if (categoryList)?? && categoryList?size gt 0>
+    <div>
+      <div class="side-hd"><h2>全部分类</h2></div>
+      <div class="tag-cloud">
+        <#list categoryList as c><a href="/${mc}/c${c.id}">${c.name?html}</a></#list>
+      </div>
+    </div>
+    </#if>
+    </@fly_category_model>
   </aside>
 </div>

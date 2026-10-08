@@ -2,11 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.flycms.module.channel.dao.ChannelDao">
 
-	<sql id="ch_column">id, father_id AS fatherId, channel_name AS channelName, channel_dir AS channelDir,
-		model_id AS modelId, channel_type AS channelType, page_content AS pageContent, out_url AS outUrl,
-		list_template AS listTemplate, detail_template AS detailTemplate, seo_title AS seoTitle,
-		seo_keywords AS seoKeywords, seo_description AS seoDescription, page_size AS pageSize, status,
-		sort, create_time AS createTime, update_time AS updateTime</sql>
+	<!--
+	    栏目列清单（4 条 select 共用）。
+	    ⚠ 必须全列带 c. 前缀：加了 fly_model 的 LEFT JOIN 后，两表有 7 个同名列
+	      （id / sort / status / list_template / detail_template / create_time / update_time），
+	      不加前缀会直接抛 "Column 'sort' in order clause is ambiguous"。
+	    m.code / m.name 取回模型 code 与名称，供前台展示（此前 Channel.modelCode 恒为 null ——
+	    ch_column 从没取过它，等于死字段；page.html / list-main.html 里的
+	    ${(c.modelCode)!'栏目'} 因此永远渲染成「栏目」）。
+	-->
+	<sql id="ch_column">c.id, c.father_id AS fatherId, c.channel_name AS channelName, c.channel_dir AS channelDir,
+		c.model_id AS modelId, c.channel_type AS channelType, c.page_content AS pageContent, c.out_url AS outUrl,
+		c.list_template AS listTemplate, c.detail_template AS detailTemplate, c.seo_title AS seoTitle,
+		c.seo_keywords AS seoKeywords, c.seo_description AS seoDescription, c.page_size AS pageSize, c.status,
+		c.sort, c.create_time AS createTime, c.update_time AS updateTime,
+		m.code AS modelCode, m.name AS modelName</sql>
+
+	<!-- 共用 FROM：栏目左连模型（model_id=0 表示未绑定模型，左连后 modelCode 为 null） -->
+	<sql id="ch_from">from fly_channel c left join fly_model m on m.id = c.model_id</sql>
 
 	<insert id="insertChannel">
 		insert into fly_channel (id, father_id, channel_name, channel_dir, model_id, channel_type,
@@ -32,12 +45,16 @@
 
 	<select id="findById" resultType="com.flycms.module.channel.model.Channel">
 		select
-		<include refid="ch_column"/> from fly_channel where id = #{id} limit 1
+		<include refid="ch_column"/>
+		<include refid="ch_from"/>
+		where c.id = #{id} limit 1
 	</select>
 
 	<select id="findByDir" resultType="com.flycms.module.channel.model.Channel">
 		select
-		<include refid="ch_column"/> from fly_channel where channel_dir = #{dir} limit 1
+		<include refid="ch_column"/>
+		<include refid="ch_from"/>
+		where c.channel_dir = #{dir} limit 1
 	</select>
 
 	<select id="existsDir" resultType="boolean">
@@ -50,15 +67,17 @@
 
 	<select id="findAll" resultType="com.flycms.module.channel.model.Channel">
 		select
-		<include refid="ch_column"/> from fly_channel
-		order by father_id asc, sort asc, id asc
+		<include refid="ch_column"/>
+		<include refid="ch_from"/>
+		order by c.father_id asc, c.sort asc, c.id asc
 	</select>
 
 	<select id="findByFatherId" resultType="com.flycms.module.channel.model.Channel">
 		select
-		<include refid="ch_column"/> from fly_channel
-		where father_id = #{fatherId}
-		order by sort asc, id asc
+		<include refid="ch_column"/>
+		<include refid="ch_from"/>
+		where c.father_id = #{fatherId}
+		order by c.sort asc, c.id asc
 	</select>
 
 	<select id="countChildren" resultType="int">

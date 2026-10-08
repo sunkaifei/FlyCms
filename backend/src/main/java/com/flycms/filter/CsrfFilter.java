@@ -58,12 +58,9 @@ public class CsrfFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        // 仅保护 API 路径
-        if (config.getPathPrefix() != null && !config.getPathPrefix().isEmpty()
-                && !request.getRequestURI().startsWith(config.getPathPrefix())) {
-            chain.doFilter(request, response);
-            return;
-        }
+        String uri = request.getRequestURI();
+        boolean insideApi = config.getPathPrefix() == null || config.getPathPrefix().isEmpty()
+                || uri.startsWith(config.getPathPrefix());
 
         String method = request.getMethod();
         boolean safe = "GET".equals(method) || "HEAD".equals(method) || "OPTIONS".equals(method)
@@ -72,23 +69,32 @@ public class CsrfFilter extends OncePerRequestFilter {
         String cookieToken = readCookie(request);
 
         if (safe) {
-            // 签发（若缺失）
-            if (cookieToken == null || cookieToken.isEmpty()) {
-                String issued = randomToken();
-                Cookie cookie = new Cookie(config.getCookieName(), issued);
-                cookie.setPath("/");
-                cookie.setHttpOnly(false);   // 双提交模型必须让前端可读
-                cookie.setSecure(request.isSecure());
-                cookie.setMaxAge(-1);        // 会话级
-                response.addCookie(cookie);
+            // 任何「非静态资源」的安全请求都签发 token，而不只限 /api/**：
+            // 否则 SPA 首屏由 nginx 直出、首次交互就是 POST /api/auth/login 时，
+            // 客户端手里根本没有 token cookie，强制校验会把登录本身打死。
+            if ((cookieToken == null || cookieToken.isEmpty()) && !looksLikeStaticAsset(uri)) {
+                issueToken(request, response);
             }
             chain.doFilter(request, response);
             return;
         }
 
-        String headerToken = request.getHeader(config.getHeaderName());
-        boolean valid = cookieToken != null && !cookieToken.isEmpty() && cookieToken.equals(headerToken);
+        // 非 API 路径的写方法（如前台 /ucenter/** 表单）不在本过滤器职责内
+        if (!insideApi) {
+            chain.doFilter(request, response);
+            return;
+        }
 
+        if (cookieToken == null || cookieToken.isEmpty()) {
+            // 客户端尚无 token cookie：此时浏览器也没有可被跨站利用的会话凭据
+            // （登录前请求属此列），签发后放行，避免"第一次登录必被 403"。
+            issueToken(request, response);
+            chain.doFilter(request, response);
+            return;
+        }
+
+        String headerToken = request.getHeader(config.getHeaderName());
+        boolean valid = cookieToken.equals(headerToken);
         if (valid) {
             chain.doFilter(request, response);
             return;
@@ -97,21 +103,41 @@ public class CsrfFilter extends OncePerRequestFilter {
         String traceId = TraceIdFilter.currentTraceId();
         if (!config.isEnabled()) {
             // 监听模式：只记录，不拦截（灰度观察期）
-            logger.warn("CSRF 监听：{} {} 缺少/不匹配 {}（cookie={}，header={}）[traceId={}]",
-                    method, request.getRequestURI(), config.getHeaderName(),
-                    cookieToken == null ? "无" : "有", headerToken == null ? "无" : "有", traceId);
+            logger.warn("CSRF 监听：{} {} 缺少/不匹配 {}（cookie=有，header={}）[traceId={}]",
+                    method, uri, config.getHeaderName(),
+                    headerToken == null ? "无" : "有", traceId);
             chain.doFilter(request, response);
             return;
         }
 
-        logger.warn("CSRF 拒绝：{} {} token 校验失败 [traceId={}]", method, request.getRequestURI(), traceId);
-        ErrorVo vo = ErrorVo.internal("CSRF 校验失败，请刷新页面后重试", request.getRequestURI(), traceId);
+        logger.warn("CSRF 拒绝：{} {} token 校验失败 [traceId={}]", method, uri, traceId);
+        ErrorVo vo = ErrorVo.internal("CSRF 校验失败，请刷新页面后重试", uri, traceId);
         vo.setStatus(HttpServletResponse.SC_FORBIDDEN);
         vo.setCode(ErrorVo.CODE_FORBIDDEN);
         vo.setMessage("CSRF 校验失败，请刷新页面后重试");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(JSON.writeValueAsString(vo));
+    }
+
+    /** 签发双提交 token cookie（非 HttpOnly：JS 必须能读出来回填请求头） */
+    private void issueToken(HttpServletRequest request, HttpServletResponse response) {
+        Cookie cookie = new Cookie(config.getCookieName(), randomToken());
+        cookie.setPath("/");
+        cookie.setHttpOnly(false);   // 双提交模型必须让前端可读
+        cookie.setSecure(request.isSecure());
+        cookie.setMaxAge(-1);        // 会话级
+        response.addCookie(cookie);
+    }
+
+    /** 静态资源（末段含扩展名，如 .js/.png）不签发 token，避免污染静态响应与缓存 */
+    private boolean looksLikeStaticAsset(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return false;
+        }
+        int slash = uri.lastIndexOf('/');
+        String last = slash < 0 ? uri : uri.substring(slash + 1);
+        return last.indexOf('.') > 0;
     }
 
     private String readCookie(HttpServletRequest request) {

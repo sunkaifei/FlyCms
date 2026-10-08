@@ -1,27 +1,105 @@
 <#-- ============================================================
-     全站尾：友情链接 + 版权/备案 + 统计代码（web_footer_code 原样输出）
+     全站尾：四栏导航 + 友情链接 + 版权/备案 + 统计代码
      友情链接由自定义模型 links（fly_cmodel_links）生产：后台「内容模型 → 友情链接」维护，
      字段：title(链接名称) / link_url(地址) / link_logo(Logo, image_url) / link_type(0文字 1Logo) / sort
+     ⚠ 本文件不 include macros.html，图标一律内联 sprite。
      ============================================================ -->
 <footer class="foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-col foot-about">
+        <div class="foot-brand"><span class="brand-mark" aria-hidden="true">墨</span>${web_name!'FlyCms'}</div>
+        <p>${(web_description)!((seo_description)!'以自定义模型为核心的内容管理系统：栏目、模型、模板、区块全部在后台可视化配置，前台由 FreeMarker 模板引擎驱动。')?html}</p>
+      </div>
+
+      <div class="foot-col">
+        <h3>内容导航</h3>
+        <ul>
+          <#-- 与顶部导航同一套去重规则（详见 common/header.html）：栏目已覆盖的模型不再重复列，
+               否则页脚同时出现「问答→/qa/」与「问答→/questions/」两个同名链接。 -->
+          <#assign navModelCodes = []>
+          <@fly_channel_tree>
+          <#if channelTree?? && channelTree?size gt 0>
+          <#list channelTree as ch>
+          <li>
+            <#if ch.channelType == 2>
+            <a href="${ch.outUrl!'/'}" target="_blank" rel="nofollow">${ch.channelName}</a>
+            <#else>
+            <a href="/${ch.channelDir}/">${ch.channelName}</a>
+            </#if>
+          </li>
+          <#if (ch.modelCode)??><#assign navModelCodes = navModelCodes + [ch.modelCode]></#if>
+          </#list>
+          </#if>
+          </@fly_channel_tree>
+          <#if !navModelCodes?seq_contains('articles')><li><a href="/articles/">文章</a></li></#if>
+          <#if !navModelCodes?seq_contains('downloads')><li><a href="/downloads/">下载</a></li></#if>
+        </ul>
+      </div>
+
+      <div class="foot-col">
+        <h3>频道</h3>
+        <ul>
+          <li><a href="/images/">图集</a></li>
+          <#if !navModelCodes?seq_contains('questions')><li><a href="/questions/">问答</a></li></#if>
+          <li><a href="/search">站内搜索</a></li>
+          <li><a href="/sitemap.xml">网站地图</a></li>
+        </ul>
+      </div>
+
+      <div class="foot-col">
+        <h3>用户服务</h3>
+        <ul>
+          <@fly_login>
+          <#if status??>
+          <li><a href="/ucenter/account">个人中心</a></li>
+          <li><a href="/ucenter/submit/articles">我要投稿</a></li>
+          <li><a href="/ucenter/favorite">我的收藏</a></li>
+          <li><a href="/logout">退出登录</a></li>
+          <#else>
+          <li><a href="/login">登录</a></li>
+          <li><a href="/reg">注册新账号</a></li>
+          <li><a href="/forget_password">找回密码</a></li>
+          <li><a href="/questions/">问答社区</a></li>
+          </#if>
+          </@fly_login>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   <div class="wrap foot-in">
     <@fly_list_model model="links" rows="20" orderby="sort" order="asc">
     <#if (dataList)?? && dataList?size gt 0>
     <div class="flink">
       <b>友情链接</b>
       <#list dataList as l>
-      <a href="${(l.link_url)!(l.linkUrl)!'/'}" target="_blank" rel="nofollow">${l.title!''}</a>
+      <a href="${(l.link_url)!(l.linkUrl)!'/'}" target="_blank" rel="nofollow">${(l.title)!''?html}</a>
       </#list>
     </div>
     </#if>
     </@fly_list_model>
-    <div class="base">
-      <div>© <span class="num">2018-2026</span> ${web_name!''} · Powered by FlyCms</div>
-      <div><span class="num">${web_beian!''}</span></div>
+  </div>
+
+  <div class="foot-bottom">
+    <div class="wrap">
+      <div class="base">
+        <div>© <span class="num">2018-2026</span> ${web_name!'FlyCms'} · Powered by FlyCms</div>
+        <#if (web_beian)?? && web_beian != ''><div><span class="num">${web_beian?html}</span></div></#if>
+      </div>
+      <#-- 自定义页脚代码（web_footer_code ← 站点配置 fly_footer_code，原样输出 HTML）。
+           外层 .foot-code 负责底部区块的居中与配色；内容里带的 .container/.text-center/
+           .copyright/.mt-10 是旧版模板的 class，portal.css 未定义，不能指望它们生效。 -->
+      <div class="foot-code">${web_footer_code!''}</div>
     </div>
   </div>
-  ${web_footer_code!''}
 </footer>
+
+<button class="to-top" type="button" aria-label="返回顶部">
+  <svg class="ic" aria-hidden="true"><use href="#i-up"></use></svg>
+</button>
+
+<script src="/skin/pc_theme/defalut/js/portal.js" defer></script>
 <#-- 模板调试条（template_debug=1 时输出，默认零输出） -->
 <#include "debug-bar.html">
 </body>

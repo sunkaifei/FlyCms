@@ -6,51 +6,57 @@
 <#include "common/macros.html">
 <@fly_info_model model="${model.code}" shortUrl="${shortUrl!}">
 <#if info??>
-<#assign pageTitle>${info.title} - ${web_name!''}</#assign>
+<#assign pageTitle>${info.title} - ${(web_name)!''}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="crumb">
   <a href="/">首页</a><i>/</i><a href="/${model.code}/">${(model.name)!'图集'}</a><i>/</i>详情
 </div></div>
 <div class="wrap art">
   <div class="art-lay">
     <main>
-      <div class="art-hd"><h1>${info.title}</h1></div>
-      <div class="art-meta">
-        <span><@dt16 (info.createTime)!'' /></span>
-        <#if (info.author)?? && info.author != ''><span>作者：${info.author}</span></#if>
-        <#if (info.location)?? && info.location != ''><span>地点：${info.location}</span></#if>
-        <#if (info.shootTime)??>
-        <span>拍摄于 <@date10 info.shootTime /></span>
-        </#if>
-        <span>浏览 <b class="num">${(info.countView)!0}</b></span>
-      </div>
-      <div class="art-body">
-        <#assign urls = (info.imagesUrls)![]>
-        <#if urls?size gt 0>
-        <div class="gal">
-          <#list urls as u>
-          <img src="${u}" alt="${info.title} - 图 ${u?counter}" loading="lazy"
-             <#if (info.gallerySrcsets)?? && info.gallerySrcsets?size gt 0 && (info.gallerySrcsets[u?index])?? && info.gallerySrcsets[u?index] != ''>srcset="${info.gallerySrcsets[u?index]}"</#if>>
-          </#list>
+      <article>
+        <div class="art-hd"><h1>${info.title}</h1></div>
+        <div class="art-meta">
+          <span><@dt16 (info.createTime)!'' /></span>
+          <#if (info.author)?? && info.author != ''><span>作者：${info.author?html}</span></#if>
+          <#if (info.location)?? && info.location != ''><span>地点：${info.location?html}</span></#if>
+          <#if (info.shootTime)??><span>拍摄于 <@date10 info.shootTime /></span></#if>
+          <span>浏览 <b class="num">${(info.countView)!0}</b></span>
         </div>
-        <#else>
-        <img src="/skin/pc_theme/defalut/images/cover-images.svg" alt="${info.title}">
-        </#if>
-        ${(info.content)!''}
-      </div>
+        <div class="art-body">
+          <#assign urls = (info.imagesUrls)![]>
+          <#if urls?size gt 0>
+          <div class="gal">
+            <#list urls as u>
+            <img src="${u}" alt="${info.title?html} - 图 ${u?counter}" loading="lazy" decoding="async"
+               <#if (info.gallerySrcsets)?? && info.gallerySrcsets?size gt 0 && (info.gallerySrcsets[u?index])?? && info.gallerySrcsets[u?index] != ''>srcset="${info.gallerySrcsets[u?index]}"</#if>>
+            </#list>
+          </div>
+          <#else>
+          <span class="ph" data-label="图集"></span>
+          </#if>
+          ${(info.content)!''}
+        </div>
+        <@shareBar />
+      </article>
+      <#include "common/comments.html">
     </main>
     <@detailAside mc=model.code catId=(info.categoryId)!0 notid=(info.id)!0 />
   </div>
 </div>
+</main>
 <#include "common/footer.html">
 <#else>
-<#assign pageTitle>内容不存在 - ${web_name!''}</#assign>
+<#assign pageTitle>内容不存在 - ${(web_name)!''}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="err">
   <b class="num">404</b>
   <p>内容不存在或未通过审核，可能已被删除</p>
-  <a href="/">返回首页</a>
+  <a href="/images/">返回图集列表</a><a href="/">返回首页</a>
 </div></div>
+</main>
 <#include "common/footer.html">
 </#if>
 </@fly_info_model>

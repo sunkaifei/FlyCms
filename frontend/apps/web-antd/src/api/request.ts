@@ -21,6 +21,30 @@ import { refreshTokenApi } from './core';
 
 const { apiURL } = useAppConfig(import.meta.env, import.meta.env.PROD);
 
+/**
+ * CSRF 双提交（double-submit cookie）客户端实现。
+ *
+ * 后端 CsrfFilter 对 `/api/**` 的非安全方法（POST/PUT/PATCH/DELETE）校验
+ * 请求头 `X-XSRF-TOKEN` 必须与 cookie `XSRF-TOKEN` 一致；该 cookie 由任意
+ * 安全请求（GET）自动签发且非 HttpOnly，此处读出来回填请求头即可。
+ *
+ * 为什么必须显式回填：cookie 由浏览器自动携带（同源请求默认带 cookie），
+ * 但请求头只能由 JS 设置——这正是「攻击者无法跨站读取 cookie、因而无法伪造请求头」
+ * 的防护原理。缺了这段，生产开启 CSRF 强制校验后所有写操作都会 403。
+ */
+function readXsrfToken(): null | string {
+  const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+  return match?.[1] ? decodeURIComponent(match[1]) : null;
+}
+
+function appendCsrfHeader(config: any) {
+  const token = readXsrfToken();
+  if (token) {
+    config.headers['X-XSRF-TOKEN'] = token;
+  }
+  return config;
+}
+
 function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   const client = new RequestClient({
     ...options,
@@ -67,6 +91,8 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
 
       config.headers.Authorization = formatToken(accessStore.accessToken);
       config.headers['Accept-Language'] = preferences.app.locale;
+      // CSRF 双提交：回填 X-XSRF-TOKEN
+      appendCsrfHeader(config);
       return config;
     },
   });
@@ -110,4 +136,7 @@ export const requestClient = createRequestClient(apiURL, {
   responseReturn: 'data',
 });
 
+// baseRequestClient 无 token 刷新等拦截器，但 /auth/refresh 与 /auth/logout 同为
+// /api/** 的 POST，同样会被 CSRF 校验拦住，故单独补一个回填请求头的拦截器。
 export const baseRequestClient = new RequestClient({ baseURL: apiURL });
+baseRequestClient.addRequestInterceptor({ fulfilled: appendCsrfHeader });

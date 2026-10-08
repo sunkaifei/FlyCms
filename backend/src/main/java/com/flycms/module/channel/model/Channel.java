@@ -46,6 +46,8 @@ public class Channel implements Serializable {
 
     /** 运行时字段：子栏目（树接口填充，非表列） */
     private List<Channel> children;
-    /** 运行时字段：绑定模型的 code（列表页拼详情链接用，非表列） */
+    /** 运行时字段：绑定模型的 code（前台按模型拼链接 / 导航去重用，来自左连 fly_model） */
     private String modelCode;
+    /** 运行时字段：绑定模型的名称（前台给「子栏目」这类列表做可读标签，来自左连 fly_model） */
+    private String modelName;
 }

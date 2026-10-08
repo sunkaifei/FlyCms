@@ -200,6 +200,12 @@ public class ModelFieldService {
         form.setFieldName(old.getFieldName());
         form.setFieldType(old.getFieldType());
         form.setColumnType(newColType);
+        // 启用态不由「编辑」改变：fly_model_field.status 只有「启用」一种业务态（全程无停用功能），
+        // 而 ModelField.status 是原始 int —— 调用方不赋值时默认 0，updateField 的 XML 又无条件写
+        // status，于是「后台编辑字段」「预设重新导入（走 importModel 的已存在分支）」都会把字段
+        // 静默置为禁用。问答模型的 weight / answers.question / accepted 就是这么坏的（禁用后
+        // 列表投影丢列、反向引用 questionBacks 整条断掉）。此处一律沿用库中原值。
+        form.setStatus(old.getStatus());
         Model owner = modelService.findModelById(old.getModelId());
         if (owner == null) {
             return DataVo.failure("模型不存在");
@@ -273,6 +279,8 @@ public class ModelFieldService {
             if (newColType != null && !newColType.equals(oldColType)) {
                 modelTableService.modifyColumn(owner.getCode(), old.getFieldName(), newColType);
             }
+            // P3：字段被改成「参与筛选」时补建索引（幂等，列已存在时仅补索引）
+            modelTableService.addFilterIndexIfNeeded(owner.getCode(), form, oldType);
             modelService.evictCache(null, old.getModelId());
             return DataVo.success("字段已更新");
         }

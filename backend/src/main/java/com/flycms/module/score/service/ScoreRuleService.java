@@ -39,6 +39,11 @@ import java.util.List;
  */
 @Service
 public class ScoreRuleService {
+
+    /** 积分规则列表允许的排序列白名单（= fly_score_rule 实际列） */
+    private static final java.util.Set<String> SORT_COLUMNS = OrderbyUtils.columns(
+            "id", "name", "score", "remark", "type", "status", "update_time", "create_time");
+
 	@Autowired
     private ScoreRuleDao scoreRuleDao;
     @Autowired
@@ -239,11 +244,11 @@ public class ScoreRuleService {
         if(orderby==null){
             orderby="id";
             }
-        orderby = OrderbyUtils.check(orderby, "id");
+        orderby = OrderbyUtils.check(orderby, "id", SORT_COLUMNS);
         if(order==null){
             order="asc";
             }
-        order = OrderbyUtils.check(order, "asc");
+        order = OrderbyUtils.direction(order, "asc");
         Date addtime=null;
         if(createTime!=null){
             addtime=DateUtils.fomatDate(createTime);

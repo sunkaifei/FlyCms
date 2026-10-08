@@ -6,9 +6,10 @@
      ============================================================ -->
 <#include "common/macros.html">
 <#assign q = (title)!''>
-<#assign pageTitle>${(q != '')?string(q + ' - 搜索结果', '站内搜索')} - ${(web_name)!''}</#assign>
+<#assign pageTitle>${((q != '')?string(q + ' - 搜索结果', '站内搜索'))} - ${((web_name)!'')}</#assign>
 <#include "common/header.html">
 
+<main id="main">
 <div class="wrap"><div class="crumb">
   <a href="/">首页</a><i>/</i>站内搜索
 </div></div>
@@ -16,15 +17,14 @@
 <div class="wrap lay">
   <main>
     <div class="list-hd">
-      <h1><#if q != ''>「${q?html}」的搜索结果<#else>站内搜索</#if></h1>
+      <h1><#if q != ''>「${q?html}」的结果<#else>站内搜索</#if></h1>
       <small><#if q != ''>共 <span class="num">${(search_total)!0}</span> 条<#else>输入关键词，检索站内全部内容</#if></small>
     </div>
 
-    <form action="/search" method="get" style="display:flex;gap:10px;margin-bottom:22px">
-      <input type="text" name="q" value="${q?html}" placeholder="输入关键词"
-             style="flex:1;max-width:380px;padding:8px 12px;border:1px solid #E3E6EA;border-radius:3px;font-size:14px">
-      <button type="submit"
-              style="padding:8px 22px;background:#16324A;color:#FFF;border:0;border-radius:3px;font-size:14px;cursor:pointer">搜索</button>
+    <form class="search-box" action="/search" method="get" role="search" style="margin-top:22px">
+      <label class="sr-only" for="q-search">关键词</label>
+      <input class="input" id="q-search" type="text" name="q" value="${q?html}" placeholder="输入关键词，如：模板、模型、图片">
+      <button class="btn btn-primary" type="submit"><svg class="ic" aria-hidden="true"><use href="#i-search"></use></svg>搜索</button>
     </form>
 
     <@fly_search_page q="${q!}" p="${(p)!1}" rows="10">
@@ -32,18 +32,24 @@
         <@mixRows rows=dataList />
         <#assign sp = (search_page.pageCount)!1>
         <#if sp gt 1>
-        <nav class="pg">
+        <nav class="pg" aria-label="分页导航">
+          <#if ((p)!1) gt 1><a href="/search?q=${q?url('UTF-8')}&p=${((p)!1) - 1}" rel="prev">上一页</a></#if>
           <#list 1..sp as i>
-            <#if i == (p)!1><span class="cur">${i}</span><#else><a href="/search?q=${q?url('UTF-8')}&p=${i}">${i}</a></#if>
+            <#if i == ((p)!1)><span class="cur" aria-current="page">${i}</span><#else><a href="/search?q=${q?url('UTF-8')}&p=${i}">${i}</a></#if>
           </#list>
+          <#if ((p)!1) lt sp><a href="/search?q=${q?url('UTF-8')}&p=${((p)!1) + 1}" rel="next">下一页</a></#if>
           <span class="tot">共 ${(search_total)!0} 条</span>
         </nav>
         </#if>
       <#else>
         <#if q != ''>
-        <div class="empty"><b>0</b>没有找到与「${q?html}」相关的内容，换个关键词试试？</div>
+        <@emptyState title="0" desc="没有找到相关内容，换个关键词试试？" link="/" linkText="返回首页" />
         <#else>
-        <div class="empty"><b>?</b>输入关键词，检索站内全部内容</div>
+        <div class="empty">
+          <div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#16324A" stroke-width="1.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></div>
+          <b>?</b>
+          <span>输入关键词，检索站内全部内容</span>
+        </div>
         </#if>
       </#if>
     </@fly_search_page>
@@ -52,7 +58,7 @@
   <aside class="rit">
     <#-- 站内规模下没有全局标签索引表，硬造"标签云"会变成假数据；此处只给真实的热门排行 -->
     <div><@hotRank model="articles" rows=8 /></div>
-    <div style="margin-top:30px">
+    <div>
       <div class="side-hd"><h2>浏览栏目</h2></div>
       <ul class="rows">
         <@fly_channel_tree>
@@ -72,5 +78,6 @@
     </div>
   </aside>
 </div>
+</main>
 
 <#include "common/footer.html">

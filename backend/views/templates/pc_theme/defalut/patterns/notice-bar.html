@@ -1,11 +1,15 @@
-<#-- name: 公告条 | desc: 单行公告，铜金竖线 + 可关闭文案；配合 fly_announcement_model 可做成动态公告 -->
+<#-- name: 公告条 | desc: 单行公告条，铜金竖线 + 公告文字；取「公告」自定义模型最新 1 条，无数据时显示占位文案 -->
+<#-- 素材说明：自包含，只用 fly_* 标签 + 全局 CSS 类，可插入任意模板。
+     ⚠ 原版用的 fly_announcement_model 已随 U2（announcement 模块退役）下线，
+       不在当前实例注册标签表内 → 插进页面会内联输出 "FreeMarker template error"（HTTP 仍 200）。
+       公告现为自定义模型 announcements，改用通用列表标签 fly_list_model。 -->
 <div class="pt-notice">
   <b>公告</b>
-  <@fly_announcement_model rows="1">
-  <#if noticeList?? && noticeList?size gt 0>
-    <#list noticeList as n><a href="${(n.url)!'/'}">${n.title?html}</a></#list>
+  <@fly_list_model model="announcements" rows="1">
+  <#if (dataList)?? && dataList?size gt 0>
+    <#list dataList as n><a href="/announcements/${n.shortUrl}.html">${n.title?html}</a></#list>
   <#else>
     <span>在这里写一条本站公告。</span>
   </#if>
-  </@fly_announcement_model>
+  </@fly_list_model>
 </div>

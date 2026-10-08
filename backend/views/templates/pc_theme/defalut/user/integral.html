@@ -1,0 +1,30 @@
+<#-- 积分明细：fly_scoredetailpage 输出 detail_page（行含 remark/score/balance/createTime） -->
+<#assign pageTitle = "积分明细">
+<#include "../common/macros.html">
+<#include "../common/header.html">
+<main id="main">
+<@userDash nav="integral" title="积分明细" desc="签到、投稿、被采纳等行为都会产生积分变动">
+  <div class="list-toolbar">
+    <div class="grow">当前积分：<b class="num" style="font-size:20px;color:var(--gold-600)">${(user.score)!0}</b></div>
+    <a class="btn btn-outline btn-sm" href="/ucenter/account_log">查看账户流水</a>
+  </div>
+  <@fly_scoredetailpage userId="${(user.userId)!0}" p="${(p)!1}" rows="20">
+  <#if detail_page?? && (detail_page.list)?? && detail_page.list?size gt 0>
+  <@dashTable heads=["积分说明", "变动分值", "变动后积分", "时间"] rows=detail_page.list>
+    <#list detail_page.list as it>
+    <tr>
+      <td class="t">${((it.remark)!'—')?html}</td>
+      <td><span class="tag<#if ((it.score)!0) gt 0> tag-ok<#else> tag-danger</#if>"><#if ((it.score)!0) gt 0>+</#if>${(it.score)!0}</span></td>
+      <td class="n">${(it.balance)!0}</td>
+      <td class="n"><@ts v=(it.createTime)!'' kind='dt' /></td>
+    </tr>
+    </#list>
+  </@dashTable>
+  <div>${(detail_page.pageNumHtml)!''}</div>
+  <#else>
+  <div class="panel"><@emptyState title="还没有积分记录" desc="参与互动后这里会记录每一笔积分变动。" /></div>
+  </#if>
+  </@fly_scoredetailpage>
+</@userDash>
+</main>
+<#include "../common/footer.html">

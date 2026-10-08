@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Controller
@@ -291,7 +292,11 @@ public class UserController extends BaseController {
             if(user.getBirthday()==null || "".equals(user.getBirthday())){
                 return data=DataVo.failure("请选择您的生日日期！");
             }
-            if(DateUtils.isValidDate(user.getBirthday().toString())){
+            // birthday 已被 @DateTimeFormat(pattern="yyyy-MM-dd") 绑定为 java.util.Date。
+            // ⚠ 不能拿 Date.toString() 去 isValidDate：它产出的是 "Mon Jan 01 00:00:00 CST 1990"，
+            //   用 yyyy-MM-dd 解析必然失败（isValidDate 返回 false），取反后会误判为"格式错误"；
+            //   原实现没取反，正是靠这个"必然 false"侥幸放行。这里改成对格式化后的字符串校验。
+            if(!DateUtils.isValidDate(new SimpleDateFormat("yyyy-MM-dd").format(user.getBirthday()))){
                 return data=DataVo.failure("生日日期格式错误！");
             }
             if(user.getProvince()==0){

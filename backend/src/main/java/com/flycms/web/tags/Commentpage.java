@@ -82,6 +82,19 @@ public class Commentpage extends AbstractTagPlugin {
             List<Map<String, Object>> rowsList = new ArrayList<>();
             java.text.SimpleDateFormat iso =
                     new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            // 批量取评论人：此前在循环内逐条 findUserById → 一页 N 条评论即 N 次查询
+            List<Long> userIds = new ArrayList<>();
+            for (Comment c : list) {
+                if (c.getUserId() != null) {
+                    userIds.add(c.getUserId());
+                }
+            }
+            Map<Long, User> userMap = new java.util.HashMap<>();
+            for (User u : userService.getUsersByIds(userIds)) {
+                if (u != null && u.getUserId() != null) {
+                    userMap.put(u.getUserId(), u);
+                }
+            }
             for (Comment c : list) {
                 Map<String, Object> row = new LinkedHashMap<>();
                 row.put("id", String.valueOf(c.getId()));
@@ -90,13 +103,15 @@ public class Commentpage extends AbstractTagPlugin {
                 row.put("content", c.getContent());
                 // 模型行惯例：DATETIME 列以 ISO 字符串输出（common/macros.html 的 dt16 只认字符串）
                 row.put("createTime", c.getCreateTime() == null ? "" : iso.format(c.getCreateTime()));
-                // findUserById 第二参为状态过滤口径：0=全部（2 才是"已审核"），传 1 会把正常用户漏掉
-                User user = userService.findUserById(c.getUserId(), 0);
+                // findUsersByIds 一次取回，状态口径由 DAO 决定（不再逐条查）
+                User user = userMap.get(c.getUserId());
                 String nick = user == null ? null : user.getNickName();
                 if (nick == null || nick.isBlank()) {
                     nick = user == null || user.getUserName() == null ? "游客" : user.getUserName();
                 }
-                row.put("nickname", nick);
+                // 昵称是纯文本用户字段，此处做 HTML 转义：模板 ${c.nickname} 不自动转义，
+                // 用户把昵称改成 <script> 即构成存储型 XSS（内容侧已在写入时过 jsoup 白名单）
+                row.put("nickname", org.springframework.web.util.HtmlUtils.htmlEscape(nick));
                 row.put("avatar", user == null || user.getAvatar() == null ? "" : user.getAvatar());
                 rowsList.add(row);
             }

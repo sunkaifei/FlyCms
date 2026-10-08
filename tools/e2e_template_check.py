@@ -12,6 +12,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from urllib.parse import quote as urlquote
 
 HOST = "127.0.0.1"
 PORT = 80
@@ -19,6 +20,36 @@ ADMIN = "flycms"
 PASSWORD = "admin123"
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOLVER = os.path.join(REPO, "tools", "CapSolver.java")
+BACKEND_LOG = os.path.join(REPO, "backend", "logs", "flycms-logging.log")
+
+
+def registered_tags():
+    """后端「当前实例」真正注册的标签名集合（用于对照标签手册是否漏收）。
+
+    来源是 AbstractTagPlugin.init() 启动时打的 `[tag-reg] fly_xxx -> ...` 日志。
+    ⚠ 日志文件跨多次启动累积，必须只取最后一次 `Starting Application` 之后的块——
+    否则会把已退役标签的历史注册行算进来，得到"手册多收/漏收"的假结论。
+    取不到（日志被清空/轮转）时返回 None，调用方降级为下限校验。
+    """
+    if not os.path.exists(BACKEND_LOG):
+        return None
+    try:
+        with io.open(BACKEND_LOG, "r", encoding="utf-8", errors="replace") as fh:
+            lines = fh.readlines()
+    except OSError:
+        return None
+    start = None
+    for i, ln in enumerate(lines):
+        if "Starting Application" in ln:
+            start = i
+    if start is None:
+        return None
+    names = set()
+    for ln in lines[start:]:
+        m = re.search(r"\[tag-reg\]\s+(fly_[A-Za-z0-9_]+)", ln)
+        if m:
+            names.add(m.group(1))
+    return names or None
 
 
 def raw(method, url, body=None, headers=None, cookies=None):
@@ -130,6 +161,16 @@ def main():
         print("LOGIN_FAIL:", err)
         sys.exit(2)
     print("LOGIN_OK")
+
+    # 前置条件：本脚本大量断言靠模板标记 <!-- template: xxx --> 判断"命中了哪个模板"，
+    # 而该标记只在系统配置 template_debug 开启时才输出。缺失时必须立刻失败退出——
+    # 否则会得到十几条看着像"模板指派坏了"的假 FAIL（曾因手工把该开关关掉而误报 11 条）。
+    _, _, probe_tpl = front("/")
+    if probe_tpl is None:
+        print("PRECONDITION_FAIL: 系统配置 template_debug 未开启，读不到模板命中标记，"
+              "断言无法生效。")
+        print("  启用：UPDATE fly_config_web SET keyvalue='1' WHERE keycode='template_debug';")
+        sys.exit(3)
 
     ok = []
     fail = []
@@ -247,7 +288,47 @@ def main():
     total = sum(len(v) for v in g.values())
     check("手册返回 groups+scopeOptions+scope", set(("groups", "scopeOptions", "scope")) <= set(d.keys()), f"scope={d.get('scope')}")
     check("作用域维度存在且为四态", set((d.get("scopeOptions") or {}).keys()) == {"global", "list", "detail", "module"}, f"={d.get('scopeOptions')}")
-    check("手册覆盖全部 37 个真实标签（G15/G17/G19 新增 commentpage/theme_vars）", total == 37, f"tags={total} groups={len(g)}")
+    manual_names = {t.get("name") for tags in g.values() for t in tags}
+    reg = registered_tags()
+    if reg:
+        missing = sorted(reg - manual_names)
+        extra = sorted(manual_names - reg)
+        check("手册条目 == 当前实例注册的标签（对照启动日志 [tag-reg]）",
+              not missing and not extra,
+              f"注册={len(reg)} 手册={len(manual_names)} 漏收={missing} 多收={extra}")
+    else:
+        # 拿不到注册日志时降级：只保证覆盖了历史基线（早期 37 项）
+        check("手册标签数 ≥ 37（未取到后端启动日志，降级为下限校验）", total >= 37,
+              f"tags={total} groups={len(g)}")
+
+    # 模板里引用的 <@fly_xxx> 必须都在「当前实例」的注册表内。
+    # 背景：U2/U3 批量退役旧模块（guide / announcement / topic …）时标签类删了，但模板/预设里
+    # 的引用没人清 → 页面会内联输出 "FreeMarker template error"，而 HTTP 仍是 200、体积也正常，
+    # 肉眼极难发现（patterns/notice-bar.html 的 fly_announcement_model 就这么漏了，已修）。
+    # 手册条目对照只能证明"手册与注册表一致"，证明不了"模板没引用已退役的标签"，故单独审计。
+    if reg:
+        used = {}
+        scan_bases = (
+            os.path.join(REPO, "backend", "views", "templates"),
+            os.path.join(REPO, "backend", "src", "main", "resources", "presets"),
+        )
+        for base in scan_bases:
+            for dirpath, _dirs, files in os.walk(base):
+                for fn in files:
+                    if not fn.endswith(".html"):
+                        continue
+                    fp = os.path.join(dirpath, fn)
+                    try:
+                        with io.open(fp, encoding="utf-8", errors="replace") as fh:
+                            txt = fh.read()
+                    except OSError:
+                        continue
+                    for name in re.findall(r"<\s*@(fly_[A-Za-z0-9_]+)", txt):
+                        used.setdefault(name, set()).add(
+                            os.path.relpath(fp, REPO).replace("\\", "/"))
+        bad_refs = {k: sorted(v)[:3] for k, v in used.items() if k not in reg}
+        check(f"模板/预设引用的 fly_* 标签全部在注册表内（扫 {len(used)} 个标签名）",
+              not bad_refs, f"退役残留引用={bad_refs}")
     st, j2 = api(cookie, "GET", "/api/system/tags/manual?scope=list")
     g2 = (j2.get("data") or {}).get("groups") or {}
     n2 = sum(len(v) for v in g2.values())
@@ -258,13 +339,48 @@ def main():
 
     print("\n=== P3-3 图案库接口 ===")
     st, j = api(cookie, "GET", "/api/system/pattern/list")
-    pats = ((j.get("data") or {}).get("patterns")) or []
-    check("图案清单非空", len(pats) == 3, f"{[p.get('file') for p in pats]}")
+    pdata = j.get("data") or {}
+    pats = pdata.get("patterns") or []
+    # 与磁盘实际文件对照，而不是写死 3（图案是"往目录里丢文件就能用"，数量必然增长）
+    # 路径须与后端一致：TemplateCenterService.THEME_ROOT = views/templates/pc_theme
+    pat_dir = os.path.join(REPO, "backend", "views", "templates", "pc_theme",
+                           str(pdata.get("skin") or ""), "patterns")
+    disk = sorted(f for f in (os.listdir(pat_dir) if os.path.isdir(pat_dir) else [])
+                  if f.endswith(".html"))
+    api_files = sorted(str(p.get("file")) for p in pats)
+    check("图案清单 == 磁盘 patterns/ 实际文件", bool(disk) and api_files == disk,
+          f"skin={pdata.get('skin')} api={api_files} disk={disk}")
     st, j = api(cookie, "GET", "/api/system/pattern/read?file=cta-banner.html")
     d = j.get("data") or {}
     check("图案读取带元信息", bool(d.get("name")) and bool(d.get("content")), f"name={d.get('name')} len={len(d.get('content') or '')}")
     st, j = api(cookie, "GET", "/api/system/pattern/read?file=../evil.html")
     check("图案路径逃逸被拒", j.get("code") not in (0,), f"msg={j.get('msg')}")
+
+    # 图案是「一键插入到任意模板」的代码素材（PatternService / pattern-modal.vue），
+    # **不是独立渲染的页面**。所以"pattern/list 与磁盘一致"只属「接口存在」级验收——
+    # 磁盘上有文件 ≠ 插进去能渲染、也 ≠ 插到别的模板不炸。这里补真渲染 + 自包含性检查：
+    #   ① 走 /api/system/template/preview（内部会判输出流是否含 FreeMarker 报错标记）；
+    #   ② 素材不得依赖主题宏/include（插入目标模板未必 include 了 common/macros.html），
+    #      也不得写内联样式（设计统一走 portal.css 组件类）。
+    #      注意 `<@fly_xxx>` 是全局注册的标签插件，与宏共用 `<@name>` 语法，故只拦非 fly_ 前缀。
+    bad_pat = []
+    for fn in disk:
+        with io.open(os.path.join(pat_dir, fn), encoding="utf-8", errors="replace") as fh:
+            content = fh.read()
+        bad_rule = []
+        for rx, label in ((r"<\s*@(?!fly_)[A-Za-z_]", "@主题宏"),
+                          (r"<#include", "#include"),
+                          (r"<#import", "#import"),
+                          (r"<style[\s>]", "<style>"),
+                          (r"style=\"", "内联style=")):
+            if re.search(rx, content):
+                bad_rule.append(label)
+        st_p, jp = api(cookie, "POST", "/api/system/template/preview",
+                       "file=patterns/%s&content=%s" % (fn, urlquote(content, safe="")))
+        if bad_rule or st_p != 200 or jp.get("code") != 0:
+            bad_pat.append(f"{fn}(规则={bad_rule} code={jp.get('code')} msg={jp.get('message')})")
+    check(f"图案库 {len(disk)} 个素材均可试渲染且自包含（只用 fly_* 标签 + CSS 类）",
+          bool(disk) and not bad_pat, f"异常={bad_pat}")
 
     print("\n=== P3-1 标签页 / 搜索页 ===")
     st1, html1, tpl1 = front("/tag/Spring")
@@ -276,10 +392,76 @@ def main():
     st1, html1, tpl1 = front("/search?q=Spring")
     check("/search 命中 search.html + 无报错", tpl1 == "search.html" and "FreeMarker template error" not in html1, f"HTTP={st1} tpl={tpl1}")
 
+    print("\n=== 栏目导航与模板覆盖（重复首页 / list_template 消费链） ===")
+    # 背景：corp 预设曾带入一条 dir=home 的聚合栏目，与 common/header.html 里写死的
+    # <a href="/">首页</a> 重名 → 导航出现两个「首页」；而 /home/ 本身是空列表
+    # （顶级聚合栏目没有子栏目 → 数据源为空）+ 重复面包屑「首页 / 首页」。
+    # 导航此前没有任何断言覆盖，问题只能靠肉眼看页面发现，故在此补上。
+    st1, html1, _ = front("/")
+    # ⚠ 不能用 `<nav class="nav">` 精确匹配：改版给导航加了 aria-label 等属性后
+    #   （<nav class="nav" aria-label="主站导航">）正则失配 → nav_html 恒为空 →
+    #   下面两条断言会「假失败」。断言要盯语义，不要盯死 HTML 属性文本。
+    nav_m = re.search(r'<nav[^>]*class="[^"]*\bnav\b[^"]*"[^>]*>(.*?)</nav>', html1, re.S)
+    nav_html = nav_m.group(1) if nav_m else ""
+    home_cnt = nav_html.count(">首页<")
+    check("导航内「首页」只出现一次（无重名栏目）", home_cnt == 1, f"count={home_cnt}")
+    check("导航含数据驱动的栏目项", "/news/" in nav_html and "/qa/" in nav_html)
+    st1, _, _ = front("/home/")
+    check("无与站点根重复的首页栏目（/home/ 未启用）", st1 == 404, f"HTTP={st1}")
+
+    # 结构性自检：FreeMarker 未闭合注释会让模板**静默截断**——输出里既没有 "FreeMarker template error"
+    # （它不是运行时异常，是解析期把后续内容整体吞掉），HTTP 也仍是 200，只是后半段凭空消失。
+    # 本次就踩过：common/header.html 里把 FreeMarker 注释误用 `*/` 结尾，
+    # 抽屉导航之后的内容被吞，而上面的 nav 断言**全部照常通过**（顶部导航在被吞之前已输出）。
+    # 所以按"渲染结果结构是否完整"再兜一道：标签配对 + 必须以 </html> 收尾。
+    trunc = []
+    for u in ("/", "/articles/", "/qa/", "/login", "/search?q=Spring"):
+        _, b, _ = raw("GET", u)
+        txt = b.decode("utf-8", "replace")
+        probs = []
+        if not txt.rstrip().endswith("</html>"):
+            probs.append("未以 </html> 收尾")
+        for tag in ("nav", "main", "header", "footer"):
+            o, c = txt.count(f"<{tag}"), txt.count(f"</{tag}>")
+            if o != c:
+                probs.append(f"<{tag}>不配对({o}/{c})")
+        if probs:
+            trunc.append(f"{u}:{probs}")
+    check("关键页渲染结果结构完整（未被 FreeMarker 静默截断）", not trunc, f"异常={trunc}")
+
+    # 栏目表 list_template 曾属"后台能填、后端不读"的假功能（getListTemplate() 全仓 0 调用点），
+    # 现接在 TemplateResolver 的第 0 档（优先于 DB 指派与候选链）。库中 qa 栏目配了
+    # list-questions.html，正好作为该链路的现成探针：候选链会出现来源「调用方指定」。
+    st1, html1, tpl1 = front("/qa/")
+    check("栏目 list_template 被消费（/qa/ 命中「调用方指定」）",
+          "调用方指定" in html1 and tpl1 == "list-questions.html", f"tpl={tpl1}")
+
     print("\n=== P1-3 / sitemap（顺带修复：fly_cmodel_{code}） ===")
     st1, html1, _ = front("/sitemap.xml")
     cnt = html1.count("<url>")
     check("sitemap 含内容 URL（>2 条）", cnt > 2, f"url 数={cnt}")
+
+    # 全量巡抓：曾因 common/header.html 把 ?string(pattern) 用在 map 行 DATETIME 字符串上，
+    # 导致【全站所有内容详情页】内联输出 "FreeMarker template error"（HTTP 仍 200、体积也正常，
+    # 单页抽查 + 只看状态码都发现不了）。这里按 sitemap 逐页巡抓，才能兜住这类全局回归。
+    locs = re.findall(r"<loc>([^<]+)</loc>", html1)
+    paths = []
+    for u in locs:
+        p = re.sub(r"^https?://[^/]+", "", u.strip())
+        if p and p != "/":
+            paths.append(p)
+    bad, checked = [], 0
+    for p in paths[:120]:
+        try:
+            _, body2, _ = raw("GET", p)
+        except Exception as e:
+            bad.append(f"{p}(读响应失败:{type(e).__name__})")
+            continue
+        checked += 1
+        if b"FreeMarker template error" in body2:
+            bad.append(p)
+    check(f"sitemap 全量页面巡抓无模板报错（{checked} 页）", bool(checked) and not bad,
+          f"异常页={bad[:5]}")
 
     print("\n=== 错误页状态码语义（forward:/404 不丢状态码） ===")
     for url, want in (

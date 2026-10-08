@@ -6,54 +6,62 @@
 <#include "common/macros.html">
 <@fly_info_model model="${model.code}" shortUrl="${shortUrl!}">
 <#if info??>
-<#assign pageTitle>${info.title} - ${web_name!''}</#assign>
+<#assign pageTitle>${info.title} - ${(web_name)!''}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="crumb">
   <a href="/">首页</a><i>/</i><a href="/${model.code}/">${(model.name)!'下载'}</a><i>/</i>详情
 </div></div>
 <div class="wrap art">
   <div class="art-lay">
     <main>
-      <div class="art-hd"><h1>${info.title}</h1></div>
-      <div class="art-meta">
-        <span><@dt16 (info.createTime)!'' /></span>
-        <span>阅读 <b class="num">${(info.countView)!0}</b></span>
-      </div>
-      <div class="art-body">
-        <dl class="flds">
-          <div><dt>授权方式</dt><dd>${(info.auth)!'-'}</dd></div>
-          <div><dt>程序语言</dt><dd>${(info.language)!'-'}</dd></div>
-          <div><dt>文件大小</dt><dd><#if (info.fileSize)??>${info.fileSize} KB<#else>-</#if></dd></div>
-          <div><dt>系统要求</dt><dd>${(info.osRequire)!'-'}</dd></div>
-          <div><dt>运行环境</dt><dd>${(info.runEnv)!'-'}</dd></div>
-          <div><dt>演示地址</dt><dd><#if (info.demoUrl)?? && info.demoUrl != ''><a href="${info.demoUrl}" target="_blank" rel="nofollow">${info.demoUrl}</a><#else>-</#if></dd></div>
-        </dl>
-        <div class="art-dl">
-          <div>
-            <b>${info.title}</b>
-            <small><#if (info.fileSize)??>大小 ${info.fileSize} KB<#else>大小待定</#if> · ${(info.auth)!'未知授权'}</small>
-          </div>
-          <#if (info.fileUrl)?? && info.fileUrl != ''>
-          <a href="${info.fileUrl}">立即下载</a>
-          <#else>
-          <span>资源整理中</span>
-          </#if>
+      <article>
+        <div class="art-hd"><h1>${info.title}</h1></div>
+        <div class="art-meta">
+          <span><@dt16 (info.createTime)!'' /></span>
+          <span>阅读 <b class="num">${(info.countView)!0}</b></span>
         </div>
-        ${(info.content)!''}
-      </div>
+        <div class="art-body">
+          <dl class="flds">
+            <div><dt>授权方式</dt><dd>${(info.auth)!'-'}</dd></div>
+            <div><dt>程序语言</dt><dd>${(info.language)!'-'}</dd></div>
+            <div><dt>文件大小</dt><dd><#if (info.fileSize)??>${info.fileSize} KB<#else>-</#if></dd></div>
+            <div><dt>系统要求</dt><dd>${(info.osRequire)!'-'}</dd></div>
+            <div><dt>运行环境</dt><dd>${(info.runEnv)!'-'}</dd></div>
+            <div><dt>演示地址</dt><dd><#if (info.demoUrl)?? && info.demoUrl != ''><a href="${info.demoUrl}" target="_blank" rel="nofollow">${info.demoUrl}</a><#else>-</#if></dd></div>
+          </dl>
+          <div class="art-dl">
+            <div>
+              <b>${info.title}</b>
+              <small><#if (info.fileSize)??>大小 ${info.fileSize} KB<#else>大小待定</#if> · ${(info.auth)!'未知授权'}</small>
+            </div>
+            <#if (info.fileUrl)?? && info.fileUrl != ''>
+            <a href="${info.fileUrl}"><svg class="ic" aria-hidden="true"><use href="#i-download"></use></svg>立即下载</a>
+            <#else>
+            <span class="tag">资源整理中</span>
+            </#if>
+          </div>
+          ${(info.content)!''}
+        </div>
+        <@shareBar />
+      </article>
+      <#include "common/comments.html">
     </main>
     <@detailAside mc=model.code catId=(info.categoryId)!0 notid=(info.id)!0 />
   </div>
 </div>
+</main>
 <#include "common/footer.html">
 <#else>
-<#assign pageTitle>内容不存在 - ${web_name!''}</#assign>
+<#assign pageTitle>内容不存在 - ${(web_name)!''}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="err">
   <b class="num">404</b>
   <p>内容不存在或未通过审核，可能已被删除</p>
-  <a href="/">返回首页</a>
+  <a href="/downloads/">返回下载列表</a><a href="/">返回首页</a>
 </div></div>
+</main>
 <#include "common/footer.html">
 </#if>
 </@fly_info_model>

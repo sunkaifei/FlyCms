@@ -1,46 +1,43 @@
 <#-- ============================================================
-     商城 · 商品详情页（Z 批次：纯自定义模型组装，零商城专属代码）
+     商城 · 商品详情页（纯自定义模型组装，零商城专属后端代码）
      数据：fly_info_model（商品行）+ fly_list_model（SKU 列表）
-     加购：模板表单 POST /ucenter/action/carts（② 动作原语 submit）
+     加购：模板表单 POST /ucenter/action/carts（动作原语 submit）
      ============================================================ -->
 <#include "common/macros.html">
 <@fly_info_model model="products" shortUrl="${shortUrl!}">
 <#if info??>
-<#assign pageTitle>${info.title} - ${web_name!''}</#assign>
+<#assign pageTitle>${info.title} - ${(web_name)!''}</#assign>
 <#include "common/header.html">
-<style>
-  .pd-wrap{max-width:960px;margin:24px auto;padding:0 12px;display:flex;gap:20px;}
-  .pd-l{width:400px;flex-shrink:0;}
-  .pd-l img{width:100%;border-radius:8px;}
-  .pd-r{flex:1;}
-  .pd-r h1{font-size:22px;margin:0 0 10px;}
-  .pd-price{color:#e64340;font-size:24px;font-weight:700;margin:10px 0;}
-  .pd-brand{font-size:13px;color:#8a919f;margin-bottom:12px;}
-  .pd-sku{margin:16px 0;}
-  .pd-sku a{display:inline-block;border:1px solid #d9dce1;border-radius:4px;padding:6px 14px;margin:0 8px 8px 0;text-decoration:none;color:#333;font-size:14px;}
-  .pd-sku a.sel{border-color:#e64340;color:#e64340;}
-  .pd-params{margin:14px 0;font-size:14px;}
-  .pd-params div{padding:4px 0;}
-  .pd-btn{background:#e64340;color:#fff;border:0;border-radius:4px;padding:12px 36px;font-size:16px;cursor:pointer;}
-  .pd-summary{margin-top:16px;padding:14px;background:#fafafa;border-radius:6px;font-size:14px;line-height:1.8;}
-  .pd-msg{margin-left:12px;font-size:13px;}
-</style>
-<div class="pd-wrap">
+<main id="main">
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i><a href="/products/">商城</a><i>/</i>商品
+</div></div>
+
+<div class="wrap pd-wrap">
   <div class="pd-l">
     <#if (info.galleryUrls)?? && info.galleryUrls?size gt 0>
-      <#-- S2：懒加载 + 多尺寸响应式（gallery 首图与 gallerySrcset 由读侧展开） -->
-      <img src="${info.galleryUrls[0]}" alt="${info.title}" loading="lazy"
+      <#-- S2：懒加载 + 多尺寸响应式（galleryUrls / gallerySrcset 由读侧展开） -->
+      <img src="${info.galleryUrls[0]}" alt="${info.title?html}" loading="lazy"
         <#if (info.gallerySrcset)?? && info.gallerySrcset != ''>srcset="${info.gallerySrcset}"</#if>>
+      <#if info.galleryUrls?size gt 1>
+      <div class="pd-thumbs">
+        <#list info.galleryUrls as u>
+        <img src="${u}" alt="${info.title?html} 图 ${u?counter}" loading="lazy">
+        </#list>
+      </div>
+      </#if>
     <#else>
-      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg==" alt="商品图">
+      <span class="ph" data-label="商品" style="aspect-ratio:4/3"></span>
     </#if>
   </div>
+
   <div class="pd-r">
     <h1>${info.title}</h1>
     <#if (info.brandIdObj)??>
     <div class="pd-brand">品牌：${(info.brandIdObj.name)!'-'}</div>
     </#if>
-    <#-- SKU 区间价：列表标签拉本商品全部 SKU，min/max -->
+
+    <#-- SKU 区间价：拉本商品全部 SKU 取 min/max -->
     <@fly_list_model model="skus" product="${info.id}" rows="50">
       <#if (dataList)?? && dataList?size gt 0>
         <#-- BigDecimal 列转字符串比较（FreeMarker BigDecimal 与字面量比较类型陷阱） -->
@@ -55,78 +52,98 @@
         <#assign minP = (minS?length gt 0)?then(minS?number, 0)>
         <#assign maxP = (maxS?length gt 0)?then(maxS?number, 0)>
         <div class="pd-price">
-          <#if minP != maxP>¥${minP?string("0.00")} ~ ¥${maxP?string("0.00")}<#else>¥${minP?string("0.00")}</#if>
-          <#if !anyStock><span style="font-size:13px;color:#999;">（暂时缺货）</span></#if>
+          <#if minP != maxP>¥${minP?string("0.00")} <small>~ ¥${maxP?string("0.00")}</small><#else>¥${minP?string("0.00")}</#if>
+          <#if !anyStock><small>（暂时缺货）</small></#if>
         </div>
         <div class="pd-sku" id="skuBox">
+          <span class="lb">规格</span>
           <#list dataList as sku>
           <a href="javascript:void(0);" data-id="${sku.id}" data-price="${(sku.price)!0}" data-stock="${(sku.stock)!0}"
              onclick="pickSku(this)">${(sku.spec)!'规格'}</a>
           </#list>
         </div>
-        <#-- 加购：② 动作原语（登录后可用；未登录跳登录） -->
+        <#-- 加购：动作原语（登录后可用；未登录跳登录） -->
         <#if (user.userId)??>
         <form id="addCartForm" method="post" action="/ucenter/action/carts">
           <input type="hidden" name="sku_id" id="skuId" value="">
           <input type="hidden" name="qty" value="1">
-          <button class="pd-btn" type="submit">加入购物车</button>
-          <span class="pd-msg" id="pdMsg"></span>
+          <div class="pd-buy">
+            <button class="btn btn-primary btn-lg" type="submit"><svg class="ic" aria-hidden="true"><use href="#i-cart"></use></svg>加入购物车</button>
+            <span class="text-muted" id="pdMsg" style="font-size:13px;align-self:center"></span>
+          </div>
         </form>
         <#else>
-        <a class="pd-btn" href="/login" style="display:inline-block;text-decoration:none;">登录后购买</a>
+        <div class="pd-buy">
+          <a class="btn btn-primary btn-lg" href="/login">登录后购买</a>
+          <a class="btn btn-outline btn-lg" href="/ucenter/mall/cart">查看购物车</a>
+        </div>
         </#if>
       <#else>
         <div class="pd-price">暂无报价</div>
       </#if>
     </@fly_list_model>
+
     <#if (info.summary)?? && info.summary != ''>
-    <div class="pd-summary">${info.summary}</div>
+    <div class="alert alert-info" style="margin-top:16px"><span>${info.summary}</span></div>
     </#if>
+
     <#-- REPEATER 参数（若配了 params 字段则渲染） -->
     <#if (info.paramsList)?? && info.paramsList?size gt 0>
-    <div class="pd-params">
+    <dl class="flds" style="margin-top:18px">
       <#list info.paramsList as p>
-      <div>${(p.paramName)!''}：${(p.paramValue)!''}</div>
+      <div><dt>${(p.paramName)!''}</dt><dd>${(p.paramValue)!''}</dd></div>
       </#list>
-    </div>
+    </dl>
     </#if>
   </div>
 </div>
-<div class="pd-wrap" style="display:block;">
-  <div class="pd-summary" style="margin-top:0;">
-    <h3 style="margin-top:0;">商品详情</h3>
-    ${(info.content)!''}
-  </div>
+
+<div class="wrap">
+  <section class="card" style="margin-top:26px">
+    <div class="side-hd"><h2>商品详情</h2></div>
+    <div class="art-body">${(info.content)!''}</div>
+  </section>
 </div>
+
 <script>
   function pickSku(el) {
-    document.querySelectorAll('#skuBox a').forEach(function (a) { a.classList.remove('sel'); });
-    el.classList.add('sel');
-    document.getElementById('skuId').value = el.dataset.id;
+    var box = document.getElementById('skuBox');
+    if (box) { Array.prototype.forEach.call(box.querySelectorAll('a'), function (a) { a.classList.remove('on'); }); }
+    el.classList.add('on');
+    var f = document.getElementById('skuId');
+    if (f) { f.value = el.dataset.id; }
   }
   <#if (user.userId)??>
-  document.getElementById('addCartForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var sku = document.getElementById('skuId').value;
-    if (!sku) { document.getElementById('pdMsg').textContent = '请先选择规格'; return; }
-    var fd = new FormData(this);
-    fetch(this.action, { method: 'POST', body: new URLSearchParams(fd) })
-      .then(function (r) { return r.json(); })
-      .then(function (j) {
-        document.getElementById('pdMsg').textContent = j.code === 0 ? '已加入购物车 ✓' : (j.message || '失败');
-      });
-  });
+  (function () {
+    var form = document.getElementById('addCartForm');
+    if (!form) { return; }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var sku = document.getElementById('skuId').value;
+      var msg = document.getElementById('pdMsg');
+      if (!sku) { if (msg) { msg.textContent = '请先选择规格'; } return; }
+      fetch(this.action, { method: 'POST', body: new URLSearchParams(new FormData(this)) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (msg) { msg.textContent = j.code === 0 ? '已加入购物车 ✓' : (j.message || '加入失败'); }
+        })
+        .catch(function () { if (msg) { msg.textContent = '网络异常，请重试'; } });
+    });
+  })();
   </#if>
 </script>
+</main>
 <#include "common/footer.html">
 <#else>
-<#assign pageTitle>商品不存在 - ${web_name!''}</#assign>
+<#assign pageTitle>商品不存在 - ${(web_name)!''}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="err">
   <b class="num">404</b>
   <p>商品不存在或已下架</p>
-  <a href="/products/">返回商城</a>
+  <a href="/products/">返回商城</a><a href="/">返回首页</a>
 </div></div>
+</main>
 <#include "common/footer.html">
 </#if>
 </@fly_info_model>

@@ -1,31 +1,51 @@
 <#-- ============================================================
-     全站头：head（title 由各页面 assign pageTitle 决定）+ 墨青顶栏
+     全站头：head + 墨青顶栏（粘性）+ 窄屏抽屉
      用法：<#assign pageTitle="xxx"> 后 <#include "common/header.html">
+     ⚠ 本文件不 include macros.html（历史上有 13 个模板只 include header），
+       因此这里不能调用宏，图标一律内联 sprite + <use>。
      ============================================================ -->
+<#assign __title = (pageTitle)!((seo_title)!((web_name)!'FlyCms'))>
+<#assign __kw = (keywords)!((seo_keywords)!'')>
+<#assign __desc = (description)!((seo_description)!'')>
 <!DOCTYPE html>
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${(pageTitle)!seo_title!''}</title>
-<meta name="keywords" content="${(keywords)!seo_keywords!''}">
-<meta name="description" content="${(description)!seo_description!''}">
+<meta name="theme-color" content="#16324A">
+<meta name="format-detection" content="telephone=no">
+<title>${__title?html}</title>
+<meta name="keywords" content="${__kw?html}">
+<meta name="description" content="${__desc?html}">
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 <link rel="stylesheet" href="/skin/pc_theme/defalut/css/portal.css">
 <#-- G19 设计令牌：theme.json settings → CSS 变量（模板/自定义 CSS 消费 var(--fly-color-*) 等） -->
 <@fly_theme_vars />
-<#-- T-a SEO 结构化数据（JSON-LD）：详情页自动注入 Article + BreadcrumbList，非详情页静默跳过 -->
+<#-- T-a SEO 结构化数据（JSON-LD）：详情页自动注入 Article + BreadcrumbList，非详情页静默跳过
+     ⚠ 模型数据 map 里 DATETIME 列是 ISO 字符串（如 2026-09-21T05:55:28），不是 java.util.Date，
+       ${...?string(pattern)} 会抛 NonMethodException「Expected a method or function」——只能做
+       字符串替换/截取（规范见 ../common/macros.html 的 date10 / dt16）。此处只归一化空格→T、
+       去掉毫秒，保持 schema.org 接受的 ISO 8601 形态。 -->
 <#if (info.title)?? && (info.shortUrl)??>
+<#assign jsonLdPub = ((info.createTime)!'')?replace(' ', 'T')?keep_before('.')>
+<#assign jsonLdMod = ((info.updateTime)!((info.createTime)!''))?replace(' ', 'T')?keep_before('.')>
+<#-- ⚠ 括号不能省：`a!b?c` 按 `a!(b?c)` 解析（? 优先级高于 !），少写一层括号会让
+       ?json_string 只作用于字面量默认值、真实值完全不转义（已实测：`(v)!'x'?json_string` → `a"b`）。 -->
+<#assign jsonLdSite = ((web_url)!'http://localhost')?json_string>
+<#assign jsonLdModel = ((model.code)!'page')?json_string>
+<#assign jsonLdSlug = (info.shortUrl)?json_string>
+<#assign jsonLdModelName = ((model.name)!'列表')?json_string>
+<#assign jsonLdSiteName = ((web_name)!'FlyCms')?json_string>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": "${info.title?json_string}",
-  "url": "${(web_url)!'http://localhost'}/${model.code!'page'}/${info.shortUrl}.html",
-  "datePublished": "${(info.createTime!'')?string("yyyy-MM-dd'T'HH:mm:ssXXX")}",
-  "dateModified": "${(info.updateTime!info.createTime!'')?string("yyyy-MM-dd'T'HH:mm:ssXXX")}",
+  "url": "${jsonLdSite}/${jsonLdModel}/${jsonLdSlug}.html",
+  "datePublished": "${jsonLdPub}",
+  "dateModified": "${jsonLdMod}",
   "author": {"@type": "Person", "name": "作者${(info.userId)!'0'}"},
-  "publisher": {"@type": "Organization", "name": "${(web_name)!'FlyCms'?json_string}"}
+  "publisher": {"@type": "Organization", "name": "${jsonLdSiteName}"}
 }
 </script>
 <script type="application/ld+json">
@@ -33,8 +53,8 @@
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    {"@type": "ListItem", "position": 1, "name": "首页", "item": "${(web_url)!'http://localhost'}/"},
-    {"@type": "ListItem", "position": 2, "name": "${(model.name)!'列表'?json_string}", "item": "${(web_url)!'http://localhost'}/${model.code!'page'}/"},
+    {"@type": "ListItem", "position": 1, "name": "首页", "item": "${jsonLdSite}/"},
+    {"@type": "ListItem", "position": 2, "name": "${jsonLdModelName}", "item": "${jsonLdSite}/${jsonLdModel}/"},
     {"@type": "ListItem", "position": 3, "name": "${info.title?json_string}"}
   ]
 }
@@ -42,11 +62,54 @@
 </#if>
 </head>
 <body>
+<#-- 图标 sprite：全站零请求复用。<use href="#i-xxx"> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M3.5 6.5h17M3.5 12h17M3.5 17.5h17"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.7-3.6 3.7-5.6 7.2-5.6s6.5 2 7.2 5.6"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M9.5 14.5l5-5"/><path d="M13 7.5l1.6-1.6a3.6 3.6 0 0 1 5.1 5.1L18 12.6"/><path d="M11 16.5l-1.6 1.6a3.6 3.6 0 0 1-5.1-5.1L6 11.4"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="18.5" r="2.6"/><path d="M8.3 10.7l7.4-3.9M8.3 13.3l7.4 3.9"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><path d="M12 7.5V12l3 2"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.6 12S6 6.2 12 6.2 21.4 12 21.4 12 18 17.8 12 17.8 2.6 12 2.6 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+<symbol id="i-comment" viewBox="0 0 24 24"><path d="M4 5.5h16v11H9l-5 4z"/></symbol>
+<symbol id="i-tag" viewBox="0 0 24 24"><path d="M4 12.5V5a1 1 0 0 1 1-1h7.5L20 11.5 12.5 19z"/><circle cx="8.6" cy="8.6" r="1.4"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 19h15"/></symbol>
+<symbol id="i-cart" viewBox="0 0 24 24"><path d="M3.5 5h2.2l2 10.5h9.8L19 8H8"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4.5 2.3 4.9 5.2.7-3.8 3.7.9 5.3-4.6-2.5-4.6 2.5.9-5.3L4.5 10l5.2-.7z"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="1.5"/><path d="m4.5 7 7.5 5.5L19.5 7"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="M15.5 5.2 18.8 8.5 9 18.3l-4 .7.7-4z"/><path d="M14 6.7 17.3 10"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.5S4.5 15 4.5 9.8A3.8 3.8 0 0 1 12 7.7a3.8 3.8 0 0 1 7.5 2.1c0 5.2-7.5 9.7-7.5 9.7z"/></symbol>
+<symbol id="i-trend" viewBox="0 0 24 24"><path d="M4 16.5 9.5 11l3.5 3.5L20 7.5"/><path d="M15.5 7.5H20V12"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.8"/><path d="M19 12c0-.6-.1-1.2-.2-1.7l1.6-1.2-1.8-3-1.9.8a7.4 7.4 0 0 0-3-1.7L13.4 3h-3.4l-.3 2.2c-1.1.4-2.1 1-2.9 1.7l-2-.8-1.7 3 1.6 1.2a7.6 7.6 0 0 0 0 3.4L3.1 15l1.7 3 2-.8c.8.7 1.8 1.3 2.9 1.7l.3 2.1h3.4l.3-2.1c1.1-.4 2.1-1 2.9-1.7l2 .8 1.7-3-1.6-1.2c.1-.5.2-1.1.2-1.8z"/></symbol>
+<symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 5.5h4.5a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H14"/><path d="M10 8.5 6.5 12l3.5 3.5"/><path d="M6.5 12H15"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6.5h12M8 12h12M8 17.5h12"/><circle cx="4.4" cy="6.5" r="1"/><circle cx="4.4" cy="12" r="1"/><circle cx="4.4" cy="17.5" r="1"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><path d="M9.6 9.6a2.4 2.4 0 1 1 3.2 2.2c-.6.3-.8.7-.8 1.4v.5"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1.5"/><circle cx="8.6" cy="9.8" r="1.6"/><path d="m4.5 17 5-5 4.5 4.5 2.5-2 3 2.5"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="m12 3.5 8 4.2v8.6l-8 4.2-8-4.2V7.7z"/><path d="m4 7.7 8 4.3 8-4.3M12 12v8.5"/></symbol>
+<symbol id="i-gold" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.8v8.4M14.6 9.8c-.5-.8-1.4-1.2-2.6-1.2-1.4 0-2.4.7-2.4 1.8 0 2.6 5.4 1.2 5.4 3.9 0 1.2-1.1 2-2.7 2-1.3 0-2.3-.5-2.8-1.3"/></symbol>
+</defs></svg>
+
+<a class="skip-link" href="#main">跳到主要内容</a>
+<div class="read-progress" aria-hidden="true"></div>
+
 <header class="topbar">
   <div class="wrap topbar-in">
-    <a class="brand" href="/">Fly<em>Cms</em></a>
-    <nav class="nav">
-      <a href="/">首页</a>
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">墨</span>Fly<em>Cms</em>
+    </a>
+    <nav class="nav" aria-label="主站导航">
+      <a href="/"<#if ((page_type)!'') == 'INDEX'> class="on"</#if>>首页</a>
+      <#-- ⚠ 导航去重：下面 4 个模型链接是写死的，而栏目 news→articles、qa→questions 已经覆盖了
+           它们（/qa/ 与 /questions/ 甚至渲染同一个 list-questions.html），
+           于是导航出现两个「问答」——同名不同址，用户分不清，也白占位置。
+           做法：栏目渲染时顺带收集它绑定的模型 code，写死的模型链接只在"没被栏目覆盖"时才输出。
+           navModelCodes 必须在标签【外】先 assign 一次：标签体内重新 assign 会写回同一命名空间，
+           但先声明可保证即使 channelTree 为空也不会 undefined（?seq_contains 会抛异常）。 -->
+      <#assign navModelCodes = []>
       <@fly_channel_tree>
       <#if channelTree?? && channelTree?size gt 0>
       <#list channelTree as ch>
@@ -55,26 +118,96 @@
       <#else>
         <a href="/${ch.channelDir}/"<#if ((channel.channelDir)!'') == ch.channelDir> class="on"</#if>>${ch.channelName}</a>
       </#if>
+      <#if (ch.modelCode)??><#assign navModelCodes = navModelCodes + [ch.modelCode]></#if>
       </#list>
       </#if>
       </@fly_channel_tree>
-      <a href="/articles/"<#if ((model.code)!'') == 'articles'> class="on"</#if>>文章</a>
-      <a href="/downloads/"<#if ((model.code)!'') == 'downloads'> class="on"</#if>>下载</a>
-      <a href="/images/"<#if ((model.code)!'') == 'images'> class="on"</#if>>图集</a>
+      <#if !navModelCodes?seq_contains('articles')><a href="/articles/"<#if ((model.code)!'') == 'articles'> class="on"</#if>>文章</a></#if>
+      <#if !navModelCodes?seq_contains('downloads')><a href="/downloads/"<#if ((model.code)!'') == 'downloads'> class="on"</#if>>下载</a></#if>
+      <#if !navModelCodes?seq_contains('images')><a href="/images/"<#if ((model.code)!'') == 'images'> class="on"</#if>>图集</a></#if>
+      <#if !navModelCodes?seq_contains('questions')><a href="/questions/"<#if ((model.code)!'') == 'questions'> class="on"</#if>>问答</a></#if>
     </nav>
-    <form action="/search" method="get">
-      <input type="text" name="q" value="${(q)!''}" placeholder="搜索站内内容">
+    <form class="search" action="/search" method="get" role="search">
+      <svg class="ic" aria-hidden="true"><use href="#i-search"></use></svg>
+      <label class="sr-only" for="q-top">站内搜索</label>
+      <#-- ⚠ 引号不能省：`a!b?c` 按 `a!(b?c)` 解析，`(q)!''?html` 的转义只作用在默认值上，
+           真实值完全不转义 → 反射型 XSS（已实测 `?q="><script>...` 可原样注入）。 -->
+      <input id="q-top" type="text" name="q" value="${((q)!'')?html}" placeholder="搜索站内内容" autocomplete="off">
       <button type="submit">搜索</button>
     </form>
     <div class="u">
       <@fly_login>
       <#if status??>
-        <a href="/logout">退出</a>
+        <div class="umenu">
+          <a class="uname" href="/ucenter/account">
+            <span class="av"><svg class="ic" aria-hidden="true"><use href="#i-user"></use></svg></span>
+            <span class="tx">${((status.nickName)!'我的')?html}</span>
+          </a>
+          <div class="umenu-panel">
+            <a href="/ucenter/account"><svg class="ic" aria-hidden="true"><use href="#i-user"></use></svg>个人中心</a>
+            <a href="/ucenter/submit/articles"><svg class="ic" aria-hidden="true"><use href="#i-edit"></use></svg>我要投稿</a>
+            <a href="/ucenter/favorite"><svg class="ic" aria-hidden="true"><use href="#i-star"></use></svg>我的收藏</a>
+            <a href="/ucenter/mall/cart"><svg class="ic" aria-hidden="true"><use href="#i-cart"></use></svg>购物车</a>
+            <hr>
+            <a href="/logout"><svg class="ic" aria-hidden="true"><use href="#i-logout"></use></svg>退出登录</a>
+          </div>
+        </div>
       <#else>
         <a href="/login">登录</a>
         <a href="/reg">注册</a>
       </#if>
       </@fly_login>
     </div>
+    <a class="nav-toggle" href="#nav-drawer" aria-label="打开导航菜单">
+      <svg class="ic" aria-hidden="true"><use href="#i-menu"></use></svg>
+    </a>
   </div>
 </header>
+
+<#-- 窄屏抽屉（纯 CSS :target 打开，零 JS 可用；点遮罩或右上 × 关闭） -->
+<div class="nav-drawer" id="nav-drawer" role="dialog" aria-label="导航菜单">
+  <a class="nav-drawer-mask" href="#" aria-label="关闭导航菜单" data-no-smooth></a>
+  <div class="nav-drawer-in">
+    <div class="dh">
+      <b>导航</b>
+      <a href="#" aria-label="关闭"><svg class="ic" aria-hidden="true"><use href="#i-close"></use></svg></a>
+    </div>
+    <nav>
+      <a href="/"<#if ((page_type)!'') == 'INDEX'> class="on"</#if>>首页</a>
+      <#-- 与顶部主导航同一套去重规则：先清空再让栏目标签重新填充，避免与上面那轮累加 -->
+      <#assign navModelCodes = []>
+      <@fly_channel_tree>
+      <#if channelTree?? && channelTree?size gt 0>
+      <#list channelTree as ch>
+      <#if ch.channelType == 2>
+        <a href="${ch.outUrl!'/'}" target="_blank" rel="nofollow">${ch.channelName}</a>
+      <#else>
+        <a href="/${ch.channelDir}/"<#if ((channel.channelDir)!'') == ch.channelDir> class="on"</#if>>${ch.channelName}</a>
+      </#if>
+      <#if (ch.modelCode)??><#assign navModelCodes = navModelCodes + [ch.modelCode]></#if>
+      </#list>
+      </#if>
+      </@fly_channel_tree>
+      <#if !navModelCodes?seq_contains('articles')><a href="/articles/">文章</a></#if>
+      <#if !navModelCodes?seq_contains('downloads')><a href="/downloads/">下载</a></#if>
+      <#if !navModelCodes?seq_contains('images')><a href="/images/">图集</a></#if>
+      <#if !navModelCodes?seq_contains('questions')><a href="/questions/">问答</a></#if>
+    </nav>
+    <form action="/search" method="get" role="search">
+      <label class="sr-only" for="q-drawer">站内搜索</label>
+      <input id="q-drawer" type="text" name="q" value="${((q)!'')?html}" placeholder="搜索站内内容">
+      <button class="btn btn-primary" type="submit">搜索</button>
+    </form>
+    <#if (user.userId)??>
+    <nav style="margin-top:16px">
+      <a href="/ucenter/account">个人中心</a>
+      <a href="/logout">退出登录</a>
+    </nav>
+    <#else>
+    <nav style="margin-top:16px">
+      <a href="/login">登录</a>
+      <a href="/reg">注册新账号</a>
+    </nav>
+    </#if>
+  </div>
+</div>

@@ -28,9 +28,16 @@ import java.util.Map;
 @Service
 public class TagManualService {
 
-    /** 分组顺序：决定后台手册页的分组展示顺序 */
+    /**
+     * 分组顺序：决定后台手册页的分组展示顺序。
+     *
+     * <p><b>⚠ 每个 {@link #add} 用到的分组都必须在此登记</b>——{@link #manual(String)} 的
+     * 作用域过滤是 {@code for (String g : GROUPS)} 驱动的，漏登记的分组不会报错，而是在
+     * 过滤时被<b>整组静默丢弃</b>（{@code fly_commentpage} 的「评论」组曾因此从 scope 过滤结果里消失）。
+     * 另：{@code 文章/问答/分享/专题} 为退役模块留下的空分组，仅保留占位。
+     */
     private static final List<String> GROUPS = Arrays.asList(
-            "模型", "栏目", "碎片", "部件", "文章", "问答", "分享", "专题", "用户", "检索", "通用");
+            "模型", "栏目", "碎片", "部件", "广告", "文章", "问答", "分享", "专题", "用户", "检索", "评论", "通用");
 
     // /////////////////// 作用域（§9.2 借鉴织梦的"标签作用域"分类） ///////////////////
 
@@ -112,6 +119,8 @@ public class TagManualService {
         SCOPES.put("fly_stringcut", "global");
         SCOPES.put("fly_dateformat", "global");
         SCOPES.put("fly_areaslist", "global");
+        // 广告（fly_ad：按广告位标识输出在投广告，任意模板可挂）
+        SCOPES.put("fly_ad", "global");
     }
 
     /** 作用域清单（代码→中文名），供后台下拉渲染 */
@@ -639,6 +648,21 @@ public class TagManualService {
                 "<@fly_areaslist parentId=\"0\">\n"
                         + "  <#list areaslist as a><option value=\"${a.areaId!''}\">${a.areaName!''}</option></#list>\n"
                         + "</@fly_areaslist>");
+
+        add(data, "广告", "fly_ad", "广告位输出",
+                "按广告位标识输出在投广告。缺省（不带标签体）直接输出广告 HTML"
+                        + "——图片广告输出 {@code <a><img></a>}、文字广告输出 {@code <a>}、代码广告原样输出；"
+                        + "带标签体时改为自定义循环。只输出<b>启用中且在当前投放时间窗内</b>的广告，按权重降序，"
+                        + "渲染即累计一次展示次数（总数 + 按日明细）。",
+                "adList（广告行：id/name/adType/imageUrl/url/textContent/htmlCode/countView/countClick）、"
+                        + "adPosition（广告位：id/name/adKey/width/height）；"
+                        + "缺省直出时无输出变量，广告 HTML 直接写到当前位置",
+                params(p("key", true, "广告位标识（后台广告位配置的 adKey）"),
+                        p("rows", false, "最多输出条数，默认 10")),
+                "<@fly_ad key=\"sidebar\"/>\n"
+                        + "<#-- 自定义循环：\n"
+                        + "<@fly_ad key=\"sidebar\"><#list adList as ad>"
+                        + "<a href=\"/ad/click/${ad.id}\" target=\"_blank\">${ad.name}</a></#list></@fly_ad> -->");
 
         return data;
     }

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+<#-- 通知提醒（页面保留，后台暂未提供消息数据源） -->
+<#assign pageTitle = "通知提醒">
+<#include "../common/macros.html">
+<#include "../common/header.html">
+<main id="main">
+<@userDash nav="message" title="通知提醒" desc="系统通知与互动提醒">
+  <div class="panel"><@emptyState title="暂无新通知" desc="评论、回答被采纳等提醒会显示在这里。" link="/" linkText="返回首页" /></div>
+</@userDash>
+</main>
+<#include "../common/footer.html">

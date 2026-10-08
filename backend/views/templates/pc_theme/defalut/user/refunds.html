@@ -1,0 +1,15 @@
+<#-- 退款申请：路由存在但暂无后端数据源，给统一「暂未开放」页，避免回落到 404 模板 -->
+<#assign pageTitle = "退款申请">
+<#include "../common/macros.html">
+<#include "../common/header.html">
+<main id="main">
+<@userDash nav="refunds" title="退款申请" desc="功能建设中">
+  <div class="panel">
+    <div class="panel-bd">
+      <div class="alert alert-info">该功能尚未开放：退款申请需要订单与售后流程支撑，暂未开放。</div>
+      <p class="dash-note">如果你需要这个能力，欢迎通过<a href="/ucenter/mall/orders">查看我的订单</a>或站点联系方式反馈，我们会按需求优先级排期。</p>
+    </div>
+  </div>
+</@userDash>
+</main>
+<#include "../common/footer.html">

@@ -1,77 +1,67 @@
 <#-- ============================================================
      文章模型详情页（detail-articles 优先于 articles/detail 命中）
-     JeecMS 模式：面包屑 → 标题 → 时间/来源/作者/阅读 → 正文 → 相关阅读侧栏
+     结构：面包屑 → 标题 → 时间/来源/作者/阅读 → 正文 → 标签 → 分享 → 评论 → 侧栏
      ============================================================ -->
 <#include "common/macros.html">
 <@fly_info_model model="${model.code}" shortUrl="${shortUrl!}">
 <#if info??>
-<#assign pageTitle>${info.title} - ${web_name!''}</#assign>
+<#assign pageTitle>${info.title} - ${(web_name)!''}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="crumb">
   <a href="/">首页</a><i>/</i><a href="/${model.code}/">${(model.name)!'文章'}</a><i>/</i>正文
 </div></div>
 <div class="wrap art">
   <div class="art-lay">
     <main>
-      <div class="art-hd"><h1>${info.title}</h1></div>
-      <div class="art-meta">
-        <span><@dt16 (info.createTime)!'' /></span>
-        <#if (info.source)?? && info.source != ''><span>来源：${info.source}</span></#if>
-        <#if (info.author)?? && info.author != ''><span>作者：${info.author}</span></#if>
-        <span>阅读 <b class="num">${(info.countView)!0}</b></span>
-      </div>
-      <div class="art-body">
-        <#if (info.redirecturl)?? && info.redirecturl != ''>
-          <p>本文为外部转载，<a href="${info.redirecturl}" rel="nofollow" target="_blank">阅读原文 →</a></p>
-          <p>${(info.description)!''}</p>
-        <#else>
-          ${(info.content)!''}
+      <article>
+        <div class="art-hd"><h1>${info.title}</h1></div>
+        <div class="art-meta">
+          <span><svg class="ic" aria-hidden="true"><use href="#i-clock"></use></svg><@dt16 (info.createTime)!'' /></span>
+          <#if (info.source)?? && info.source != ''><span>来源：${info.source?html}</span></#if>
+          <#if (info.author)?? && info.author != ''><span>作者：${info.author?html}</span></#if>
+          <span><svg class="ic" aria-hidden="true"><use href="#i-eye"></use></svg>阅读 <b class="num">${(info.countView)!0}</b></span>
+        </div>
+        <#if (info.description)?? && info.description != ''>
+        <p class="art-sub">${info.description?html}</p>
         </#if>
-      </div>
-      <#if (info.tags)?? && info.tags != ''>
-      <div class="art-nav"><span>标签：${info.tags}</span></div>
-      </#if>
-      <#-- E4 平台评论（U3 替代旧文章评论通道）：列表 + 发表 -->
-      <div class="art-nav art-comments">
-        <h3>评论 <small>(${(info.countComment)!0})</small></h3>
-        <@fly_commentpage targetModel="${model.code}" targetId="${info.id}" p="${p!1}" rows="10">
-          <#if (comment_page.list)?? && comment_page.list?size gt 0>
-          <#list comment_page.list as c>
-          <div class="comment-item" id="comment-${c.id}">
-            <p><b>${c.nickname}</b> <span class="text-muted"><@dt16 (c.createTime)!'' /></span></p>
-            <div>${c.content}</div>
-          </div>
-          </#list>
+        <div class="art-body">
+          <#if (info.redirecturl)?? && info.redirecturl != ''>
+            <p>本文为外部转载，<a href="${info.redirecturl}" rel="nofollow" target="_blank">阅读原文 →</a></p>
+            <p>${(info.description)!''}</p>
           <#else>
-          <p class="text-muted">暂无评论，来抢沙发～</p>
+            ${(info.content)!''}
           </#if>
-          <div class="text-center"><ul class="pagination">${commentPageHtml}</ul></div>
-        </@fly_commentpage>
-        <#if (user.userId)??>
-        <form id="comment_form" method="post" action="/ucenter/comment/save">
-          <input type="hidden" name="targetModel" value="${model.code}">
-          <input type="hidden" name="targetId" value="${info.id}">
-          <textarea name="content" rows="3" maxlength="2000" required
-                    placeholder="写下你的评论（管理员开启审核时，评论通过后显示）"></textarea>
-          <button type="submit" class="btn btn-primary">发表评论</button>
-        </form>
-        <#else>
-        <p><a href="/login">登录</a> 后发表评论</p>
+        </div>
+        <#if (info.tags)?? && info.tags != ''>
+        <div class="art-tags">
+          <span class="lb"><svg class="ic" aria-hidden="true"><use href="#i-tag"></use></svg>标签</span>
+          <#if (info.tags)?is_string>
+          <#list info.tags?split(',') as t><#if t?trim != ''><a href="/tag/${t?trim?url('UTF-8')}">${t?trim?html}</a></#if></#list>
+          <#else>
+          <span>${info.tags}</span>
+          </#if>
+        </div>
         </#if>
-      </div>
+        <@shareBar />
+      </article>
+      <#include "common/comments.html">
     </main>
     <@detailAside mc=model.code catId=(info.categoryId)!0 notid=(info.id)!0 />
   </div>
 </div>
+</main>
 <#include "common/footer.html">
 <#else>
-<#assign pageTitle>内容不存在 - ${web_name!''}</#assign>
+<#assign pageTitle>内容不存在 - ${(web_name)!''}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="err">
   <b class="num">404</b>
   <p>内容不存在或未通过审核，可能已被删除</p>
-  <a href="/">返回首页</a>
+  <a href="/articles/">返回文章列表</a><a href="/">返回首页</a>
 </div></div>
+</main>
 <#include "common/footer.html">
 </#if>
 </@fly_info_model>

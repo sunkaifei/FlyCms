@@ -50,7 +50,8 @@ spring:
       # 初始化大小，最小，最大
       initialSize: 5
       minIdle: 5
-      maxActive: 20
+      # 32 起（原 20 偏小）：配合线程池与慢查询余量可调，生产用环境变量覆盖
+      maxActive: ${FLYCMS_DB_MAX_ACTIVE:32}
       # 配置获取连接等待超时的时间
       maxWait: 60000
       # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
@@ -111,8 +112,8 @@ site:
 # ============================================================
 # 安全与跨域（阶段 K2/G2）
 # ------------------------------------------------------------
-# 默认值面向开发：CORS 只放行本机，CSRF 处于"监听模式"（只记录不拦截）。
-# 生产由 prod profile 覆盖为真实域名并把 CSRF 切强制（见文末 prod 段）。
+# CORS 默认只放行本机；CSRF 默认已切强制（前端 api/request.ts 回填 X-XSRF-TOKEN），
+# 生产由 prod profile 覆盖 CORS 域名。Druid 监控台默认不注册。
 # 详见《主流CMS对标与全项目优化开发方案》§7.2。
 # ============================================================
 flycms:
@@ -121,8 +122,9 @@ flycms:
     allowed-hosts: "localhost,127.0.0.1"
   security:
     csrf:
-      # false=监听模式（灰度），true=强制校验（无 token 的 /api 写操作返回 403）
-      enabled: false
+      # true=强制校验（/api/** 的 POST/PUT/PATCH/DELETE 缺 X-XSRF-TOKEN 返回 403）
+      # 前端已在 api/request.ts 回填该请求头（双提交 cookie），校验开启后不影响后台写操作
+      enabled: true
       header-name: "X-XSRF-TOKEN"
       cookie-name: "XSRF-TOKEN"
       path-prefix: "/api/"
@@ -132,6 +134,15 @@ flycms:
     hsts:
       max-age: 31536000
       include-subdomains: true
+  # Druid 监控台（默认关闭）：仅在受控环境显式开启并配置账号口令，
+  # 口令不得写死在源码里，故本文件不提供默认值。
+  # 开启示例：FLYCMS_DRUID_ENABLED=true FLYCMS_DRUID_USER=xxx FLYCMS_DRUID_PASSWORD=xxx
+  druid:
+    enabled: false
+    username: ""
+    password: ""
+    # 来源白名单；若部署在反向代理之后，务必改为运维真实出口网段（否则 remoteAddr 恒为代理地址）
+    allow: "127.0.0.1"
 
 ---
 # ============================================================
@@ -170,12 +181,21 @@ spring:
       cookie:
         # 阶段 K2/G2：生产强制 HTTPS-only Cookie
         secure: true
+  # 生产数据库账号口令必须由环境变量提供（不提供默认值：缺配置直接启动失败，
+  # 避免带着开发弱口令 123456 上线）
+  datasource:
+    username: ${FLYCMS_DB_USER}
+    password: ${FLYCMS_DB_PASSWORD}
 
-# 生产：CORS 只放行真实域名（不再出现 localhost）；CSRF 灰度期结束、确认无漏网端点后把
-# flycms.security.csrf.enabled 改为 true 即切强制（建议先观察日志中的 "CSRF 监听" 记录一周）。
+# 生产：CORS 只放行真实域名（不再出现 localhost）。
+# CSRF 已切强制：前端 api/request.ts 会回填 X-XSRF-TOKEN（双提交 cookie）；
+# 若有非浏览器客户端（脚本/移动端）直连 /api/**，需自行回填该请求头。
 flycms:
   cors:
     allowed-hosts: "www.28844.com,28844.com"
   security:
     csrf:
-      enabled: false
+      enabled: true
+  # 生产严禁开启 Druid 监控台（会暴露 SQL / URI / 会话信息）
+  druid:
+    enabled: false

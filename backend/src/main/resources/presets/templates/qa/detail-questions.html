@@ -1,81 +1,85 @@
 <#-- ============================================================
-     问答频道 · 问题详情页（X 批次样板，前台互动闭环）
-     数据：fly_info_model（问题行）+ fly_list_model（回答两段：采纳置顶/全部）
-     回答数：(info.questionBacks)![]?size —— P2 双向标注反向引用（零查询）
-     采纳：提问者本人可见表单按钮 → POST /ucenter/content/update（X2 所有者通道）
-     回答入口：/ucenter/submit/answers?question={id}（X1 上下文预置）
+     ⚠ 本文件与「defalut」主题同源，由主题文件
+        views/templates/pc_theme/defalut/detail-questions.html 同步而来。
+     ------------------------------------------------------------
+     预设包应用（PresetService.apply）会把它写到当前主题下同名路径，
+     而 list-xxx.html / detail-xxx.html 正好命中 TemplateResolver 的
+     「模型级候选」→ **会真的被前台渲染**。所以它必须与主题设计体系保持一致。
+     依赖：主题的 common/macros.html（@listHead/@qaRows/@pager/@emptyState…）
+           与 static/skin/.../css/portal.css 的组件类。
+     换到没有这些公共组件的主题使用时，需自行改为自包含写法。
+     ============================================================ -->
+<#-- ============================================================
+     问答频道 · 问题详情页
+     数据：fly_info_model（问题行）+ fly_list_model（回答两段：采纳置顶 / 全部）
+     回答数：(info.questionBacks)![]?size —— 双向标注反向引用（零查询）
+     采纳：提问者本人可见表单按钮 → POST /ucenter/content/update（所有者通道）
+     回答入口：/ucenter/submit/answers?question={id}（上下文预置）
      ============================================================ -->
 <#include "common/macros.html">
 <@fly_info_model model="questions" shortUrl="${shortUrl!}">
 <#if info??>
-<#assign pageTitle>${info.title} - ${web_name!''}</#assign>
+<#assign pageTitle>${info.title} - ${(web_name)!''}</#assign>
 <#include "common/header.html">
 <@fly_login>
 <#assign me = (status.userId)!(0)>
-<style>
-  .qa-wrap{max-width:960px;margin:24px auto;padding:0 12px;}
-  .qa-card{background:#fff;border-radius:8px;padding:24px 28px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px;}
-  .qa-card h1{font-size:22px;margin:0 0 10px;}
-  .qa-meta{font-size:13px;color:#8a919f;margin-bottom:14px;}
-  .qa-meta span{margin-right:14px;}
-  .qa-body{font-size:15px;line-height:1.8;color:#333;}
-  .qa-tag{display:inline-block;font-size:12px;border-radius:3px;padding:1px 8px;margin-right:8px;}
-  .qa-tag.ok{background:#e8f7ee;color:#1a9e5c;}
-  .qa-tag.ask{background:#eef4ff;color:#3a6fd8;}
-  .qa-ans{border-top:1px solid #f0f1f3;padding:16px 0;}
-  .qa-ans .who{font-size:13px;color:#8a919f;margin-bottom:6px;}
-  .qa-ans .body{font-size:14px;line-height:1.8;}
-  .qa-float{position:fixed;right:36px;bottom:80px;}
-  .qa-float a,.qa-float button{display:block;width:64px;height:64px;border-radius:50%;border:0;background:#3a6fd8;color:#fff;text-align:center;line-height:1.2;font-size:13px;cursor:pointer;text-decoration:none;box-shadow:0 2px 8px rgba(58,111,216,.4);}
-  .qa-float .acc{background:#1a9e5c;margin-bottom:12px;}
-  .qa-empty{color:#8a919f;font-size:14px;padding:18px 0;}
-</style>
-<div class="qa-wrap">
-  <div class="qa-card">
-    <h1>${info.title}</h1>
-    <div class="qa-meta">
-      <span class="qa-tag ask">问题</span>
-      <span><@dt16 (info.createTime)!'' /></span>
-      <span>回答 <b>${((info.questionBacks)![])?size}</b></span>
-      <#if (info.weight)?? && info.weight gt 0><span>悬赏 ${info.weight}</span></#if>
-      <span>浏览 <b class="num">${(info.countView)!0}</b></span>
-    </div>
-    <div class="qa-body">${(info.content)!''}</div>
-  </div>
+<main id="main">
+<div class="wrap"><div class="crumb">
+  <a href="/">首页</a><i>/</i><a href="/questions/">问答</a><i>/</i>问题
+</div></div>
 
-  <#-- ===== 采纳的回答（置顶段） ===== -->
-  <@fly_list_model model="answers" question="${info.id}" accepted="已采纳" rows="5" withContent="1">
+<div class="wrap qa-wrap">
+  <div class="qa-main">
+    <article class="card">
+      <div class="art-hd"><h1>${info.title}</h1></div>
+      <div class="art-meta">
+        <span><span class="tag tag-ink">问题</span></span>
+        <span><@dt16 (info.createTime)!'' /></span>
+        <span>回答 <b class="num">${((info.questionBacks)![])?size}</b></span>
+        <#if (info.weight)?? && info.weight gt 0><span class="bounty">悬赏 ${info.weight}</span></#if>
+        <span>浏览 <b class="num">${(info.countView)!0}</b></span>
+      </div>
+      <div class="art-body">${(info.content)!''}</div>
+    </article>
+
+    <#-- ===== 采纳的回答（置顶段） ===== -->
+    <@fly_list_model model="answers" question="${info.id}" accepted="已采纳" rows="5" withContent="1">
     <#if (dataList)?? && dataList?size gt 0>
-    <div class="qa-card">
-      <div class="qa-meta"><span class="qa-tag ok">采纳的回答</span></div>
+    <section class="card" style="margin-top:20px">
+      <div class="side-hd"><h2>采纳的回答</h2><small>ACCEPTED</small></div>
       <#list dataList as ans>
-      <div class="qa-ans">
-        <div class="who">网友${ans.userId} · <@dt16 (ans.createTime)!'' /></div>
+      <div class="qa-ans is-accepted">
+        <div class="who">
+          <b>网友${ans.userId}</b>
+          <span><@dt16 (ans.createTime)!'' /></span>
+          <span class="tag tag-ok">已采纳</span>
+        </div>
         <div class="body">${(ans.content)!''}</div>
       </div>
       </#list>
-    </div>
+    </section>
     </#if>
-  </@fly_list_model>
+    </@fly_list_model>
 
-  <#-- ===== 全部回答 ===== -->
-  <div class="qa-card">
-    <div class="qa-meta">全部回答（${((info.questionBacks)![])?size}）</div>
-    <@fly_list_model model="answers" question="${info.id}" rows="50" withContent="1">
+    <#-- ===== 全部回答 ===== -->
+    <section class="card" style="margin-top:20px">
+      <div class="side-hd"><h2>全部回答</h2><small>${((info.questionBacks)![])?size} 条</small></div>
+      <@fly_list_model model="answers" question="${info.id}" rows="50" withContent="1">
       <#if (dataList)?? && dataList?size gt 0>
         <#list dataList as ans>
-        <div class="qa-ans">
+        <div class="qa-ans<#if ((ans.accepted)!'') == '已采纳'> is-accepted</#if>">
           <div class="who">
-            网友${ans.userId} · <@dt16 (ans.createTime)!'' />
-            <#if (ans.accepted)?? && ans.accepted == '已采纳'><span class="qa-tag ok">已采纳</span></#if>
+            <b>网友${ans.userId}</b>
+            <span><@dt16 (ans.createTime)!'' /></span>
+            <#if ((ans.accepted)!'') == '已采纳'><span class="tag tag-ok">已采纳</span></#if>
             <#if me gt 0 && me == ((info.userId)!0) && ((ans.accepted)!'') != '已采纳'>
-            <#-- 提问者本人：采纳按钮（X2 所有者通道，零 JS 表单提交后 302 回本页） -->
-            <form method="post" action="/ucenter/content/update" style="display:inline;margin-left:8px;">
+            <#-- 提问者本人：采纳按钮（所有者通道，零 JS 表单提交后 302 回本页） -->
+            <form method="post" action="/ucenter/content/update" style="display:inline">
               <input type="hidden" name="modelCode" value="answers">
               <input type="hidden" name="id" value="${ans.id}">
               <input type="hidden" name="accepted" value="已采纳">
               <input type="hidden" name="redirect" value="/questions/${info.shortUrl}.html">
-              <button type="submit" style="border:0;background:none;color:#1a9e5c;cursor:pointer;padding:0;font-size:13px;">采纳</button>
+              <button type="submit" class="btn btn-outline btn-sm">采纳此回答</button>
             </form>
             </#if>
           </div>
@@ -83,29 +87,52 @@
         </div>
         </#list>
       <#else>
-        <div class="qa-empty">还没有回答，来抢沙发～</div>
+        <div class="empty"><b>0</b>还没有回答，来抢沙发～</div>
       </#if>
-    </@fly_list_model>
+      </@fly_list_model>
+    </section>
   </div>
-</div>
 
-<div class="qa-float">
-  <#if me gt 0>
-  <a href="/ucenter/submit/answers?question=${info.id}">我来<br>回答</a>
-  <#else>
-  <a href="/login">登录后<br>回答</a>
-  </#if>
+  <aside class="qa-side sticky">
+    <div class="card">
+      <#if me gt 0>
+      <a class="btn btn-primary btn-block" href="/ucenter/submit/answers?question=${info.id}">
+        <svg class="ic" aria-hidden="true"><use href="#i-edit"></use></svg>我来回答
+      </a>
+      <#else>
+      <a class="btn btn-primary btn-block" href="/login">
+        <svg class="ic" aria-hidden="true"><use href="#i-edit"></use></svg>登录后回答
+      </a>
+      </#if>
+      <p class="text-muted" style="font-size:12.5px;margin-top:10px">认真回答，帮助别人的同时也能沉淀知识。</p>
+    </div>
+
+    <div>
+      <div class="side-hd"><h2>问题信息</h2></div>
+      <ul class="rows">
+        <li><span>回答数</span><time>${((info.questionBacks)![])?size}</time></li>
+        <li><span>浏览数</span><time>${(info.countView)!0}</time></li>
+        <#if (info.weight)?? && info.weight gt 0><li><span>悬赏分</span><time>${info.weight}</time></li></#if>
+        <li><span>提问于</span><time><@date10 (info.createTime)!'' /></time></li>
+      </ul>
+    </div>
+
+    <div><@hotRank model="questions" rows=8 /></div>
+  </aside>
 </div>
+</main>
 </@fly_login>
 <#include "common/footer.html">
 <#else>
-<#assign pageTitle>问题不存在 - ${web_name!''}</#assign>
+<#assign pageTitle>问题不存在 - ${(web_name)!''}</#assign>
 <#include "common/header.html">
+<main id="main">
 <div class="wrap"><div class="err">
   <b class="num">404</b>
   <p>问题不存在或未通过审核</p>
-  <a href="/">返回首页</a>
+  <a href="/questions/">返回问答</a><a href="/">返回首页</a>
 </div></div>
+</main>
 <#include "common/footer.html">
 </#if>
 </@fly_info_model>

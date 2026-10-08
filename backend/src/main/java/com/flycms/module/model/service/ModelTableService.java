@@ -4,6 +4,8 @@ import com.flycms.core.utils.SqlSafeUtil;
 import com.flycms.module.model.dao.ModelDataDao;
 import com.flycms.module.model.enums.FieldTypeEnum;
 import com.flycms.module.model.model.ModelField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,8 @@ import java.util.List;
  */
 @Service
 public class ModelTableService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ModelTableService.class);
 
     @Autowired
     private ModelDataDao modelDataDao;
@@ -62,6 +66,40 @@ public class ModelTableService {
         modelDataDao.addColumn(SqlSafeUtil.safeTableSuffixForExisting(code),
                 SqlSafeUtil.safeColumnName(field.getFieldName()),
                 colType, field.getFieldLabel() == null ? "" : field.getFieldLabel().replace("'", "''"));
+        // P3：筛选字段自动建索引（列表筛选/排序此前全表扫描 + filesort）
+        addFilterIndexIfNeeded(code, field, type);
+    }
+
+    /**
+     * 为「参与筛选」的自定义字段建单列索引（幂等、尽力而为）。
+     *
+     * <p>索引名固定为 {@code idx_c_<column>}；建索引失败只记日志不抛，
+     * 避免因单个字段（如超长 varchar、列名过长）导致整个建模/改模流程失败。
+     *
+     * @param code  模型 code
+     * @param field 字段元数据
+     * @param type  已解析的字段类型
+     */
+    public void addFilterIndexIfNeeded(String code, ModelField field, FieldTypeEnum type) {
+        if (field.getIsFilter() != 1) {
+            return;
+        }
+        if (type == null || !type.hasColumn() || type.isHeavyText()
+                || type.isStructure() || type.isJsonArray()) {
+            // 无物理列 / text 系 / JSON 列：不能直接建索引（JSON 需生成列，不在本次范围）
+            return;
+        }
+        String suffix = SqlSafeUtil.safeTableSuffixForExisting(code);
+        String column = SqlSafeUtil.safeColumnName(field.getFieldName());
+        String indexName = "idx_c_" + column;
+        try {
+            if (!modelDataDao.indexExists(suffix, indexName)) {
+                modelDataDao.addIndex(suffix, indexName, column);
+            }
+        } catch (Exception e) {
+            logger.warn("为筛选字段 {}.{} 建索引失败（已跳过，不影响建模）：{}",
+                    code, column, e.getMessage());
+        }
     }
 
     /**

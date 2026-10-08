@@ -1,0 +1,38 @@
+<#-- ============================================================
+     评论局部（详情页共用）：列表 + 发表
+     需要上下文：model（含 code）、info（含 id）、user
+     用法：<#include "common/comments.html">
+     ============================================================ -->
+<div class="comments" id="comments">
+  <h3>评论 <small>(${(info.countComment)!0})</small></h3>
+  <@fly_commentpage targetModel="${model.code}" targetId="${info.id}" p="${(p)!1}" rows="10">
+    <#if (comment_page.list)?? && comment_page.list?size gt 0>
+      <#list comment_page.list as c>
+      <div class="comment-item" id="comment-${c.id}">
+        <p><b>${c.nickname?html}</b> <span class="text-muted"><@dt16 (c.createTime)!'' /></span></p>
+        <div>${c.content}</div>
+      </div>
+      </#list>
+    <#else>
+      <p class="text-muted">暂无评论，来抢沙发～</p>
+    </#if>
+    <#if (commentPageHtml)?? && commentPageHtml != ''>
+    <div class="text-center"><ul class="pagination">${commentPageHtml}</ul></div>
+    </#if>
+  </@fly_commentpage>
+
+  <#if (user.userId)??>
+  <form class="comment-form" method="post" action="/ucenter/comment/save">
+    <input type="hidden" name="targetModel" value="${model.code}">
+    <input type="hidden" name="targetId" value="${info.id}">
+    <textarea name="content" rows="3" maxlength="2000" required
+              placeholder="写下你的评论（管理员开启审核时，评论通过后显示）"></textarea>
+    <div class="bar">
+      <span class="text-muted" style="font-size:12.5px">文明发言，理性讨论</span>
+      <button type="submit" class="btn btn-primary">发表评论</button>
+    </div>
+  </form>
+  <#else>
+  <div class="comment-login">请先 <a href="/login">登录</a> 后发表评论</div>
+  </#if>
+</div>
