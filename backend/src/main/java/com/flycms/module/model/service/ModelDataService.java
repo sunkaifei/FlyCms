@@ -309,6 +309,14 @@ public class ModelDataService {
         return modelDataDao.findByShortUrl(tableSuffixOf(modelId), shortUrl);
     }
 
+    /** 详情页浏览计数（count_view 原子自增）。由 InfoModel 在真实详情渲染时调用，失败不影响出页。 */
+    public void incrementView(Long modelId, Long id) {
+        if (modelId == null || id == null) {
+            return;
+        }
+        modelDataDao.updateCountView(tableSuffixOf(modelId), id);
+    }
+
     /**
      * 批量取内容标题（id → title），一次查询解决列表页的 N+1。
      *

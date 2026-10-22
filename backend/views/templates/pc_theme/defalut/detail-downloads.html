@@ -1,48 +1,67 @@
 <#-- ============================================================
-     下载模型详情页
-     ⚠ fileSize 为 bigint 数字列：判空只能 ??，不能与 '' 比较（map 类型陷阱）
-     fileUrl 由附件展开（fileId → fileUrl）
+     下载模型详情页（下载站版式）
+     首屏 dl-hero 下载卡（标题+要素条 左 / 立即下载大按钮 右）→ 软件介绍 → 规格参数
+     ⚠ fileSize 为 bigint 数字列：判空只能 ??，不能与 '' 比较（map 类型陷阱）；
+       按 KB 录入，≥1024 换算 MB 显示
+     fileUrl 由附件展开（fileId → fileUrl）；无附件时按钮显示"暂未提供下载"，不放假按钮
      ============================================================ -->
 <#include "common/macros.html">
 <@fly_info_model model="${model.code}" shortUrl="${shortUrl!}">
 <#if info??>
 <#assign pageTitle>${info.title} - ${(web_name)!''}</#assign>
+<#assign sizeKb = (info.fileSize)!0 />
+<#assign hasFile = (info.fileUrl)?? && info.fileUrl != '' />
 <#include "common/header.html">
 <main id="main">
 <div class="wrap"><div class="crumb">
   <a href="/">首页</a><i>/</i><a href="/${model.code}/">${(model.name)!'下载'}</a><i>/</i>详情
 </div></div>
 <div class="wrap art">
+  <section class="dl-hero">
+    <div class="dl-hero-t">
+      <h1>${info.title}</h1>
+      <p class="dl-facts">
+        <#if (info.auth)?? && info.auth != ''><span>${info.auth}</span></#if>
+        <#if (info.language)?? && info.language != ''><span>${info.language}</span></#if>
+        <#if sizeKb gt 0><span>大小 <b class="num"><#if sizeKb gte 1024>${(sizeKb/1024)?string("0.##")} MB<#else>${sizeKb} KB</#if></b></span></#if>
+        <span>浏览 <b class="num">${(info.countView)!0}</b></span>
+        <span><@dt16 (info.createTime)!'' /> 收录</span>
+      </p>
+    </div>
+    <div class="dl-hero-act">
+      <#if hasFile>
+      <a class="dl-btn" href="${info.fileUrl}" rel="nofollow"><@icon 'download' />立即下载</a>
+      <#else>
+      <span class="dl-btn is-none">暂未提供下载</span>
+      </#if>
+      <#if (info.demoUrl)?? && info.demoUrl != ''>
+      <a class="dl-demo" href="${info.demoUrl}" target="_blank" rel="nofollow"><@icon 'link' />在线演示</a>
+      </#if>
+    </div>
+  </section>
+
   <div class="art-lay">
     <main>
       <article>
-        <div class="art-hd"><h1>${info.title}</h1></div>
-        <div class="art-meta">
-          <span><@dt16 (info.createTime)!'' /></span>
-          <span>阅读 <b class="num">${(info.countView)!0}</b></span>
-        </div>
-        <div class="art-body">
-          <dl class="flds">
-            <div><dt>授权方式</dt><dd>${(info.auth)!'-'}</dd></div>
-            <div><dt>程序语言</dt><dd>${(info.language)!'-'}</dd></div>
-            <div><dt>文件大小</dt><dd><#if (info.fileSize)??>${info.fileSize} KB<#else>-</#if></dd></div>
-            <div><dt>系统要求</dt><dd>${(info.osRequire)!'-'}</dd></div>
-            <div><dt>运行环境</dt><dd>${(info.runEnv)!'-'}</dd></div>
-            <div><dt>演示地址</dt><dd><#if (info.demoUrl)?? && info.demoUrl != ''><a href="${info.demoUrl}" target="_blank" rel="nofollow">${info.demoUrl}</a><#else>-</#if></dd></div>
+        <section class="dl-sec">
+          <h2>软件介绍</h2>
+          <div class="art-body"><@artBody v=(info.content)!'' mc=(model.code)!'' mn=(model.name)!'' /></div>
+        </section>
+        <#assign hasSpec = ((info.osRequire)?? && info.osRequire != '')
+           || ((info.runEnv)?? && info.runEnv != '')
+           || ((info.demoUrl)?? && info.demoUrl != '')
+           || ((info.score)?? && info.score gt 0) />
+        <#if hasSpec>
+        <section class="dl-sec">
+          <h2>规格参数</h2>
+          <dl class="dl-spec">
+            <#if (info.osRequire)?? && info.osRequire != ''><div><dt>系统要求</dt><dd>${info.osRequire}</dd></div></#if>
+            <#if (info.runEnv)?? && info.runEnv != ''><div><dt>运行环境</dt><dd>${info.runEnv}</dd></div></#if>
+            <#if (info.demoUrl)?? && info.demoUrl != ''><div><dt>演示地址</dt><dd><a href="${info.demoUrl}" target="_blank" rel="nofollow">${info.demoUrl}</a></dd></div></#if>
+            <#if (info.score)?? && info.score gt 0><div><dt>下载消耗</dt><dd><b class="num">${info.score}</b> 积分</dd></div></#if>
           </dl>
-          <div class="art-dl">
-            <div>
-              <b>${info.title}</b>
-              <small><#if (info.fileSize)??>大小 ${info.fileSize} KB<#else>大小待定</#if> · ${(info.auth)!'未知授权'}</small>
-            </div>
-            <#if (info.fileUrl)?? && info.fileUrl != ''>
-            <a href="${info.fileUrl}"><svg class="ic" aria-hidden="true"><use href="#i-download"></use></svg>立即下载</a>
-            <#else>
-            <span class="tag">资源整理中</span>
-            </#if>
-          </div>
-          <@artBody v=(info.content)!'' mc=(model.code)!'' mn=(model.name)!'' />
-        </div>
+        </section>
+        </#if>
         <@shareBar />
       </article>
       <#include "common/comments.html">

@@ -26,6 +26,7 @@ import {
   setAuditSwitchApi,
 } from '#/api/core/audit';
 import { getModelListApi, type ModelRow } from '#/api/core/model';
+import { getSearchIndexStatusApi, rebuildSearchIndexApi } from '#/api/core/search';
 
 defineOptions({ name: 'SystemAudit' });
 
@@ -59,6 +60,54 @@ const modelId = ref<number | string>();
 
 /** 审核开关：1=先审后发 */
 const auditSwitch = ref(false);
+
+/** 全文检索索引（内容保存/审核/删除时经 G18 事件自动增量索引） */
+const indexedCount = ref(0);
+const indexRebuilding = ref(false);
+let indexPollTimer: ReturnType<typeof setInterval> | undefined;
+
+async function loadSearchIndexStatus() {
+  try {
+    const res = await getSearchIndexStatusApi();
+    indexedCount.value = res?.indexed ?? 0;
+    const rebuilding = Boolean(res?.rebuilding);
+    const wasRebuilding = indexRebuilding.value;
+    indexRebuilding.value = rebuilding;
+    if (wasRebuilding && !rebuilding) {
+      message.success('搜索索引重建完成');
+    }
+    if (rebuilding && !indexPollTimer) {
+      indexPollTimer = setInterval(() => {
+        if (indexRebuilding.value) {
+          loadSearchIndexStatus();
+        } else {
+          clearInterval(indexPollTimer);
+          indexPollTimer = undefined;
+        }
+      }, 2000);
+    }
+  } catch {
+    // 状态获取失败不打扰主流程（按钮仍可尝试重建）
+  }
+}
+
+async function onRebuildIndex() {
+  Modal.confirm({
+    content: '将清空并按当前内容全量重建搜索索引，期间搜索自动走数据库兜底，完成后自动恢复。继续？',
+    okText: '开始重建',
+    title: '重建全文检索索引',
+    onOk: async () => {
+      try {
+        await rebuildSearchIndexApi();
+        message.info('索引重建已启动');
+        indexRebuilding.value = true;
+        loadSearchIndexStatus();
+      } catch {
+        message.error('重建启动失败');
+      }
+    },
+  });
+}
 
 const rejectVisible = ref(false);
 const rejectReason = ref('');
@@ -158,6 +207,7 @@ onMounted(async () => {
     models.value = [];
   }
   load();
+  loadSearchIndexStatus();
 });
 </script>
 
@@ -194,6 +244,25 @@ onMounted(async () => {
           @change="(c: any) => onToggleSwitch(Boolean(c))"
         />
       </div>
+    </div>
+
+    <div
+      class="mb-3 flex flex-wrap items-center gap-3 rounded border border-gray-200 bg-gray-50 px-3 py-2"
+    >
+      <span class="text-sm text-gray-600">
+        全文检索索引：
+        <b class="num">{{ indexedCount }}</b> 条
+      </span>
+      <Button
+        :loading="indexRebuilding"
+        size="small"
+        @click="onRebuildIndex"
+      >
+        {{ indexRebuilding ? '重建中…' : '重建索引' }}
+      </Button>
+      <span class="text-xs text-gray-400">
+        内容保存、审核通过、删除时自动增量索引；此处仅用于索引异常后手动全量重建
+      </span>
     </div>
 
     <div

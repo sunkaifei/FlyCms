@@ -28,6 +28,9 @@ import java.util.List;
 @RequestMapping("/api/system")
 public class ApiSystemController extends ApiBaseController {
 
+    private static final org.slf4j.Logger logger =
+            org.slf4j.LoggerFactory.getLogger(ApiSystemController.class);
+
     @Autowired
     protected AdminService adminService;
 
@@ -36,6 +39,50 @@ public class ApiSystemController extends ApiBaseController {
 
     @Autowired
     protected PermissionService permissionService;
+
+    @Autowired
+    private com.flycms.module.search.LuceneSearchService luceneSearchService;
+
+    // ///////////////////////////////
+    // /////     全文检索索引    ////////
+    // ///////////////////////////////
+
+    /**
+     * 搜索索引状态：已索引文档数 + 是否重建中（审核页"全文检索索引"卡片用）。
+     */
+    @ResponseBody
+    @GetMapping("/search/status")
+    public java.util.Map<String, Object> searchStatus() {
+        requireAdmin();
+        java.util.Map<String, Object> m = new java.util.HashMap<>();
+        m.put("indexed", luceneSearchService.indexedCount());
+        m.put("rebuilding", luceneSearchService.isRebuilding());
+        return m;
+    }
+
+    /**
+     * 手动全量重建 Lucene 搜索索引（后台线程执行，不阻塞接口返回）。
+     * 日常内容增删改走 G18 事件增量索引，本入口用于索引损坏/结构变更后的一次性修复。
+     */
+    @ResponseBody
+    @PostMapping("/search/rebuild")
+    public DataVo searchRebuild() {
+        requireAdmin();
+        if (luceneSearchService.isRebuilding()) {
+            return DataVo.failure("索引重建正在进行中，请稍后再试");
+        }
+        Thread t = new Thread(() -> {
+            try {
+                int n = luceneSearchService.rebuildAll();
+                logger.info("[lucene] 手动全量索引重建完成：{} 条", n);
+            } catch (Exception e) {
+                logger.warn("[lucene] 手动全量索引重建失败：{}", e.getMessage());
+            }
+        }, "lucene-rebuild-manual");
+        t.setDaemon(true);
+        t.start();
+        return DataVo.success("全量索引重建已启动");
+    }
 
     // ///////////////////////////////
     // /////       管理员       ////////

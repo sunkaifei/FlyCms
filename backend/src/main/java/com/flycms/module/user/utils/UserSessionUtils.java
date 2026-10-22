@@ -20,7 +20,7 @@ import java.util.Date;
 /**
  *
  * Open source house, All rights reserved
- * 开发公司：28844.com<br/>
+ * 开发公司：mxxsaas.com<br/>
  * 版权：开源中国<br/>
  * <p>
  * 

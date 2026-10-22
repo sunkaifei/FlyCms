@@ -17,8 +17,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 /**
- * 开发公司：28844.com<br/>
- * 版权：28844.com<br/>
+ * 开发公司：mxxsaas.com<br/>
+ * 版权：mxxsaas.com<br/>
  *
  * @author sun-kaifei
  * @version 1.0 <br/>

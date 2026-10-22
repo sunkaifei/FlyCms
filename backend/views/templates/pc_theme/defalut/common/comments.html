@@ -9,7 +9,7 @@
     <#if (comment_page.list)?? && comment_page.list?size gt 0>
       <#list comment_page.list as c>
       <div class="comment-item" id="comment-${c.id}">
-        <p><b>${c.nickname?html}</b> <span class="text-muted"><@dt16 (c.createTime)!'' /></span></p>
+        <p><@userChip page=(c.userPage)!'' nick=(c.nickname)!'' uid=(c.userId)!0 /> <span class="text-muted"><@dt16 (c.createTime)!'' /></span></p>
         <div>${c.content}</div>
       </div>
       </#list>

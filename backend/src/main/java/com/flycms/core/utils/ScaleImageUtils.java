@@ -20,7 +20,7 @@ import com.flycms.core.utils.lucbir.index.LucbirIndexer;
 
 /**
  * Open source house, All rights reserved
- * 开发公司：28844.com<br/>
+ * 开发公司：mxxsaas.com<br/>
  * 版权：开源中国<br/>
  *
  * <b>function:</b> 缩放图片工具类，创建缩略图、伸缩图片比例

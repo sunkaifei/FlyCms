@@ -102,6 +102,11 @@
 		SELECT * FROM `fly_cmodel_${suffix}` WHERE `short_url` = #{shortUrl} AND `status` = 1 LIMIT 1
 	</select>
 
+	<!-- 详情页浏览计数（原子自增；调用方保证非预览场景才触发） -->
+	<update id="updateCountView">
+		UPDATE `fly_cmodel_${suffix}` SET `count_view` = `count_view` + 1 WHERE `id` = #{id}
+	</update>
+
 	<select id="existsShortUrl" resultType="boolean">
 		SELECT COUNT(*) > 0 FROM `fly_cmodel_${suffix}` WHERE `short_url` = #{shortUrl}
 	</select>

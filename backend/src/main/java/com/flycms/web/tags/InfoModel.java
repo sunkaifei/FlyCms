@@ -58,6 +58,16 @@ public class InfoModel extends AbstractModelTag {
                 java.util.ArrayList<Map<String, Object>> one = new java.util.ArrayList<>();
                 one.add(info);
                 modelDataService.expandAttachments(model.getId(), one);
+                // 浏览计数：真实详情渲染才 +1（G16 草稿预览不计）；失败只留日志，不影响出页
+                if (!"1".equals(request.getParameter("__preview"))) {
+                    try {
+                        Object rowId = info.get("id");
+                        modelDataService.incrementView(model.getId(), rowId instanceof Number n
+                                ? n.longValue() : rowId == null ? null : Long.parseLong(rowId.toString()));
+                    } catch (Exception e) {
+                        logTagFailure("fly_info_model", e);
+                    }
+                }
             }
         }
 

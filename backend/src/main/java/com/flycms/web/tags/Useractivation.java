@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * Open source house, All rights reserved
- * 开发公司：28844.com<br/>
+ * 开发公司：mxxsaas.com<br/>
  * 版权：开源中国<br/>
  *
  * 权限组权限查询查询标签

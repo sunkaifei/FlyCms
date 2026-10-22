@@ -222,6 +222,14 @@
 </aside>
 </#macro>
 
+<#-- 作者条（回答/评论通用）：有个人主页输出链接，否则纯文本 <b>。
+     ⚠ nick 必须已 HTML 转义（fly_list_model 的 userNick 与评论 nickname 服务端已转义）；
+     userPage 为空（游客/注销）时不渲染 <a> -->
+<#macro userChip page='' nick='' uid=0>
+<#local name = (nick != '')?then(nick, '网友' + uid?string) />
+<#if page != ''><a class="who-user" href="${page}">${name}</a><#else><b>${name}</b></#if>
+</#macro>
+
 <#-- 详情页操作条：复制链接 + 分享（行为由 portal.js 接管；无 JS 时按钮静默无效，不影响阅读） -->
 <#macro shareBar>
 <div class="share">

@@ -5,6 +5,7 @@ import com.flycms.module.model.dao.ModelDataDao;
 import com.flycms.module.model.model.Model;
 import com.flycms.module.model.service.ModelDataService;
 import com.flycms.module.model.service.ModelService;
+import com.flycms.module.search.LuceneSearchService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,8 @@ public class TagService {
     private ModelDataService modelDataService;
     @Autowired
     private ModelDataDao modelDataDao;
+    @Autowired
+    private LuceneSearchService luceneSearchService;
 
     /** 各模型表是否存在 tags 列（探测一次后缓存；DDL 变更极低频） */
     private final Map<String, Boolean> tagsColumnCache = new ConcurrentHashMap<>();
@@ -87,6 +90,16 @@ public class TagService {
         if (kw.length() > MAX_KEYWORD_LEN) {
             kw = kw.substring(0, MAX_KEYWORD_LEN);
             result.setKeyword(kw);
+        }
+
+        // Lucene 优先：索引就绪走全文检索（相关度排序 + smartcn 中文分词）；
+        // 未就绪（首启重建中/索引目录不可写）回退数据库 LIKE 聚合——搜索永不空转
+        if (luceneSearchService.isReady()) {
+            try {
+                return luceneSearch(kw, page, rows, result);
+            } catch (Exception e) {
+                logger.warn("Lucene 检索失败，回退数据库聚合：{}", e.getMessage());
+            }
         }
 
         List<Map<String, Object>> merged = new ArrayList<>();
@@ -193,6 +206,82 @@ public class TagService {
             logger.warn("读取启用模型清单失败：{}", e.getMessage());
             return new ArrayList<>();
         }
+    }
+
+    /**
+     * Lucene 全文检索路径：命中键（modelCode+id，相关度有序）按模型分组回表装配，
+     * 与数据库聚合路径同构（expandAttachments + __modelCode/__modelName），模板无感。
+     * 行已下架/删除（索引滞后）直接跳过。
+     */
+    private TagResult luceneSearch(String kw, int page, int rows, TagResult result) throws Exception {
+        LuceneSearchService.Hits hits = luceneSearchService.search(kw, page, rows);
+
+        // 1) 命中键按模型分组（保持相关度出现顺序，去重）
+        Map<String, List<String>> idsByModel = new LinkedHashMap<>();
+        for (String[] key : hits.keys) {
+            if (key[0] == null || key[1] == null) {
+                continue;
+            }
+            List<String> ids = idsByModel.computeIfAbsent(key[0], k -> new ArrayList<>());
+            if (!ids.contains(key[1])) {
+                ids.add(key[1]);
+            }
+        }
+
+        // 2) 每模型一次批量回表 + 一次附件展开
+        Map<String, Map<String, Map<String, Object>>> rowsByModel = new LinkedHashMap<>();
+        Map<String, Model> hitModels = new LinkedHashMap<>();
+        for (Map.Entry<String, List<String>> en : idsByModel.entrySet()) {
+            String code = en.getKey();
+            List<Long> longIds = new ArrayList<>();
+            for (String s : en.getValue()) {
+                long v = toLong(s);
+                if (v > 0) {
+                    longIds.add(v);
+                }
+            }
+            Map<String, Map<String, Object>> byId = new LinkedHashMap<>();
+            try {
+                List<Map<String, Object>> part = modelDataDao.findRowsByIds(code, longIds, null);
+                if (part != null) {
+                    for (Map<String, Object> row : part) {
+                        if (toLong(row.get("status")) == 1) {
+                            byId.put(String.valueOf(toLong(row.get("id"))), row);
+                        }
+                    }
+                }
+                Model m = modelService.findModelByCode(code);
+                if (m != null && !byId.isEmpty()) {
+                    modelDataService.expandAttachments(m.getId(), new ArrayList<>(byId.values()));
+                    hitModels.put(code, m);
+                }
+            } catch (Exception e) {
+                logger.warn("Lucene 命中回表失败 [{}]：{}", code, e.getMessage());
+            }
+            rowsByModel.put(code, byId);
+        }
+
+        // 3) 按相关度顺序装配展示行
+        List<Map<String, Object>> ordered = new ArrayList<>();
+        for (String[] key : hits.keys) {
+            Map<String, Object> row = rowsByModel.getOrDefault(key[0], Map.of()).get(key[1]);
+            if (row == null) {
+                continue;
+            }
+            Model m = hitModels.get(key[0]);
+            if (m == null) {
+                continue;
+            }
+            row.put("__modelCode", m.getCode());
+            row.put("__modelName", m.getName());
+            ordered.add(row);
+        }
+
+        result.setTotal((int) Math.min(hits.total, Integer.MAX_VALUE));
+        result.setPageCount(rows > 0 ? (int) Math.ceil((double) hits.total / rows) : 0);
+        result.setRowsList(ordered);
+        result.setRelatedTags(collectTags(ordered));
+        return result;
     }
 
     private boolean hasTagsColumn(String code) {

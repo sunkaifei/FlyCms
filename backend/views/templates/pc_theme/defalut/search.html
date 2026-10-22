@@ -18,7 +18,9 @@
   <main>
     <div class="list-hd">
       <h1><#if q != ''>「${q?html}」的结果<#else>站内搜索</#if></h1>
-      <small><#if q != ''>共 <span class="num">${(search_total)!0}</span> 条<#else>输入关键词，检索站内全部内容</#if></small>
+      <#-- ⚠ search_total 在标签体内才可见（标签输出变量作用域），标题栏不可引用——
+           总数统一由标签体内的分页导航行输出 -->
+      <#if q == ''><small>输入关键词，检索站内全部内容</small></#if>
     </div>
 
     <form class="search-box" action="/search" method="get" role="search" style="margin-top:22px">
@@ -29,6 +31,7 @@
 
     <@fly_search_page q="${q!}" p="${(p)!1}" rows="10">
       <#if (dataList)?? && dataList?size gt 0>
+        <div class="list-hd" style="margin-top:4px"><small>共 <span class="num">${(search_total)!0}</span> 条</small></div>
         <@mixRows rows=dataList />
         <#assign sp = (search_page.pageCount)!1>
         <#if sp gt 1>
@@ -38,7 +41,6 @@
             <#if i == ((p)!1)><span class="cur" aria-current="page">${i}</span><#else><a href="/search?q=${q?url('UTF-8')}&p=${i}">${i}</a></#if>
           </#list>
           <#if ((p)!1) lt sp><a href="/search?q=${q?url('UTF-8')}&p=${((p)!1) + 1}" rel="next">下一页</a></#if>
-          <span class="tot">共 ${(search_total)!0} 条</span>
         </nav>
         </#if>
       <#else>

@@ -31,8 +31,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
         String[] allowedOriginPatterns = {
                 "http://localhost:*", "https://localhost:*",
                 "http://127.0.0.1:*", "https://127.0.0.1:*",
-                "http://www.28844.com", "https://www.28844.com",
-                "http://28844.com", "https://28844.com"
+                "http://www.mxxsaas.com", "https://www.mxxsaas.com",
+                "http://mxxsaas.com", "https://mxxsaas.com"
         };
         registry.addHandler(WebSocketService(), "/webSocketServer.action")
                 .addInterceptors(new WebSocketInterceptor())

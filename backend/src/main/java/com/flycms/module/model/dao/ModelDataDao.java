@@ -58,6 +58,9 @@ public interface ModelDataDao {
 
     public Map<String, Object> findByShortUrl(@Param("suffix") String suffix, @Param("shortUrl") String shortUrl);
 
+    /** 详情页浏览计数：count_view 原子自增（InfoModel 标签渲染真实详情时调用，预览不计） */
+    public void updateCountView(@Param("suffix") String suffix, @Param("id") Long id);
+
     public boolean existsShortUrl(@Param("suffix") String suffix, @Param("shortUrl") String shortUrl);
 
     /**

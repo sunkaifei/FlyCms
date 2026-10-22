@@ -1,7 +1,7 @@
 /*
  *	Copyright © 2015 Zhejiang SKT Science Technology Development Co., Ltd. All rights reserved.
  *	浙江斯凯特科技发展有限公司 版权所有
- *	http://www.28844.com
+ *	http://www.mxxsaas.com
  */
 package com.flycms.module.other.service;
 

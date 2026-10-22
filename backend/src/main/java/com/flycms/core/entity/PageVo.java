@@ -1,7 +1,7 @@
 /*
  *	Copyright © 2015 Zhejiang SKT Science Technology Development Co., Ltd. All rights reserved.
  *	浙江斯凯特科技发展有限公司 版权所有
- *	http://www.28844.com
+ *	http://www.mxxsaas.com
  */
 
 package com.flycms.core.entity;
@@ -19,8 +19,8 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * 
  * 开发公司：浙江斯凯特科技发展有限公司 版权所有 <p>
- * 版权所有：© www.28844.com<p>
- * 博客地址：http://www.28844.com  <p>
+ * 版权所有：© www.mxxsaas.com<p>
+ * 博客地址：http://www.mxxsaas.com  <p>
  * <p>
  * 
  * 分页器

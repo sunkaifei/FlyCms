@@ -15,7 +15,7 @@ import freemarker.template.TemplateModelException;
 
 /**
  * Open source house, All rights reserved
- * 开发公司：28844.com<br/>
+ * 开发公司：mxxsaas.com<br/>
  * 版权：开源中国<br/>
  *
  * 标签解析抽象类

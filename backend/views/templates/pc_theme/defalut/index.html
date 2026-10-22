@@ -6,7 +6,9 @@
        因此"有数据才输出整段"的判断必须写在标签体的 <#if> 里，不能在外层算标志位。
      ============================================================ -->
 <#include "common/macros.html">
-<#assign pageTitle = (web_name)!'FlyCms' + " · " + ((seo_description)!'自定义模型驱动的内容管理系统')>
+<#-- ⚠ FreeMarker `!` 缺省运算符优先级低于 `+`：`(web_name)!'x' + y` 会把整串当成缺省值，
+     web_name 存在时标题只剩站点名——必须用括号圈住缺省表达式 -->
+<#assign pageTitle = (seo_title)!((web_name)!'FlyCms')>
 <#include "common/header.html">
 
 <main id="main">

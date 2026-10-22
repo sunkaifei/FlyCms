@@ -32,14 +32,14 @@
     </article>
 
     <#-- ===== 采纳的回答（置顶段） ===== -->
-    <@fly_list_model model="answers" question="${info.id}" accepted="已采纳" rows="5" withContent="1">
+    <@fly_list_model model="answers" question="${info.id}" accepted="已采纳" rows="5" withContent="1" withUser="1">
     <#if (dataList)?? && dataList?size gt 0>
     <section class="card" style="margin-top:20px">
       <div class="side-hd"><h2>采纳的回答</h2><small>ACCEPTED</small></div>
       <#list dataList as ans>
       <div class="qa-ans is-accepted">
         <div class="who">
-          <b>网友${ans.userId}</b>
+          <@userChip page=(ans.userPage)!'' nick=(ans.userNick)!'' uid=(ans.userId)!0 />
           <span><@dt16 (ans.createTime)!'' /></span>
           <span class="tag tag-ok">已采纳</span>
         </div>
@@ -53,12 +53,12 @@
     <#-- ===== 全部回答 ===== -->
     <section class="card" style="margin-top:20px">
       <div class="side-hd"><h2>全部回答</h2><small>${((info.questionBacks)![])?size} 条</small></div>
-      <@fly_list_model model="answers" question="${info.id}" rows="50" withContent="1">
+      <@fly_list_model model="answers" question="${info.id}" rows="50" withContent="1" withUser="1">
       <#if (dataList)?? && dataList?size gt 0>
         <#list dataList as ans>
         <div class="qa-ans<#if ((ans.accepted)!'') == '已采纳'> is-accepted</#if>">
           <div class="who">
-            <b>网友${ans.userId}</b>
+            <@userChip page=(ans.userPage)!'' nick=(ans.userNick)!'' uid=(ans.userId)!0 />
             <span><@dt16 (ans.createTime)!'' /></span>
             <#if ((ans.accepted)!'') == '已采纳'><span class="tag tag-ok">已采纳</span></#if>
             <#if me gt 0 && me == ((info.userId)!0) && ((ans.accepted)!'') != '已采纳'>

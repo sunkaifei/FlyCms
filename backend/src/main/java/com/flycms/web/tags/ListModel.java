@@ -2,6 +2,8 @@ package com.flycms.web.tags;
 
 import com.flycms.module.model.model.Model;
 import com.flycms.module.model.service.ModelDataService;
+import com.flycms.module.user.model.User;
+import com.flycms.module.user.service.UserService;
 import freemarker.core.Environment;
 import freemarker.template.TemplateDirectiveBody;
 import freemarker.template.TemplateException;
@@ -11,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -29,13 +33,17 @@ import java.util.Map;
  * &lt;/@fly_list_model&gt;
  * </pre>
  *
- * <p>输出变量：{@code dataList}（列表数据）。
+ * <p>输出变量：{@code dataList}（列表数据）。{@code withUser="1"} 时行内附带
+ * {@code userNick}（作者昵称，已转义）与 {@code userPage}（个人主页路径），供回答/投稿类列表链到作者主页。
  */
 @Service
 public class ListModel extends AbstractModelTag {
 
     @Autowired
     private ModelDataService modelDataService;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -57,6 +65,9 @@ public class ListModel extends AbstractModelTag {
                                 longVal(p, "userId"), null, null, null,
                                 "1".equals(str(p, "withContent", null))).getList());
                 modelDataService.expandAttachments(model.getId(), dataList);
+                if ("1".equals(str(p, "withUser", null))) {
+                    attachUserBrief(dataList);
+                }
             } catch (Exception e) {
             logTagFailure("fly_list_model", e);
             }
@@ -65,6 +76,57 @@ public class ListModel extends AbstractModelTag {
         Map<String, Object> vars = new LinkedHashMap<>();
         vars.put("dataList", dataList);
         doRender(env, body, vars);
+    }
+
+    /**
+     * withUser="1"：按行内 user_id 批量取作者简要信息，装饰 userNick（已 HTML 转义，
+     * 与 Commentpage 同一口径）/ userPage（/people/{shortUrl}/，无主页则空串）。
+     * 问答回答这类列表要用作者名链到个人主页；默认不开启，其余列表保持轻量投影。
+     */
+    private void attachUserBrief(List<Map<String, Object>> dataList) {
+        if (dataList == null || dataList.isEmpty()) {
+            return;
+        }
+        LinkedHashSet<Long> ids = new LinkedHashSet<>();
+        for (Map<String, Object> row : dataList) {
+            long uid = asLong(row.get("user_id"));
+            if (uid > 0) {
+                ids.add(uid);
+            }
+        }
+        if (ids.isEmpty()) {
+            return;
+        }
+        Map<Long, User> userMap = new LinkedHashMap<>();
+        for (User u : userService.getUsersByIds(new ArrayList<>(ids))) {
+            if (u != null && u.getUserId() != null) {
+                userMap.put(u.getUserId(), u);
+            }
+        }
+        for (Map<String, Object> row : dataList) {
+            User u = userMap.get(asLong(row.get("user_id")));
+            String nick = u == null ? null : u.getNickName();
+            if (nick == null || nick.isBlank()) {
+                nick = u == null ? null : u.getUserName();
+            }
+            row.put("userNick", nick == null || nick.isBlank() ? ""
+                    : org.springframework.web.util.HtmlUtils.htmlEscape(nick));
+            String shortUrl = u == null ? null : u.getShortUrl();
+            row.put("userPage", shortUrl == null || shortUrl.isBlank() ? "" : "/people/" + shortUrl + "/");
+        }
+    }
+
+    private static long asLong(Object v) {
+        if (v instanceof Number n) {
+            return n.longValue();
+        }
+        if (v != null) {
+            try {
+                return Long.parseLong(v.toString());
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return 0L;
     }
 
     private void doRender(Environment env, TemplateDirectiveBody body, Map<String, Object> vars)

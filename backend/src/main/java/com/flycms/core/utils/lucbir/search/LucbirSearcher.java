@@ -102,7 +102,8 @@ public class LucbirSearcher {
             //System.out.println("================"+reader);
             LucbirResult[] results = new LucbirResult[reader.numDocs()];
             for(int i = 0; i < reader.numDocs(); i++){
-                Document document = reader.document(i);
+                // Lucene 9+：reader.document(int) 迁移到 storedFields().document(int)
+                Document document = reader.storedFields().document(i);
                 if(!document.getField(LucbirIndexer.FEATURE_NAME_FIELD_NAME).stringValue().equalsIgnoreCase(this.feature.getFeatureName())){
                     throw new RuntimeException("提供给搜索器的索引文件与初始化搜索器的 Feature 为不同类型，无法进行比较");
                 }

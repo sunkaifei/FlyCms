@@ -1,7 +1,7 @@
 /*
  *	Copyright © 2015 Zhejiang SKT Science Technology Development Co., Ltd. All rights reserved.
  *	浙江斯凯特科技发展有限公司 版权所有
- *	http://www.28844.com
+ *	http://www.mxxsaas.com
  */
 package com.flycms.module.template.service;
 
@@ -17,7 +17,7 @@ import org.springframework.ui.ModelMap;
 
 /**
  * Open source house, All rights reserved
- * 开发公司：28844.com<br/>
+ * 开发公司：mxxsaas.com<br/>
  * 版权：开源中国<br/>
  *
  * 模板工具类

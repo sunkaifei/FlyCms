@@ -20,8 +20,8 @@ import java.util.*;
 
 /**
  * Open source house, All rights reserved
- * 版权：28844.com<br/>
- * 开发公司：28844.com<br/>
+ * 版权：mxxsaas.com<br/>
+ * 开发公司：mxxsaas.com<br/>
  *
  * 思路： 创建一个FilterSet，枚举了0~65535的所有char是否是某个敏感词开头的状态
  *

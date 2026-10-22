@@ -8,8 +8,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 开发公司：28844.com<br/>
- * 版权：28844.com<br/>
+ * 开发公司：mxxsaas.com<br/>
+ * 版权：mxxsaas.com<br/>
  *
  * @author sun-kaifei
  * @version 1.0 <br/>

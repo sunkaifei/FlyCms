@@ -120,6 +120,10 @@ flycms:
   cors:
     # 允许跨域的主机名白名单（逗号分隔，不带协议与端口）。空值=不启用 CORS（纯同源部署）
     allowed-hosts: "localhost,127.0.0.1"
+  search:
+    # Lucene 全文索引目录（站内搜索，10.4.0 + smartcn 中文分词）。
+    # 相对路径基于运行目录；生产建议指到独立数据目录
+    index-dir: ./data/search-index
   security:
     csrf:
       # true=强制校验（/api/** 的 POST/PUT/PATCH/DELETE 缺 X-XSRF-TOKEN 返回 403）
@@ -192,7 +196,7 @@ spring:
 # 若有非浏览器客户端（脚本/移动端）直连 /api/**，需自行回填该请求头。
 flycms:
   cors:
-    allowed-hosts: "www.28844.com,28844.com"
+    allowed-hosts: "www.mxxsaas.com,mxxsaas.com"
   security:
     csrf:
       enabled: true

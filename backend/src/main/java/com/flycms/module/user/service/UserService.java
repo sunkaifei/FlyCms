@@ -28,8 +28,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 /**
- * 开发公司：28844.com<br/>
- * 版权：28844.com<br/>
+ * 开发公司：mxxsaas.com<br/>
+ * 版权：mxxsaas.com<br/>
  *
  * @author sun-kaifei
  * @version 1.0 <br/>
@@ -151,8 +151,7 @@ public class UserService {
         }else{
             return data;
         }
-        SnowFlake snowFlake = SnowFlake.getInstance();
-        user.setUserId(snowFlake.nextId());
+        // user_id 由 fly_user 自增列生成（addUser useGeneratedKeys 回填），不再用雪花号
         String urlCode=this.shortUrl();
         user.setShortUrl(urlCode);
         user.setPassword(BCryptUtils.hashpw(password, BCryptUtils.gensalt()));

@@ -3,7 +3,7 @@
 
 <!-- Open source house, All rights reserved. -->
 <!-- 开源之家 版权所有 -->
-<!-- http://www.28844.com -->
+<!-- http://www.mxxsaas.com -->
 
 <mapper namespace="com.flycms.module.job.dao.JobDao">
     <!-- ############################## -->

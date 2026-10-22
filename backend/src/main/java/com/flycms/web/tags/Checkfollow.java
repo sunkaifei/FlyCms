@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * Open source house, All rights reserved
- * 开发公司：28844.com<br/>
+ * 开发公司：mxxsaas.com<br/>
  * 版权：开源中国<br/>
  *
  * 查询是否已关注或者是该用户粉丝标签

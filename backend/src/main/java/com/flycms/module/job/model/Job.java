@@ -13,8 +13,8 @@ import java.util.Date;
 
 /**
  * Open source house, All rights reserved
- * 版权：28844.com<br/>
- * 开发公司：28844.com<br/>
+ * 版权：mxxsaas.com<br/>
+ * 开发公司：mxxsaas.com<br/>
  *
  * 定时任务实体类
  *

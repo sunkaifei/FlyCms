@@ -113,6 +113,9 @@ public class Commentpage extends AbstractTagPlugin {
                 // 用户把昵称改成 <script> 即构成存储型 XSS（内容侧已在写入时过 jsoup 白名单）
                 row.put("nickname", org.springframework.web.util.HtmlUtils.htmlEscape(nick));
                 row.put("avatar", user == null || user.getAvatar() == null ? "" : user.getAvatar());
+                // 个人主页路径：模板据此把评论人名链到 /people/{shortUrl}/，游客留空不渲染链接
+                String shortUrl = user == null ? null : user.getShortUrl();
+                row.put("userPage", shortUrl == null || shortUrl.isBlank() ? "" : "/people/" + shortUrl + "/");
                 rowsList.add(row);
             }
             pageVo.setList(rowsList);

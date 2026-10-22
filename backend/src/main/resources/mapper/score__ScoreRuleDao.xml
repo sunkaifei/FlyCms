@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- Open source house, All rights reserved. -->
 <!-- 开源之家 版权所有 -->
-<!-- http://www.28844.com -->
+<!-- http://www.mxxsaas.com -->
 <mapper namespace="com.flycms.module.score.dao.ScoreRuleDao">
     <!-- ############################## -->
     <!-- ######       增加       ###### -->

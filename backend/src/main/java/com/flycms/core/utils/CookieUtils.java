@@ -9,8 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 /**
  * Open source house, All rights reserved
- * 版权：28844.com<br/>
- * 开发公司：28844.com<br/>
+ * 版权：mxxsaas.com<br/>
+ * 开发公司：mxxsaas.com<br/>
  *
  * @author sun-kaifei
  * @version 1.0 <br/>

@@ -21,8 +21,8 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * Open source house, All rights reserved
- * 版权：28844.com<br/>
- * 开发公司：28844.com<br/>
+ * 版权：mxxsaas.com<br/>
+ * 开发公司：mxxsaas.com<br/>
  *
  * 全站过滤器，获取用户url携带邀请参数，记录邀请人id
  *
