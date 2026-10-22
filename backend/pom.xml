@@ -17,6 +17,20 @@
         <java.version>24</java.version>
         <!-- 阶段 K4：Boot 4.1.1 BOM 未纳入 testcontainers，显式锁版本 -->
         <testcontainers.version>1.21.4</testcontainers.version>
+        <!-- ===== 安全补丁：覆盖 Boot 4.1.1 BOM 自带的受影响版本 =====
+             判定依据：mvn dependency:list 导出真实运行时依赖 → OSV querybatch 比对
+             （脚本 tools/_tmp_scripts/osv_deps.py，不用扫 ~/.m2，那里混着历史版本会假阳性）。
+             这几个属性名是 spring-boot-dependencies-4.1.1.pom 里真实存在的，
+             写在这里即覆盖 BOM，不需要 exclude+重新声明。 -->
+        <!-- CVE-2026-65905 / 65182 / 68525（3 个 CRITICAL，认证绕过与访问控制） -->
+        <tomcat.version>11.0.25</tomcat.version>
+        <!-- CVE-2026-84939（CRITICAL）：模板加载路径穿越 → 可越出模板根目录读文件。
+             本项目前台模板完全由 FreeMarker 渲染，属直接暴露面，必须升。 -->
+        <freemarker.version>2.3.35</freemarker.version>
+        <!-- CVE-2026-91777 / 91776 / 89425 / 89407 / 83557 / 68497 / 19032（4 HIGH + 3 MODERATE）
+             取 3.1.7 而不是 3.2.3：3.1.7 已满足全部修复下限，且不跨 minor，
+             避免与 Boot 4.1.1 的 Jackson 3.1.x 集成点产生 API 漂移。 -->
+        <jackson-bom.version>3.1.7</jackson-bom.version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -143,6 +157,29 @@
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
             <version>2.3.2</version>
+            <!-- ===== 安全：裁掉 quartz 自带、本项目从不使用且带洞的传递依赖 =====
+                 c3p0 0.9.5.4 + mchange-commons-java 0.2.15：
+                   CVE-2026-27830（HIGH，userOverridesAsString 反序列化 RCE）
+                   CVE-2026-55223 / 2026-55153 / 2026-27727（HIGH/MODERATE，JNDI 注入与反序列化 gadget）
+                 为什么能安全裁掉：本项目连接池是 Druid，调度用 Spring 的
+                 SchedulerFactoryBean + AdaptableJobFactory（见 module/job/config/ScheduleConfig），
+                 quartz 只跑内存态 SimpleThreadPool，从不实例化 c3p0 连接池
+                 —— c3p0 只在显式配置 C3P0ConnectionProvider / JobStoreCMT 时才会被加载。
+                 HikariCP-java7 同理（Boot 已通过 starter-jdbc 提供 HikariCP 7.x），一并裁掉免冲突。 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mchange</groupId>
+                    <artifactId>c3p0</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.mchange</groupId>
+                    <artifactId>mchange-commons-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.zaxxer</groupId>
+                    <artifactId>HikariCP-java7</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -159,21 +196,30 @@
             <artifactId>fastjson2</artifactId>
             <version>2.0.57</version>
         </dependency>
-        <!-- Lucene核心库（lucbir 图片检索工具使用） -->
+        <!-- Lucene 全文检索（站内搜索索引 + lucbir 图片检索工具）。
+             10.4.0（2026-02）要求 Java 21+，项目运行时 24/25 满足；
+             中文分词用官方 smartcn（lucene-analysis-smartcn） -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
-            <version>7.4.0</version>
+            <version>10.4.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
-            <version>7.4.0</version>
+            <version>10.4.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>7.4.0</version>
+            <artifactId>lucene-analysis-common</artifactId>
+            <version>10.4.0</version>
+        </dependency>
+        <!-- jieba 中文分词（Apache-2.0）：INDEX 细粒度建索引提召回 / SEARCH 粗粒度查询提精度，
+             不绑定 Lucene 版本；自定义词典走 jieba 自带 user.dict 机制 -->
+        <dependency>
+            <groupId>com.huaban</groupId>
+            <artifactId>jieba-analysis</artifactId>
+            <version>1.0.2</version>
         </dependency>
         <!-- druid数据库连接池（Boot 4 下通过 DruidConfig 手动装配） -->
         <dependency>
@@ -186,11 +232,27 @@
             <groupId>com.aliyun</groupId>
             <artifactId>aliyun-java-sdk-core</artifactId>
             <version>3.3.1</version>
+            <!-- 它自带 org.json:json:20170516（CVE-2022-45688 栈溢出 / CVE-2023-5072 DoS），
+                 这里排除后由下面显式声明的 20231013 提供，避免旧版被重新拉进来。 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.json</groupId>
+                    <artifactId>json</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.aliyun</groupId>
             <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <!-- org.json 统一版本（阿里 SDK 的传递依赖，见上）：20170516 → 20231013
+             20230227 修 CVE-2022-45688，20231013 修 CVE-2023-5072，取后者两条全覆盖。
+             org.json 的 JSONObject/JSONArray 公共 API 长期稳定，阿里 SDK 只用到这些，升级无兼容风险。 -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
         </dependency>
         <!--mysql数据库驱动 -->
         <dependency>
@@ -203,10 +265,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
+        <!-- CVE-2026-75140（HIGH）：XmlTreeBuilder 对深层嵌套命名空间声明做内存放大攻击。
+             项目用 jsoup 做评论入库前的 HTML 清洗（输出侧再 escape），属不可信输入路径，必须升。 -->
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.23.1</version>
+            <version>1.23.2</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

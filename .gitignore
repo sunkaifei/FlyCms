@@ -85,3 +85,6 @@ Desktop.ini
 *.rej
 *.swp
 *~
+
+# Lucene 站内搜索索引（运行时生成，含 write.lock，不可入库）
+/backend/data/

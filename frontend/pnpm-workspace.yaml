@@ -52,6 +52,43 @@ overrides:
   # 会导致 TS 类型不兼容 + 运行时 instanceof 判定失败。统一到 1.42.6+。
   prosemirror-view: '^1.42.6'
 
+  # === 2026-10-23 安全修复（pnpm audit 实测 53 条 / 15 包 / 3 critical）===
+  # 统一写法：key 用「包名@受影响区间」，只抬受影响的版本线，不波及其它主版本。
+  # 依据：pnpm-lock 里这些包实际锁在受影响区间（axios 1.19.0 / vite 8.2.2 / undici 7.29.0 …），
+  # 只改 catalog 的 ^ 范围不会生效 —— 锁文件已满足范围就不会重解析，必须用 overrides 强制。
+  # axios: 12 条（含 SSRF / 原型污染）        <1.20.0  → ^1.20.0
+  # vite: 12 条（dev server 任意文件读取等）  <=8.2.3  → ^8.2.4
+  # undici: 10 条（DoS / 响应拆分）           <7.29.1  → ^7.29.1（只抬 7.x，5/6.x 保持）
+  # brace-expansion: 3 条（ReDoS）            2.x <2.1.7 → ^2.1.7
+  # follow-redirects: 2 条（凭据泄漏）        <1.16.1 → ^1.16.1
+  # launch-editor: 3 条（命令注入）           <=2.14.1 → ^2.14.2
+  # tinypool: 2 条 CRITICAL                   <=2.1.0 → ^2.1.1
+  # node-forge: 1 条（证书校验绕过）          <=1.4.0 → ^1.4.1
+  # braces: 1 条（ReDoS）                     <=3.0.3 → ^3.0.4
+  # smol-toml: 1 条                           <=1.8.0 → ^1.8.1
+  # source-map-js: 1 条（原型污染）           <1.2.2 → ^1.2.2
+  # postcss-selector-parser: 1 条             7.x <7.1.6 → ^7.1.6（6.x 不动）
+  # shell-quote: 1 条 CRITICAL（命令注入）    <1.11.0 → ^1.11.0
+  # @vue/server-renderer / @vitest/mocker 走 catalog 直接升 vue 3.5.42 / vitest 4.1.12
+  'axios@<1.20.0': '^1.20.0'
+  # vite: 12+6 条（dev server 任意文件读取等）  <=8.3.2  → ^8.3.3
+  'vite@>=8.2.0 <=8.3.2': '^8.3.3'
+  'undici@>=7.0.0 <7.29.1': '^7.29.1'
+  'brace-expansion@>=2.0.0 <2.1.7': '^2.1.7'
+  'follow-redirects@<1.16.1': '^1.16.1'
+  'launch-editor@<=2.14.1': '^2.14.2'
+  'tinypool@<=2.1.0': '^2.1.1'
+  'source-map-js@>=1.0.0 <1.2.2': '^1.2.2'
+  'postcss-selector-parser@>=7.0.0 <7.1.6': '^7.1.6'
+  'shell-quote@>=1.8.4 <1.11.0': '^1.11.0'
+
+  # ⚠ 以下 3 个**故意不加 override** —— 告警里写的 patched 版本在 npm 上并不存在
+  #   （逐个 curl registry.npmjs.org/<pkg>/<ver> 实测 404，最新发布版本本身就落在受影响区间）：
+  #     node-forge  <=1.4.0（最新 1.4.0）  ← 来自 nitropack>listhen，仅 `pnpm preview` 用
+  #     braces      <=3.0.3（最新 3.0.3）  ← 来自 stylelint>micromatch，仅 lint 用
+  #     smol-toml   <=1.8.0（最新 1.8.0）  ← 来自 cspell，仅拼写检查用
+  #   三个都不进浏览器产物、不在运行时执行，属工具链可接受风险；等上游发补丁再抬。
+
 catalog:
   '@ast-grep/napi': ^0.45.2
   '@changesets/changelog-github': ^1.0.1
@@ -117,7 +154,7 @@ catalog:
   ant-design-vue: ^4.2.6
   antdv-next: ^1.4.5
   archiver: ^8.0.0
-  axios: ^1.18.1
+  axios: ^1.20.0
   axios-mock-adapter: ^2.1.0
   cac: ^7.0.0
   chalk: ^5.6.2
@@ -206,15 +243,15 @@ catalog:
   unplugin-dts: ^1.0.3
   unplugin-element-plus: ^0.11.2
   unplugin-vue: ^7.2.0
-  vite: ^8.3.0
+  vite: ^8.3.3
   vite-plugin-compression: ^0.5.1
   vite-plugin-lazy-import: ^1.0.7
   vite-plugin-pwa: ^1.3.0
   vite-plugin-vue-devtools: ^8.1.5
   vitepress: ^2.0.0-alpha.18
   vitepress-plugin-group-icons: ^1.7.5
-  vitest: ^4.1.11
-  vue: 3.5.41
+  vitest: ^4.1.12
+  vue: 3.5.42
   vue-eslint-parser: ^10.4.1
   vue-i18n: ^11.4.10
   vue-json-pretty: ^2.6.0
