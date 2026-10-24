@@ -278,6 +278,7 @@
       <a href="/ucenter/safe_email"<#if nav == 'email'> class="on"</#if>><@icon name="mail" />安全邮箱</a>
       <div class="grp">我的内容</div>
       <a href="/ucenter/favorite"<#if nav == 'favorite'> class="on"</#if>><@icon name="star" />我的收藏</a>
+      <a href="/ucenter/message"<#if nav == 'message'> class="on"</#if>><@icon name="mail" />我的消息<#if (unread)!0 gt 0> <span class="badge">${(unread)!0}</span></#if></a>
       <a href="/ucenter/integral"<#if nav == 'integral'> class="on"</#if>><@icon name="gold" />积分明细</a>
       <a href="/ucenter/account_log"<#if nav == 'account_log'> class="on"</#if>><@icon name="trend" />账户流水</a>
       <a href="/ucenter/invite"<#if nav == 'invite'> class="on"</#if>><@icon name="share" />推广邀请</a>

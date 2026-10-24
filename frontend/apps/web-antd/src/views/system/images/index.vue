@@ -6,7 +6,15 @@ import { onMounted, ref } from 'vue';
 import { Page } from '@vben/common-ui';
 import { useAccess } from '@vben/access';
 
-import { Button, Input, message, Modal, Pagination, Table } from 'ant-design-vue';
+import {
+  Button,
+  Input,
+  message,
+  Modal,
+  Pagination,
+  Switch,
+  Table,
+} from 'ant-design-vue';
 
 import {
   deleteOrphanImagesApi,
@@ -87,10 +95,14 @@ onMounted(load);
         @press-enter="onSearch"
       />
       <Button @click="onSearch">搜索</Button>
-      <label class="ml-2 flex items-center gap-1 text-sm">
-        <input v-model="onlyOrphan" type="checkbox" @change="onSearch" />
+      <span class="ml-2 flex items-center gap-2 text-sm">
+        <Switch
+          v-model:checked="onlyOrphan"
+          size="small"
+          @change="onSearch"
+        />
         只看孤儿附件
-      </label>
+      </span>
 
       <div v-if="hasAccessByCodes(['/api/system/images/deleteOrphan'])" class="ml-auto">
         <Button danger size="small" @click="onCleanOrphan">

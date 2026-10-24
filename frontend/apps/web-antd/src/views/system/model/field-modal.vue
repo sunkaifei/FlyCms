@@ -20,11 +20,17 @@ import {
  * 新增/编辑字段弹窗。
  * - field_name/field_type 创建后不可改（=列名与列定义）
  * - column_type 由后端 FieldTypeEnum 推导，前端不传
- * - 类型联动：maxlength 仅 input；选项仅 select/radio/checkbox 且可选「自定义选项 /
- *   绑定字典」（若依式 dict_type，绑定后候选项由「字典管理」维护）；regex 仅 input；
- *   relateModel 仅 relate/relates（E1）；rollup 配置仅 rollup（P2）；
- *   lookupFields 仅 relate/relates（P2）；条件显隐仅顶层字段（P1）
  * - 子字段：modal data.parentId > 0 时为 GROUP/REPEATER 添加子字段（不建物理列）
+ *
+ * 2026-10-23 表单改造：
+ * - 45 个 schema 项从「一列平铺」改为 4 个可折叠分组（基础 / 校验与选项 /
+ *   高级 / 控件外观），填一个字段不必从上滚到下；
+ * - 修「类型切换后残留值入库」：切换类型时清掉不属于新类型的 w_* 控件配置；
+ * - 修 w_format 在 schema 里重复登记两次（date 一份、datetime 一份）的隐患，
+ *   合并为一项、候选按类型联动；
+ * - 修 dependencies 里混用「响应式 ref」与「values 参数」导致
+ *   新建字段时类型联动失效（只有编辑既有字段才生效）的老 bug：
+ *   选了 image 却不出「单图形态」、选了 rollup 却不出聚合配置。
  */
 const FIELD_TYPES = [
   { label: '单行文本 (input)', value: 'input' },
@@ -87,6 +93,48 @@ const ROLLUP_FUNCS = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'].map((f) => ({
   value: f,
 }));
 
+/** 各字段类型可用的控件配置键（切换类型时据此清残留） */
+const W_KEYS: Record<string, string[]> = {
+  image: ['w_shape', 'w_maxSize'],
+  images: ['w_maxCount', 'w_sortMode'],
+  files: ['w_maxCount', 'w_sortMode'],
+  date: ['w_format'],
+  datetime: ['w_format'],
+  textarea: ['w_rows', 'w_autoSize', 'w_showCount'],
+  input: ['w_addonBefore', 'w_addonAfter'],
+  number: ['w_addonAfter'],
+  decimal: ['w_addonAfter', 'w_step'],
+  slug: ['w_prefix'],
+  select: ['w_layout'],
+  radio: ['w_layout'],
+  checkbox: ['w_layout'],
+  switch: ['w_checkedText', 'w_unCheckedText'],
+  rating: ['w_count', 'w_allowHalf'],
+  color: ['w_palette'],
+};
+const ALL_W_KEYS = [
+  'w_shape',
+  'w_maxSize',
+  'w_maxCount',
+  'w_sortMode',
+  'w_format',
+  'w_rows',
+  'w_autoSize',
+  'w_showCount',
+  'w_addonBefore',
+  'w_addonAfter',
+  'w_step',
+  'w_prefix',
+  'w_layout',
+  'w_checkedText',
+  'w_unCheckedText',
+  'w_count',
+  'w_allowHalf',
+  'w_palette',
+];
+/** 布尔型控件配置（清空值为 false 而非空串） */
+const BOOL_W_KEYS = new Set(['w_autoSize', 'w_showCount', 'w_allowHalf']);
+
 const modelId = ref<number | string>(0);
 const editing = ref<null | ModelFieldRow>(null);
 /** >0 = 正在为某个 GROUP/REPEATER 添加子字段 */
@@ -95,6 +143,7 @@ const parentFieldId = ref<number>(0);
 const parentLabel = ref('');
 let onSaved: (() => void) | undefined;
 
+/** 当前选择的字段类型（联动控件外观与高级配置的显隐） */
 const fieldType = ref<string>('input');
 /** 可被引用的模型（含「本模型」，用于自关联树，如回答的 parent_id） */
 const relateOptions = ref<{ label: string; value: string }[]>([]);
@@ -143,9 +192,7 @@ async function loadSiblingFields(excludeId?: number) {
     const list = (await getFieldListApi(modelId.value)) ?? [];
     visFieldOptions.value = list
       .filter(
-        (f) =>
-          (f.parentId ?? 0) === 0 &&
-          String(f.id) !== String(excludeId ?? -1),
+        (f) => (f.parentId ?? 0) === 0 && String(f.id) !== String(excludeId ?? -1),
       )
       .map((f) => ({ label: `${f.fieldLabel}（${f.fieldName}）`, value: f.fieldName }));
     rollupSourceOptions.value = list
@@ -157,8 +204,11 @@ async function loadSiblingFields(excludeId?: number) {
   }
 }
 
-const [Form, formApi] = useVbenForm({
-  schema: [
+// /////////// 字段 schema（分组组织） ///////////
+
+/** 基础信息组 */
+function basicFields(isChild: boolean) {
+  return [
     {
       component: 'Input',
       componentProps: { placeholder: '小写字母开头，如 file_size' },
@@ -171,28 +221,11 @@ const [Form, formApi] = useVbenForm({
       componentProps: {
         options: FIELD_TYPES,
         placeholder: '选择类型（创建后不可改）',
+        onChange: (v: any) => onFieldTypeChange(v),
       },
       fieldName: 'fieldType',
       label: '字段类型',
       rules: 'selectRequired',
-    },
-    {
-      component: 'Select',
-      componentProps: {
-        options: [],
-        placeholder: '被引用/绑定的模型（关联本模型或分类留空 = 本模型）',
-        showSearch: true,
-        optionFilterProp: 'label',
-        allowClear: true,
-      },
-      dependencies: {
-        show: () =>
-          RELATION_TYPES.includes(fieldType.value) ||
-          BOUND_TYPES.includes(fieldType.value),
-        triggerFields: ['fieldType'],
-      },
-      fieldName: 'relateModel',
-      label: '绑定模型',
     },
     {
       component: 'Input',
@@ -200,6 +233,32 @@ const [Form, formApi] = useVbenForm({
       label: '显示名',
       rules: 'required',
     },
+    ...(isChild
+      ? []
+      : [
+          {
+            component: 'Input',
+            componentProps: { placeholder: '默认：基础信息' },
+            fieldName: 'tabName',
+            label: '表单选项卡',
+          },
+        ]),
+    {
+      component: 'Input',
+      fieldName: 'placeholder',
+      label: '占位提示',
+    },
+    {
+      component: 'InputNumber',
+      fieldName: 'sort',
+      label: '排序',
+    },
+  ];
+}
+
+/** 校验与选项组 */
+function validateFields() {
+  return [
     {
       component: 'InputNumber',
       componentProps: { min: 1, max: 4000 },
@@ -209,6 +268,75 @@ const [Form, formApi] = useVbenForm({
       },
       fieldName: 'maxlength',
       label: '长度上限',
+    },
+    {
+      component: 'Input',
+      componentProps: { placeholder: '正则表达式（可选）' },
+      dependencies: {
+        show: (values: Record<string, any>) => values.fieldType === 'input',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'regex',
+      label: '校验正则',
+    },
+    {
+      component: 'InputNumber',
+      componentProps: { step: 0.01 },
+      dependencies: {
+        show: (values: Record<string, any>) =>
+          ['number', 'decimal', 'rating'].includes(String(values.fieldType)),
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'minValue',
+      label: '最小值',
+    },
+    {
+      component: 'InputNumber',
+      componentProps: { step: 0.01 },
+      dependencies: {
+        show: (values: Record<string, any>) =>
+          ['number', 'decimal', 'rating'].includes(String(values.fieldType)),
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'maxValue',
+      label: '最大值',
+    },
+    {
+      component: 'Checkbox',
+      componentProps: { title: '开启后写入时校验全模型唯一（slug/编号类字段）' },
+      dependencies: {
+        show: (values: Record<string, any>) =>
+          !STRUCTURE_TYPES.includes(String(values.fieldType)) &&
+          values.fieldType !== 'rollup' &&
+          values.fieldType !== 'm2a',
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'isUnique',
+      label: '值唯一',
+    },
+    {
+      component: 'Checkbox',
+      fieldName: 'isRequired',
+      label: '必填',
+    },
+    {
+      component: 'Checkbox',
+      fieldName: 'isList',
+      label: '列表显示',
+    },
+    {
+      component: 'Checkbox',
+      componentProps: {
+        title: '关闭后该字段不出现在内容表单（不校验不提交），仅存储/列表/详情可见',
+      },
+      defaultValue: true,
+      fieldName: 'isForm',
+      label: '表单显示',
+    },
+    {
+      component: 'Checkbox',
+      fieldName: 'isFilter',
+      label: '列表筛选',
     },
     {
       component: 'RadioGroup',
@@ -254,27 +382,30 @@ const [Form, formApi] = useVbenForm({
       fieldName: 'options',
       label: '选项',
     },
+  ];
+}
+
+/** 高级组（仅顶层字段：子字段不建物理列，关联/聚合/显隐都不适用） */
+function advancedFields() {
+  return [
     {
-      component: 'Input',
-      componentProps: { placeholder: '正则表达式（可选）' },
+      component: 'Select',
+      componentProps: {
+        options: [],
+        placeholder: '被引用/绑定的模型（关联本模型或分类留空 = 本模型）',
+        showSearch: true,
+        optionFilterProp: 'label',
+        allowClear: true,
+      },
       dependencies: {
-        show: (values: Record<string, any>) => values.fieldType === 'input',
+        show: (values: Record<string, any>) =>
+          RELATION_TYPES.includes(String(values.fieldType)) ||
+          BOUND_TYPES.includes(String(values.fieldType)),
         triggerFields: ['fieldType'],
       },
-      fieldName: 'regex',
-      label: '校验正则',
+      fieldName: 'relateModel',
+      label: '绑定模型',
     },
-    {
-      component: 'Input',
-      componentProps: { placeholder: '默认：基础信息' },
-      dependencies: {
-        show: () => parentFieldId.value === 0,
-        triggerFields: [],
-      },
-      fieldName: 'tabName',
-      label: '表单选项卡',
-    },
-    // /////////// P2 Rollup 配置（仅 rollup 类型） ///////////
     {
       component: 'Select',
       componentProps: {
@@ -282,7 +413,7 @@ const [Form, formApi] = useVbenForm({
         placeholder: '选择本模型的单值关联字段（relate）作为数据源',
       },
       dependencies: {
-        show: () => fieldType.value === 'rollup',
+        show: (values: Record<string, any>) => values.fieldType === 'rollup',
         triggerFields: ['fieldType'],
       },
       fieldName: 'rollupSource',
@@ -292,7 +423,7 @@ const [Form, formApi] = useVbenForm({
       component: 'Select',
       componentProps: { options: ROLLUP_FUNCS },
       dependencies: {
-        show: () => fieldType.value === 'rollup',
+        show: (values: Record<string, any>) => values.fieldType === 'rollup',
         triggerFields: ['fieldType'],
       },
       defaultValue: 'COUNT',
@@ -303,24 +434,24 @@ const [Form, formApi] = useVbenForm({
       component: 'Input',
       componentProps: { placeholder: 'SUM/AVG/MIN/MAX 需要填目标模型的数值列名' },
       dependencies: {
-        show: () => fieldType.value === 'rollup',
+        show: (values: Record<string, any>) => values.fieldType === 'rollup',
         triggerFields: ['fieldType'],
       },
       fieldName: 'rollupColumn',
       label: '聚合列',
     },
-    // /////////// E6 公式（仅 formula 类型） ///////////
     {
       component: 'Input',
-      componentProps: { placeholder: '行内表达式，如 price * 0.88；变量=本模型字段名，仅四则+括号+数字' },
+      componentProps: {
+        placeholder: '行内表达式，如 price * 0.88；变量=本模型字段名，仅四则+括号+数字',
+      },
       dependencies: {
-        show: () => fieldType.value === 'formula',
+        show: (values: Record<string, any>) => values.fieldType === 'formula',
         triggerFields: ['fieldType'],
       },
       fieldName: 'formula',
       label: '计算公式',
     },
-    // /////////// P2 Lookup 展示列（仅 relate/relates） ///////////
     {
       component: 'Textarea',
       componentProps: {
@@ -328,13 +459,13 @@ const [Form, formApi] = useVbenForm({
         rows: 2,
       },
       dependencies: {
-        show: () => RELATION_TYPES.includes(fieldType.value),
+        show: (values: Record<string, any>) =>
+          RELATION_TYPES.includes(String(values.fieldType)),
         triggerFields: ['fieldType'],
       },
       fieldName: 'lookupFields',
       label: 'Lookup展示列',
     },
-    // /////////// P1 条件显隐（仅顶层字段；子字段不支持） ///////////
     {
       component: 'Select',
       componentProps: {
@@ -344,10 +475,6 @@ const [Form, formApi] = useVbenForm({
         showSearch: true,
         optionFilterProp: 'label',
       },
-      dependencies: {
-        show: () => parentFieldId.value === 0,
-        triggerFields: [],
-      },
       fieldName: 'visField',
       label: '显隐条件',
     },
@@ -356,7 +483,7 @@ const [Form, formApi] = useVbenForm({
       componentProps: { options: VIS_OPS },
       defaultValue: 'eq',
       dependencies: {
-        show: () => parentFieldId.value === 0 && Boolean(visField.value),
+        show: (values: Record<string, any>) => Boolean(values.visField),
         triggerFields: ['visField'],
       },
       fieldName: 'visOp',
@@ -366,80 +493,20 @@ const [Form, formApi] = useVbenForm({
       component: 'Input',
       componentProps: { placeholder: '比较值（eq/neq/in 用；in 逗号分隔）' },
       dependencies: {
-        show: () =>
-          parentFieldId.value === 0 &&
-          Boolean(visField.value) &&
-          !['empty', 'notempty'].includes(String(visOp.value)),
+        show: (values: Record<string, any>) =>
+          Boolean(values.visField) &&
+          !['empty', 'notempty'].includes(String(values.visOp)),
         triggerFields: ['visField', 'visOp'],
       },
       fieldName: 'visValue',
       label: '比较值',
     },
-    {
-      component: 'Input',
-      fieldName: 'placeholder',
-      label: '占位提示',
-    },
-    {
-      component: 'InputNumber',
-      fieldName: 'sort',
-      label: '排序',
-    },
-    {
-      component: 'Checkbox',
-      fieldName: 'isRequired',
-      label: '必填',
-    },
-    {
-      component: 'Checkbox',
-      fieldName: 'isList',
-      label: '列表显示',
-    },
-    {
-      component: 'Checkbox',
-      componentProps: {
-        title: '关闭后该字段不出现在内容表单（不校验不提交），仅存储/列表/详情可见',
-      },
-      defaultValue: true,
-      fieldName: 'isForm',
-      label: '表单显示',
-    },
-    {
-      component: 'Checkbox',
-      fieldName: 'isFilter',
-      label: '列表筛选',
-    },
-    {
-      component: 'Checkbox',
-      componentProps: { title: '开启后写入时校验全模型唯一（slug/编号类字段）' },
-      dependencies: {
-        show: () => !STRUCTURE_TYPES.includes(fieldType.value) && fieldType.value !== 'rollup' && fieldType.value !== 'm2a',
-        triggerFields: ['fieldType'],
-      },
-      fieldName: 'isUnique',
-      label: '值唯一',
-    },
-    {
-      component: 'InputNumber',
-      componentProps: { step: 0.01 },
-      dependencies: {
-        show: (values: Record<string, any>) => ['number', 'decimal', 'rating'].includes(String(values.fieldType)),
-        triggerFields: ['fieldType'],
-      },
-      fieldName: 'minValue',
-      label: '最小值',
-    },
-    {
-      component: 'InputNumber',
-      componentProps: { step: 0.01 },
-      dependencies: {
-        show: (values: Record<string, any>) => ['number', 'decimal', 'rating'].includes(String(values.fieldType)),
-        triggerFields: ['fieldType'],
-      },
-      fieldName: 'maxValue',
-      label: '最大值',
-    },
-    // /////////// W 控件设置（widget_conf，与后端 FieldWidgetConfUtil 同源） ///////////
+  ];
+}
+
+/** 控件外观组（widget_conf，与后端 FieldWidgetConfUtil 同源） */
+function widgetFields() {
+  return [
     {
       component: 'Select',
       componentProps: {
@@ -451,7 +518,7 @@ const [Form, formApi] = useVbenForm({
         allowClear: true,
       },
       dependencies: {
-        show: () => fieldType.value === 'image',
+        show: (values: Record<string, any>) => values.fieldType === 'image',
         triggerFields: ['fieldType'],
       },
       fieldName: 'w_shape',
@@ -471,7 +538,8 @@ const [Form, formApi] = useVbenForm({
       component: 'InputNumber',
       componentProps: { min: 1, max: 50 },
       dependencies: {
-        show: (values: Record<string, any>) => ['images', 'files'].includes(String(values.fieldType)),
+        show: (values: Record<string, any>) =>
+          ['images', 'files'].includes(String(values.fieldType)),
         triggerFields: ['fieldType'],
       },
       fieldName: 'w_maxCount',
@@ -488,42 +556,21 @@ const [Form, formApi] = useVbenForm({
         allowClear: true,
       },
       dependencies: {
-        show: (values: Record<string, any>) => ['images', 'files'].includes(String(values.fieldType)),
+        show: (values: Record<string, any>) =>
+          ['images', 'files'].includes(String(values.fieldType)),
         triggerFields: ['fieldType'],
       },
       fieldName: 'w_sortMode',
       label: '排序方式',
     },
     {
+      // date / datetime 共用一项（此前登记了两份同名项，updateSchema 按 fieldName
+      // 匹配时会打架），候选随类型联动
       component: 'Select',
-      componentProps: {
-        options: [
-          { label: '日 (YYYY-MM-DD)', value: 'YYYY-MM-DD' },
-          { label: '月 (YYYY-MM)', value: 'YYYY-MM' },
-          { label: '年 (YYYY)', value: 'YYYY' },
-        ],
-        placeholder: '默认到日',
-        allowClear: true,
-      },
+      componentProps: { options: [], placeholder: '默认到日', allowClear: true },
       dependencies: {
-        show: (values: Record<string, any>) => values.fieldType === 'date',
-        triggerFields: ['fieldType'],
-      },
-      fieldName: 'w_format',
-      label: '时间格式',
-    },
-    {
-      component: 'Select',
-      componentProps: {
-        options: [
-          { label: '到分 (YYYY-MM-DD HH:mm)', value: 'YYYY-MM-DD HH:mm' },
-          { label: '到秒 (YYYY-MM-DD HH:mm:ss)', value: 'YYYY-MM-DD HH:mm:ss' },
-        ],
-        placeholder: '默认到分',
-        allowClear: true,
-      },
-      dependencies: {
-        show: (values: Record<string, any>) => values.fieldType === 'datetime',
+        show: (values: Record<string, any>) =>
+          values.fieldType === 'date' || values.fieldType === 'datetime',
         triggerFields: ['fieldType'],
       },
       fieldName: 'w_format',
@@ -559,16 +606,6 @@ const [Form, formApi] = useVbenForm({
     },
     {
       component: 'Input',
-      componentProps: { placeholder: '如 https:// 或 单位“元”' },
-      dependencies: {
-        show: (values: Record<string, any>) => ['input', 'number', 'decimal'].includes(String(values.fieldType)),
-        triggerFields: ['fieldType'],
-      },
-      fieldName: 'w_addonAfter',
-      label: '后缀',
-    },
-    {
-      component: 'Input',
       componentProps: { placeholder: '如 https://' },
       dependencies: {
         show: (values: Record<string, any>) => values.fieldType === 'input',
@@ -576,6 +613,17 @@ const [Form, formApi] = useVbenForm({
       },
       fieldName: 'w_addonBefore',
       label: '前缀',
+    },
+    {
+      component: 'Input',
+      componentProps: { placeholder: '如 https:// 或 单位“元”' },
+      dependencies: {
+        show: (values: Record<string, any>) =>
+          ['input', 'number', 'decimal'].includes(String(values.fieldType)),
+        triggerFields: ['fieldType'],
+      },
+      fieldName: 'w_addonAfter',
+      label: '后缀',
     },
     {
       component: 'InputNumber',
@@ -600,34 +648,13 @@ const [Form, formApi] = useVbenForm({
     {
       component: 'Select',
       componentProps: {
-        options: [
-          { label: '下拉 (select)', value: 'select' },
-          { label: '横排单选 (row)', value: 'row' },
-          { label: '竖排单选 (column)', value: 'column' },
-          { label: '标签组 (button)', value: 'button' },
-        ],
+        options: [],
         placeholder: '默认下拉',
         allowClear: true,
       },
       dependencies: {
-        show: (values: Record<string, any>) => ['select', 'radio'].includes(String(values.fieldType)),
-        triggerFields: ['fieldType'],
-      },
-      fieldName: 'w_layout',
-      label: '选项布局',
-    },
-    {
-      component: 'Select',
-      componentProps: {
-        options: [
-          { label: '多选框 (checkbox)', value: 'checkbox' },
-          { label: '标签组 (button)', value: 'button' },
-        ],
-        placeholder: '默认多选框',
-        allowClear: true,
-      },
-      dependencies: {
-        show: (values: Record<string, any>) => values.fieldType === 'checkbox',
+        show: (values: Record<string, any>) =>
+          ['select', 'radio', 'checkbox'].includes(String(values.fieldType)),
         triggerFields: ['fieldType'],
       },
       fieldName: 'w_layout',
@@ -685,13 +712,117 @@ const [Form, formApi] = useVbenForm({
       fieldName: 'w_palette',
       label: '预设色板',
     },
-  ],
+  ];
+}
+
+/** 三个可折叠分组（子字段没有物理列，高级组整组不渲染） */
+function buildSchema(isChild: boolean) {
+  const groups: any[] = [
+    {
+      type: 'group',
+      name: 'basic',
+      title: '基础',
+      collapsible: true,
+      defaultCollapsed: false,
+      wrapperClass: 'grid-cols-2',
+      children: basicFields(isChild),
+    },
+    {
+      type: 'group',
+      name: 'validate',
+      title: '校验与选项',
+      collapsible: true,
+      defaultCollapsed: false,
+      wrapperClass: 'grid-cols-2',
+      children: validateFields(),
+    },
+  ];
+  if (!isChild) {
+    groups.push({
+      type: 'group',
+      name: 'advanced',
+      title: '高级（关联 / 聚合 / 公式 / 条件显隐）',
+      collapsible: true,
+      defaultCollapsed: true,
+      wrapperClass: 'grid-cols-2',
+      children: advancedFields(),
+    });
+  }
+  groups.push({
+    type: 'group',
+    name: 'widget',
+    title: '控件外观',
+    collapsible: true,
+    defaultCollapsed: true,
+    wrapperClass: 'grid-cols-2',
+    children: widgetFields(),
+  });
+  return groups;
+}
+
+const [Form, formApi] = useVbenForm({
+  schema: buildSchema(false),
   showDefaultActions: false,
 });
 
-/** 显隐条件引用源（用于 dependencies 联动展示） */
-const visField = ref<string>('');
-const visOp = ref<string>('eq');
+/**
+ * 类型变化：同步联动源 + 清掉不属于新类型的控件配置残留。
+ *
+ * 此前 dependencies 里混用了两种取值方式——
+ * 一部分写 `{ show: () => fieldType.value === 'image' }`（闭包读 ref），
+ * 一部分写 `{ show: (values) => values.fieldType === 'input' }`（读表单值）。
+ * 而 fieldType.value 只在选择字段类型时没有更新（新建时它永远是 'input'），
+ * 于是「选了 image 却不出单图形态、选了 rollup 却不出聚合配置」，
+ * 只有编辑既有字段（onMounted 里赋过值）才表现正常。
+ */
+function onFieldTypeChange(v: any) {
+  const t = String(v ?? 'input');
+  fieldType.value = t;
+  // 清残留：类型 A 配过的 w_* 不该被类型 B 带进库（dependencies 只隐藏不清值）
+  const allowed = new Set(W_KEYS[t] ?? []);
+  const patch: Record<string, any> = {};
+  for (const k of ALL_W_KEYS) {
+    if (allowed.has(k)) continue;
+    patch[k] = BOOL_W_KEYS.has(k) ? false : '';
+  }
+  formApi.setValues(patch);
+  // 时间格式的候选随 date / datetime 切换
+  formApi.updateSchema([
+    {
+      componentProps: {
+        options:
+          t === 'datetime'
+            ? [
+                { label: '到分 (YYYY-MM-DD HH:mm)', value: 'YYYY-MM-DD HH:mm' },
+                { label: '到秒 (YYYY-MM-DD HH:mm:ss)', value: 'YYYY-MM-DD HH:mm:ss' },
+              ]
+            : [
+                { label: '日 (YYYY-MM-DD)', value: 'YYYY-MM-DD' },
+                { label: '月 (YYYY-MM)', value: 'YYYY-MM' },
+                { label: '年 (YYYY)', value: 'YYYY' },
+              ],
+      },
+      fieldName: 'w_format',
+    },
+    {
+      componentProps: {
+        options:
+          t === 'checkbox'
+            ? [
+                { label: '多选框 (checkbox)', value: 'checkbox' },
+                { label: '标签组 (button)', value: 'button' },
+              ]
+            : [
+                { label: '下拉 (select)', value: 'select' },
+                { label: '横排单选 (row)', value: 'row' },
+                { label: '竖排单选 (column)', value: 'column' },
+                { label: '标签组 (button)', value: 'button' },
+              ],
+      },
+      fieldName: 'w_layout',
+    },
+  ]);
+}
 
 function serializeVisibleWhen(values: Record<string, any>): string {
   const f = values.visField;
@@ -873,6 +1004,10 @@ onMounted(async () => {
   await loadRelateOptions(modelId.value);
   await loadSiblingFields(editing.value?.id);
   await loadDictTypeOptions();
+  // 子字段不建物理列，高级组整组不渲染（schema 在打开时按子字段模式重建一次）
+  if (parentFieldId.value > 0) {
+    formApi.setState({ schema: buildSchema(true) });
+  }
   formApi.updateSchema([
     {
       componentProps: { options: relateOptions.value },
@@ -892,7 +1027,7 @@ onMounted(async () => {
     },
   ]);
   if (editing.value) {
-    fieldType.value = editing.value.fieldType;
+    const t = String(editing.value.fieldType ?? 'input');
     modalApi.setState({ title: '编辑字段' });
     // P1 条件显隐回填
     let vis: any = {};
@@ -914,12 +1049,10 @@ onMounted(async () => {
     } catch {
       wConf = {};
     }
-    visField.value = vis.field ?? '';
-    visOp.value = vis.op ?? 'eq';
     formApi.setValues({
       fieldLabel: editing.value.fieldLabel,
       fieldName: editing.value.fieldName,
-      fieldType: editing.value.fieldType,
+      fieldType: t,
       relateModel: editing.value.relateModel,
       tabName: editing.value.tabName || '基础信息',
       dictSource: editing.value.dictType ? 'dict' : 'options',
@@ -961,10 +1094,10 @@ onMounted(async () => {
       w_unCheckedText: wConf.unCheckedText,
       w_count: wConf.count,
       w_allowHalf: wConf.allowHalf === true,
-      w_palette: wConf.palette
-        ? JSON.stringify(wConf.palette)
-        : undefined,
+      w_palette: wConf.palette ? JSON.stringify(wConf.palette) : undefined,
     });
+    // 回填后再同步一次类型联动（选项候选 + 残留清理）
+    onFieldTypeChange(t);
     formApi.updateSchema([
       { componentProps: { disabled: true }, fieldName: 'fieldName' },
       { componentProps: { disabled: true }, fieldName: 'fieldType' },
@@ -974,13 +1107,17 @@ onMounted(async () => {
       title: parentFieldId.value > 0 ? `为「${parentLabel.value}」添加子字段` : '新增字段',
     });
     formApi.setValues({ fieldType: 'input', isList: true, sort: 0 });
+    onFieldTypeChange('input');
   }
 });
 </script>
 
 <template>
   <Modal>
-    <div v-if="parentFieldId > 0" class="mb-2 rounded bg-blue-50 px-3 py-1.5 text-xs text-blue-600">
+    <div
+      v-if="parentFieldId > 0"
+      class="mb-2 rounded bg-blue-50 px-3 py-1.5 text-xs text-blue-600"
+    >
       子字段模式：子字段存于「{{ parentLabel }}」的 JSON 结构内，不创建独立数据表列
     </div>
     <Form />

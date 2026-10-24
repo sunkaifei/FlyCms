@@ -35,6 +35,11 @@ import {
   updateDataStatusApi,
 } from '#/api/core/model';
 import { contentNoun } from '#/api/core/model';
+import {
+  CONTENT_STATUS_COLOR,
+  CONTENT_STATUS_FILTER,
+  CONTENT_STATUS_TEXT,
+} from '#/constants/content-status';
 import { useEditDrawer } from '#/utils/edit-drawer';
 
 import FormModal from './form-modal.vue';
@@ -80,13 +85,13 @@ const filterValues = ref<Record<string, any>>({});
 const filterFields = computed(() => fields.value.filter((f) => f.isFilter === 1));
 const listFields = computed(() => fields.value.filter((f) => f.isList === 1));
 
-const STATUS_TEXT: Record<number, string> = {
-  0: '待审核',
-  1: '已发布',
-  2: '未通过',
-  3: '已删除',
-  4: '待发布',
-};
+/**
+ * 状态字典改引单一来源（constants/content-status.ts）。
+ * 此前本文件的筛选下拉与列表文本各写一份，且 4 在筛选里叫「待发布」、
+ * 在发布表单里叫「定时发布」——同一个状态两个名字。
+ */
+const STATUS_TEXT = CONTENT_STATUS_TEXT;
+const STATUS_COLOR = CONTENT_STATUS_COLOR;
 
 const [FormModalComp, formModalApi] = useEditDrawer({
   connectedComponent: FormModal,
@@ -412,12 +417,7 @@ onMounted(async () => {
         v-model:value="status"
         allow-clear
         class="w-[120px]"
-        :options="[
-          { label: '待审核', value: '0' },
-          { label: '已发布', value: '1' },
-          { label: '未通过', value: '2' },
-          { label: '待发布', value: '4' },
-        ]"
+        :options="CONTENT_STATUS_FILTER"
         placeholder="状态"
       />
       <Button
@@ -455,6 +455,15 @@ onMounted(async () => {
           <a class="cursor-pointer" @click="openEdit(record)">
             {{ record.title }}
           </a>
+        </template>
+        <template v-else-if="column.key === 'statusText'">
+          <Tag
+            :color="STATUS_COLOR[Number(record.status)] ?? 'default'"
+            class="cursor-pointer"
+            @click="openEdit(record)"
+          >
+            {{ record.statusText }}
+          </Tag>
         </template>
         <template v-else-if="column.key === 'action'">
           <Button

@@ -14,6 +14,7 @@ import { useAccess } from '@vben/access';
 import {
   Button,
   Input,
+  InputNumber,
   message,
   Modal,
   Select,
@@ -66,6 +67,13 @@ const TYPE_COLOR: Record<string, string> = {
   HTML: 'purple',
   TAG: 'green',
 };
+
+/** 调用键输入框的标签随区块类型变化（此前是三段 <template v-if> 手写标签） */
+const blockRefLabel = computed(() => {
+  if (editing.value.blockType === 'BLOCK') return '碎片调用键（如 home_focus）';
+  if (editing.value.blockType === 'TAG') return '标签关键词（如 Spring）';
+  return '自定义 HTML（会交给 FreeMarker 渲染，可用标签）';
+});
 
 const columns = [
   { dataIndex: 'sort', key: 'sort', title: '排序', width: 70 },
@@ -476,22 +484,19 @@ onMounted(async () => {
       @ok="doSave"
     >
       <div class="space-y-3">
-        <div>
-          <div class="mb-1 text-sm">所属区域</div>
+        <FieldItem label="所属区域" >
           <Input v-model:value="editing.areaName" disabled />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">区块类型</div>
+        </FieldItem>
+        <FieldItem label="区块类型" >
           <Select
             v-model:value="editing.blockType"
             class="w-full"
             :options="TYPE_OPTIONS"
           />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">包装器 CSS 类（S1-a：外层 div 附加类，多个空格分隔）</div>
+        </FieldItem>
+        <FieldItem label="包装器 CSS 类" tips="S1-a：外层 div 附加类，多个空格分隔">
           <Input v-model:value="editing.wrapperClass" placeholder="如 card shadow-lg" />
-        </div>
+        </FieldItem>
         <div v-if="editing.blockType === 'BLOCK'" class="mb-1">
           <div class="mb-1 text-xs text-gray-400">从碎片库选择（自动填调用键）</div>
           <Select
@@ -508,16 +513,10 @@ onMounted(async () => {
             "
           />
         </div>
-        <div>
-          <div class="mb-1 text-sm">标题（仅后台标识用）</div>
+        <FieldItem label="标题（仅后台标识用）" >
           <Input v-model:value="editing.blockTitle" placeholder="如 首页焦点图" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">
-            <template v-if="editing.blockType === 'BLOCK'">碎片调用键（如 home_focus）</template>
-            <template v-else-if="editing.blockType === 'TAG'">标签关键词（如 Spring）</template>
-            <template v-else>自定义 HTML（会交给 FreeMarker 渲染，可用标签）</template>
-          </div>
+        </FieldItem>
+        <FieldItem :label="blockRefLabel">
           <Input.TextArea
             v-model:value="editing.blockRef"
             :auto-size="{ maxRows: 12, minRows: editing.blockType === 'HTML' ? 6 : 1 }"
@@ -529,25 +528,21 @@ onMounted(async () => {
                   : '<div class=\&quot;banner\&quot;>…</div>'
             "
           />
-        </div>
+        </FieldItem>
         <div class="flex gap-3">
-          <div class="flex-1">
-            <div class="mb-1 text-sm">排序（越小越前）</div>
-            <Input
+          <FieldItem label="排序（越小越前）" class="flex-1">
+            <InputNumber
               :value="editing.sort"
-              type="number"
-              @change="
-                (e: any) => (editing.sort = Number(e.target.value) || 0)
-              "
+              class="w-full"
+              @change="(v: any) => (editing.sort = Number(v) || 0)"
             />
-          </div>
-          <div class="flex-1">
-            <div class="mb-1 text-sm">启用</div>
+          </FieldItem>
+          <FieldItem label="启用" class="flex-1">
             <Switch
               :checked="editing.status === 1"
               @change="(v: any) => (editing.status = v ? 1 : 0)"
             />
-          </div>
+          </FieldItem>
         </div>
       </div>
     </Modal>

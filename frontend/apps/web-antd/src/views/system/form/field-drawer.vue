@@ -12,6 +12,7 @@ import {
   message,
   Modal,
   Select,
+  Switch,
   Table,
   Textarea,
 } from 'ant-design-vue';
@@ -22,6 +23,7 @@ import {
   getFormFieldListApi,
   saveFormFieldApi,
 } from '#/api/core/form';
+import FieldItem from '../_shared/field-item.vue';
 
 /** 字段管理抽屉：一个表单对应若干字段 */
 const form = ref<null | FormRow>(null);
@@ -168,39 +170,39 @@ onMounted(() => {
         {{ editingId ? '编辑字段' : '新增字段' }}
       </div>
       <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-        <div>
-          <div class="mb-1 text-sm">字段名（中文）</div>
+        <FieldItem label="字段名（中文）">
           <Input v-model:value="fieldName" placeholder="如：您的姓名" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">字段key（英文）</div>
+        </FieldItem>
+        <FieldItem label="字段 key（英文）" tips="模板里取值的变量名">
           <Input v-model:value="fieldCode" placeholder="name" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">类型</div>
-          <Select v-model:value="fieldType" :options="FIELD_TYPES" class="w-full" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">排序</div>
+        </FieldItem>
+        <FieldItem label="类型">
+          <Select
+            v-model:value="fieldType"
+            :options="FIELD_TYPES"
+            class="w-full"
+          />
+        </FieldItem>
+        <FieldItem label="排序">
           <InputNumber v-model:value="sort" class="w-full" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">默认值</div>
+        </FieldItem>
+        <FieldItem label="默认值">
           <Input v-model:value="defaultValue" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">输入提示</div>
+        </FieldItem>
+        <FieldItem label="输入提示">
           <Input v-model:value="placeholder" />
-        </div>
-        <div v-if="needOptions(fieldType)" class="col-span-2">
-          <div class="mb-1 text-sm">
-            选项（每行一个，或 JSON 数组 ["男","女"]）
-          </div>
+        </FieldItem>
+        <FieldItem
+          v-if="needOptions(fieldType)"
+          full
+          label="选项"
+          tips='每行一个，或 JSON 数组 ["男","女"]'
+        >
           <Textarea v-model:value="options" :rows="3" />
-        </div>
-        <div class="flex items-end gap-2 pb-1">
-          <input id="field-required" v-model="required" type="checkbox" />
-          <label class="text-sm" for="field-required">必填</label>
+        </FieldItem>
+        <div class="flex items-center gap-2">
+          <Switch v-model:checked="required" size="small" />
+          <span class="text-sm">必填</span>
         </div>
       </div>
       <div class="mt-3 flex gap-2">

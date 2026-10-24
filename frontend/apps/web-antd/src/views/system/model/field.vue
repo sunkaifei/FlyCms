@@ -249,18 +249,15 @@ async function onDelete(row: ModelFieldRow) {
       @ok="savePickup"
     >
       <div class="space-y-3 pt-2">
-        <div>
-          <div class="mb-1 text-sm">字段组标识（应用时作为 group 字段名，小写字母开头）</div>
+        <FieldItem label="字段组标识" tips="应用时作为 group 字段名，小写字母开头">
           <Input v-model:value="pickupCode" placeholder="如 product_spec" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">名称</div>
+        </FieldItem>
+        <FieldItem label="名称" >
           <Input v-model:value="pickupName" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">用途说明（可选）</div>
+        </FieldItem>
+        <FieldItem label="用途说明（可选）" >
           <Input v-model:value="pickupRemark" />
-        </div>
+        </FieldItem>
       </div>
     </Modal>
   </Page>

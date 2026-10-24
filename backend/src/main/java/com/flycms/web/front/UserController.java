@@ -41,7 +41,28 @@ public class UserController extends BaseController {
     protected UserService userService;
 
     @Autowired
+    private com.flycms.module.user.service.UserMessageService userMessageService;
+
+    @Autowired
     private ImagesService imagesService;
+
+    /**
+     * 未读站内信数（个人中心侧栏徽标）。
+     *
+     * <p>放在 {@code @ModelAttribute} 而不是每个页面各查一次：侧栏是公共片段，
+     * 逐个页面注入必然漏。代价是每个 /ucenter 页面多一次覆盖索引计数查询。
+     * 异常一律吞掉——徽标是装饰，不能因为它把整个个人中心打挂。
+     */
+    @org.springframework.web.bind.annotation.ModelAttribute("unread")
+    public int unreadMessageCount() {
+        try {
+            User u = getUser();
+            return u == null ? 0 : userMessageService.countUnread(u.getUserId());
+        } catch (Exception e) {
+            logger.debug("未读消息数获取失败：{}", e.getMessage());
+            return 0;
+        }
+    }
 
     //用户注册
     @GetMapping(value = "/reg")
@@ -443,6 +464,53 @@ public class UserController extends BaseController {
     public String userComplain(ModelMap modelMap){
         modelMap.addAttribute("user", getUser());
         return theme.getPcTemplate("user/complain");
+    }
+
+    /**
+     * 我的消息（站内信中心，2026-10-23）。
+     *
+     * <p>此前 {@code user/message.html} 是一个只有空状态占位的页面：
+     * 路由不存在、侧栏没入口、后台也没有消息数据源 —— 而审核页却一直弹
+     * 「已驳回，并已站内信通知作者」。这里把最后一环补上。
+     */
+    @GetMapping(value = { "/ucenter/message", "/ucenter/message/p{p}" })
+    public String userMessage(@RequestParam(value = "p", defaultValue = "1") int p, ModelMap modelMap) {
+        User user = getUser();
+        modelMap.addAttribute("user", user);
+        Long uid = user == null ? null : user.getUserId();
+        if (uid == null) {
+            return "redirect:/login";
+        }
+        int rows = 20;
+        int cur = Math.max(1, p);
+        modelMap.addAttribute("p", cur);
+        com.flycms.core.entity.PageVo<com.flycms.module.user.model.UserMessage> pv =
+                userMessageService.pageMine(uid, null, cur, rows);
+        modelMap.addAttribute("unread", userMessageService.countUnread(uid));
+        modelMap.addAttribute("messages", pv.getList());
+        modelMap.addAttribute("msgCount", pv.getCount());
+        return theme.getPcTemplate("user/message");
+    }
+
+    /** 标记单条/全部已读 */
+    @PostMapping(value = "/ucenter/message/read")
+    public String readMessage(@RequestParam(value = "id", defaultValue = "0") Long id,
+                              @RequestParam(value = "p", required = false) Integer p) {
+        User user = getUser();
+        if (user != null) {
+            userMessageService.markRead(user.getUserId(), id > 0 ? List.of(id) : List.of());
+        }
+        return "redirect:/ucenter/message" + (p != null && p > 1 ? "/p" + p : "");
+    }
+
+    /** 全部标为已读 */
+    @PostMapping(value = "/ucenter/message/readAll")
+    public String readAllMessage() {
+        User user = getUser();
+        if (user != null) {
+            userMessageService.markRead(user.getUserId(), List.of());
+        }
+        return "redirect:/ucenter/message";
     }
 
     //我的产品收藏

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  用户站内信 DAO（2026-10-23）。
+  查询一律以 user_id 开头走 idx_msg_user(user_id, is_read, id)。
+-->
+<mapper namespace="com.flycms.module.user.dao.UserMessageDao">
+
+	<sql id="msg_column">
+		id, user_id, msg_type, title, content, target_model, target_id,
+		is_read, sender_id, sender_name, create_time, read_time
+	</sql>
+
+	<resultMap id="msgMap" type="com.flycms.module.user.model.UserMessage">
+		<id property="id" column="id"/>
+		<result property="userId" column="user_id"/>
+		<result property="msgType" column="msg_type"/>
+		<result property="title" column="title"/>
+		<result property="content" column="content"/>
+		<result property="targetModel" column="target_model"/>
+		<result property="targetId" column="target_id"/>
+		<result property="isRead" column="is_read"/>
+		<result property="senderId" column="sender_id"/>
+		<result property="senderName" column="sender_name"/>
+		<result property="createTime" column="create_time"/>
+		<result property="readTime" column="read_time"/>
+	</resultMap>
+
+	<insert id="addMessage">
+		insert into fly_user_message
+		(id, user_id, msg_type, title, content, target_model, target_id,
+		 is_read, sender_id, sender_name, create_time, read_time)
+		values
+		(#{id}, #{userId}, #{msgType}, #{title}, #{content}, #{targetModel}, #{targetId},
+		 0, #{senderId}, #{senderName}, #{createTime}, #{readTime})
+	</insert>
+
+	<select id="findById" resultMap="msgMap">
+		select <include refid="msg_column"/> from fly_user_message where id = #{id} limit 1
+	</select>
+
+	<select id="selectByUser" resultMap="msgMap">
+		select <include refid="msg_column"/> from fly_user_message
+		where user_id = #{userId}
+		<if test="isRead != null">and is_read = #{isRead}</if>
+		order by id desc
+		limit #{offset}, #{rows}
+	</select>
+
+	<select id="countByUser" resultType="int">
+		select count(*) from fly_user_message
+		where user_id = #{userId}
+		<if test="isRead != null">and is_read = #{isRead}</if>
+	</select>
+
+	<select id="countUnread" resultType="int">
+		select count(*) from fly_user_message where user_id = #{userId} and is_read = 0
+	</select>
+
+	<update id="markRead">
+		update fly_user_message
+		set is_read = 1, read_time = now()
+		where user_id = #{userId} and is_read = 0
+		<if test="ids != null and ids.size() > 0">
+			and id in
+			<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+		</if>
+	</update>
+
+	<update id="markAllRead">
+		update fly_user_message
+		set is_read = 1, read_time = now()
+		where user_id = #{userId} and is_read = 0
+	</update>
+
+	<delete id="deleteByUser">
+		delete from fly_user_message
+		where user_id = #{userId}
+		<if test="ids != null and ids.size() > 0">
+			and id in
+			<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+		</if>
+	</delete>
+
+	<select id="selectAdminPage" resultMap="msgMap">
+		select <include refid="msg_column"/> from fly_user_message
+		<where>
+			<if test="userId != null">and user_id = #{userId}</if>
+			<if test="msgType != null">and msg_type = #{msgType}</if>
+			<if test="isRead != null">and is_read = #{isRead}</if>
+			<if test="keyword != null and keyword != ''">
+				and (title like concat('%', #{keyword}, '%') or content like concat('%', #{keyword}, '%'))
+			</if>
+		</where>
+		order by id desc
+		limit #{offset}, #{rows}
+	</select>
+
+	<select id="countAdminPage" resultType="int">
+		select count(*) from fly_user_message
+		<where>
+			<if test="userId != null">and user_id = #{userId}</if>
+			<if test="msgType != null">and msg_type = #{msgType}</if>
+			<if test="isRead != null">and is_read = #{isRead}</if>
+			<if test="keyword != null and keyword != ''">
+				and (title like concat('%', #{keyword}, '%') or content like concat('%', #{keyword}, '%'))
+			</if>
+		</where>
+	</select>
+
+	<delete id="deleteByIds">
+		delete from fly_user_message
+		where id in
+		<foreach collection="ids" item="i" open="(" separator="," close=")">#{i}</foreach>
+	</delete>
+
+	<delete id="deleteReadBefore">
+		delete from fly_user_message
+		where is_read = 1 and read_time &lt; date_sub(now(), interval #{days} day)
+	</delete>
+</mapper>

@@ -45,6 +45,9 @@ public class ApiToolsController extends ApiBaseController {
     @Autowired
     private StaticPageService staticPageService;
 
+    @Autowired
+    private com.flycms.module.model.service.ModelDataService modelDataService;
+
     /** 备份文件列表（按时间倒序） */
     @ResponseBody
     @GetMapping("/db/list")
@@ -125,5 +128,25 @@ public class ApiToolsController extends ApiBaseController {
             default:
                 return staticPageService.generateAll();
         }
+    }
+
+    /**
+     * 存量正文 XSS 清洗（2026-10-23）。
+     *
+     * <p>写侧清洗只保证「以后干净」，库存正文里的 script / on 事件 / javascript: 伪协议仍然是活的
+     * 存储型 XSS。这里按批扫描一个模型的 content 列，只对清洗前后确实不同的行 UPDATE，
+     * 幂等可重复执行。清洗失败的行不动（宁可留旧值，也不把正文清成空）。
+     *
+     * <p>权限：900314（挂在系统管理下，与备份同级的高危操作）。
+     */
+    @ResponseBody
+    @PostMapping("/sanitize/backfill")
+    public DataVo sanitizeBackfill(@RequestParam(value = "modelId", required = false) Long modelId,
+                                   @RequestParam(value = "rows", defaultValue = "100") int rows) {
+        requirePermission("/api/system/tools/sanitize/backfill");
+        if (modelId == null || modelId <= 0) {
+            return DataVo.failure("请指定模型");
+        }
+        return modelDataService.sanitizeBackfill(modelId, rows);
     }
 }

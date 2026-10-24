@@ -1,10 +1,66 @@
-<#-- 通知提醒（页面保留，后台暂未提供消息数据源） -->
-<#assign pageTitle = "通知提醒">
+<#-- 我的消息：站内信中心。数据由 UserController#userMessage 直接渲染（非标签插件） -->
+<#assign pageTitle = "我的消息">
 <#include "../common/macros.html">
 <#include "../common/header.html">
 <main id="main">
-<@userDash nav="message" title="通知提醒" desc="系统通知与互动提醒">
-  <div class="panel"><@emptyState title="暂无新通知" desc="评论、回答被采纳等提醒会显示在这里。" link="/" linkText="返回首页" /></div>
+<@userDash nav="message" title="我的消息" desc="系统通知与审核结果提醒">
+  <div class="panel"><div class="panel-bd">
+    <div class="grid-cards" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px">
+      <div>
+        <div style="font-size:12.5px;color:var(--dust)">未读消息</div>
+        <div style="font-size:24px;font-family:var(--serif-num);color:var(--gold-600)">${(unread)!0}</div>
+      </div>
+      <div>
+        <div style="font-size:12.5px;color:var(--dust)">全部消息</div>
+        <div style="font-size:24px;font-family:var(--serif-num);color:var(--ink)">${(msgCount)!0}</div>
+      </div>
+      <div class="flex items-end">
+        <form method="post" action="/ucenter/message/readAll" style="display:inline">
+          <button class="btn btn-outline btn-sm" type="submit">全部标为已读</button>
+        </form>
+      </div>
+    </div>
+  </div></div>
+
+  <div style="margin-top:22px">
+  <#if messages?? && messages?size gt 0>
+  <div class="panel"><div class="panel-bd">
+    <#list messages as m>
+    <div class="line-item">
+      <div class="t">
+        <#if (m.isRead)!0 == 0>
+        <span class="tag tag-gold">未读</span>
+        <#else>
+        <span class="tag tag-ink">已读</span>
+        </#if>
+        <span class="tag tag-ink">
+          <#switch (m.msgType)!1>
+            <#case 1>系统通知<#break>
+            <#case 2>审核通知<#break>
+            <#default>消息
+          </#switch>
+        </span>
+        <b>${((m.title)!'—')?html}</b>
+        <#if (m.targetModel)!'' != '' && (m.targetId)!0 gt 0>
+        <a class="btn btn-outline btn-sm" href="/${m.targetModel}/${m.targetId}.html">查看内容</a>
+        </#if>
+        <div class="sub">
+          <span><@ts v=(m.createTime)!'' kind='dt' /></span>
+          <#if (m.senderName)!'' != ''><span>来自 ${(m.senderName)?html}</span></#if>
+        </div>
+        <pre style="white-space:pre-wrap;font-family:var(--sans);font-size:13.5px;color:var(--dust);margin:8px 0 0">${((m.content)!'')?html}</pre>
+      </div>
+      <form method="post" action="/ucenter/message/read" style="display:inline">
+        <input type="hidden" name="id" value="${(m.id)!0}" />
+        <button class="btn btn-outline btn-sm" type="submit">标为已读</button>
+      </form>
+    </div>
+    </#list>
+  </div></div>
+  <@pager base="/ucenter/message" count=(msgCount)!0 rows=20 cur=(p)!1 />
+  <#else>
+  <div class="panel"><@emptyState title="暂无消息" desc="内容审核结果、系统通知会显示在这里。" link="/" linkText="返回首页" /></div>
+  </#if>
 </@userDash>
 </main>
 <#include "../common/footer.html">

@@ -5,9 +5,18 @@ import { onMounted, ref } from 'vue';
 
 import { useEditDrawer } from '#/utils/edit-drawer';
 
-import { Input, InputNumber, message, Select, Textarea } from 'ant-design-vue';
+import {
+  Input,
+  InputNumber,
+  message,
+  Select,
+  Switch,
+  Textarea,
+} from 'ant-design-vue';
 
 import { saveBlockApi } from '#/api/core/block';
+import FieldItem from '../_shared/field-item.vue';
+import RichEditor from '../modeldata/richtext-editor.vue';
 
 /**
  * 新增/编辑碎片位弹窗。blockKey 创建后锁定（模板调用依赖）。
@@ -89,35 +98,41 @@ onMounted(() => {
 <template>
   <Modal>
     <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-      <div>
-        <div class="mb-1 text-sm">名称</div>
+      <FieldItem label="名称">
         <Input v-model:value="blockName" placeholder="如：首页焦点图" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">调用键</div>
-        <Input v-model:value="blockKey" :disabled="!!editing" placeholder="home_focus" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">类型</div>
+      </FieldItem>
+      <FieldItem label="调用键" tips="创建后不可改（模板与 JS 调用码里用的就是它）">
+        <Input
+          v-model:value="blockKey"
+          :disabled="!!editing"
+          placeholder="home_focus"
+        />
+      </FieldItem>
+      <FieldItem label="类型">
         <Select v-model:value="blockType" :options="TYPE_OPTIONS" class="w-full" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">展示条数（推荐位）</div>
+      </FieldItem>
+      <FieldItem label="展示条数" tips="推荐位类型生效">
         <InputNumber v-model:value="itemCount" :min="1" class="w-full" />
-      </div>
-      <div class="col-span-2" v-if="blockType === 0 || blockType === 3">
-        <div class="mb-1 text-sm">
-          {{ blockType === 3 ? '模板内容（Freemarker 片段）' : '富文本内容' }}
-        </div>
+      </FieldItem>
+    </div>
+
+    <div class="mt-3">
+      <FieldItem v-if="blockType === 0" full label="富文本内容">
+        <!-- 此前富文本类型用 Textarea：与「栏目单页」用同一个编辑器，口径不一致 -->
+        <RichEditor v-model="content" />
+      </FieldItem>
+      <FieldItem v-else-if="blockType === 3" full label="模板内容（Freemarker 片段）">
         <Textarea v-model:value="content" :rows="5" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">排序</div>
+      </FieldItem>
+    </div>
+
+    <div class="mt-3 grid grid-cols-2 gap-x-4">
+      <FieldItem label="排序">
         <InputNumber v-model:value="sort" class="w-full" />
-      </div>
-      <div class="flex items-end gap-2 pb-1">
-        <input v-model="status" type="checkbox" id="blk-status" />
-        <label for="blk-status" class="text-sm">显示</label>
+      </FieldItem>
+      <div class="flex items-center gap-2">
+        <Switch v-model:checked="status" size="small" />
+        <span class="text-sm">显示</span>
       </div>
     </div>
   </Modal>

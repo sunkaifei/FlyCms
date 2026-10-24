@@ -202,38 +202,31 @@ onMounted(load);
       @cancel="editing = null"
     >
       <div v-if="editing" class="space-y-3 pt-2">
-        <div>
-          <div class="mb-1 text-sm">规则名称</div>
+        <FieldItem label="规则名称" >
           <Input v-model:value="editing.ruleName" placeholder="如：新内容同步到企业微信" />
-        </div>
+        </FieldItem>
         <div class="flex gap-3">
-          <div class="flex-1">
-            <div class="mb-1 text-sm">触发事件</div>
+          <FieldItem label="触发事件" class="flex-1">
             <Select v-model:value="editing.event" :options="EVENT_OPTIONS" class="w-full" />
-          </div>
-          <div class="flex-1">
-            <div class="mb-1 text-sm">限定模型（留空 = 全部模型）</div>
+          </FieldItem>
+          <FieldItem label="限定模型" class="flex-1" tips="留空 = 全部模型">
             <Input v-model:value="editing.modelCode" placeholder="如 articles" />
-          </div>
+          </FieldItem>
         </div>
-        <div>
-          <div class="mb-1 text-sm">
-            条件（可选，JSON 数组）——对首行内容求值，全部命中才执行
-          </div>
+        <FieldItem label="条件（可选，JSON 数组）——对首行内容求值，全部命中才执行" >
           <Textarea
             v-model:value="editing.conditions"
             :rows="2"
             placeholder='[{"field":"status","op":"eq","value":"1"}]，op：eq/neq/gt/lt/contains'
           />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">动作（JSON 数组，依次执行）</div>
+        </FieldItem>
+        <FieldItem label="动作" tips="JSON 数组，依次执行">
           <Textarea
             v-model:value="editing.actions"
             :rows="4"
             placeholder='[{"type":"webhook","url":"https://example.com/hook"},{"type":"log"}]'
           />
-        </div>
+        </FieldItem>
         <div class="flex items-center gap-2">
           <span class="text-sm">启用</span>
           <Switch

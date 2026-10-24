@@ -3,7 +3,15 @@ import { onMounted, ref } from 'vue';
 
 import { useEditDrawer } from '#/utils/edit-drawer';
 
-import { Button, Input, message, Popconfirm, Select, Space } from 'ant-design-vue';
+import {
+  Button,
+  Input,
+  message,
+  Popconfirm,
+  Select,
+  Space,
+  Switch,
+} from 'ant-design-vue';
 
 import {
   createSkinApi,
@@ -198,10 +206,10 @@ onMounted(() => {
       <div class="mb-3 text-sm font-medium">导入皮肤包</div>
       <div class="flex items-center gap-2">
         <input accept=".zip" type="file" @change="pickFile" />
-        <label class="flex items-center gap-1 text-xs">
-          <input v-model="overwrite" type="checkbox" />
+        <span class="flex items-center gap-1 text-xs">
+          <Switch v-model:checked="overwrite" size="small" />
           覆盖同名模板
-        </label>
+        </span>
         <Button :loading="importing" @click="onImport">导入</Button>
       </div>
       <div class="mt-2 text-xs text-gray-400">

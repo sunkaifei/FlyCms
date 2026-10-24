@@ -120,8 +120,7 @@ defineExpose({ reload: load });
 </script>
 
 <template>
-  <div>
-    <div class="mb-1 text-sm">模板指派</div>
+  <FieldItem label="模板指派" >
     <Select
       v-model:value="value"
       allow-clear
@@ -136,5 +135,5 @@ defineExpose({ reload: load });
     <div class="mt-1 text-xs text-gray-400">
       指派后立即生效，优先于模板层级（{{ pageType }}）。列表为空时先在「主题市场 → 派生模板」生成对应槽位。
     </div>
-  </div>
+  </FieldItem>
 </template>

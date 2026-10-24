@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  内容审核日志 DAO（2026-10-23）。
+  targetModel = 模型 code，由 Service 过 safeModelCode 白名单，恒为常量值参与拼接。
+-->
+<mapper namespace="com.flycms.module.model.dao.ContentAuditLogDao">
+
+	<sql id="log_column">
+		id, target_model, target_id, title, action, reason, auditor_id, auditor_name, create_time
+	</sql>
+
+	<insert id="addLog">
+		insert into fly_content_audit_log
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			id, target_model, target_id, action, create_time,
+			<if test="title != null">title,</if>
+			<if test="reason != null">reason,</if>
+			<if test="auditorId != null">auditor_id,</if>
+			<if test="auditorName != null">auditor_name,</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{id}, #{targetModel}, #{targetId}, #{action}, #{createTime},
+			<if test="title != null">#{title},</if>
+			<if test="reason != null">#{reason},</if>
+			<if test="auditorId != null">#{auditorId},</if>
+			<if test="auditorName != null">#{auditorName},</if>
+		</trim>
+	</insert>
+
+	<select id="selectByTarget" resultType="com.flycms.module.model.model.ContentAuditLog">
+		select <include refid="log_column" /> from fly_content_audit_log
+		where target_model = #{targetModel} and target_id = #{targetId}
+		order by id desc
+		limit #{offset}, #{rows}
+	</select>
+
+	<select id="countByTarget" resultType="int">
+		select count(*) from fly_content_audit_log
+		where target_model = #{targetModel} and target_id = #{targetId}
+	</select>
+
+	<delete id="deleteByTargetModel">
+		delete from fly_content_audit_log where target_model = #{targetModel}
+	</delete>
+</mapper>

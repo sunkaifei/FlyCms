@@ -5,9 +5,16 @@ import { onMounted, ref } from 'vue';
 
 import { useEditDrawer } from '#/utils/edit-drawer';
 
-import { Input, InputNumber, message, Textarea } from 'ant-design-vue';
+import {
+  Input,
+  InputNumber,
+  message,
+  Switch,
+  Textarea,
+} from 'ant-design-vue';
 
 import { saveFormApi } from '#/api/core/form';
+import FieldItem from '../_shared/field-item.vue';
 
 /** 新增/编辑表单弹窗。formCode 创建后锁定（模板调用依赖）。 */
 const editing = ref<null | FormRow>(null);
@@ -80,46 +87,41 @@ onMounted(() => {
 <template>
   <Modal>
     <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-      <div>
-        <div class="mb-1 text-sm">表单名称</div>
+      <FieldItem label="表单名称">
         <Input v-model:value="formName" placeholder="如：在线留言" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">调用码（英文）</div>
+      </FieldItem>
+      <FieldItem label="调用码（英文）" tips="创建后不可改（模板调用依赖）">
         <Input
           v-model:value="formCode"
           :disabled="!!editing"
           placeholder="feedback"
         />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">每日提交上限（同一 IP/用户，0=不限）</div>
+      </FieldItem>
+      <FieldItem label="每日提交上限" tips="同一 IP/用户，0 = 不限">
         <InputNumber v-model:value="submitLimit" :min="0" class="w-full" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">新提交通知邮箱（留空不通知）</div>
+      </FieldItem>
+      <FieldItem label="新提交通知邮箱" tips="留空不通知">
         <Input v-model:value="notifyEmail" placeholder="admin@example.com" />
-      </div>
-      <div class="col-span-2">
-        <div class="mb-1 text-sm">提交成功提示语</div>
+      </FieldItem>
+      <FieldItem full label="提交成功提示语">
         <Textarea v-model:value="successTip" :rows="2" />
-      </div>
-      <div class="flex items-end gap-4 pb-1">
-        <label class="flex items-center gap-1 text-sm">
-          <input v-model="needCaptcha" type="checkbox" />
-          需要验证码
-        </label>
-        <label class="flex items-center gap-1 text-sm">
-          <input v-model="audit" type="checkbox" />
-          提交后需审核
-        </label>
-        <label class="flex items-center gap-1 text-sm">
-          <input v-model="status" type="checkbox" />
-          启用
-        </label>
+      </FieldItem>
+      <div class="flex flex-wrap items-center gap-5 pb-1">
+        <span class="flex items-center gap-2">
+          <Switch v-model:checked="needCaptcha" size="small" />
+          <span class="text-sm">需要验证码</span>
+        </span>
+        <span class="flex items-center gap-2">
+          <Switch v-model:checked="audit" size="small" />
+          <span class="text-sm">提交后需审核</span>
+        </span>
+        <span class="flex items-center gap-2">
+          <Switch v-model:checked="status" size="small" />
+          <span class="text-sm">启用</span>
+        </span>
       </div>
     </div>
-    <div class="mt-3 text-xs text-gray-400">
+    <div class="mt-3 rounded bg-gray-50 p-2 text-xs text-gray-500">
       前台模板调用：<code>&lt;@fly_form code="调用码"&gt;&lt;/@fly_form&gt;</code>
       ；提交接口：<code>POST /api/form/submit/调用码</code>
     </div>

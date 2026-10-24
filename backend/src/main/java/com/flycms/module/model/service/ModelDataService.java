@@ -63,6 +63,10 @@ public class ModelDataService {
     @Autowired
     private com.flycms.module.model.dao.ContentVersionDao contentVersionDao;
     @Autowired
+    private com.flycms.module.model.dao.ContentAuditLogDao contentAuditLogDao;
+    @Autowired
+    private com.flycms.module.user.service.UserMessageService userMessageService;
+    @Autowired
     private org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     // /////////////////// 查询 ///////////////////
@@ -454,6 +458,14 @@ public class ModelDataService {
             putColumn(columns, values, f.getFieldName(), v);
             changed = true;
         }
+        // 正文走主表 content 通道（EDITOR 类型不建独立列，上面的循环刻意跳过了它）。
+        // 此前这里完全没处理 content：前台「编辑投稿」提交后提示更新成功，
+        // 正文却原封不动 —— 保存成功但内容没变，是最难被发现的一类静默失败。
+        if (form.get("content") != null) {
+            putColumn(columns, values, "content",
+                    sanitizeContentIfEnabled(model, form.get("content")));
+            changed = true;
+        }
         if (!changed) {
             return DataVo.failure("没有可更新的字段");
         }
@@ -522,7 +534,8 @@ public class ModelDataService {
         putColumn(columns, values, "description", form.get("description"));
         // Q3 内容图片本地化：模型开启后，编辑器外站图抓取到本地并替换地址
         putColumn(columns, values, "content",
-                localizeContentIfEnabled(model, form.get("content"), userId != null ? userId : editorId));
+                sanitizeContentIfEnabled(model,
+                        localizeContentIfEnabled(model, form.get("content"), userId != null ? userId : editorId)));
         putColumn(columns, values, "category_id", form.get("categoryId"));
         putColumn(columns, values, "thumbnail", form.get("thumbnail"));
         if (form.get("thumbnail") != null && StringUtils.isNotBlank(form.get("thumbnail"))) {
@@ -585,7 +598,8 @@ public class ModelDataService {
         putColumn(columns, values, "description", form.get("description"));
         // Q3 内容图片本地化：模型开启后，编辑器外站图抓取到本地并替换地址
         putColumn(columns, values, "content",
-                localizeContentIfEnabled(model, form.get("content"), editorId));
+                sanitizeContentIfEnabled(model,
+                        localizeContentIfEnabled(model, form.get("content"), editorId)));
         putColumn(columns, values, "category_id", form.get("categoryId"));
         putColumn(columns, values, "thumbnail", form.get("thumbnail"));
         if (form.get("thumbnail") != null && StringUtils.isNotBlank(form.get("thumbnail"))) {
@@ -636,17 +650,290 @@ public class ModelDataService {
     }
 
     public DataVo updateStatus(Long modelId, List<Long> ids, int status) {
+        return updateStatus(modelId, ids, status, null, null, null, null, Boolean.FALSE);
+    }
+
+    /**
+     * 带审核痕迹的状态更新（2026-10-23）。
+     *
+     * <p>此前：审核页把驳回原因传给 {@code /api/system/audit/audit|batch}，
+     * 但控制器形参列表里没有 reason，Spring 只按形参绑定 → <b>原因被静默丢弃</b>；
+     * 版本快照 remark 也是硬编码的「状态切换→n」，审核决定无处可查。
+     * 这里把「改状态 + 有意义的版本 remark + 审核日志」合成一次写入。
+     *
+     * @param status 目标状态：1=通过/发布 2=驳回/未通过
+     * @param reason 驳回原因（trim 后落库，超长截断；通过时按备注处理，可空）
+     * @param audit  true 表示这是一次审核动作（写 fly_content_audit_log），
+     *               false 表示普通发布/下架（只写版本历史，不写审核日志）
+     * @param notify 是否给作者发站内信（false 时静默处理，如大批量清理）
+     */
+    public DataVo updateStatus(Long modelId, List<Long> ids, int status, String reason,
+                               Long auditorId, String auditorName, Boolean audit) {
+        return updateStatus(modelId, ids, status, reason, auditorId, auditorName, audit,
+                Boolean.TRUE.equals(audit));
+    }
+
+    public DataVo updateStatus(Long modelId, List<Long> ids, int status, String reason,
+                               Long auditorId, String auditorName, Boolean audit, Boolean notify) {
+        Model model = modelService.findModelById(modelId);
+        if (model == null) {
+            return DataVo.failure("模型不存在");
+        }
+        // 标题/作者快照必须在改状态前取（内容随时可能被删，日志与通知要能独立追溯）
+        Map<Long, String> titleSnapshot = new HashMap<>();
+        Map<Long, Long> authorSnapshot = new HashMap<>();
+        for (Long id : ids) {
+            Map<String, Object> row = modelDataDao.findDataById(tableSuffixOf(modelId), id);
+            if (row != null && row.get("title") != null) {
+                titleSnapshot.put(id, String.valueOf(row.get("title")));
+            }
+            if (row != null && row.get("user_id") != null) {
+                try {
+                    authorSnapshot.put(id, Long.parseLong(String.valueOf(row.get("user_id"))));
+                } catch (NumberFormatException ignored) {
+                    // 作者列异常（历史脏数据）时跳过通知，不阻断状态变更
+                }
+            }
+        }
         modelDataDao.updateStatus(tableSuffixOf(modelId), ids, status);
         // G12：状态切换留痕（发布/下架/审核动作都进版本历史）
-        Model model = modelService.findModelById(modelId);
-        if (model != null) {
+        String remark = Boolean.TRUE.equals(audit)
+                ? (status == 2 ? "审核驳回：" + trimReason(reason) : "审核通过")
+                : "状态切换→" + status;
+        for (Long id : ids) {
+            snapshotContentVersion(model, id, auditorId, remark);
+        }
+        // 审核日志：一次一个决定，失败只告警不阻断（日志是留痕，不是状态写入的前置）
+        int notified = 0;
+        if (Boolean.TRUE.equals(audit)) {
             for (Long id : ids) {
-                snapshotContentVersion(model, id, null, "状态切换→" + status);
+                try {
+                    com.flycms.module.model.model.ContentAuditLog al =
+                            new com.flycms.module.model.model.ContentAuditLog();
+                    al.setId(SnowFlake.getInstance().nextId());
+                    al.setTargetModel(model.getCode());
+                    al.setTargetId(id);
+                    al.setTitle(trimToNull(titleSnapshot.get(id), 250));
+                    al.setAction(status == 2 ? 2 : 1);
+                    al.setReason(trimReason(reason));
+                    al.setAuditorId(auditorId);
+                    al.setAuditorName(auditorName);
+                    al.setCreateTime(new Date());
+                    contentAuditLogDao.addLog(al);
+                } catch (Exception e) {
+                    log.warn("审核日志写入失败：{}#{} {}", model.getCode(), id, e.getMessage());
+                }
+                // 站内信通知作者：审核结果要能送到人手里（此前 UI 承诺了但后端无实现）。
+                // notify=false（大批量操作）或内容无作者时静默跳过。
+                // 通知失败只告警：它是「告知」，不能反过来阻断已经生效的审核动作。
+                if (Boolean.TRUE.equals(notify)) {
+                    boolean delivered = userMessageService.sendAudit(
+                            authorSnapshot.get(id), status != 2, titleSnapshot.get(id), reason,
+                            model.getCode(), id, auditorId, auditorName);
+                    if (delivered) {
+                        notified++;
+                    } else if (authorSnapshot.get(id) != null) {
+                        log.warn("审核站内信未送达：{}#{} userId={}",
+                                model.getCode(), id, authorSnapshot.get(id));
+                    }
+                }
             }
         }
         // G18：状态变更事件
-        publishContentEvent("status", model, ids, null);
-        return DataVo.success("状态已更新");
+        publishContentEvent("status", model, ids, auditorId);
+        return auditNotice(status, ids.size(), notified, Boolean.TRUE.equals(notify));
+    }
+
+    /**
+     * 审核结果提示：如实报告站内信送达情况，不承诺没做到的事。
+     *
+     * <p>三种情况必须分开说，不能都写成"已驳回"：
+     * 通知了且送达 / 通知了但没有作者 / 管理员选择不通知。
+     */
+    private DataVo auditNotice(int status, int total, int notified, boolean notify) {
+        String head = status == 2 ? "已驳回" : "已通过";
+        if (!notify) {
+            return DataVo.success(head + "（未发送站内信）");
+        }
+        if (notified <= 0) {
+            return DataVo.success(head + "（内容无作者，未发送站内信）");
+        }
+        return DataVo.success(head + "，已站内信通知 " + notified + "/" + total + " 位作者");
+    }
+
+    /** 审核原因：trim 后按列宽截断（500），空串归一为 null */
+    private String trimReason(String reason) {
+        String v = StringUtils.trimToEmpty(reason);
+        if (v.isEmpty()) {
+            return null;
+        }
+        return v.length() > 500 ? v.substring(0, 500) : v;
+    }
+
+    private String trimToNull(String v, int max) {
+        if (StringUtils.isBlank(v)) {
+            return null;
+        }
+        String s = v.trim();
+        return s.length() > max ? s.substring(0, max) : s;
+    }
+
+    /**
+     * 跨模型审核队列归并（2026-10-23）。
+     *
+     * <p>审核内容分散在多个 {@code fly_cmodel_*} 动态表，无法用一条 SQL union
+     * （表名动态、列不齐）。这里两步走：
+     * <ol>
+     *   <li>先问每个模型的命中数（countPage 走主键索引，很轻），命中 0 的模型直接跳过；</li>
+     *   <li>仅对命中 &gt; 0 的模型取前 {@code offset+rows} 行候选，在 Java 里归并排序后切片。</li>
+     * </ol>
+     * 单模型场景开销与直接分页一致；多模型时最坏 N 次查询，N = 有候选的模型数。
+     *
+     * @return {"list": 当前页行（每行额外带 _modelCode/_modelName 归属）, "count": 命中总数}
+     */
+    public Map<String, Object> mergeAuditPage(List<Model> models, String title, Integer status,
+                                              int pageNum, int rows) {
+        List<Map<String, Object>> all = new ArrayList<>();
+        int total = 0;
+        int need = Math.max(1, (Math.max(1, pageNum) - 1) * rows + rows);
+        for (Model m : models) {
+            if (m == null || m.getId() == null) {
+                continue;
+            }
+            try {
+                Map<String, String> empty = new HashMap<>();
+                PageVo<Map<String, Object>> probe =
+                        selectPage(m.getId(), title, null, status, empty,
+                                "id", "desc", 1, 1, null, false);
+                int cnt = probe.getCount();
+                if (cnt <= 0) {
+                    continue;
+                }
+                total += cnt;
+                PageVo<Map<String, Object>> cand =
+                        selectPage(m.getId(), title, null, status, empty,
+                                "id", "desc", 1, need, null, false);
+                if (cand.getList() != null) {
+                    for (Map<String, Object> row : cand.getList()) {
+                        Map<String, Object> item = new LinkedHashMap<>(row);
+                        item.put("_modelId", String.valueOf(m.getId()));
+                        item.put("_modelCode", m.getCode());
+                        item.put("_modelName", m.getName());
+                        all.add(item);
+                    }
+                }
+            } catch (Exception e) {
+                // 单个模型表缺失/查询失败不拖垮整个队列（与 pendingCount 同策略）
+                log.warn("跨模型审核归并跳过模型 {}：{}", m.getCode(), e.getMessage());
+            }
+        }
+        all.sort((a, b) -> {
+            String ka = String.valueOf(a.getOrDefault("createTime", ""));
+            String kb = String.valueOf(b.getOrDefault("createTime", ""));
+            int c = kb.compareTo(ka);
+            return c != 0 ? c : String.valueOf(b.get("id")).compareTo(String.valueOf(a.get("id")));
+        });
+        int offset = Math.max(0, (Math.max(1, pageNum) - 1) * rows);
+        List<Map<String, Object>> page = all.size() > offset
+                ? new ArrayList<>(all.subList(offset, Math.min(offset + rows, all.size())))
+                : new ArrayList<>();
+        Map<String, Object> out = new HashMap<>();
+        out.put("list", page);
+        out.put("count", total);
+        return out;
+    }
+
+    /**
+     * 审核日志（供审核页「历史」与内容侧边栏查看）。
+     *
+     * @return PageVo，list 按时间倒序
+     */
+    public PageVo<com.flycms.module.model.model.ContentAuditLog> selectAuditLogs(
+            Long modelId, Long id, int pageNum, int rows) {
+        Model model = modelService.findModelById(modelId);
+        PageVo<com.flycms.module.model.model.ContentAuditLog> pageVo = new PageVo<>(pageNum);
+        if (model == null || model.getCode() == null) {
+            pageVo.setList(new ArrayList<>());
+            pageVo.setCount(0);
+            return pageVo;
+        }
+        int offset = Math.max(0, (pageNum - 1) * rows);
+        pageVo.setList(contentAuditLogDao.selectByTarget(model.getCode(), id, offset, rows));
+        pageVo.setCount(contentAuditLogDao.countByTarget(model.getCode(), id));
+        return pageVo;
+    }
+
+    /**
+     * 存量正文 XSS 清洗（2026-10-23，配合写入侧清洗补齐存量）。
+     *
+     * <p>写侧清洗只保证「以后干净」，库里已有的脏正文仍然是活的 XSS。这里按批扫描
+     * 一个模型的 content 列，只对「清洗前后确实不同」的行 UPDATE ——
+     * 清洗是幂等的，所以重复执行不会持续产生写入；清洗失败的行<b>不动</b>
+     * （宁可留着旧值，也不能把正文清成空）。
+     *
+     * @param batchRows 单批扫描行数上限（防御性限流，默认 100）
+     */
+    public DataVo sanitizeBackfill(Long modelId, int batchRows) {
+        Model model = modelService.findModelById(modelId);
+        if (model == null) {
+            return DataVo.failure("模型不存在");
+        }
+        String suffix = tableSuffixOf(modelId);
+        if (!modelDataDao.tableExistsBySuffix(suffix)) {
+            return DataVo.failure("模型表尚未生成");
+        }
+        int rows = Math.min(Math.max(batchRows, 1), 200);
+        Map<String, Object> params = new HashMap<>();
+        params.put("offset", 0);
+        params.put("rows", rows);
+        List<Map<String, Object>> list;
+        try {
+            // 列名是内部常量，非用户输入；whereSql 传空串（mapper 的 <where> 会正确
+            // 生成无 WHERE 的 SQL），不要写 "1=1" —— Druid 的 SQL 防火墙会以
+            // "always true condition" 直接拒掉这类恒真条件。
+            list = modelDataDao.selectPage(suffix, "", "`id` DESC", List.of("id", "content"), params);
+        } catch (Exception e) {
+            return DataVo.failure("扫描失败：" + e.getMessage());
+        }
+        int scanned = 0;
+        int updated = 0;
+        int failed = 0;
+        for (Map<String, Object> row : list) {
+            scanned++;
+            Object cv = row.get("content");
+            Object idv = row.get("id");
+            if (!(cv instanceof String raw) || raw.isBlank() || idv == null) {
+                continue;
+            }
+            Long id;
+            try {
+                id = Long.parseLong(String.valueOf(idv));
+            } catch (NumberFormatException e) {
+                continue;
+            }
+            if (!com.flycms.core.utils.ContentSanitizer.changed(raw)) {
+                continue;
+            }
+            String cleaned = com.flycms.core.utils.ContentSanitizer.sanitize(raw);
+            if (cleaned == null) {
+                failed++;
+                continue;
+            }
+            Map<String, Object> vals = new HashMap<>();
+            vals.put("content", cleaned);
+            try {
+                modelDataDao.updateData(suffix, id, List.of("content"), vals);
+                updated++;
+            } catch (Exception e) {
+                failed++;
+                log.warn("存量正文清洗失败：{}#{} {}", model.getCode(), id, e.getMessage());
+            }
+        }
+        Map<String, Object> stat = new LinkedHashMap<>();
+        stat.put("scanned", scanned);
+        stat.put("updated", updated);
+        stat.put("failed", failed);
+        return DataVo.success("扫描 " + scanned + " 条，清洗 " + updated + " 条", stat);
     }
 
     /**
@@ -1582,6 +1869,49 @@ public class ModelDataService {
         } catch (Exception e) {
             log.warn("内容图片本地化失败（model={}）：{}", model.getCode(), e.getMessage());
             return content;
+        }
+    }
+
+    /**
+     * 正文入库前 XSS 清洗（2026-10-23）。
+     *
+     * <p>前台模板用 {@code ${info.content}} 原样输出正文（富文本必须如此），
+     * 所以正文里带 script / on* / javascript: 就是一条完整的存储型 XSS 通道，
+     * 而管理员会话能改全站配置。此前只有审核抽屉在渲染侧挡了一下，库里仍是脏的。
+     *
+     * <p>只对正文做（{@code content} 走主表通道的富文本），不动普通文本字段 ——
+     * 那些字段输出侧本就该转义，服务端改值反而会破坏用户输入语义。
+     *
+     * @param model 仅用于日志定位；清洗本身与模型无关
+     */
+    private String sanitizeContentIfEnabled(Model model, String content) {
+        if (StringUtils.isBlank(content)) {
+            return content;
+        }
+        if (!contentSanitizeEnabled()) {
+            return content;
+        }
+        try {
+            String cleaned = com.flycms.core.utils.ContentSanitizer.sanitize(content);
+            if (cleaned == null) {
+                // 清洗失败「宁可空、不可脏」：正文丢了大不了重填，XSS 进库危害所有人
+                log.warn("正文清洗返回空（model={}），本次不写 content", model.getCode());
+                return null;
+            }
+            return cleaned;
+        } catch (Exception e) {
+            log.warn("正文清洗异常（model={}）：{}", model.getCode(), e.getMessage());
+            return content;
+        }
+    }
+
+    /** 配置开关 fly_content_sanitize：缺省（无此键）视为开启 */
+    private boolean contentSanitizeEnabled() {
+        try {
+            String v = StringUtils.trimToEmpty(configService.getStringByKey("fly_content_sanitize"));
+            return !"0".equals(v);
+        } catch (Exception e) {
+            return true;
         }
     }
 

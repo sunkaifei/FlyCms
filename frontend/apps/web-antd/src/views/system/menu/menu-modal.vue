@@ -5,9 +5,10 @@ import { computed, onMounted, ref } from 'vue';
 
 import { useEditDrawer } from '#/utils/edit-drawer';
 
-import { Input, message, Select } from 'ant-design-vue';
+import { Input, InputNumber, message, Select, Switch } from 'ant-design-vue';
 
 import { saveMenuApi, updateMenuApi } from '#/api/core/menu-manage';
+import FieldItem from '../_shared/field-item.vue';
 
 /**
  * 新增/编辑菜单节点弹窗（M 目录 / C 菜单 / F 按钮）。
@@ -126,54 +127,57 @@ onMounted(() => {
 <template>
   <Modal>
     <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-      <div class="col-span-2">
-        <div class="mb-1 text-sm">节点类型</div>
+      <FieldItem full label="节点类型" tips="创建后不可改">
         <Select
           v-model:value="form.menuType"
           :options="TYPE_OPTIONS"
           :disabled="!!editing"
           class="w-full"
         />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">上级节点</div>
-        <Select v-model:value="form.parentId" :options="parentOptions" class="w-full" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">显示名</div>
-        <Input v-model:value="form.menuName" placeholder="如：管理员管理" />
-      </div>
-      <div
-        v-if="form.menuType !== 'M'"
-        class="col-span-2"
-      >
-        <div class="mb-1 text-sm">
-          权限标识 actionKey{{ form.menuType === 'F' ? '（前端权限码）' : '（授权锚点，通常为列表接口）' }}
-        </div>
-        <Input v-model:value="form.actionKey" placeholder="/api/system/xxx/list" />
-      </div>
-      <div v-if="form.menuType !== 'F'">
-        <div class="mb-1 text-sm">路由路径</div>
-        <Input v-model:value="form.path" placeholder="/system/xxx" />
-      </div>
-      <div v-if="form.menuType === 'C'">
-        <div class="mb-1 text-sm">组件路径（相对 views）</div>
-        <Input v-model:value="form.component" placeholder="/system/xxx/list" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">图标</div>
-        <Input v-model:value="form.icon" placeholder="lucide:xxx（可选）" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">排序</div>
-        <Input v-model:value="form.sort" type="number" />
-      </div>
-      <div class="col-span-2 flex items-center gap-2">
-        <input
-          v-model="form.visible"
-          type="checkbox"
+      </FieldItem>
+      <FieldItem label="上级节点">
+        <Select
+          v-model:value="form.parentId"
+          :options="parentOptions"
+          class="w-full"
         />
-        <span class="text-sm">在导航中显示（隐藏时仅注册路由，用于详情等非菜单页）</span>
+      </FieldItem>
+      <FieldItem label="显示名">
+        <Input v-model:value="form.menuName" placeholder="如：管理员管理" />
+      </FieldItem>
+      <FieldItem
+        v-if="form.menuType !== 'M'"
+        full
+        label="权限标识 actionKey"
+        :tips="
+          form.menuType === 'F'
+            ? '前端权限码（控制按钮显隐）'
+            : '授权锚点，通常为列表接口'
+        "
+      >
+        <Input v-model:value="form.actionKey" placeholder="/api/system/xxx/list" />
+      </FieldItem>
+      <FieldItem v-if="form.menuType !== 'F'" label="路由路径">
+        <Input v-model:value="form.path" placeholder="/system/xxx" />
+      </FieldItem>
+      <FieldItem
+        v-if="form.menuType === 'C'"
+        label="组件路径"
+        tips="相对 src/views"
+      >
+        <Input v-model:value="form.component" placeholder="/system/xxx/list" />
+      </FieldItem>
+      <FieldItem label="图标">
+        <Input v-model:value="form.icon" placeholder="lucide:xxx（可选）" />
+      </FieldItem>
+      <FieldItem label="排序">
+        <InputNumber v-model:value="form.sort" class="w-full" />
+      </FieldItem>
+      <div class="col-span-2 flex items-center gap-2">
+        <Switch v-model:checked="form.visible" size="small" />
+        <span class="text-sm">
+          在导航中显示（隐藏时仅注册路由，用于详情等非菜单页）
+        </span>
       </div>
     </div>
   </Modal>

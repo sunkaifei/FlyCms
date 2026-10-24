@@ -119,8 +119,7 @@ onMounted(load);
           保存后以 ****** 显示，留空或保持掩码则不修改。
         </div>
         <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-          <div>
-            <div class="mb-1 text-sm text-gray-500">当前短信厂商</div>
+          <FieldItem label="当前短信厂商" >
             <Select
               v-if="data"
               v-model:value="data.provider"
@@ -130,21 +129,18 @@ onMounted(load);
               "
               class="w-full"
             />
-          </div>
+          </FieldItem>
           <div
             v-if="hasAccessByCodes(['/api/system/sms/test'])"
             class="flex items-end gap-2"
           >
-            <div class="flex-1">
-              <div class="mb-1 text-sm text-gray-500">
-                测试手机号（用注册验证码模板发送）
-              </div>
+            <FieldItem label="测试手机号" class="flex-1" tips="用注册验证码模板发送">
               <Input
                 v-model:value="testPhone"
                 :disabled="loading"
                 placeholder="11 位手机号"
               />
-            </div>
+            </FieldItem>
             <Button :disabled="loading" :loading="testing" @click="sendTest">
               发送测试短信
             </Button>
@@ -161,16 +157,13 @@ onMounted(load);
           配置
         </div>
         <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-          <div v-for="(field, _) in Object.keys(current)" :key="field">
-            <div class="mb-1 text-sm text-gray-500">
-              {{ fieldLabel(field as keyof SmsProviderConfig) }}
-            </div>
+          <FieldItem :label="fieldLabel(field as keyof SmsProviderConfig)" v-for="(field, _) in Object.keys(current)" :key="field">
             <Input
               v-model:value="current[field]"
               :disabled="disabled"
               :placeholder="FIELD_PLACEHOLDERS[field as keyof SmsProviderConfig]"
             />
-          </div>
+          </FieldItem>
         </div>
       </div>
 

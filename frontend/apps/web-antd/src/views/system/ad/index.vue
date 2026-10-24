@@ -21,6 +21,7 @@ import {
   Modal,
   Pagination,
   RadioGroup,
+  Switch,
   Table,
   Tag,
   Textarea,
@@ -107,6 +108,16 @@ const posForm = reactive({
   height: undefined as number | undefined,
   sort: 0,
   status: 1,
+});
+
+/** 数字状态 ↔ Switch 布尔态的桥（adForm.status 是 1/0，后端按数字收） */
+const posStatus = computed({
+  get: () => posForm.status === 1,
+  set: (v: boolean) => (posForm.status = v ? 1 : 0),
+});
+const adStatus = computed({
+  get: () => adForm.status === 1,
+  set: (v: boolean) => (adForm.status = v ? 1 : 0),
 });
 
 function openPosAdd() {
@@ -596,23 +607,24 @@ onMounted(load);
         <FormItem extra="数字小的排前面（只影响广告位列表的显示顺序）" label="排序">
           <InputNumber v-model:value="posForm.sort" class="w-28" />
         </FormItem>
-        <FormItem extra="停用后前台该广告位的所有广告都不再输出（配置保留）" label="状态">
-          <Tag :color="posForm.status === 1 ? 'green' : 'default'">
-            {{ posForm.status === 1 ? '启用' : '停用' }}
-          </Tag>
-          <Button
-            size="small"
-            @click="posForm.status = posForm.status === 1 ? 0 : 1"
-          >
-            {{ posForm.status === 1 ? '点击停用' : '点击启用' }}
-          </Button>
+        <FormItem
+          extra="停用后前台该广告位的所有广告都不再输出（配置保留）"
+          label="状态"
+        >
+          <!-- 此前是「Tag + 点击切换按钮」，与全站 Switch 口径不一致 -->
+          <div class="flex items-center gap-2">
+            <Switch
+              v-model:checked="posStatus"
+              checked-children="启用"
+              un-checked-children="停用"
+            />
+          </div>
         </FormItem>
       </Form>
     </Modal>
 
     <!-- 广告管理（位下广告列表） -->
     <AdDrawer>
-    >
       <div class="mb-3 flex items-center gap-2 pt-2">
         <Button v-if="canAdSave" size="small" type="primary" @click="openAdAdd">
           新增广告
@@ -804,16 +816,15 @@ onMounted(load);
             <FormItem extra="权重相同时按排序、再按时间倒序" label="排序">
               <InputNumber v-model:value="adForm.sort" class="w-full" />
             </FormItem>
-            <FormItem extra="停用=暂不下线（配置保留），投放中=前台可见" label="状态">
-              <Tag :color="adForm.status === 1 ? 'green' : 'default'">
-                {{ adForm.status === 1 ? '投放中' : '停用' }}
-              </Tag>
-              <Button
-                size="small"
-                @click="adForm.status = adForm.status === 1 ? 0 : 1"
-              >
-                {{ adForm.status === 1 ? '点击停用' : '点击投放' }}
-              </Button>
+            <FormItem
+              extra="停用=暂不下线（配置保留），投放中=前台可见"
+              label="状态"
+            >
+              <Switch
+                v-model:checked="adStatus"
+                checked-children="投放中"
+                un-checked-children="停用"
+              />
             </FormItem>
           </div>
           <FormItem label="备注">
@@ -936,8 +947,7 @@ onMounted(load);
       width="640px"
     >
       <div class="space-y-5 pt-2">
-        <div>
-          <div class="mb-1 text-sm font-medium">JS 调用代码（推荐）</div>
+        <FieldItem label="JS 调用代码（推荐）" >
           <div class="mb-2 text-xs text-gray-400">
             用法：复制下面代码 → 粘贴到模板文件的任意位置（如主题目录的 index.html，
             想显示在哪一行就贴在哪一行）→ 保存刷新页面即出广告。站外页面也能投
@@ -956,9 +966,8 @@ onMounted(load);
               复制
             </Button>
           </div>
-        </div>
-        <div>
-          <div class="mb-1 text-sm font-medium">站内模板标签</div>
+        </FieldItem>
+        <FieldItem label="站内模板标签" >
           <div class="mb-2 text-xs text-gray-400">
             站内主题模板专用（FreeMarker 文件里粘贴，服务端直出，无 JS 依赖、利于 SEO）。
             需要自定义样式/轮播时用
@@ -977,7 +986,7 @@ onMounted(load);
               复制
             </Button>
           </div>
-        </div>
+        </FieldItem>
         <div class="rounded bg-blue-50 px-3 py-2 text-xs text-blue-600">
           展示/点击自动计数：JS 与标签输出的链接均指向 /ad/click/{"{id}"}，
           点击计数后 302 跳转到广告链接。

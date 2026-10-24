@@ -15,6 +15,7 @@ import {
 
 import RichEditor from '../modeldata/richtext-editor.vue';
 import AssignSelect from '../template/assign-select.vue';
+import FieldItem from '../_shared/field-item.vue';
 
 /**
  * 新增/编辑栏目。
@@ -199,103 +200,107 @@ onMounted(async () => {
 
 <template>
   <Modal>
-    <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-      <div>
-        <div class="mb-1 text-sm">栏目名称</div>
-        <Input v-model:value="channelName" placeholder="如：新房楼盘" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">
-          目录名（URL 片段）
-          <code class="ml-1 text-xs text-gray-400">/{'{'}dir{'}'}/</code>
-        </div>
-        <Input
-          v-model:value="channelDir"
-          placeholder="loupan"
-          :disabled="!!editing"
-          @input="onDirInput"
-        />
-        <div class="mt-1 text-xs">
-          <span v-if="dirChecking" class="text-gray-400">检查中…</span>
-          <span v-else-if="dirMsg" :class="dirMsg.ok ? 'text-green-600' : 'text-red-600'">
-            {{ dirMsg.text }}
-          </span>
-          <span v-else class="text-gray-400">
-            保存后不可修改（改动会导致存量 URL 失效）
-          </span>
-        </div>
-      </div>
-
-      <div>
-        <div class="mb-1 text-sm">栏目类型</div>
-        <Select v-model:value="channelType" :options="TYPE_OPTIONS" class="w-full" />
-      </div>
-      <div>
-        <div class="mb-1 text-sm">绑定模型</div>
-        <Select
-          v-model:value="modelId"
-          :options="
-            models.map((m) => ({ label: m.modelName, value: m.id }))
+    <!--
+      标签/控件/提示统一走 _shared/field-item.vue：
+      此前这里是手写的 <div class="mb-1 text-sm">标签</div>，
+      点击标签不聚焦控件，且与同弹窗其他区块间距对不齐。
+    -->
+    <div class="space-y-4">
+      <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+        <FieldItem label="栏目名称" required>
+          <Input v-model:value="channelName" placeholder="如：新房楼盘" />
+        </FieldItem>
+        <FieldItem
+          :error="dirMsg && !dirMsg.ok ? dirMsg.text : undefined"
+          label="目录名（URL 片段）"
+          :tips="
+            dirChecking
+              ? '检查中…'
+              : dirMsg && dirMsg.ok
+                ? dirMsg.text
+                : '保存后不可修改（改动会导致存量 URL 失效）'
           "
-          class="w-full"
-        />
-        <div class="mt-1 text-xs text-gray-400">
-          列表/聚合栏目选模型；单页与外链栏目选「不绑定模型」
+        >
+          <Input
+            v-model:value="channelDir"
+            :disabled="!!editing"
+            placeholder="loupan"
+            @input="onDirInput"
+          />
+        </FieldItem>
+
+        <FieldItem label="栏目类型">
+          <Select
+            v-model:value="channelType"
+            :options="TYPE_OPTIONS"
+            class="w-full"
+          />
+        </FieldItem>
+        <FieldItem
+          label="绑定模型"
+          tips="列表/聚合栏目选模型；单页与外链栏目选「不绑定模型」"
+        >
+          <Select
+            v-model:value="modelId"
+            :options="models.map((m) => ({ label: m.modelName, value: m.id }))"
+            class="w-full"
+          />
+        </FieldItem>
+      </div>
+
+      <!-- 联动区：外链/单页才出现的字段单独成段，避免与上面两列栅格错位 -->
+      <FieldItem v-if="isOutLink" full label="外链地址" required>
+        <Input v-model:value="outUrl" placeholder="https://example.com/xf" />
+      </FieldItem>
+
+      <FieldItem label="每页条数">
+        <InputNumber v-model:value="pageSize" :min="1" :max="200" class="w-40" />
+      </FieldItem>
+
+      <FieldItem v-if="isSinglePage" full label="单页内容">
+        <RichEditor v-model="pageContent" />
+      </FieldItem>
+
+      <div class="rounded border border-gray-100 p-3">
+        <div class="mb-2 text-sm font-medium">SEO（留空则继承全站配置）</div>
+        <div class="space-y-3">
+          <FieldItem label="SEO 标题" tips="留空=栏目名 + 站名">
+            <Input v-model:value="seoTitle" />
+          </FieldItem>
+          <FieldItem label="SEO 关键词">
+            <Textarea v-model:value="seoKeywords" :rows="2" />
+          </FieldItem>
+          <FieldItem label="SEO 描述">
+            <Textarea v-model:value="seoDescription" :rows="2" />
+          </FieldItem>
         </div>
       </div>
 
-      <div v-if="isOutLink" class="col-span-2">
-        <div class="mb-1 text-sm">外链地址</div>
-        <Input v-model:value="outUrl" placeholder="https://example.com/xf" />
-      </div>
-
-      <div class="col-span-2">
-        <div class="mb-1 text-sm">每页条数</div>
-        <InputNumber v-model:value="pageSize" :min="1" :max="200" class="w-40" />
-      </div>
-
-      <div v-if="isSinglePage" class="col-span-2">
-        <div class="mb-1 text-sm">单页内容</div>
-        <RichEditor v-model="pageContent" />
-      </div>
-
-      <div class="col-span-2 mt-2 text-sm font-medium">SEO（留空则继承全站配置）</div>
-      <div class="col-span-2">
-        <div class="mb-1 text-sm">SEO 标题</div>
-        <Input v-model:value="seoTitle" placeholder="留空=栏目名 + 站名" />
-      </div>
-      <div class="col-span-2">
-        <div class="mb-1 text-sm">SEO 关键词</div>
-        <Textarea v-model:value="seoKeywords" :rows="2" />
-      </div>
-      <div class="col-span-2">
-        <div class="mb-1 text-sm">SEO 描述</div>
-        <Textarea v-model:value="seoDescription" :rows="2" />
-      </div>
-
-      <div class="col-span-2 mt-1 text-sm font-medium">模板指派</div>
-      <div v-if="canAssignTemplate" class="col-span-2">
+      <div class="rounded border border-gray-100 p-3">
+        <div class="mb-2 text-sm font-medium">模板指派</div>
         <AssignSelect
+          v-if="canAssignTemplate"
           :page-type="assignPageType"
           :slot-prefix="assignSlotPrefix"
           :target-id="channelDir.trim()"
           target-type="CHANNEL"
         />
-      </div>
-      <div v-else class="col-span-2 text-xs text-gray-400">
-        外链栏目不渲染页面，或请先填写「栏目目录」后再指派模板。
-      </div>
-
-      <div>
-        <div class="mb-1 text-sm">排序</div>
-        <InputNumber v-model:value="sort" class="w-full" />
-      </div>
-      <div class="flex items-center gap-2 pb-1">
-        <Switch v-model:checked="status" size="small" />
-        <span class="text-sm">显示</span>
+        <div v-else class="text-xs text-gray-400">
+          外链栏目不渲染页面，或请先填写「栏目目录」后再指派模板。
+        </div>
       </div>
 
-      <div class="col-span-2 mt-1 rounded bg-gray-50 p-2 text-xs text-gray-500">
+      <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+        <FieldItem label="排序">
+          <InputNumber v-model:value="sort" class="w-full" />
+        </FieldItem>
+        <div class="flex items-center gap-2">
+          <Switch v-model:checked="status" size="small" />
+          <span class="text-sm">显示</span>
+        </div>
+      </div>
+
+      <div class="rounded bg-gray-50 p-2 text-xs text-gray-500">
         {{ RESERVED_HINT }}
       </div>
     </div>

@@ -89,32 +89,24 @@ onMounted(() => {
 <template>
   <Modal>
     <div class="mb-3 flex flex-wrap items-end gap-3">
-      <div>
-        <div class="mb-1 text-sm">页面类型</div>
+      <FieldItem label="页面类型" >
         <Select v-model:value="pageType" class="w-48" :options="PAGE_TYPES" />
-      </div>
-      <div v-if="needModel">
-        <div class="mb-1 text-sm">模型 code</div>
+      </FieldItem>
+      <FieldItem label="模型 code" v-if="needModel">
         <Input v-model:value="model" class="w-40" placeholder="如 articles" />
-      </div>
-      <div v-if="needChannel">
-        <div class="mb-1 text-sm">栏目目录</div>
+      </FieldItem>
+      <FieldItem label="栏目目录" v-if="needChannel">
         <Input v-model:value="channel" class="w-40" placeholder="如 news" />
-      </div>
-      <div v-if="pageType === 'DETAIL'">
-        <div class="mb-1 text-sm">内容 ID</div>
+      </FieldItem>
+      <FieldItem label="内容 ID" v-if="pageType === 'DETAIL'">
         <Input v-model:value="contentId" class="w-32" placeholder="42" />
-      </div>
-      <div v-if="needShortUrl">
-        <div class="mb-1 text-sm">
-          {{ pageType === 'TAG' ? '标签名' : '短网址' }}
-        </div>
+      </FieldItem>
+      <FieldItem :label="pageType === 'TAG' ? '标签名' : '短网址'" v-if="needShortUrl">
         <Input v-model:value="shortUrl" class="w-40" placeholder="demo" />
-      </div>
-      <div v-if="pageType === 'ERROR'">
-        <div class="mb-1 text-sm">错误码</div>
+      </FieldItem>
+      <FieldItem label="错误码" v-if="pageType === 'ERROR'">
         <InputNumber v-model:value="errorCode" class="w-28" :min="400" />
-      </div>
+      </FieldItem>
       <Button :loading="loading" type="primary" @click="query">查询</Button>
       <span v-if="skin" class="text-xs text-gray-400">当前主题：{{ skin }}</span>
     </div>

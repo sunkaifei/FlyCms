@@ -504,20 +504,16 @@ onMounted(load);
       @ok="doSavePattern"
     >
       <div class="space-y-3 pt-2">
-        <div>
-          <div class="mb-1 text-sm">图案名（字母/数字/_-，自动补 .html）</div>
+        <FieldItem label="图案名" tips="字母/数字/_-，自动补 .html">
           <Input v-model:value="savePatternName" placeholder="如 my-hero-banner" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">
-            图案内容（默认取当前选区；无选区则取整个文件）
-          </div>
+        </FieldItem>
+        <FieldItem label="图案内容" tips="默认取当前选区；无选区则取整个文件">
           <Textarea
             v-model:value="savePatternContent"
             :rows="10"
             class="font-mono"
           />
-        </div>
+        </FieldItem>
         <div class="text-xs text-gray-400">
           保存后在「图案库」中可一键插入到任何模板。
         </div>

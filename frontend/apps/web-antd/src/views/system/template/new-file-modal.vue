@@ -6,6 +6,7 @@ import { useEditDrawer } from '#/utils/edit-drawer';
 import { Input, message } from 'ant-design-vue';
 
 import { createTemplateApi } from '#/api/core/website';
+import FieldItem from '../_shared/field-item.vue';
 
 /**
  * 新建模板文件弹窗：相对当前皮肤的路径（如 downloads/list.html）
@@ -37,10 +38,11 @@ onMounted(() => {
 
 <template>
   <Modal>
-    <div class="mb-1 text-sm">模板路径（相对当前主题目录）</div>
-    <Input v-model:value="file" placeholder="如：downloads/list.html 或 article/new_page.html" />
-    <div class="mt-2 text-xs text-gray-400">
-      仅允许 .html 文件；子目录不存在时自动创建
-    </div>
+    <FieldItem label="模板路径" tips="相对当前主题目录">
+      <Input v-model:value="file" placeholder="如：downloads/list.html 或 article/new_page.html" />
+      <div class="mt-0.5 text-xs text-gray-400">
+        仅允许 .html 文件；子目录不存在时自动创建
+      </div>
+    </FieldItem>
   </Modal>
 </template>

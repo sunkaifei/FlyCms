@@ -176,24 +176,22 @@ onMounted(load);
       >
         <div class="mb-3 font-medium">{{ group.title }}</div>
         <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-          <div v-for="item in group.items" :key="item.key">
-            <div class="mb-1 text-sm text-gray-500">{{ item.label }}</div>
+          <FieldItem :label="item.label" v-for="item in group.items" :key="item.key">
             <Input
               v-model:value="config[item.key]"
               :disabled="loading || !hasAccessByCodes(['/api/system/website/save'])"
               :placeholder="item.placeholder || ''"
             />
-          </div>
+          </FieldItem>
         </div>
       </div>
 
       <div class="bg-card mb-4 rounded-md border p-4">
         <div class="mb-3 font-medium">SEO 与收录</div>
         <div class="grid grid-cols-1 gap-y-3">
-          <div>
-            <div class="mb-1 text-sm text-gray-500">robots.txt 内容（即时生效，访问 /robots.txt）</div>
+          <FieldItem label="robots.txt 内容" tips="即时生效，访问 /robots.txt">
             <Textarea v-model:value="config.fly_robots" :rows="4" class="font-mono" />
-          </div>
+          </FieldItem>
           <div class="grid grid-cols-2 gap-4">
             <div class="flex items-center gap-2">
               <Switch
@@ -203,10 +201,9 @@ onMounted(load);
               />
               <span class="text-sm">开启 sitemap.xml</span>
             </div>
-            <div>
-              <div class="mb-1 text-sm text-gray-500">每模型收录条数</div>
+            <FieldItem label="每模型收录条数" >
               <Input v-model:value="config.fly_sitemap_limit" />
-            </div>
+            </FieldItem>
           </div>
         </div>
       </div>
@@ -214,17 +211,15 @@ onMounted(load);
       <div class="bg-card mb-4 rounded-md border p-4">
         <div class="mb-3 font-medium">主题与状态</div>
         <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-          <div>
-            <div class="mb-1 text-sm text-gray-500">PC 主题（views/templates/pc_theme 下的目录）</div>
+          <FieldItem label="PC 主题" tips="views/templates/pc_theme 下的目录">
             <Select
               v-model:value="config.pc_theme"
               :disabled="loading || !hasAccessByCodes(['/api/system/website/save'])"
               :options="skins.map((s) => ({ label: s, value: s }))"
               class="w-full"
             />
-          </div>
-          <div>
-            <div class="mb-1 text-sm text-gray-500">移动端主题</div>
+          </FieldItem>
+          <FieldItem label="移动端主题" >
             <Select
               v-model:value="config.m_theme"
               :disabled="loading || !hasAccessByCodes(['/api/system/website/save'])"
@@ -233,7 +228,7 @@ onMounted(load);
               "
               class="w-full"
             />
-          </div>
+          </FieldItem>
           <div class="flex items-center gap-2">
             <Switch
               v-model:checked="config.fly_status"
@@ -253,58 +248,50 @@ onMounted(load);
           邮箱需在邮箱后台开启 SMTP 并使用「授权码」而非登录密码。
         </div>
         <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-          <div>
-            <div class="mb-1 text-sm text-gray-500">SMTP 服务器</div>
+          <FieldItem label="SMTP 服务器" >
             <Input
               v-model:value="config.fly_smtp_server"
               :disabled="loading || !hasAccessByCodes(['/api/system/website/save'])"
               placeholder="如 smtp.qq.com"
             />
-          </div>
-          <div>
-            <div class="mb-1 text-sm text-gray-500">端口</div>
+          </FieldItem>
+          <FieldItem label="端口" >
             <Input
               v-model:value="config.fly_smtp_port"
               :disabled="loading || !hasAccessByCodes(['/api/system/website/save'])"
               placeholder="SSL 465 / STARTTLS 587 / 不加密 25"
             />
-          </div>
-          <div>
-            <div class="mb-1 text-sm text-gray-500">加密方式</div>
+          </FieldItem>
+          <FieldItem label="加密方式" >
             <Select
               v-model:value="config.fly_smtp_ssl"
               :disabled="loading || !hasAccessByCodes(['/api/system/website/save'])"
               :options="SSL_OPTIONS"
               class="w-full"
             />
-          </div>
-          <div>
-            <div class="mb-1 text-sm text-gray-500">发件邮箱账号</div>
+          </FieldItem>
+          <FieldItem label="发件邮箱账号" >
             <Input
               v-model:value="config.fly_smtp_usermail"
               :disabled="loading || !hasAccessByCodes(['/api/system/website/save'])"
               placeholder="如 noreply@example.com"
             />
-          </div>
-          <div>
-            <div class="mb-1 text-sm text-gray-500">
-              授权码 / 密码（保存后以 ****** 显示，留空或保持掩码则不修改）
-            </div>
+          </FieldItem>
+          <FieldItem label="授权码 / 密码" tips="保存后以 ****** 显示，留空或保持掩码则不修改">
             <Input.Password
               v-model:value="config.fly_smtp_password"
               :disabled="loading || !hasAccessByCodes(['/api/system/website/save'])"
               autocomplete="new-password"
               placeholder="第三方邮箱授权码"
             />
-          </div>
-          <div>
-            <div class="mb-1 text-sm text-gray-500">发件人昵称（可选）</div>
+          </FieldItem>
+          <FieldItem label="发件人昵称（可选）" >
             <Input
               v-model:value="config.fly_smtp_fromname"
               :disabled="loading || !hasAccessByCodes(['/api/system/website/save'])"
               placeholder="收件人看到的发件人名称"
             />
-          </div>
+          </FieldItem>
         </div>
         <div
           v-if="hasAccessByCodes(['/api/system/website/testEmail'])"

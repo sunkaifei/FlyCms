@@ -5,7 +5,17 @@ import { onMounted, ref } from 'vue';
 
 import { useEditDrawer } from '#/utils/edit-drawer';
 
-import { Button, Input, message, Modal as AntModal, Textarea } from 'ant-design-vue';
+import {
+  Button,
+  DatePicker,
+  Input,
+  InputNumber,
+  message,
+  Modal as AntModal,
+  Textarea,
+} from 'ant-design-vue';
+
+import FieldItem from '../_shared/field-item.vue';
 
 import {
   deleteBlockItemApi,
@@ -157,37 +167,51 @@ defineExpose({ load });
     </Table>
 
     <AntModal v-model:open="editOpen" :title="editId ? '编辑条目' : '新增条目'" @ok="onSave">
-      <div class="grid grid-cols-1 gap-y-3">
-        <div>
-          <div class="mb-1 text-sm">标题</div>
+      <div class="space-y-3">
+        <FieldItem label="标题" required>
           <Input v-model:value="editTitle" :maxlength="200" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">链接</div>
+        </FieldItem>
+        <FieldItem label="链接">
           <Input v-model:value="editUrl" placeholder="https://... 或站内路径" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">图片地址</div>
-          <Input v-model:value="editImage" placeholder="图片 URL 或 /uploadfiles/... 路径" />
-        </div>
-        <div>
-          <div class="mb-1 text-sm">摘要</div>
+        </FieldItem>
+        <FieldItem label="图片地址">
+          <Input
+            v-model:value="editImage"
+            placeholder="图片 URL 或 /uploadfiles/... 路径"
+          />
+        </FieldItem>
+        <FieldItem label="摘要">
           <Textarea v-model:value="editSummary" :rows="2" />
+        </FieldItem>
+        <!--
+          此前起止时间是手填 "yyyy-MM-dd HH:mm:ss" 的文本框：
+          写错格式不报错，定时上下线静默失效，条目要么永久不出现、要么过期不下线。
+        -->
+        <div class="grid grid-cols-2 gap-x-4">
+          <FieldItem label="上线时间" tips="空 = 立即上线">
+            <DatePicker
+              v-model:value="editStart"
+              class="w-full"
+              format="YYYY-MM-DD HH:mm:ss"
+              placeholder="选择上线时间"
+              show-time
+              value-format="YYYY-MM-DD HH:mm:ss"
+            />
+          </FieldItem>
+          <FieldItem label="下线时间" tips="空 = 长期有效">
+            <DatePicker
+              v-model:value="editEnd"
+              class="w-full"
+              format="YYYY-MM-DD HH:mm:ss"
+              placeholder="选择下线时间"
+              show-time
+              value-format="YYYY-MM-DD HH:mm:ss"
+            />
+          </FieldItem>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <div class="mb-1 text-sm">上线时间（空=立即）</div>
-            <Input v-model:value="editStart" placeholder="yyyy-MM-dd HH:mm:ss" />
-          </div>
-          <div>
-            <div class="mb-1 text-sm">下线时间（空=长期）</div>
-            <Input v-model:value="editEnd" placeholder="yyyy-MM-dd HH:mm:ss" />
-          </div>
-          <div>
-            <div class="mb-1 text-sm">排序</div>
-            <Input v-model:value="editSort" type="number" />
-          </div>
-        </div>
+        <FieldItem label="排序">
+          <InputNumber v-model:value="editSort" class="w-40" />
+        </FieldItem>
       </div>
     </AntModal>
   </Modal>
